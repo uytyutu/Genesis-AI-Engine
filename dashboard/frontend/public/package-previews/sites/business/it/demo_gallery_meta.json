@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "it",
+  "niche": "computer",
+  "package_id": "business",
+  "product_id": "461a086f-cd35-4d10-b21c-6af8c3c4f574",
+  "business_name": "ByteForge IT",
+  "generated_at": "2026-08-07T10:56:29.841811+00:00",
+  "engine": "FactoryService.build_landing + Design DNA + Design Engine + VIE",
+  "index_bytes": 92947,
+  "data_tier_ok": true,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/business/it/index.html"
+}

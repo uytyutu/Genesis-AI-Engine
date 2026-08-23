@@ -62,6 +62,8 @@ type Props = {
   minimalMobile?: boolean;
   /** Client Workspace desktop — keep mic, dictation, voice settings visible while typing */
   clientWorkspace?: boolean;
+  /** Public storefront consultant — text only, no microphone / voice chrome */
+  hideVoice?: boolean;
   /** Read last assistant reply aloud (browser TTS) */
   onSpeakAnswer?: () => void;
 };
@@ -197,6 +199,7 @@ export function GenesisChatComposer({
   onFocusChange,
   minimalMobile = false,
   clientWorkspace = false,
+  hideVoice = false,
   onSpeakAnswer,
 }: Props) {
   const { t } = useTranslation("chat");
@@ -207,14 +210,17 @@ export function GenesisChatComposer({
   const [narrowViewport, setNarrowViewport] = useState(false);
   const inputPlaceholder = placeholder ?? t("placeholder", { assistant: ASSISTANT_NAME });
   const hintText = attachHint ?? t("attachHint");
-  const clientVoiceDesktop = clientWorkspace && !narrowViewport;
+  const clientVoiceDesktop = !hideVoice && clientWorkspace && !narrowViewport;
   const compactChrome =
     clientWorkspace ||
     (minimalMobile && narrowViewport) ||
     (focused && !expanded && !clientVoiceDesktop);
   // Always keep Send visible on phones — never bury it behind mic/settings chrome
   const simpleToolbar =
-    (minimalMobile && narrowViewport) || clientWorkspace || narrowViewport;
+    hideVoice ||
+    (minimalMobile && narrowViewport) ||
+    clientWorkspace ||
+    narrowViewport;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -292,6 +298,7 @@ export function GenesisChatComposer({
   const voiceActive =
     voiceStatus !== "ready" && voiceStatus !== "stopped";
   const showVoiceUi =
+    !hideVoice &&
     !minimalMobile &&
     (!compactChrome || voiceActive || (clientWorkspace && (busy || generating)));
   const micVisual =
@@ -337,25 +344,27 @@ export function GenesisChatComposer({
 
   const toolbarButtons = simpleToolbar ? (
     <>
-      <SpringPressable
-        type="button"
-        onClick={handleMicClick}
-        disabled={busy && voiceStatus === "ready"}
-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${micVisual}`}
-        aria-label={
-          voiceStatus === "listening"
-            ? t("micStop")
-            : voiceStatus === "recognizing"
-              ? t("voiceStatus.recognizing")
-              : voiceStatus === "thinking"
-                ? t("voiceStatus.thinking")
-                : voiceStatus === "responding" || voiceStatus === "speaking"
-                  ? t("voiceStatus.responding")
-                  : t("micStart")
-        }
-      >
-        <MicIcon active={voiceStatus !== "ready" && voiceStatus !== "stopped"} />
-      </SpringPressable>
+      {showVoiceUi ? (
+        <SpringPressable
+          type="button"
+          onClick={handleMicClick}
+          disabled={busy && voiceStatus === "ready"}
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${micVisual}`}
+          aria-label={
+            voiceStatus === "listening"
+              ? t("micStop")
+              : voiceStatus === "recognizing"
+                ? t("voiceStatus.recognizing")
+                : voiceStatus === "thinking"
+                  ? t("voiceStatus.thinking")
+                  : voiceStatus === "responding" || voiceStatus === "speaking"
+                    ? t("voiceStatus.responding")
+                    : t("micStart")
+          }
+        >
+          <MicIcon active={voiceStatus !== "ready" && voiceStatus !== "stopped"} />
+        </SpringPressable>
+      ) : null}
       <SpringPressable
         type="button"
         onClick={() => fileRef.current?.click()}
@@ -365,7 +374,7 @@ export function GenesisChatComposer({
       >
         <ClipIcon />
       </SpringPressable>
-      {onSpeakAnswer ? (
+      {showVoiceUi && onSpeakAnswer ? (
         <SpringPressable
           type="button"
           onClick={onSpeakAnswer}
@@ -406,7 +415,7 @@ export function GenesisChatComposer({
         <ClipIcon />
       </SpringPressable>
 
-      {!minimalMobile && !compactChrome && onOpenVoiceSettings ? (
+      {showVoiceUi && !minimalMobile && !compactChrome && onOpenVoiceSettings ? (
         <SpringPressable
           type="button"
           onClick={() => onOpenVoiceSettings?.()}
@@ -422,11 +431,11 @@ export function GenesisChatComposer({
         </SpringPressable>
       ) : null}
 
-      {!minimalMobile && !compactChrome && onMicModeChange ? (
+      {showVoiceUi && !minimalMobile && !compactChrome && onMicModeChange ? (
         <MicModeToggle value={micMode} onChange={onMicModeChange} />
       ) : null}
 
-      {!minimalMobile && (
+      {showVoiceUi && !minimalMobile ? (
         <SpringPressable
           type="button"
           onClick={handleMicClick}
@@ -450,7 +459,7 @@ export function GenesisChatComposer({
         >
           <MicIcon active={voiceListening} />
         </SpringPressable>
-      )}
+      ) : null}
 
       <SpringPressable
         type="button"
@@ -490,7 +499,7 @@ export function GenesisChatComposer({
     );
   }
 
-  if (micPermissionModal) {
+  if (showVoiceUi && micPermissionModal) {
     return (
       <div className="px-4 pb-4">
         <div className="rounded-3xl border border-genesis-accent/30 bg-genesis-panel/95 p-6 text-center shadow-glow backdrop-blur-xl">
@@ -529,7 +538,7 @@ export function GenesisChatComposer({
           : undefined
       }
     >
-      {safeMicNotice && (
+      {showVoiceUi && safeMicNotice ? (
         <div
           role="status"
           className="mb-2 rounded-xl border border-white/10 bg-genesis-panel/80 px-3 py-2.5 text-xs leading-relaxed text-genesis-muted"
@@ -556,7 +565,7 @@ export function GenesisChatComposer({
             ) : null}
           </div>
         </div>
-      )}
+      ) : null}
       {voiceHint && voiceListening && showVoiceUi && (
         <p className="mb-2 text-center text-xs text-genesis-accent">{voiceHint}</p>
       )}

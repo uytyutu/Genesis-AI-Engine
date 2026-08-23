@@ -1,0 +1,433 @@
+=== LEADGEN DIAG FACT EXTRACT ===
+Source: D:\Games\Genesis-AI-Engine\_tmp_leadgen_diag.json
+generated_at: 2026-07-26T17:49:42.101176+00:00
+Top-level keys: ['generated_at', 'base', 'endpoints', 'memory', 'env', 'openapi_search', 'summary']
+endpoints: ['openapi', '/api/acquisition/status', '/api/acquisition/live-monitor', '/api/acquisition/runner', '/api/acquisition/pipeline', '/api/acquisition/gate-funnel', '/api/acquisition/history?limit=30', '/api/acquisition/approval-queue', '/api/acquisition/manual-review-queue', '/api/owner/gmail/status', '/api/owner/gmail/test-send', '/api/worker-adapters/board', '/api/engine/hunter/dashboard', '/api/engine/places-setup', '/api/acquisition/rebuild-quotes']
+
+========== A) acquisition/status ==========
+HTTP ok=True status=200
+auto_send: True
+auto_refresh: True
+outreach_send_enabled: True
+autosend_blocker_ru: <missing>
+ready_now: 240
+waiting: 373
+pending_approval_count: 549
+manual_review_count: 0
+sent_count: 0
+sent_today_count: <missing>
+open_markets_now: <missing>
+last_desk_action: None
+provider_cooldown (full):
+{
+  "note": "not on status payload; composed from memory+summary",
+  "memory_scalars": {
+    "resend_until": "2026-07-26T18:03:55.561874+00:00",
+    "last_reason": "manual_failover_test",
+    "updated_at": "2026-07-26T17:03:55.561874+00:00"
+  },
+  "summary_cooldown": {
+    "resend_until": "2026-07-26T18:03:55.561874+00:00",
+    "last_reason": "manual_failover_test",
+    "active": true,
+    "seconds_left": 761
+  }
+}
+outreach_quota (full):
+{
+  "daily_cap": 40,
+  "hard_max": 500,
+  "day": "2026-07-26",
+  "domain_count": 1,
+  "region_count": 1,
+  "pool_cap_total": 1000,
+  "sent_today_total": 506,
+  "remaining_today_total": 494,
+  "primary_used_today": 14,
+  "primary_remaining": 96,
+  "global_daily_cap": 1000,
+  "min_interval_sec": 29,
+  "regions": [
+    {
+      "region": "de",
+      "label_ru": "Германия",
+      "used_today": 78,
+      "remaining": 0,
+      "at_cap": true,
+      "daily_cap": 40,
+      "domains": [
+        {
+          "from": "Genesis <hel***@genesis-ai-engine.com>",
+          "domain": "genesis-ai-engine.com",
+          "used_today": 506,
+          "region": "de"
+        }
+      ]
+    }
+  ],
+  "domains": [
+    {
+      "from": "Genesis <hel***@genesis-ai-engine.com>",
+      "domain": "genesis-ai-engine.com",
+      "region": "de",
+      "used_today": 506,
+      "remaining": 0,
+      "at_cap": true
+    }
+  ],
+  "phase_note_ru": "Стартовые квоты по странам · дневной потолок 1000/день · quality-first (не заполняем любой ценой) · интервал ≥29с. Срок поставки сайта после оплаты: ≈15 минут — все страны. Approve — предохранитель.",
+  "sniper_note_ru": "Старт: US110 · крупные 65 · остальные 30 · потолок 1000/день. Только лучшие лиды. Adaptive поднимает по прибыли (до 1000/рынок). Сайт клиенту: ≈15 минут после оплаты — для всех стран. KPI: ответы → за...(+5)"
+}
+outreach_runner:
+  running: True
+  ticks: 1337
+  last_tick_at: 2026-07-26T17:49:19.489010+00:00
+  last_action: hunt_draft
+  session_sends: 352
+summary.blocker: Quality Gate (много в архиве)
+summary.blocker_detail: {
+  "gate_summary": {
+    "found": 903,
+    "duplicates": 28,
+    "quality_archive": 4383,
+    "manual_review": 0,
+    "approve": 556,
+    "ready_review": 556,
+    "sent": 22,
+    "replied": 0,
+    "won": 0,
+    "lost": 0,
+    "blocked_hosts": 0
+  },
+  "domain_at_cap": true,
+  "gmail_send_ready": false,
+  "resend_cooldown_active": true
+}
+
+========== B) live-monitor ==========
+HTTP ok=True status=200
+top-level keys: ['ok', 'generated_at', 'window_minutes', 'alive', 'headline_ru', 'now', 'last_10_min', 'today', 'reality', 'recent_events', 'memory_dir', 'queues']
+ok: True
+generated_at: 2026-07-26T17:49:52.089725+00:00
+window_minutes: 10
+alive: True
+headline_ru: Машина работает
+now: {'runner_running': True, 'last_action': 'hunt_draft', 'last_message_ru': 'Обновлено · 🇯🇵JP · Tokyo · «歯科医院»: Places created=3 drafted=3 · prepare=0+manual=0 · auto-confirm=0 · цены=0', 'last_tick_at': '2026-07-26T17:49:19.489010+00:00', 'next_tick_at': '2026-07-26T17:49:48.489010+00:00', 'interval_sec': 29, 'ticks': 1337, 'session_leads': 3772, 'session_drafts': 3797, 'session_sends': 352, 'session_skipped': 2168, 'current_company': '東京大手町歯科クリニック', 'current_market': 'JP', 'status': 'success', 'detail_ru': 'Обновлено · 🇯🇵JP · Tokyo · «歯科医院»: Places created=3 drafted=3 · prepare=0+manual=0 · auto-confirm=0 · цены=0'}
+memory_dir: D:\Games\Genesis-AI-Engine\dashboard\backend\app\memory
+today counts:
+  companies_found: 903
+  after_filter: 613
+  audits_done: 903
+  kp_sent: 506
+  email_delivered: 0
+  replies: 0
+  stripe_orders: 0
+  stripe_paid_eur: 0.0
+  kp_sent_source: outreach_quota
+last_10_min counts:
+  companies_found: 53
+  after_filter: 29
+  audits_done: 158
+  kp_sent: 0
+  email_delivered: 0
+  replies: 0
+  stripe_orders: 0
+reality: {
+  "stripe_paid_total_eur": 0.0,
+  "digistore_commission_eur": 0.0,
+  "rule_ru": "Ключ ≠ деньги. В Ledger только CONFIRMED оплата / комиссия."
+}
+queues: {
+  "ready_now": 240,
+  "waiting": 373,
+  "history": 0
+}
+hunt-related top keys: (none)
+hunter/dashboard HTTP ok=True status=200
+hunter/dashboard keys: ['mode', 'zero_cost', 'priority', 'scenario_stats', 'hunter_value_eur', 'dataset_rows', 'note']
+  mode: service_first
+  zero_cost: True
+  priority: outreach
+  scenario_stats: {'bounty': 0, 'seo_revival': 0, 'outreach': 0, 'dataset': 0, 'outreach_ready': 0}
+  hunter_value_eur: 0.0
+  dataset_rows: 1663
+  note: Автопоиск клиентов: письма, SEO, отчёты — без покупки сайтов.
+summary.kp_sent_today: 506
+
+========== C) runner endpoint raw ==========
+HTTP ok=True status=200
+{
+  "ok": true,
+  "running": true,
+  "started_at": "2026-07-26T00:43:38.598998+00:00",
+  "stopped_at": null,
+  "ticks": 1337,
+  "session_leads": 3772,
+  "session_drafts": 3797,
+  "session_sends": 352,
+  "session_skipped": 2168,
+  "last_action": "hunt_draft",
+  "last_message_ru": "Обновлено · 🇯🇵JP · Tokyo · «歯科医院»: Places created=3 drafted=3 · prepare=0+manual=0 · auto-confirm=0 · цены=0",
+  "last_tick_at": "2026-07-26T17:49:19.489010+00:00",
+  "next_tick_at": "2026-07-26T17:49:48.489010+00:00",
+  "interval_sec": 29,
+  "outreach_send_enabled": true,
+  "log": [
+    {
+      "at": "2026-07-26T17:46:01.883615+00:00",
+      "action": "hunt_draft",
+      "message_ru": "Обновлено · 🇨🇭CH · Zürich · «Zahnarztpraxis»: Places created=3 drafted=3 · prepare=0+manual=0 · auto-confirm=0 · цены=0"
+    },
+    {
+      "at": "2026-07-26T17:46:18.433602+00:00",
+      "action": "send_skip",
+      "message_ru": "Resend rate limit (429) — пауза до 2026-07-26T18:03:55. Пока пробуем Gmail, если подключён; иначе очередь ждёт."
+    },
+    {
+      "at": "2026-07-26T17:46:31.587810+00:00",
+      "action": "hunt_draft",
+      "message_ru": "Обновлено · 🇦🇹AT · Wien · «Zahnarztpraxis»: Places created=3 drafted=3 · prepare=0+manual=0 · auto-confirm=0 · цены=0"
+    },
+    {
+      "at": "2026-07-26T17:46:47.399840+00:00",
+      "action": "send_skip",
+      "message_ru": "Resend rate limit (429) — пауза до 2026-07-26T18:03:55. Пока пробуем Gmail, если подключён; иначе очередь ждёт."
+    },
+    {
+      "at": "2026-07-26T17:46:56.066427+00:00",
+      "action": "hunt_draft",
+      "message_ru": "Обновлено · 🇵🇹PT · Lisboa · «dentist»: Places created=1 drafted=2 · prepare=0+manual=0 · auto-confirm=0 · цены=0"
+    },
+    {
+      "at": "2026-07-26T17:47:16.467751+00:00",
+      "action": "send_skip",
+      "message_ru": "Resend rate limit (429) — пауза до 2026-07-26T18:03:55. Пока пробуем Gmail, если подключён; иначе очередь ждёт."
+    },
+    {
+      "at": "2026-07-26T17:47:23.073825+00:00",
+      "action": "hunt_draft",
+      "message_ru": "Обновлено · 🇨🇿CZ · Praha · «dentist»: Places created=0 drafted=1 · prepare=0+manual=0 · auto-confirm=0 · цены=0"
+    },
+    {
+      "at": "2026-07-26T17:47:46.074364+00:00",
+      "action": "send_skip",
+      "message_ru": "Resend rate limit (429) — пауза до 2026-07-26T18:03:55. Пока пробуем Gmail, если подключён; иначе очередь ждёт."
+    },
+    {
+      "at": "2026-07-26T17:47:55.601466+00:00",
+      "action": "hunt_draft",
+      "message_ru": "Обновлено · 🇸🇰SK · Bratislava · «dentist»: Places created=1 drafted=2 · prepare=0+manual=0 · auto-confirm=0 · цены=0"
+    },
+    {
+      "at": "2026-07-26T17:48:14.354279+00:00",
+      "action": "send_skip",
+      "message_ru": "Resend rate limit (429) — пауза до 2026-07-26T18:03:55. Пока пробуем Gmail, если подключён; иначе очередь ждёт."
+    },
+    {
+      "at": "2026-07-26T17:48:31.005880+00:00",
+      "action": "hunt_draft",
+      "message_ru": "Обновлено · 🇺🇦UA · Kyiv · «стоматологія»: Places created=3 drafted=3 · prepare=0+manual=0 · auto-confirm=0 · цены=0"
+    },
+    {
+      "at": "2026-07-26T17:48:31.577693+00:00",
+      "action": "send_skip",
+      "message_ru": "Resend rate limit (429) — пауза до 2026-07-26T18:03:55. Пока пробуем Gmail, если подключён; иначе очередь ждёт."
+    },
+    {
+      "at": "2026-07-26T17:48:48.237539+00:00",
+      "action": "hunt_draft",
+      "message_ru": "Обновлено · 🇷🇺RU · Moscow · «стоматология»: Places created=2 drafted=3 · prepare=0+manual=0 · auto-confirm=0 · цены=0"
+    },
+    {
+      "at": "2026-07-26T17:49:19.722454+00:00",
+      "action": "send_skip",
+      "message_ru": "Resend rate limit (429) — пауза до 2026-07-26T18:03:55. Пока пробуем Gmail, если подключён; иначе очередь ждёт."
+    },
+    {
+      "at": "2026-07-26T17:49:31.317102+00:00",
+      "action": "hunt_draft",
+      "message_ru": "Обновлено · 🇯🇵JP · Tokyo · «歯科医院»: Places created=3 drafted=3 · prepare=0+manual=0 · auto-confirm=0 · цены=0"
+    }
+  ],
+  "note_ru": "РџСѓСЃРє / Р°РІС‚РѕРѕ...[truncated]
+
+========== D) gate-funnel summary counts ==========
+HTTP ok=True status=200
+title_ru: Пульс гейтов · Country Desk
+bottleneck_ru: Quality Gate (много в архиве)
+summary: {
+  "found": 903,
+  "duplicates": 28,
+  "quality_archive": 4383,
+  "manual_review": 0,
+  "approve": 556,
+  "ready_review": 556,
+  "sent": 22,
+  "replied": 0,
+  "won": 0,
+  "lost": 0,
+  "blocked_hosts": 0
+}
+stages:
+  found: 903 (Найдено)
+  duplicates: 28 (Дубликаты)
+  quality_archive: 4383 (Архив качества)
+  manual_review: 0 (Manual review)
+  approve: 556 (Approve)
+  sent: 22 (Отправлено)
+  replied: 0 (Ответили)
+  won: 0 (Оплатили / won)
+  lost: 0 (Отказы (lost))
+
+========== E) places-setup status ==========
+HTTP ok=True status=200
+configured: True
+autopilot_ready: True
+status_label: Автопилот готов
+env_var: GOOGLE_API_KEY (name only)
+config_files_found: ['dashboard/backend/.env.local']
+summary.places_key_present: True
+summary.places_configured: True
+summary.places_autopilot_ready: True
+env.keys.GOOGLE_API_KEY present: True
+
+========== F) gmail status + test-send ==========
+gmail/status HTTP ok=True status=200
+{
+  "oauth_client_ready": true,
+  "send_ready": false,
+  "has_refresh_token": "<redacted present=True len=8>",
+  "sender": "vir***@gmail.com",
+  "redirect_uri": "http://localhost:8000/api/owner/gmail/oauth/callback",
+  "scopes": [
+    "https://www.googleapis.com/auth/gmail.send"
+  ],
+  "note": "Open /api/owner/gmail → Connect Gmail (localhost only). Register redirect_uri in Google Cloud Console → OAuth client."
+}
+gmail/test-send HTTP ok=True status=200
+{
+  "ok": false,
+  "reason": "gmail_not_ready",
+  "status": {
+    "oauth_client_ready": true,
+    "send_ready": false,
+    "has_refresh_token": "<redacted present=True len=8>",
+    "sender": "vir***@gmail.com",
+    "redirect_uri": "http://localhost:8000/api/owner/gmail/oauth/callback",
+    "scopes": [
+      "https://www.googleapis.com/auth/gmail.send"
+    ],
+    "note": "Open /api/owner/gmail → Connect Gmail (localhost only). Register redirect_uri in Google Cloud Console → OAuth client."
+  },
+  "fix": "Open /api/owner/gmail → Connect Gmail, then retry."
+}
+summary.gmail_send_ready: False
+summary.gmail_oauth_client_ready: True
+summary.gmail_refresh_token_env: empty
+summary.test_send_ok: False
+summary.test_send_status: 200
+summary.test_send_reason: gmail_not_ready
+
+========== G) worker-adapters board ==========
+HTTP ok=True status=200
+board keys: ['ok', 'version', 'title_ru', 'rule_ru', 'levels_ru', 'pipeline_ru', 'counts_by_level', 'work_farm_allowlist', 'platforms', 'lab_findings', 'forbidden_ru']
+counts_by_level: {'0': 4, '1': 3, '2': 1, '3': 1, '4': 0, '5': 1, '6': 0}
+platform count: 10
+  id=path_a_stripe | {'verdict': 'working', 'maturity_level': 5, 'maturity_label': 'working', 'maturity_label_ru': 'Working', 'has_adapter': True, 'sandbox_passed': False, 'work_farm_eligible': True, 'live_execution': False}
+  id=amazon_mturk_worker | {'verdict': 'candidate', 'maturity_level': 3, 'maturity_label': 'sandbox_passed', 'maturity_label_ru': 'Sandbox passed', 'has_adapter': True, 'sandbox_passed': True, 'work_farm_eligible': False, 'live_execution': False}
+  id=rapidapi_provider | {'verdict': 'candidate', 'maturity_level': 2, 'maturity_label': 'adapter_written', 'maturity_label_ru': 'Adapter written', 'has_adapter': True, 'sandbox_passed': False, 'work_farm_eligible': False, 'live_execution': False}
+  id=digistore_affiliate | {'verdict': 'candidate', 'maturity_level': 1, 'maturity_label': 'candidate', 'maturity_label_ru': 'Candidate', 'has_adapter': False, 'sandbox_passed': False, 'work_farm_eligible': False, 'live_execution': False}
+  id=clickworker | {'verdict': 'candidate', 'maturity_level': 1, 'maturity_label': 'candidate', 'maturity_label_ru': 'Candidate', 'has_adapter': False, 'sandbox_passed': False, 'work_farm_eligible': False, 'live_execution': False}
+  id=textbroker | {'verdict': 'candidate', 'maturity_level': 1, 'maturity_label': 'candidate', 'maturity_label_ru': 'Candidate', 'has_adapter': False, 'sandbox_passed': False, 'work_farm_eligible': False, 'live_execution': False}
+  id=fiverr | {'verdict': 'reject', 'maturity_level': 0, 'maturity_label': 'unknown', 'maturity_label_ru': 'Rejected / Unknown', 'has_adapter': False, 'sandbox_passed': False, 'work_farm_eligible': False, 'live_execution': False}
+  id=scale_ai_requester | {'verdict': 'reject', 'maturity_level': 0, 'maturity_label': 'unknown', 'maturity_label_ru': 'Rejected / Unknown', 'has_adapter': False, 'sandbox_passed': False, 'work_farm_eligible': False, 'live_execution': False}
+  id=toloka_requester | {'verdict': 'reject', 'maturity_level': 0, 'maturity_label': 'unknown', 'maturity_label_ru': 'Rejected / Unknown', 'has_adapter': False, 'sandbox_passed': False, 'work_farm_eligible': False, 'live_execution': False}
+  id=upwork | {'verdict': 'reject', 'maturity_level': 0, 'maturity_label': 'unknown', 'maturity_label_ru': 'Rejected / Unknown', 'has_adapter': False, 'sandbox_passed': False, 'work_farm_eligible': False, 'live_execution': False}
+
+========== H) opportunities analysis ==========
+file: opportunities.jsonl exists=True count=906 bad_lines=0
+by_outreach_status: {'pending_approval': 558, 'none': 326, 'approved': 22}
+by_status: {'proposed': 580, 'new': 326}
+created_last_24h: 0
+updated_last_24h: 906
+send_failures_total: 0
+send_errors / send_failures_last_20 count: 0
+  (none)
+last_send_error samples: (none)
+summary.opportunities_jsonl_count: 906
+
+========== I) hunt cursor file ==========
+{
+  "file": "outreach_hunt_cursor.json",
+  "exists": true,
+  "size_bytes": 1458,
+  "type": "dict",
+  "keys": [
+    "market_index",
+    "within_market",
+    "last"
+  ],
+  "key_count": 3,
+  "scalars": {
+    "market_index": 22
+  },
+  "dict_lens": {
+    "within_market": 22,
+    "last": 3
+  }
+}
+
+========== J) keyword snippets (max 15) ==========
+1. [resend] ...end_note": "Автоотправка: тумблер CEO + Resend/Gmail. После анализа → КП → pending → тик шлёт без ручного Approve. При R...
+2. [429] ...ик шлёт без ручного Approve. При Resend 429 — cooldown и fallback на Gmail.", "law": "Plan → Approve → Act", ...
+3. [gmail] ...e": "Автоотправка: тумблер CEO + Resend/Gmail. После анализа → КП → pending → тик шлёт без ручного Approve. При Resend 4...
+4. [provider] ... { "id": "rapidapi_provider", "name": "RapidAPI (as API seller)", "verdict": "candi...
+5. [rete] ...": "Wir haben Ihre Website geprüft, konkrete Lücken gefunden und schlagen die passende Leistung vor." }, "au...
+6. [resend] ...ing → тик шлёт без ручного Approve. При Resend 429 — cooldown и fallback на Gmail.", "law": "Plan → Approve → Act", ...
+7. [429] ... "premium_price_label": "27 429 ₴", "delivery_eta_minutes": 15, "hubs": [ ...
+8. [gmail] ...При Resend 429 — cooldown и fallback на Gmail.", "law": "Plan → Approve → Act", "pending_approval_count": 549...
+9. [provider] ... { "id": "find-rapidapi_provider-candidate", "platform_id": "rapidapi_provider", "name":...
+10. [rete] ..." } }, "openapi_search": { "rete_matches": [], "places_endpoints": [ "/api/engine/places-setup", ...
+11. [resend] ...end_skip", "message_ru": "Resend rate limit (429) — пауза до 2026-07-26T18:03:55. Пока пробуем Gmail, если подкл...
+12. [429] ... "message_ru": "Resend rate limit (429) — пауза до 2026-07-26T18:03:55. Пока пробуем Gmail, если подключён; иначе очер...
+13. [gmail] ...за до 2026-07-26T18:03:55. Пока пробуем Gmail, если подключён; иначе очередь ждёт." }, { ...
+14. [provider] ...", "platform_id": "rapidapi_provider", "name": "RapidAPI (as API seller)", "stars": 4, ...
+15. [rete] ... "name": "Upwork" } ], "rete_routes": [], "places_endpoints": [ "/api/engine/places-setup", ...
+(match pool sizes: rete=50, resend=10, 429=4, gmail=32, provider=6)
+
+========== K) resend remaining quota ==========
+outreach_quota remaining fields:
+  remaining_today_total: 494
+  primary_remaining: 96
+  sent_today_total: 506
+  daily_cap: 40
+  global_daily_cap: 1000
+  pool_cap_total: 1000
+  domain genesis-ai-engine.com: remaining=0 at_cap=True used_today=506
+  region de: remaining=0 at_cap=True used_today=78
+provider cooldown / resend:
+  memory.resend_until: 2026-07-26T18:03:55.561874+00:00
+  memory.last_reason: manual_failover_test
+  summary.cooldown: {
+  "resend_until": "2026-07-26T18:03:55.561874+00:00",
+  "last_reason": "manual_failover_test",
+  "active": true,
+  "seconds_left": 761
+}
+  summary.blocker_detail.resend_cooldown_active: True
+resend+remaining co-occurrence snippets: NONE
+Verdict: No dedicated resend_remaining_quota field. Domain/region remaining=0; pool remaining_today_total present; Resend cooldown active (resend_until set).
+
+========== MEMORY files successfully read ==========
+  OK: outreach_ceo_prefs.json
+  OK: outreach_provider_cooldown.json
+  OK: outreach_hunt_cursor.json
+  OK: outreach_send_quota.json
+  OK: opportunity_engine.json
+  OK: outreach_adaptive_state.json
+  OK: outreach_runner_state.json
+  OK: outreach_sent_forever.json
+  FAIL: acquisition_desk_actions.json — Extra data: line 624 column 2 (char 21395)
+  OK: opportunities.jsonl
+
+=== END EXTRACT ===

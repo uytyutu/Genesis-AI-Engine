@@ -1,0 +1,288 @@
+{
+  "version": 1,
+  "gate": "MEDIA_INTEGRITY",
+  "referenced": [
+    {
+      "path": "assets/motion_kit.css",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "4047B",
+      "bytes": 4047
+    },
+    {
+      "path": "assets/hero.jpg",
+      "slot": "hero",
+      "exists": true,
+      "ok": true,
+      "detail": "1600x900:30611B",
+      "bytes": 30611
+    },
+    {
+      "path": "assets/hero_pack/showcase.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1600x900:245035B",
+      "bytes": 245035
+    },
+    {
+      "path": "assets/hero_pack/footer.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1600x900:246421B",
+      "bytes": 246421
+    },
+    {
+      "path": "assets/hero_pack/banner.jpg",
+      "slot": "background",
+      "exists": true,
+      "ok": true,
+      "detail": "1536x1024:2602176B",
+      "bytes": 2602176
+    },
+    {
+      "path": "assets/hero_pack/gallery.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1600x900:32345B",
+      "bytes": 32345
+    },
+    {
+      "path": "assets/hero_pack/hero_2.jpg",
+      "slot": "hero",
+      "exists": true,
+      "ok": true,
+      "detail": "1600x900:27684B",
+      "bytes": 27684
+    },
+    {
+      "path": "assets/background.jpg",
+      "slot": "background",
+      "exists": true,
+      "ok": true,
+      "detail": "1600x900:28544B",
+      "bytes": 28544
+    },
+    {
+      "path": "assets/section_story.jpg",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "1400x900:26951B",
+      "bytes": 26951
+    },
+    {
+      "path": "assets/section_services.jpg",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "1400x900:26913B",
+      "bytes": 26913
+    },
+    {
+      "path": "assets/section_team.jpg",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "1400x900:26474B",
+      "bytes": 26474
+    },
+    {
+      "path": "assets/section_process.jpg",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "1400x900:29840B",
+      "bytes": 29840
+    },
+    {
+      "path": "assets/section_contact.jpg",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "1400x900:28455B",
+      "bytes": 28455
+    },
+    {
+      "path": "assets/gallery_8.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1200x800:29378B",
+      "bytes": 29378
+    },
+    {
+      "path": "assets/logo.png",
+      "slot": "logo",
+      "exists": true,
+      "ok": true,
+      "detail": "640x640:581763B",
+      "bytes": 581763
+    },
+    {
+      "path": "assets/gallery_1.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1200x800:26523B",
+      "bytes": 26523
+    },
+    {
+      "path": "assets/gallery_2.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1200x800:26923B",
+      "bytes": 26923
+    },
+    {
+      "path": "assets/gallery_3.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1200x800:24362B",
+      "bytes": 24362
+    },
+    {
+      "path": "assets/reputation/case_0_before.jpg",
+      "slot": "before_after",
+      "exists": true,
+      "ok": true,
+      "detail": "800x520:13393B",
+      "bytes": 13393
+    },
+    {
+      "path": "assets/reputation/case_0_after.jpg",
+      "slot": "before_after",
+      "exists": true,
+      "ok": true,
+      "detail": "800x520:11766B",
+      "bytes": 11766
+    },
+    {
+      "path": "assets/reputation/team_0.jpg",
+      "slot": "before_after",
+      "exists": true,
+      "ok": true,
+      "detail": "320x320:4957B",
+      "bytes": 4957
+    },
+    {
+      "path": "assets/reputation/team_1.jpg",
+      "slot": "before_after",
+      "exists": true,
+      "ok": true,
+      "detail": "320x320:5243B",
+      "bytes": 5243
+    },
+    {
+      "path": "assets/reputation/team_2.jpg",
+      "slot": "before_after",
+      "exists": true,
+      "ok": true,
+      "detail": "320x320:5218B",
+      "bytes": 5218
+    },
+    {
+      "path": "assets/reputation/team_3.jpg",
+      "slot": "before_after",
+      "exists": true,
+      "ok": true,
+      "detail": "320x320:5310B",
+      "bytes": 5310
+    },
+    {
+      "path": "assets/reveal.js",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "3016B",
+      "bytes": 3016
+    },
+    {
+      "path": "assets/ux_polish.js",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "960B",
+      "bytes": 960
+    },
+    {
+      "path": "assets/studio_v2.js",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "4064B",
+      "bytes": 4064
+    }
+  ],
+  "on_disk": [
+    "assets/after.jpg",
+    "assets/background.jpg",
+    "assets/before.jpg",
+    "assets/before_after.jpg",
+    "assets/equipment.jpg",
+    "assets/gallery.jpg",
+    "assets/gallery_1.jpg",
+    "assets/gallery_10.jpg",
+    "assets/gallery_11.jpg",
+    "assets/gallery_12.jpg",
+    "assets/gallery_13.jpg",
+    "assets/gallery_14.jpg",
+    "assets/gallery_15.jpg",
+    "assets/gallery_16.jpg",
+    "assets/gallery_17.jpg",
+    "assets/gallery_18.jpg",
+    "assets/gallery_2.jpg",
+    "assets/gallery_3.jpg",
+    "assets/gallery_4.jpg",
+    "assets/gallery_5.jpg",
+    "assets/gallery_6.jpg",
+    "assets/gallery_7.jpg",
+    "assets/gallery_8.jpg",
+    "assets/gallery_9.jpg",
+    "assets/hero.jpg",
+    "assets/hero_pack/banner.jpg",
+    "assets/hero_pack/bg.jpg",
+    "assets/hero_pack/footer.jpg",
+    "assets/hero_pack/gallery.jpg",
+    "assets/hero_pack/hero.jpg",
+    "assets/hero_pack/hero_1.jpg",
+    "assets/hero_pack/hero_2.jpg",
+    "assets/hero_pack/hero_3.jpg",
+    "assets/hero_pack/manifest.json",
+    "assets/hero_pack/showcase.jpg",
+    "assets/illustration.jpg",
+    "assets/illustration_1.jpg",
+    "assets/illustration_2.jpg",
+    "assets/illustration_3.jpg",
+    "assets/logo.png",
+    "assets/media_manifest.json",
+    "assets/motion_kit.css",
+    "assets/premium_media_note.txt",
+    "assets/process.jpg",
+    "assets/reputation/case_0_after.jpg",
+    "assets/reputation/case_0_before.jpg",
+    "assets/reputation/manifest.json",
+    "assets/reputation/team_0.jpg",
+    "assets/reputation/team_1.jpg",
+    "assets/reputation/team_2.jpg",
+    "assets/reputation/team_3.jpg",
+    "assets/reveal.js",
+    "assets/section_contact.jpg",
+    "assets/section_process.jpg",
+    "assets/section_services.jpg",
+    "assets/section_story.jpg",
+    "assets/section_team.jpg",
+    "assets/studio_v2.css",
+    "assets/studio_v2.js",
+    "assets/team.jpg",
+    "assets/ux_polish.js",
+    "assets/visual_brand.css"
+  ],
+  "integrity_ok": true,
+  "missing": []
+}

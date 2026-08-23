@@ -43,6 +43,8 @@ SECTION_EXPECT: dict[Section, frozenset[str]] = {
             "restaurant",
             "food",
             "team",
+            "therapy",
+            "calm",
         }
     ),
     "gallery": frozenset(
@@ -95,6 +97,22 @@ NICHE_DEFAULT_TAGS: dict[str, frozenset[str]] = {
     "energy": frozenset({"energy", "exterior", "result", "product", "work"}),
     "appliance": frozenset({"repair", "equipment", "process", "tools", "product"}),
     "restaurant": frozenset({"restaurant", "food", "interior", "product", "client"}),
+    "psychology": frozenset(
+        {
+            "specialist",
+            "interior",
+            "clinic",
+            "office",
+            "calm",
+            "therapy",
+            "client",
+            "team",
+            "garden",
+            "plants",
+            "landscape",
+            "nature",
+        }
+    ),
     # Generic pack is retail / boutique / florist family — must not pass niche-specific heroes.
     "generic": frozenset({"retail", "boutique", "florist", "restaurant", "interior"}),
 }
@@ -182,6 +200,40 @@ NICHE_RULES: dict[str, NicheMediaRule] = {
         allow=frozenset({"restaurant", "food", "interior", "product", "client", "team"}),
         deny=frozenset({"dental", "laptop", "auto", "workshop", "salon", "law", "garden"}),
     ),
+    "psychology": NicheMediaRule(
+        allow=frozenset(
+            {
+                "specialist",
+                "interior",
+                "clinic",
+                "office",
+                "calm",
+                "therapy",
+                "client",
+                "team",
+                "garden",
+                "plants",
+                "landscape",
+                "nature",
+            }
+        ),
+        deny=frozenset(
+            {
+                "auto",
+                "workshop",
+                "dental",
+                "laptop",
+                "restaurant",
+                "food",
+                "florist",
+                "retail",
+                "boutique",
+                "salon",
+                "cosmetics",
+                "beauty",
+            }
+        ),
+    ),
     "appliance": NicheMediaRule(
         allow=frozenset({"repair", "equipment", "process", "tools", "product"}),
         deny=frozenset({"salon", "florist", "restaurant", "dental", "garden", "law"}),
@@ -260,6 +312,72 @@ def infer_source_niche(path: Path) -> str | None:
     return rel.split("/", 1)[0].lower() or None
 
 
+def _showcases_root() -> Path:
+    return Path(__file__).resolve().parents[2] / "_research_3d" / "showcases"
+
+
+def _byte_owner_niche(path: Path) -> str | None:
+    """If this file's bytes exist under another niche pack, return that niche.
+
+    Stops folder-pollution: a beauty salon JPEG copied into psychology/ must
+    still carry beauty tags (and fail psychology deny:salon).
+    """
+    try:
+        digest = path.read_bytes()
+    except OSError:
+        return None
+    if len(digest) < 800:
+        return None
+    import hashlib
+
+    key = hashlib.md5(digest).hexdigest()
+    index = _showcase_md5_index()
+    owners = index.get(key) or ()
+    if not owners:
+        return None
+    # Prefer a niche other than the folder this path claims, if any.
+    folder = infer_source_niche(path)
+    for niche in owners:
+        if folder and niche != folder:
+            return niche
+    return owners[0]
+
+
+def _showcase_md5_index() -> dict[str, tuple[str, ...]]:
+    """md5 → niches that own this exact JPEG (cached per process)."""
+    global _MD5_INDEX
+    if _MD5_INDEX is not None:
+        return _MD5_INDEX
+    import hashlib
+
+    root = _showcases_root()
+    bucket: dict[str, list[str]] = {}
+    if root.is_dir():
+        for niche_dir in root.iterdir():
+            if not niche_dir.is_dir():
+                continue
+            niche = niche_dir.name.strip().lower()
+            for jpg in niche_dir.rglob("*.jpg"):
+                try:
+                    h = hashlib.md5(jpg.read_bytes()).hexdigest()
+                except OSError:
+                    continue
+                bucket.setdefault(h, [])
+                if niche not in bucket[h]:
+                    bucket[h].append(niche)
+    _MD5_INDEX = {k: tuple(v) for k, v in bucket.items()}
+    return _MD5_INDEX
+
+
+_MD5_INDEX: dict[str, tuple[str, ...]] | None = None
+
+
+def invalidate_showcase_md5_index() -> None:
+    """Tests / pack repairs may call after rewriting showcase bytes."""
+    global _MD5_INDEX
+    _MD5_INDEX = None
+
+
 def tags_for_media(
     path: Path | None,
     *,
@@ -275,6 +393,13 @@ def tags_for_media(
     rel = showcase_relative(path)
     if rel and rel in _TAG_OVERRIDES:
         return _TAG_OVERRIDES[rel]
+
+    # Byte identity beats folder name (cross-niche pollution).
+    byte_niche = _byte_owner_niche(path)
+    if byte_niche and byte_niche in NICHE_DEFAULT_TAGS:
+        folder = infer_source_niche(path)
+        if folder and byte_niche != folder:
+            return NICHE_DEFAULT_TAGS[byte_niche]
 
     src_niche = infer_source_niche(path)
     if src_niche and src_niche in NICHE_DEFAULT_TAGS:
@@ -298,7 +423,7 @@ def evaluate_section_media(
     niche = _norm_niche(niche_id)
     tag_t = tuple(sorted(tags))
 
-    if "client" in tags:
+    if "client" in tags and tags <= frozenset({"client", "client_upload"}):
         return MediaGateCheck(
             section=section, path=path, ok=True, tags=tag_t, detail="client_upload"
         )

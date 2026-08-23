@@ -1,0 +1,8 @@
+[
+  "tasks",
+  "updated_at",
+  "pipeline_lifetime",
+  "skipped_forever",
+  "seen_ledger",
+  "last_scan"
+]

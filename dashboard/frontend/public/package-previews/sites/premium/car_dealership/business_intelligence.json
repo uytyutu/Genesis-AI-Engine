@@ -1,0 +1,86 @@
+{
+  "niche_id": "car_dealership",
+  "subniche_id": "dealership",
+  "subniche_label": "Autohaus",
+  "business_model": "dealership_luxury_small_team",
+  "city": "München",
+  "company_name": "NordLicht Autohaus",
+  "who": "Autohaus in München — Auswahl mit Klarheit statt Druckverkauf.",
+  "trust_why": "Nachweisbare Arbeit · Autohaus · München",
+  "sells": "['Neuwagen', 'Gebrauchtwagen', 'Probefahrt', 'Service']",
+  "differentiator": "Ehrliche Beratung, saubere Historie, Servicenetz",
+  "atmosphere": "luxury",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Work, place, people, proof",
+  "media_brief": {
+    "hero": "Professional car_dealership scene — European studio 2026",
+    "gallery": "Work, place, people, proof",
+    "video": "Niche atmosphere loop if provider available",
+    "before_after": "",
+    "team": "People of the company",
+    "equipment": "",
+    "atmosphere": "luxury",
+    "subniche": "dealership",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "contact_form",
+      "label": "Contact Form",
+      "why": "Kern-CTA."
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "why": "Schneller Kanal."
+    },
+    {
+      "id": "map",
+      "label": "Map",
+      "why": "Lokalität."
+    },
+    {
+      "id": "reviews",
+      "label": "Reviews",
+      "why": "Social proof (Demo-label)."
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "why": "Einwände vor dem Anruf."
+    },
+    {
+      "id": "gallery",
+      "label": "Gallery",
+      "why": "Visueller Beweis."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services"
+  ],
+  "style": "luxury",
+  "clients_who": "Pendler und Familien in München",
+  "fingerprint": "c36d47fa8480b67bed6b",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

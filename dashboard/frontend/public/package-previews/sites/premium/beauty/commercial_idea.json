@@ -1,0 +1,26 @@
+{
+  "niche_id": "beauty",
+  "idea": "Ein Ritual der Schönheit — kein Salon.",
+  "who": "Boutique-Atelier: Beratung vor dem Schnitt, ehrliche Produkte, Alltagstauglichkeit, kein Wartesaal-Gefühl.",
+  "character": [
+    "Ritual",
+    "Ruhe",
+    "Präzision",
+    "Alltag",
+    "Haltung"
+  ],
+  "metaphor": "Helles Atelierlicht — ruhige Hände, kein Neon-Salon",
+  "hero_concept": "beauty_ritual",
+  "emotion_3s": "Zeit für sich — nicht Warteschlange",
+  "source": "premium_pack",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Ein Ritual der Schönheit — kein Salon.",
+    "who": "Boutique-Atelier: Beratung vor dem Schnitt, ehrliche Produkte, Alltagstauglichkeit, kein Wartesaal-Gefühl.",
+    "package_id": "premium",
+    "source": "premium_pack",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

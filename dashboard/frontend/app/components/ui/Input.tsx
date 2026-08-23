@@ -2,7 +2,7 @@ import type { InputHTMLAttributes, TextareaHTMLAttributes, ReactNode } from "rea
 import { cn } from "../../lib/cn";
 
 const FIELD =
-  "w-full rounded-xl border border-genesis-border bg-genesis-bg/80 px-3.5 py-2.5 text-sm text-genesis-text placeholder:text-genesis-muted/60 transition-colors duration-200 focus:border-genesis-accent focus:outline-none focus:ring-2 focus:ring-genesis-accent/25";
+  "w-full rounded-xl border border-genesis-border bg-genesis-bg/80 px-3.5 py-2.5 text-base text-genesis-text placeholder:text-genesis-muted/60 transition-colors duration-200 focus:border-genesis-accent focus:outline-none focus:ring-2 focus:ring-genesis-accent/25 sm:text-sm";
 
 type FieldProps = {
   label: string;

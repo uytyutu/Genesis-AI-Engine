@@ -1,0 +1,573 @@
+{
+  "engine": "creative_project_v2",
+  "version": 2,
+  "production_enabled": false,
+  "business_identity": {
+    "business_name": "Atelier Nord Fade",
+    "niche": "barbershop",
+    "city": "Dresden",
+    "market": "DE",
+    "product_kind": "website",
+    "description": "Premium Barbershop Fade & Bart",
+    "invented_facts": false
+  },
+  "character_identity": {
+    "character_id": "char_1d6f704fc1",
+    "role": "client",
+    "gender": "male",
+    "age_range": "30-35",
+    "hair": "starts longer/messy → ends clean fade",
+    "facial_features": "locked European male face from master_ref",
+    "skin_tone": "locked from master_ref",
+    "clothing": "dark premium shirt, same throughout",
+    "accessories": "",
+    "lock_rule": "ONE_SITE_ONE_CHARACTER — every shot must reference character_id + master_ref",
+    "master_ref": null,
+    "previous_frame_ref": null
+  },
+  "product_identity": null,
+  "environment_identity": {
+    "environment_id": "env_cef6bbd136",
+    "world": "dark premium barbershop",
+    "city_hint": "Dresden",
+    "palette": "amber accents · leather · dark wood",
+    "props": [
+      "leather chair",
+      "clippers",
+      "scissors",
+      "mirror"
+    ],
+    "lock_rule": "ONE_SCENE_ONE_WORLD — camera may move; room must not teleport",
+    "master_ref": null
+  },
+  "scene": {
+    "niche_key": "barbershop",
+    "title": "Chair to Finished Cut",
+    "principle": "ACTION → TRANSFORMATION → RESULT",
+    "uses_character": true,
+    "uses_product": false,
+    "world": "dark premium barbershop · amber · leather chair",
+    "scene_duration_sec": 14,
+    "preferred_delivery": [
+      "image_to_video_clips",
+      "keyframe_crossfade"
+    ],
+    "cta": "Termin buchen",
+    "marketing_lines": [
+      "Präzise Schnitte.",
+      "Saubere Konturen.",
+      "Dein Style.",
+      "Termin buchen."
+    ],
+    "character_seed": {
+      "role": "client",
+      "gender": "male",
+      "age_range": "30-35",
+      "hair": "starts longer/messy → ends clean fade",
+      "clothing": "dark premium shirt, same throughout",
+      "facial_features": "locked European male face from master_ref",
+      "skin_tone": "locked from master_ref"
+    },
+    "environment_seed": {
+      "world": "dark premium barbershop",
+      "palette": "amber accents · leather · dark wood",
+      "props": [
+        "leather chair",
+        "clippers",
+        "scissors",
+        "mirror"
+      ]
+    },
+    "beats": [
+      {
+        "t": 0.0,
+        "action": "client_in_chair",
+        "camera": "wide",
+        "continues": null
+      },
+      {
+        "t": 1.0,
+        "action": "barber_prepares_clippers",
+        "camera": "medium",
+        "continues": "client_in_chair"
+      },
+      {
+        "t": 2.0,
+        "action": "tool_closeup",
+        "camera": "macro",
+        "continues": "barber_prepares_clippers"
+      },
+      {
+        "t": 3.0,
+        "action": "cut_begins",
+        "camera": "close",
+        "continues": "tool_closeup"
+      },
+      {
+        "t": 4.0,
+        "action": "first_pass",
+        "camera": "close",
+        "continues": "cut_begins"
+      },
+      {
+        "t": 5.0,
+        "action": "side_view_progress",
+        "camera": "medium",
+        "continues": "first_pass"
+      },
+      {
+        "t": 6.0,
+        "action": "hair_transforms",
+        "camera": "close",
+        "continues": "side_view_progress"
+      },
+      {
+        "t": 7.0,
+        "action": "scissors_work",
+        "camera": "close",
+        "continues": "hair_transforms"
+      },
+      {
+        "t": 8.0,
+        "action": "scissors_detail",
+        "camera": "macro",
+        "continues": "scissors_work"
+      },
+      {
+        "t": 9.0,
+        "action": "texturing_styling",
+        "camera": "close",
+        "continues": "scissors_detail"
+      },
+      {
+        "t": 10.0,
+        "action": "product_apply",
+        "camera": "medium",
+        "continues": "texturing_styling"
+      },
+      {
+        "t": 11.0,
+        "action": "final_style",
+        "camera": "medium",
+        "continues": "product_apply"
+      },
+      {
+        "t": 12.0,
+        "action": "orbit_client",
+        "camera": "wide",
+        "continues": "final_style"
+      },
+      {
+        "t": 13.0,
+        "action": "finished_look",
+        "camera": "close",
+        "continues": "orbit_client"
+      },
+      {
+        "t": 13.5,
+        "action": "premium_portrait",
+        "camera": "hero",
+        "continues": "finished_look"
+      },
+      {
+        "t": 14.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "premium_portrait"
+      }
+    ],
+    "clip_plan": [
+      {
+        "id": "A",
+        "from_t": 0.0,
+        "to_t": 5.0,
+        "intent": "prepare_to_first_pass"
+      },
+      {
+        "id": "B",
+        "from_t": 5.0,
+        "to_t": 10.0,
+        "intent": "transform_scissors"
+      },
+      {
+        "id": "C",
+        "from_t": 10.0,
+        "to_t": 14.0,
+        "intent": "style_to_cta"
+      }
+    ],
+    "camera_ladder": [
+      "wide",
+      "medium",
+      "close",
+      "macro",
+      "medium",
+      "hero"
+    ]
+  },
+  "timeline": {
+    "engine": "scene_timeline_v2",
+    "scene_duration": 14.0,
+    "fps_target": 30,
+    "delivery": [
+      "image_to_video_clips",
+      "keyframe_crossfade"
+    ],
+    "rule": "Timeline drives continuous motion. Do NOT emit one JPEG per millisecond.",
+    "keyframes": [
+      {
+        "time": 0.0,
+        "scroll": 0.0,
+        "action": "client_in_chair",
+        "camera": "wide",
+        "continues": null,
+        "index": 0
+      },
+      {
+        "time": 1.0,
+        "scroll": 0.0714,
+        "action": "barber_prepares_clippers",
+        "camera": "medium",
+        "continues": "client_in_chair",
+        "index": 1
+      },
+      {
+        "time": 2.0,
+        "scroll": 0.1429,
+        "action": "tool_closeup",
+        "camera": "macro",
+        "continues": "barber_prepares_clippers",
+        "index": 2
+      },
+      {
+        "time": 3.0,
+        "scroll": 0.2143,
+        "action": "cut_begins",
+        "camera": "close",
+        "continues": "tool_closeup",
+        "index": 3
+      },
+      {
+        "time": 4.0,
+        "scroll": 0.2857,
+        "action": "first_pass",
+        "camera": "close",
+        "continues": "cut_begins",
+        "index": 4
+      },
+      {
+        "time": 5.0,
+        "scroll": 0.3571,
+        "action": "side_view_progress",
+        "camera": "medium",
+        "continues": "first_pass",
+        "index": 5
+      },
+      {
+        "time": 6.0,
+        "scroll": 0.4286,
+        "action": "hair_transforms",
+        "camera": "close",
+        "continues": "side_view_progress",
+        "index": 6
+      },
+      {
+        "time": 7.0,
+        "scroll": 0.5,
+        "action": "scissors_work",
+        "camera": "close",
+        "continues": "hair_transforms",
+        "index": 7
+      },
+      {
+        "time": 8.0,
+        "scroll": 0.5714,
+        "action": "scissors_detail",
+        "camera": "macro",
+        "continues": "scissors_work",
+        "index": 8
+      },
+      {
+        "time": 9.0,
+        "scroll": 0.6429,
+        "action": "texturing_styling",
+        "camera": "close",
+        "continues": "scissors_detail",
+        "index": 9
+      },
+      {
+        "time": 10.0,
+        "scroll": 0.7143,
+        "action": "product_apply",
+        "camera": "medium",
+        "continues": "texturing_styling",
+        "index": 10
+      },
+      {
+        "time": 11.0,
+        "scroll": 0.7857,
+        "action": "final_style",
+        "camera": "medium",
+        "continues": "product_apply",
+        "index": 11
+      },
+      {
+        "time": 12.0,
+        "scroll": 0.8571,
+        "action": "orbit_client",
+        "camera": "wide",
+        "continues": "final_style",
+        "index": 12
+      },
+      {
+        "time": 13.0,
+        "scroll": 0.9286,
+        "action": "finished_look",
+        "camera": "close",
+        "continues": "orbit_client",
+        "index": 13
+      },
+      {
+        "time": 13.5,
+        "scroll": 0.9643,
+        "action": "premium_portrait",
+        "camera": "hero",
+        "continues": "finished_look",
+        "index": 14
+      },
+      {
+        "time": 14.0,
+        "scroll": 1.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "premium_portrait",
+        "index": 15
+      }
+    ],
+    "clips": [
+      {
+        "id": "A",
+        "from_t": 0.0,
+        "to_t": 5.0,
+        "from_scroll": 0.0,
+        "to_scroll": 0.3571,
+        "intent": "prepare_to_first_pass",
+        "asset": null
+      },
+      {
+        "id": "B",
+        "from_t": 5.0,
+        "to_t": 10.0,
+        "from_scroll": 0.3571,
+        "to_scroll": 0.7143,
+        "intent": "transform_scissors",
+        "asset": null
+      },
+      {
+        "id": "C",
+        "from_t": 10.0,
+        "to_t": 14.0,
+        "from_scroll": 0.7143,
+        "to_scroll": 1.0,
+        "intent": "style_to_cta",
+        "asset": null
+      }
+    ],
+    "scroll_binding": {
+      "0.0": 0.0,
+      "0.25": 0.25,
+      "0.5": 0.5,
+      "0.75": 0.75,
+      "1.0": 1.0
+    }
+  },
+  "keyframes": [
+    {
+      "time": 0.0,
+      "scroll": 0.0,
+      "action": "client_in_chair",
+      "camera": "wide",
+      "continues": null,
+      "index": 0
+    },
+    {
+      "time": 1.0,
+      "scroll": 0.0714,
+      "action": "barber_prepares_clippers",
+      "camera": "medium",
+      "continues": "client_in_chair",
+      "index": 1
+    },
+    {
+      "time": 2.0,
+      "scroll": 0.1429,
+      "action": "tool_closeup",
+      "camera": "macro",
+      "continues": "barber_prepares_clippers",
+      "index": 2
+    },
+    {
+      "time": 3.0,
+      "scroll": 0.2143,
+      "action": "cut_begins",
+      "camera": "close",
+      "continues": "tool_closeup",
+      "index": 3
+    },
+    {
+      "time": 4.0,
+      "scroll": 0.2857,
+      "action": "first_pass",
+      "camera": "close",
+      "continues": "cut_begins",
+      "index": 4
+    },
+    {
+      "time": 5.0,
+      "scroll": 0.3571,
+      "action": "side_view_progress",
+      "camera": "medium",
+      "continues": "first_pass",
+      "index": 5
+    },
+    {
+      "time": 6.0,
+      "scroll": 0.4286,
+      "action": "hair_transforms",
+      "camera": "close",
+      "continues": "side_view_progress",
+      "index": 6
+    },
+    {
+      "time": 7.0,
+      "scroll": 0.5,
+      "action": "scissors_work",
+      "camera": "close",
+      "continues": "hair_transforms",
+      "index": 7
+    },
+    {
+      "time": 8.0,
+      "scroll": 0.5714,
+      "action": "scissors_detail",
+      "camera": "macro",
+      "continues": "scissors_work",
+      "index": 8
+    },
+    {
+      "time": 9.0,
+      "scroll": 0.6429,
+      "action": "texturing_styling",
+      "camera": "close",
+      "continues": "scissors_detail",
+      "index": 9
+    },
+    {
+      "time": 10.0,
+      "scroll": 0.7143,
+      "action": "product_apply",
+      "camera": "medium",
+      "continues": "texturing_styling",
+      "index": 10
+    },
+    {
+      "time": 11.0,
+      "scroll": 0.7857,
+      "action": "final_style",
+      "camera": "medium",
+      "continues": "product_apply",
+      "index": 11
+    },
+    {
+      "time": 12.0,
+      "scroll": 0.8571,
+      "action": "orbit_client",
+      "camera": "wide",
+      "continues": "final_style",
+      "index": 12
+    },
+    {
+      "time": 13.0,
+      "scroll": 0.9286,
+      "action": "finished_look",
+      "camera": "close",
+      "continues": "orbit_client",
+      "index": 13
+    },
+    {
+      "time": 13.5,
+      "scroll": 0.9643,
+      "action": "premium_portrait",
+      "camera": "hero",
+      "continues": "finished_look",
+      "index": 14
+    },
+    {
+      "time": 14.0,
+      "scroll": 1.0,
+      "action": "cta",
+      "camera": "hero",
+      "continues": "premium_portrait",
+      "index": 15
+    }
+  ],
+  "generated_assets": [],
+  "copy": {
+    "marketing_lines": [
+      "Präzise Schnitte.",
+      "Saubere Konturen.",
+      "Dein Style.",
+      "Termin buchen."
+    ],
+    "cta": "Termin buchen",
+    "about_hint": "Chair to Finished Cut",
+    "rule": "Niche marketing only — no invented company facts."
+  },
+  "cta": "Termin buchen",
+  "contacts": {
+    "invented": false,
+    "demo": true,
+    "provided": {
+      "phone": "+49 351 1234567",
+      "email": "termin@nordfade-demo.example.de",
+      "street": "Königstraße 12",
+      "zip": "01097",
+      "instagram": "https://www.instagram.com/",
+      "telegram": "https://t.me/"
+    },
+    "note": "Explicit demo_contacts=true — values are labeled demo, not live client data."
+  },
+  "layers": {
+    "cinematic": {
+      "role": "emotion + desire",
+      "delivery": [
+        "image_to_video_clips",
+        "keyframe_crossfade"
+      ]
+    },
+    "commerce": {
+      "enabled": false,
+      "path": [],
+      "honesty": "Do not show cart/checkout UI that is not implemented for this demo."
+    },
+    "contact": {
+      "show_phone": true,
+      "show_email": true,
+      "show_form": true,
+      "show_social": true
+    }
+  },
+  "continuity_prompt": "CONTINUITY LOCK (mandatory):\n- environment_id=env_cef6bbd136 world=dark premium barbershop\n- character_id=char_1d6f704fc1 male 30-35 hair=starts longer/messy → ends clean fade clothing=dark premium shirt, same throughout\n- SAME person in every shot. Do not invent a new face.\n- Each shot CONTINUES the previous action. Not a random gallery.",
+  "mobile_strategy": {
+    "desktop": "full cinematic scroll (clips preferred)",
+    "mobile": "shorter clip / poster / lightweight crossfade — do not ship desktop megabytes"
+  },
+  "qa": {
+    "engine": "continuity_qa_v2",
+    "status": "PASS",
+    "failures": [],
+    "warnings": [],
+    "retry_scope": null,
+    "message": "Continuous ad film contract OK."
+  }
+}

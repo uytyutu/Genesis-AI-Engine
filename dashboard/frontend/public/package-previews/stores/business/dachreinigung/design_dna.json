@@ -1,0 +1,64 @@
+{
+  "emotion": "warmth",
+  "style": "organic_premium",
+  "palette_family": "warm_clay",
+  "typography_pair": "fraunces_dm",
+  "motion": "business",
+  "hero_concept": "soft_orb_photo",
+  "hero_layout": "B",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "chamber",
+  "package_id": "business",
+  "niche_id": "generic",
+  "fingerprint": "5184a319113fc7407e9a94d18241614139fdefe31927c0386883912918e94956",
+  "section_treatments": [
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "services",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "process",
+      "illustration"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "maps",
+      "glass"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#a68a6d",
+  "surface_hex": "#faf6f1",
+  "ink_hex": "#292524"
+}

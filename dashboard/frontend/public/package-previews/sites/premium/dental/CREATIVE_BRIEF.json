@@ -1,0 +1,15 @@
+{
+  "brand_name": "SmileCare Praxis",
+  "niche_id": "dental",
+  "package_id": "premium",
+  "media_mode": "clinical_clean",
+  "visual_metaphor": "Bright precision clinic",
+  "hero_concept": "Bright precision clinic | SmileCare Praxis",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "d5d66ca427411f0eb701",
+  "image_prompt": "SmileCare Praxis dental brand hero, Bright precision clinic, European studio, media_mode=clinical_clean, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

@@ -1,0 +1,68 @@
+{
+  "emotion": "trust",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "fraunces_dm",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "product_first",
+  "package_id": "business",
+  "niche_id": "fashion",
+  "fingerprint": "da3727ae2953d8e5158bef05f8ca34ef2349cc0e17cd550dd38a45aa864fcd82",
+  "section_treatments": [
+    [
+      "catalog",
+      "tint"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "gallery",
+      "illustration"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "gradient"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f3f6f4",
+  "ink_hex": "#243029"
+}

@@ -9,7 +9,10 @@
   <link rel="alternate" hreflang="de-DE" href="./">
   <link rel="alternate" hreflang="x-default" href="./">
   
-  
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap">
+
   <style>
 
     :root {
@@ -215,7 +218,7 @@
     body[data-tier="basic"] .topbar a { color: var(--pd); }
 
 
-    /* Niche Design System: dental */
+    /* Design Engine · Niche Design System: dental */
     body[data-niche="dental"] {
       --p: #0284c7;
       --pd: #0369a1;
@@ -227,12 +230,15 @@
       --radius: 16px;
       --btn-radius: 999px;
       --card-radius: 18px;
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      --font-body: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+      --font-display: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-family: var(--font-body);
       color: var(--ink);
     }
     body[data-niche="dental"] .hero h1,
-    body[data-niche="dental"] .section h2 {
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    body[data-niche="dental"] .section h2,
+    body[data-niche="dental"] .mid-cta h2 {
+      font-family: var(--font-display);
       letter-spacing: -0.02em;
     }
     body[data-niche="dental"] .btn {

@@ -1,0 +1,15 @@
+{
+  "brand_name": "Röstwerk Coffee",
+  "niche_id": "restaurant",
+  "package_id": "premium",
+  "media_mode": "cinematic_photo",
+  "visual_metaphor": "Brand character in space",
+  "hero_concept": "Brand character in space | Röstwerk Coffee",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "9e352f52e135a1821afc",
+  "image_prompt": "Röstwerk Coffee restaurant brand hero, Brand character in space, European studio, media_mode=cinematic_photo, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

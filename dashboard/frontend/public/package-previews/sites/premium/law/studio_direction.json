@@ -1,0 +1,1596 @@
+{
+  "studio_id": "digital_creative_studio_v4_studio_era",
+  "era": "Virtus Core Studio Era",
+  "product_noun": "Digital Experience Generation",
+  "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+  "digital_signature_aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+  "philosophy": "virtus_core_studio_era_digital_experience_generation",
+  "immutable_law_1": "Каждый новый проект обязан быть не хуже предыдущего лучшего проекта. Если генерация ухудшила качество — REBUILD. Если она повторила шаблон — REBUILD. Если сайт выглядит как конструктор — REBUILD. Если сайт уступает современным digital-студиям — REBUILD.",
+  "immutable_law_2": "Любая новая идея должна сначала стать заметной клиенту. Если появляется Director, Engine, Rule или Memory — ответь: «Что изменится в первом впечатлении клиента?» Если ответ: «Пока ничего, но архитектура стала лучше» — работа ещё не закончена.",
+  "pipeline": [
+    "human_first",
+    "brand_story",
+    "core_emotion",
+    "core_promise",
+    "visual_metaphor",
+    "creative_theme",
+    "scene_language",
+    "motion_language",
+    "typography_voice",
+    "color_emotion",
+    "interaction_style",
+    "creative_conflict",
+    "owner_preview"
+  ],
+  "scene_arc": [
+    "scene",
+    "story",
+    "emotion",
+    "interaction",
+    "experience",
+    "conversion"
+  ],
+  "package_id": "premium",
+  "niche_id": "law",
+  "studio_approach": {
+    "id": "editorial",
+    "label": "Editorial",
+    "pillars": [
+      "magazine grid",
+      "unusual layout",
+      "large headlines",
+      "story first",
+      "typographic drama"
+    ],
+    "composition_bias": [
+      "magazine",
+      "editorial",
+      "folio",
+      "narrative",
+      "cascade"
+    ],
+    "type_bias": [
+      "newsreader_public",
+      "playfair_manrope",
+      "instrument_onest"
+    ],
+    "color_feeling": "ink on paper, selective accent",
+    "motion": "scroll chapters, underline craft",
+    "niches_affinity": [
+      "law",
+      "psychology",
+      "photography",
+      "creative"
+    ],
+    "notes": ""
+  },
+  "moodboard": {
+    "niche_id": "law",
+    "emotion": "Kontrolle",
+    "keywords": [
+      "depth",
+      "rhythm",
+      "hero presence",
+      "niche truth",
+      "quiet authority · isometric craft marks",
+      "ruhiges anwaltsbüro",
+      "akten und stadtblick",
+      "verhandlungstisch"
+    ],
+    "avoid": [
+      "template ladder",
+      "flat white",
+      "metric PASS theater",
+      "gaming",
+      "neon",
+      "scales_of_justice_stock",
+      "coupon",
+      "cafe",
+      "restaurant interior",
+      "beauty salon",
+      "spa",
+      "saas dashboard",
+      "startup office",
+      "coworking",
+      "stock handshake",
+      "generic purple gradient",
+      "luxury champagne cliché without craft proof",
+      "laptop",
+      "coffee",
+      "abstract business",
+      "office meeting",
+      "gavel stock",
+      "scales of justice cliché",
+      "angry courtroom"
+    ],
+    "hero_feeling": "Ruhige Fassade, klares Licht, kein Theater",
+    "atmosphere": "ruhiges Anwaltsbüro · Akten und Stadtblick · Verhandlungstisch",
+    "references": [
+      "Best contemporary niche studios"
+    ]
+  },
+  "business_identity": {
+    "brand_name": "Kanzlei Bergmann",
+    "niche_id": "law",
+    "package_id": "premium",
+    "founded_year": 2020,
+    "company_age_years": 6,
+    "mission": "Klar. Vertrauenswürdig. Vor Ort.",
+    "core_services": [
+      "Beratung",
+      "Service"
+    ],
+    "geography": "Deutschland",
+    "advantages": [
+      "Transparenz",
+      "Lokaler Service"
+    ],
+    "values": [
+      "Vertrauen",
+      "Klarheit"
+    ],
+    "client_types": [
+      "Privatkunden"
+    ],
+    "price_segment": "Mittel",
+    "brand_character": "Expert + Guide",
+    "team_size_label": "Kleinteam (Demo)",
+    "marketing_dna_stub": {
+      "audience": "Lokale Kunden",
+      "goal": "Kontakt",
+      "emotion": "Vertrauen",
+      "pacing": "ruhig",
+      "platforms": [
+        "Website"
+      ]
+    },
+    "video_dna_stub": {
+      "camera": [
+        "Static"
+      ],
+      "mood": "Clear daylight",
+      "music": "Soft ambient",
+      "pacing": "Steady",
+      "required_scenes": [
+        "Workplace",
+        "People at work"
+      ],
+      "forbidden": [
+        "Café",
+        "Coworking",
+        "Laptop stock"
+      ]
+    },
+    "fingerprint": "ffa83ab9801653b7dc8f6cba",
+    "demo": true,
+    "chain": [
+      "business_identity",
+      "brand_book",
+      "atmosphere",
+      "reputation",
+      "local_identity",
+      "website",
+      "store",
+      "marketing"
+    ]
+  },
+  "brand_book": {
+    "brand_name": "Kanzlei Bergmann",
+    "niche_id": "law",
+    "package_id": "premium",
+    "positioning": "Ruhige Autorität",
+    "archetype_primary": "The Counselor",
+    "archetype_secondary": "The Architect",
+    "brand_promise": "Stille. Ordnung. Kontrolle.",
+    "core_emotion": "Kontrolle",
+    "secondary_emotion": "Vertrauen ohne Drama",
+    "tone": [
+      "Präzise",
+      "Ruhig",
+      "Autorität",
+      "Klar"
+    ],
+    "visual_style": "Quiet Authority · isometric craft marks",
+    "visual_metaphor": "Ruhige Fassade, klares Licht, kein Theater",
+    "photography": [
+      "ruhiges Anwaltsbüro",
+      "Akten und Stadtblick",
+      "Verhandlungstisch",
+      "Beratung",
+      "Dokumente",
+      "Bibliothek",
+      "Empfang"
+    ],
+    "forbidden": [
+      "cafe",
+      "restaurant interior",
+      "beauty salon",
+      "spa",
+      "saas dashboard",
+      "startup office",
+      "coworking",
+      "stock handshake",
+      "generic purple gradient",
+      "luxury champagne cliché without craft proof",
+      "laptop",
+      "coffee",
+      "abstract business",
+      "office meeting",
+      "gavel stock",
+      "scales of justice cliché",
+      "angry courtroom"
+    ],
+    "motion_language": "industrial snap · sharp transitions · tool hover",
+    "motion_token": "business",
+    "palette": {
+      "names": [
+        "Ink",
+        "Stone",
+        "Brass",
+        "Paper"
+      ],
+      "accent_hex": "#b4975a",
+      "surface_hex": "#f8f6f0",
+      "ink_hex": "#0b0d10",
+      "secondary_hex": "#32d3aa",
+      "highlight_hex": "#b4975a"
+    },
+    "typography_display": "Libre Baskerville",
+    "typography_body": "IBM Plex Sans",
+    "typography_pair_id": "baskerville_plex_legal",
+    "typography_emotion": "authority",
+    "icon_style": "technical blueprint icons",
+    "border_radius_px": 0,
+    "shadow_style": "Hairline",
+    "glass_level": "medium",
+    "texture": [
+      "Stone",
+      "Paper",
+      "Brass"
+    ],
+    "scene_language": [
+      "ruhiges Anwaltsbüro",
+      "Akten und Stadtblick",
+      "Verhandlungstisch"
+    ],
+    "cta_style": "Ein Knopf · Keine Dringlichkeit",
+    "trust_strategy": [
+      "Honorare klar",
+      "Erstberatung",
+      "Vertraulichkeit"
+    ],
+    "atmosphere_mode": "atelier",
+    "dna_style": "modern_clinical",
+    "dna_palette_family": "ink_brass",
+    "hero_concept": "ruhiges Anwaltsbüro · Akten und Stadtblick · Verhandlungstisch",
+    "fingerprint": "d10941b80d261fd50d1f85c2",
+    "media_dna": {
+      "required": [
+        "Quiet facade",
+        "Order",
+        "Clear light",
+        "Architecture"
+      ],
+      "preferred": [
+        "Empty conference table",
+        "Paper stack neat",
+        "Stone detail"
+      ],
+      "forbidden": [
+        "Gavel stock",
+        "Scales of justice cliché",
+        "Angry courtroom"
+      ],
+      "hero_proof": "Silence, order, control — authority without theater.",
+      "profession_keywords": [
+        "kanzlei",
+        "recht",
+        "vertrag",
+        "beratung",
+        "ordnung"
+      ],
+      "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+    },
+    "city_hint": ""
+  },
+  "atmosphere_pack": {
+    "brand_name": "Kanzlei Bergmann",
+    "niche_id": "law",
+    "package_id": "premium",
+    "metaphor": "Ruhige Fassade, klares Licht, kein Theater",
+    "core_emotion": "Kontrolle",
+    "atmosphere_mode": "atelier",
+    "scene_language": [
+      "ruhiges Anwaltsbüro",
+      "Akten und Stadtblick",
+      "Verhandlungstisch"
+    ],
+    "texture_language": [
+      "Stone",
+      "Paper",
+      "Brass"
+    ],
+    "motion_language": "kinetic micro-motion · glow pulse · scroll scenes",
+    "camera_feeling": "facade frontal · still · ordered geometry",
+    "scroll_feeling": "measured · no bounce",
+    "cta_feeling": "one precise button · Ein Knopf · Keine Dringlichkeit",
+    "sound_mood": "silence · paper · clock distant",
+    "illustration_style": "motion shape ribbons",
+    "glass_level": "medium",
+    "shadow_language": "hard architectural · clean edge · Hairline",
+    "icon_language": "technical blueprint icons",
+    "lighting": "clear daylight · cool stone · brass highlight",
+    "layers": [
+      "content",
+      "atmosphere",
+      "motion",
+      "depth",
+      "identity"
+    ],
+    "media_briefs": [
+      {
+        "role": "hero",
+        "concept": "ruhiges Anwaltsbüro · Akten und Stadtblick · Verhandlungstisch",
+        "must_include": [
+          "ruhiges Anwaltsbüro",
+          "Akten und Stadtblick",
+          "Verhandlungstisch",
+          "Beratung",
+          "Dokumente"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "gavel stock",
+          "scales of justice cliché",
+          "angry courtroom"
+        ],
+        "seed": "Kanzlei Bergmann|law|premium|d10941b80d261fd50d1f85c2|hero|eb544fc554298e3ae377",
+        "size": [
+          1600,
+          900
+        ],
+        "image_prompt": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=hero. Medium=editorial_photo. Illustration language=motion shape ribbons. Must show: Akten und Stadtblick, Verhandlungstisch, ruhiges Anwaltsbüro. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      },
+      {
+        "role": "background",
+        "concept": "scene · ruhiges Anwaltsbüro · Akten und Stadtblick · Verhandlungstisch",
+        "must_include": [
+          "ruhiges Anwaltsbüro",
+          "Akten und Stadtblick",
+          "Verhandlungstisch",
+          "Stone",
+          "Paper"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "gavel stock",
+          "scales of justice cliché",
+          "angry courtroom"
+        ],
+        "seed": "Kanzlei Bergmann|law|premium|d10941b80d261fd50d1f85c2|bg|eb544fc554298e3ae377",
+        "size": [
+          1920,
+          1080
+        ],
+        "image_prompt": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=motion shape ribbons. Must show: Akten und Stadtblick, Verhandlungstisch, ruhiges Anwaltsbüro. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      },
+      {
+        "role": "gallery",
+        "concept": "gallery proof · Beratung",
+        "must_include": [
+          "Beratung",
+          "Stone",
+          "Paper"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "gavel stock",
+          "scales of justice cliché",
+          "angry courtroom"
+        ],
+        "seed": "Kanzlei Bergmann|law|premium|d10941b80d261fd50d1f85c2|gal0|eb544fc554298e3ae377",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=motion shape ribbons. Must show: Beratung, Dokumente, Bibliothek, Empfang. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Beratung."
+      },
+      {
+        "role": "gallery",
+        "concept": "gallery proof · Dokumente",
+        "must_include": [
+          "Dokumente",
+          "Stone",
+          "Paper"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "gavel stock",
+          "scales of justice cliché",
+          "angry courtroom"
+        ],
+        "seed": "Kanzlei Bergmann|law|premium|d10941b80d261fd50d1f85c2|gal1|eb544fc554298e3ae377",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=motion shape ribbons. Must show: Beratung, Dokumente, Bibliothek, Empfang. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Dokumente."
+      },
+      {
+        "role": "gallery",
+        "concept": "gallery proof · Bibliothek",
+        "must_include": [
+          "Bibliothek",
+          "Stone",
+          "Paper"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "gavel stock",
+          "scales of justice cliché",
+          "angry courtroom"
+        ],
+        "seed": "Kanzlei Bergmann|law|premium|d10941b80d261fd50d1f85c2|gal2|eb544fc554298e3ae377",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=motion shape ribbons. Must show: Beratung, Dokumente, Bibliothek, Empfang. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Bibliothek."
+      },
+      {
+        "role": "gallery",
+        "concept": "gallery proof · Empfang",
+        "must_include": [
+          "Empfang",
+          "Stone",
+          "Paper"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "gavel stock",
+          "scales of justice cliché",
+          "angry courtroom"
+        ],
+        "seed": "Kanzlei Bergmann|law|premium|d10941b80d261fd50d1f85c2|gal3|eb544fc554298e3ae377",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=motion shape ribbons. Must show: Beratung, Dokumente, Bibliothek, Empfang. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Empfang."
+      },
+      {
+        "role": "before_after",
+        "concept": "before / after proof",
+        "must_include": [
+          "ruhiges Anwaltsbüro",
+          "Akten und Stadtblick"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "gavel stock",
+          "scales of justice cliché",
+          "angry courtroom"
+        ],
+        "seed": "Kanzlei Bergmann|law|premium|d10941b80d261fd50d1f85c2|before_after|eb544fc554298e3ae377",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=before_after. Medium=editorial_photo. Illustration language=motion shape ribbons. Must show: Beratung, Dokumente. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      },
+      {
+        "role": "team",
+        "concept": "team of this company",
+        "must_include": [
+          "Anwalt im Gespräch"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "gavel stock",
+          "scales of justice cliché",
+          "angry courtroom"
+        ],
+        "seed": "Kanzlei Bergmann|law|premium|d10941b80d261fd50d1f85c2|team|eb544fc554298e3ae377",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=team. Medium=minimal_illustration. Illustration language=motion shape ribbons. Must show: Anwalt im Gespräch. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      },
+      {
+        "role": "equipment",
+        "concept": "tools & equipment of the trade",
+        "must_include": [
+          "Aktenordner",
+          "Konferenzraum"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "gavel stock",
+          "scales of justice cliché",
+          "angry courtroom"
+        ],
+        "seed": "Kanzlei Bergmann|law|premium|d10941b80d261fd50d1f85c2|equipment|eb544fc554298e3ae377",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=equipment. Medium=minimal_illustration. Illustration language=motion shape ribbons. Must show: Aktenordner, Konferenzraum. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      },
+      {
+        "role": "illustration",
+        "concept": "motion shape ribbons",
+        "must_include": [
+          "ruhiges Anwaltsbüro",
+          "Akten und Stadtblick"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "gavel stock",
+          "scales of justice cliché",
+          "angry courtroom"
+        ],
+        "seed": "Kanzlei Bergmann|law|premium|d10941b80d261fd50d1f85c2|illustration|eb544fc554298e3ae377",
+        "size": [
+          1200,
+          1200
+        ],
+        "image_prompt": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=illustration. Medium=minimal_illustration. Illustration language=motion shape ribbons. Must show: Akten und Stadtblick, Verhandlungstisch. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      }
+    ],
+    "fingerprint": "a309328989407455ef097417",
+    "director": "brand_book",
+    "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+  },
+  "brand_dna": {
+    "business_name": "Kanzlei Bergmann",
+    "niche_id": "law",
+    "package_id": "premium",
+    "voice": "Libre Baskerville + IBM Plex Sans",
+    "feeling": "Kontrolle",
+    "why_hero_exists": "The Hero exists to make 'Quiet Mandate' felt in 3 seconds: Power that does not need to shout.",
+    "color_feeling": "Quiet Authority · isometric craft marks",
+    "type_voice": "Libre Baskerville / IBM Plex Sans",
+    "scene_arc": "measured negative space, one decisive statement",
+    "avoid": [
+      "gaming",
+      "neon",
+      "scales_of_justice_stock",
+      "coupon",
+      "cafe",
+      "restaurant interior",
+      "beauty salon",
+      "spa",
+      "saas dashboard",
+      "startup office",
+      "coworking",
+      "stock handshake",
+      "generic purple gradient",
+      "luxury champagne cliché without craft proof",
+      "laptop",
+      "coffee",
+      "abstract business",
+      "office meeting",
+      "gavel stock",
+      "scales of justice cliché",
+      "angry courtroom"
+    ],
+    "fingerprint": "0024fcfe4b666c08",
+    "brand_story": "Anna built Kanzlei Bergmann because quiet competence without theatrics. Clients (30–50) should feel protected clarity. Only then do we name the craft: law.",
+    "core_emotion": "Kontrolle",
+    "core_promise": "Stille. Ordnung. Kontrolle.",
+    "visual_metaphor": "Ruhige Fassade, klares Licht, kein Theater",
+    "creative_theme": "Quiet Mandate",
+    "creative_theme_id": "quiet_mandate",
+    "scene_language": "ruhiges Anwaltsbüro · Akten und Stadtblick · Verhandlungstisch",
+    "motion_language": "industrial snap · sharp transitions · tool hover",
+    "interaction_style": "discreet CTAs — prestige without marble cliché",
+    "photo_world": "ruhiges Anwaltsbüro · Akten und Stadtblick · Verhandlungstisch · Beratung · Dokumente · Bibliothek · Empfang",
+    "founder_name": "Anna"
+  },
+  "creative_identity": {
+    "title": "Quiet Mandate",
+    "theme_id": "quiet_mandate",
+    "idea": "Power that does not need to shout.",
+    "human": {
+      "founder_name": "Anna",
+      "founder_role": "managing counsel",
+      "client_age_range": "30–50",
+      "why_choose_them": "Quiet competence without theatrics.",
+      "visitor_must_feel": "protected clarity",
+      "niche_revealed_later": "law"
+    },
+    "brand_story": "Anna built Kanzlei Bergmann because quiet competence without theatrics. Clients (30–50) should feel protected clarity. Only then do we name the craft: law.",
+    "core_emotion": "protected clarity",
+    "core_promise": "Power that does not need to shout.",
+    "visual_metaphor": "a closed folder that already holds the answer",
+    "creative_theme": "Quiet Mandate",
+    "scene_language": "measured negative space, one decisive statement",
+    "motion_language": "slow authority — no flash",
+    "typography_voice": "Libre Baskerville + IBM Plex Sans",
+    "color_emotion": "ink, stone, restrained gold",
+    "interaction_style": "discreet CTAs — prestige without marble cliché",
+    "photo_world": "desk lamp, clean papers, city dusk through glass",
+    "niche_revealed": "law",
+    "package_id": "premium",
+    "surface": "site",
+    "conflict": {
+      "ok": true,
+      "action": "CONTINUE",
+      "conflicts": []
+    },
+    "forbidden": [
+      "gaming",
+      "neon",
+      "scales_of_justice_stock",
+      "coupon"
+    ],
+    "owner_preview": "PENDING_OWNER",
+    "html_export_allowed": true,
+    "html_blocked_reason": "",
+    "fingerprint": "0024fcfe4b666c08",
+    "generated_at": "2026-08-08T14:34:28.378963+00:00",
+    "sprint": "Creative Identity Generation",
+    "agency_note": "Think like a creative agency director on a €50,000 brief. No idea → no HTML. Creative Identity becomes site, store, social, video, ads.",
+    "pipeline": [
+      "human_first",
+      "brand_story",
+      "core_emotion",
+      "core_promise",
+      "visual_metaphor",
+      "creative_theme",
+      "scene_language",
+      "motion_language",
+      "typography_voice",
+      "color_emotion",
+      "interaction_style",
+      "creative_conflict",
+      "owner_preview"
+    ],
+    "before_html": true,
+    "naming": "Creative Identity — not Concept",
+    "question": "Who is the human — and what idea can you feel?",
+    "not_question": "How do we assemble a psychologist website?"
+  },
+  "observatory": {
+    "niche_id": "law",
+    "era": "2026+",
+    "study_sources": [
+      "Boutique European law firms",
+      "Editorial corporate brand sites",
+      "Quiet prestige consulting"
+    ],
+    "first_screen": [
+      "Authority without marble cliché",
+      "Precise headline — one mandate",
+      "Dark or ink editorial, not stock gavel"
+    ],
+    "page_rhythm": [
+      "Credentials early as craft",
+      "Practice areas as narrative, not icon grid dump",
+      "Contact as confident close"
+    ],
+    "composition_depth": [
+      "Editorial columns",
+      "Hairline rules used sparingly",
+      "Photo as evidence"
+    ],
+    "typography": [
+      "Classical serif + precise sans",
+      "Tight but readable scale"
+    ],
+    "micro_interactions": [
+      "Understated underline / ink shifts",
+      "No playful bounce"
+    ],
+    "trust": [
+      "Named expertise",
+      "Process clarity",
+      "Impressum as professionalism"
+    ],
+    "cta_craft": "Erstberatung — calm, not salesy",
+    "brand_feel": [
+      "prestige",
+      "clarity",
+      "confidence"
+    ],
+    "invent": "Original firm personality — not a gray template with a logo.",
+    "never": [
+      "Stock handshake hero",
+      "Fake award counters"
+    ],
+    "lenses": [
+      {
+        "id": "first_screen",
+        "question": "Why does the first screen exist?",
+        "principles": [
+          "One emotional job in 3 seconds",
+          "Visual center owns the fold",
+          "Brand voice before feature list"
+        ],
+        "anti_patterns": [
+          "Hero as feature dump",
+          "equal card grid first",
+          "logo wall as hero"
+        ]
+      },
+      {
+        "id": "rhythm",
+        "question": "How does the page breathe?",
+        "principles": [
+          "Scenes with distinct moods",
+          "Alternating density — never identical section padding",
+          "Story → emotion → interaction → conversion"
+        ],
+        "anti_patterns": [
+          "Hero→Text→Cards→Text→Cards",
+          "uniform white slabs"
+        ]
+      },
+      {
+        "id": "trust",
+        "question": "How is confidence earned?",
+        "principles": [
+          "Proof woven into scenes, not bolted as a strip",
+          "Specific over generic claims",
+          "Quiet credentials beat badge spam"
+        ],
+        "anti_patterns": [
+          "fake counters",
+          "stock handshake photos as trust"
+        ]
+      },
+      {
+        "id": "cta",
+        "question": "How does desire become action?",
+        "principles": [
+          "CTA matches emotional temperature of the scene",
+          "Secondary path without visual noise",
+          "One primary ask per scene"
+        ],
+        "anti_patterns": [
+          "identical pill buttons everywhere",
+          "three equal CTAs"
+        ]
+      }
+    ]
+  },
+  "observatory_brief": "Design Observatory · law · 2026+\nRule: analyze principles — invent original — never copy pixels.\nFirst screen: Authority without marble cliché; Precise headline — one mandate; Dark or ink editorial, not stock gavel\nRhythm: Credentials early as craft; Practice areas as narrative, not icon grid dump; Contact as confident close\nDepth: Editorial columns; Hairline rules used sparingly; Photo as evidence\nType: Classical serif + precise sans; Tight but readable scale\nMotion: Understated underline / ink shifts; No playful bounce\nTrust: Named expertise; Process clarity; Impressum as professionalism\nCTA: E; r; s\nInvent: Original firm personality — not a gray template with a logo.\nNever: Stock handshake hero; Fake award counters",
+  "benchmark_brief": "Visual Benchmark · law\nComposition: Full-bleed Hero, asymmetric next fold, no equal-card stack\nRhythm: Contrast ladder; never two open-light bands in a row\nHero: First viewport must sell the craft before any section list\nColor: Niche-true palette; no default purple mesh\nType: Expressive display + calm body\nDepth: Photo + glass + atmosphere layers\nAtmosphere: Living canvas, not flat white\nAvoid: Template ladder; Metric PASS without eye check",
+  "quality_floor": "Premium > Virtus Core /site — expensive European digital-studio impression (logo off still reads studio)",
+  "why_hero_exists": "Hero exists for 'Kanzlei Bergmann': Ruhige Fassade, klares Licht, kein Theater — Stille. Ordnung. Kontrolle.",
+  "scene_sequence": [
+    "scene",
+    "story",
+    "emotion",
+    "experience",
+    "interaction",
+    "conversion",
+    "experience",
+    "interaction",
+    "scene",
+    "interaction",
+    "experience",
+    "interaction",
+    "conversion"
+  ],
+  "taste": {
+    "overall": 70.62,
+    "axes": [
+      {
+        "axis": "rhythm",
+        "score": 100.0,
+        "note": "scene arc vs ladder"
+      },
+      {
+        "axis": "emotion",
+        "score": 85.0,
+        "note": "feeling + why-hero"
+      },
+      {
+        "axis": "brand",
+        "score": 83.0,
+        "note": "approach + composition identity"
+      },
+      {
+        "axis": "beauty",
+        "score": 50.0,
+        "note": "atmosphere + media integrity"
+      },
+      {
+        "axis": "visual_value",
+        "score": 50.0,
+        "note": "worth looking at"
+      },
+      {
+        "axis": "trust",
+        "score": 55.0,
+        "note": "proof craft"
+      },
+      {
+        "axis": "modernity",
+        "score": 77.0,
+        "note": "2026 studio language"
+      },
+      {
+        "axis": "uniqueness",
+        "score": 65.0,
+        "note": "not another clone"
+      }
+    ],
+    "verdict": "PROMISING",
+    "rebuild": false,
+    "reasons": [],
+    "philosophy": "Taste judges the whole impression — not isolated CSS rules.",
+    "owner_still_decides_pass": true
+  },
+  "law_1": {
+    "law": "Every new project must not be worse than the previous best. Quality regression → REBUILD. Template repeat → REBUILD. Constructor look → REBUILD. Below modern digital studios → REBUILD.",
+    "ok": true,
+    "action": "CONTINUE",
+    "reasons": []
+  },
+  "memory_bias": {
+    "compositions": [
+      "editorial",
+      "solstice"
+    ],
+    "approaches": [
+      "editorial"
+    ],
+    "typography": [
+      "baskerville_plex_legal",
+      "manrope_ibm_plex_industrial",
+      "cormorant_source"
+    ],
+    "heroes": [
+      "D"
+    ],
+    "prior_best_overall": 71.5,
+    "rule": "Bias principles from memory — never copy a prior site literally"
+  },
+  "agency_review": {
+    "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+    "roles": [
+      {
+        "id": "ceo",
+        "title": "CEO",
+        "question": "Does this strengthen the client's business presence — not just fill a page?"
+      },
+      {
+        "id": "creative_director",
+        "title": "Creative Director",
+        "question": "Is the creative direction clear, ownable, and non-template?"
+      },
+      {
+        "id": "brand_strategist",
+        "title": "Brand Strategist",
+        "question": "What is this brand's personality — and why does it exist?"
+      },
+      {
+        "id": "marketing_strategist",
+        "title": "Marketing Strategist",
+        "question": "What should the stranger feel in 3 seconds — and what should they do?"
+      },
+      {
+        "id": "ux_researcher",
+        "title": "UX Researcher",
+        "question": "Is the path human, calm, credible — free of constructor anxiety?"
+      },
+      {
+        "id": "art_director",
+        "title": "Art Director",
+        "question": "Does every scene have its own composition, rhythm, mood, and visual center?"
+      },
+      {
+        "id": "typography_director",
+        "title": "Typography Director",
+        "question": "Does type carry character and brand voice — not a default stack?"
+      },
+      {
+        "id": "color_director",
+        "title": "Color Director",
+        "question": "Does color create the intended emotion — not decoration?"
+      },
+      {
+        "id": "motion_director",
+        "title": "Motion Director",
+        "question": "Does every animation have meaning — or is it noise?"
+      },
+      {
+        "id": "frontend_architect",
+        "title": "Frontend Architect",
+        "question": "Is the craft export clean, resilient, and worthy of a studio?"
+      },
+      {
+        "id": "accessibility_specialist",
+        "title": "Accessibility Specialist",
+        "question": "Can everyone use this with dignity?"
+      },
+      {
+        "id": "performance_engineer",
+        "title": "Performance Engineer",
+        "question": "Does beauty stay fast on real devices?"
+      },
+      {
+        "id": "qa_designer",
+        "title": "QA Designer",
+        "question": "Would a European digital studio ship this without shame?"
+      },
+      {
+        "id": "owner_review",
+        "title": "Owner Review",
+        "question": "Has the owner said: \"Да. Я бы купил такой сайт.\"?"
+      }
+    ],
+    "digital_signature": {
+      "name": "Virtus Core Digital Signature",
+      "aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+      "craft_marks": [
+        "attention to detail",
+        "meaningful motion",
+        "strong typography",
+        "harmonious spacing",
+        "considered interactive states",
+        "coherent interaction sequences"
+      ],
+      "never": [
+        "same colors across every niche",
+        "identical compositions",
+        "constructor ladders",
+        "empty decorative zones",
+        "motion without meaning"
+      ]
+    },
+    "ecosystem_frame": {
+      "wrong": "Create a dentist website.",
+      "right": "Create the digital business of a dental clinic.",
+      "for_this_project": "Create the digital business of Kanzlei Bergmann (law) — experience is one surface of the ecosystem, not the end product.",
+      "surfaces": [
+        {
+          "id": "experience",
+          "label": "Digital Experience (site/store)",
+          "role": "first impression & brand face"
+        },
+        {
+          "id": "booking",
+          "label": "Booking / scheduling",
+          "role": "convert intent to appointments"
+        },
+        {
+          "id": "crm",
+          "label": "CRM",
+          "role": "remember and serve the client"
+        },
+        {
+          "id": "reminders",
+          "label": "Automated reminders",
+          "role": "reduce no-shows"
+        },
+        {
+          "id": "chat",
+          "label": "Chat / assistant",
+          "role": "answer when humans sleep"
+        },
+        {
+          "id": "reviews",
+          "label": "Reviews",
+          "role": "trust at scale"
+        },
+        {
+          "id": "seo",
+          "label": "SEO",
+          "role": "be found"
+        },
+        {
+          "id": "ads",
+          "label": "Advertising",
+          "role": "reach with brand integrity"
+        },
+        {
+          "id": "analytics",
+          "label": "Analytics",
+          "role": "learn what works"
+        },
+        {
+          "id": "video",
+          "label": "Video",
+          "role": "emotion and proof"
+        },
+        {
+          "id": "social",
+          "label": "Social",
+          "role": "presence beyond the site"
+        },
+        {
+          "id": "cabinet",
+          "label": "Client cabinet",
+          "role": "ongoing relationship"
+        }
+      ],
+      "package_id": "premium"
+    },
+    "owner_buy_phrase": "Да. Я бы купил такой сайт.",
+    "owner_review": "PENDING_OWNER",
+    "note": "Roles are questions every generation must face. PASS only after human approval."
+  },
+  "variants_considered": [
+    {
+      "composition_id": "runway",
+      "composition_label": "Runway scroll",
+      "hero_layout": "F",
+      "layout_profile": "L4-runway",
+      "dna_style": "modern_clinical",
+      "dna_composition": "runway",
+      "section_order": [
+        "gallery",
+        "showcase",
+        "services",
+        "reputation",
+        "mid_cta",
+        "about",
+        "stats",
+        "trust",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "gallery>showcase>services>reputation>mid_cta>about>stats>trust>process>benefits>faq>reviews"
+    },
+    {
+      "composition_id": "sanctuary",
+      "composition_label": "Sanctuary calm",
+      "hero_layout": "A",
+      "layout_profile": "L2-sanctuary",
+      "dna_style": "modern_clinical",
+      "dna_composition": "sanctuary",
+      "section_order": [
+        "about",
+        "gallery",
+        "trust",
+        "mid_cta",
+        "services",
+        "reputation",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>gallery>trust>mid_cta>services>reputation>process>benefits>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "signal",
+      "composition_label": "Signal strip",
+      "hero_layout": "A",
+      "layout_profile": "L5-signal",
+      "dna_style": "modern_clinical",
+      "dna_composition": "signal",
+      "section_order": [
+        "stats",
+        "trust",
+        "services",
+        "reputation",
+        "mid_cta",
+        "about",
+        "gallery",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 5.0,
+      "reasons": [
+        "too predictable — classic section ladder"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "stats>trust>services>reputation>mid_cta>about>gallery>process>benefits>faq>reviews>maps"
+    },
+    {
+      "composition_id": "spotlight",
+      "composition_label": "Spotlight feature",
+      "hero_layout": "B",
+      "layout_profile": "L6-spotlight",
+      "dna_style": "modern_clinical",
+      "dna_composition": "spotlight",
+      "section_order": [
+        "showcase",
+        "mid_cta",
+        "about",
+        "gallery",
+        "services",
+        "reputation",
+        "trust",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>mid_cta>about>gallery>services>reputation>trust>process>benefits>faq>reviews>maps"
+    },
+    {
+      "composition_id": "tech_stack",
+      "composition_label": "Tech stack narrative",
+      "hero_layout": "A",
+      "layout_profile": "L5-tech_stack",
+      "dna_style": "modern_clinical",
+      "dna_composition": "tech_stack",
+      "section_order": [
+        "showcase",
+        "stats",
+        "services",
+        "reputation",
+        "mid_cta",
+        "process",
+        "about",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 62.0,
+      "reasons": [
+        "anti-predictable composition",
+        "cinematic hero preference"
+      ],
+      "rejected": false,
+      "reject_reason": "",
+      "rhythm": "showcase>stats>services>reputation>mid_cta>process>about>trust>benefits>faq>reviews>maps"
+    },
+    {
+      "composition_id": "visual_first",
+      "composition_label": "Visual first",
+      "hero_layout": "D",
+      "layout_profile": "L6-visual_first",
+      "dna_style": "modern_clinical",
+      "dna_composition": "visual_first",
+      "section_order": [
+        "gallery",
+        "showcase",
+        "about",
+        "mid_cta",
+        "services",
+        "reputation",
+        "trust",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "gallery>showcase>about>mid_cta>services>reputation>trust>process>benefits>faq>reviews>maps"
+    },
+    {
+      "composition_id": "cards_first",
+      "composition_label": "Offers first",
+      "hero_layout": "A",
+      "layout_profile": "L1-cards_first",
+      "dna_style": "modern_clinical",
+      "dna_composition": "cards_first",
+      "section_order": [
+        "services",
+        "reputation",
+        "mid_cta",
+        "gallery",
+        "about",
+        "benefits",
+        "trust",
+        "process",
+        "showcase",
+        "stats",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "services>reputation>mid_cta>gallery>about>benefits>trust>process>showcase>stats>faq>reviews"
+    },
+    {
+      "composition_id": "cascade",
+      "composition_label": "Cascade reveals",
+      "hero_layout": "A",
+      "layout_profile": "L2-cascade",
+      "dna_style": "modern_clinical",
+      "dna_composition": "cascade",
+      "section_order": [
+        "about",
+        "gallery",
+        "process",
+        "mid_cta",
+        "services",
+        "reputation",
+        "showcase",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 76.0,
+      "reasons": [
+        "anti-predictable composition",
+        "niche affinity:law",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": false,
+      "reject_reason": "",
+      "rhythm": "about>gallery>process>mid_cta>services>reputation>showcase>trust>benefits>faq>reviews>maps"
+    },
+    {
+      "composition_id": "editorial",
+      "composition_label": "Long-form editorial",
+      "hero_layout": "D",
+      "layout_profile": "L6-editorial",
+      "dna_style": "modern_clinical",
+      "dna_composition": "editorial",
+      "section_order": [
+        "about",
+        "benefits",
+        "gallery",
+        "services",
+        "reputation",
+        "mid_cta",
+        "process",
+        "trust",
+        "showcase",
+        "faq",
+        "reviews",
+        "calculator",
+        "maps",
+        "contact"
+      ],
+      "score": 76.0,
+      "reasons": [
+        "anti-predictable composition",
+        "niche affinity:law",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": false,
+      "reject_reason": "",
+      "rhythm": "about>benefits>gallery>services>reputation>mid_cta>process>trust>showcase>faq>reviews>calculator"
+    },
+    {
+      "composition_id": "magazine",
+      "composition_label": "Magazine editorial",
+      "hero_layout": "B",
+      "layout_profile": "L6-magazine",
+      "dna_style": "modern_clinical",
+      "dna_composition": "magazine",
+      "section_order": [
+        "about",
+        "gallery",
+        "services",
+        "reputation",
+        "mid_cta",
+        "showcase",
+        "benefits",
+        "trust",
+        "process",
+        "stats",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>gallery>services>reputation>mid_cta>showcase>benefits>trust>process>stats>faq>reviews"
+    }
+  ],
+  "chosen": {
+    "composition_id": "editorial",
+    "composition_label": "Long-form editorial",
+    "hero_layout": "D",
+    "layout_profile": "L6-editorial",
+    "dna_style": "modern_clinical",
+    "dna_composition": "editorial",
+    "section_order": [
+      "about",
+      "benefits",
+      "gallery",
+      "services",
+      "reputation",
+      "mid_cta",
+      "process",
+      "trust",
+      "showcase",
+      "faq",
+      "reviews",
+      "calculator",
+      "maps",
+      "contact"
+    ],
+    "score": 76.0,
+    "reasons": [
+      "anti-predictable composition",
+      "niche affinity:law",
+      "scene_arc_story_emotion_early"
+    ],
+    "rejected": false,
+    "reject_reason": "",
+    "rhythm": "about>benefits>gallery>services>reputation>mid_cta>process>trust>showcase>faq>reviews>calculator"
+  },
+  "dna": {
+    "emotion": "authority",
+    "style": "modern_clinical",
+    "palette_family": "ink_brass",
+    "typography_pair": "baskerville_plex_legal",
+    "motion": "business",
+    "hero_concept": "ruhiges Anwaltsbüro · Akten und Stadtblick · Verhandlungstisch",
+    "hero_layout": "D",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "editorial",
+    "package_id": "premium",
+    "niche_id": "law",
+    "fingerprint": "1a3ff714e60fc394d8b4e5ac119aef0e736bc210a40bc022d311a0a4bc1fbd68",
+    "section_treatments": [
+      [
+        "about",
+        "photo_band"
+      ],
+      [
+        "benefits",
+        "tint"
+      ],
+      [
+        "gallery",
+        "illustration"
+      ],
+      [
+        "services",
+        "tint"
+      ],
+      [
+        "mid_cta",
+        "ink"
+      ],
+      [
+        "process",
+        "gradient"
+      ],
+      [
+        "trust",
+        "glass"
+      ],
+      [
+        "showcase",
+        "photo_band"
+      ],
+      [
+        "faq",
+        "tint"
+      ],
+      [
+        "reviews",
+        "illustration"
+      ],
+      [
+        "calculator",
+        "tint"
+      ],
+      [
+        "maps",
+        "ink"
+      ],
+      [
+        "contact",
+        "ink"
+      ]
+    ],
+    "accent_hex": "#b4975a",
+    "surface_hex": "#f8f6f0",
+    "ink_hex": "#0b0d10",
+    "atmosphere_mode": "atelier",
+    "brand_book_fp": "d10941b80d261fd50d1f85c2",
+    "border_radius_px": 12
+  },
+  "layout_profile_id": "L6-editorial",
+  "section_order": [
+    "about",
+    "benefits",
+    "gallery",
+    "services",
+    "reputation",
+    "mid_cta",
+    "process",
+    "trust",
+    "showcase",
+    "faq",
+    "reviews",
+    "calculator",
+    "maps",
+    "contact"
+  ],
+  "hero_layout": "D",
+  "generation_status": "OK_TO_BUILD",
+  "creative_review": "PASS_INTERNAL",
+  "kpi_question": "Without Virtus Core logo — would a stranger believe a modern European digital studio built this?",
+  "owner_review": "PENDING_OWNER",
+  "owner_required": "Да, я бы без стыда продал этот сайт клиенту",
+  "optimize_for": "designer_decisions_and_taste",
+  "note": "Virtus Core Studio Era: Digital Experience Generation. Template-like = REBUILD. Agent may not PASS. Owner sell-readiness only."
+}

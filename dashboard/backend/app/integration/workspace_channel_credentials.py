@@ -289,7 +289,47 @@ def save_telegram_token(
         conn_id,
         tg_username,
     )
-    return {"ok": True, "connection": _public_view(record)}
+    webhook: dict[str, Any] = {"ok": True, "webhook_registered": False}
+    try:
+        from app.integration.workspace_bot_runtime import register_telegram_webhook
+
+        webhook = register_telegram_webhook(raw_token, bid)
+        record["webhook"] = {
+            "registered": bool(webhook.get("webhook_registered")),
+            "url": webhook.get("webhook_url"),
+            "reason": webhook.get("reason"),
+            "updated_at": _utc_now_iso(),
+        }
+        _write_json(_connection_path(memory_dir, customer_id, conn_id), record)
+        _upsert_index(memory_dir, customer_id, record)
+    except Exception:
+        logger.exception(
+            "telegram_setWebhook_failed customer=%s bot=%s", customer_id, bid
+        )
+        webhook = {"ok": False, "webhook_registered": False, "reason": "setWebhook_error"}
+    out = {"ok": True, "connection": _public_view(record), "webhook": webhook}
+    # Brand Virtus consultant bots on Telegram (name/description/commands) — never log token.
+    try:
+        from app.integration import workspace_ai_bots as wab
+        from app.integration.ai_employee_brain import apply_virtus_consultant_profile
+        from app.integration.workspace_bot_runtime import is_virtus_consultant
+
+        bot_row = wab.get_bot(memory_dir, customer_id, bid)
+        if bot_row and is_virtus_consultant(bot_row):
+            brand = apply_virtus_consultant_profile(raw_token)
+            out["telegram_branding"] = {
+                "branded": bool(brand.get("branded")),
+                "methods": {
+                    k: {"ok": bool(v.get("ok"))}
+                    for k, v in brand.items()
+                    if k != "branded"
+                },
+            }
+    except Exception:
+        logger.exception(
+            "telegram_branding_failed customer=%s bot=%s", customer_id, bid
+        )
+    return out
 
 
 def test_connection(

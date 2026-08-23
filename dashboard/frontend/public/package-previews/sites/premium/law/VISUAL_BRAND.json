@@ -1,0 +1,64 @@
+{
+  "brand_name": "Kanzlei Bergmann",
+  "niche_id": "law",
+  "fingerprint": "3255375c8758e79e05a9",
+  "color": {
+    "primary": "#302e28",
+    "accent": "#3c4c3b",
+    "secondary": "#82888b",
+    "surface": "#f8f6f0",
+    "cards": "#f2f2ee",
+    "background": "#f8f6f0",
+    "gradient": "linear-gradient(145deg,#302e28 0%,#1e261d 48%,#3c4c3b 100%)",
+    "glow": "rgba(60,76,59,0.35)",
+    "ink": "#0b0d10",
+    "muted": "#64748b"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "isometric_illustration",
+    "glass_3d",
+    "abstract_gradient"
+  ],
+  "illustration_pack": "glassmorphism panels",
+  "motion_language": "cinematic parallax · soft reveal · magnetic CTA",
+  "icon_style": "soft rounded symbols",
+  "scene_library": {
+    "hero": [
+      "ruhiges Anwaltsbüro",
+      "Akten und Stadtblick",
+      "Verhandlungstisch"
+    ],
+    "gallery": [
+      "Beratung",
+      "Dokumente",
+      "Bibliothek",
+      "Empfang"
+    ],
+    "team": [
+      "Anwalt im Gespräch"
+    ],
+    "equipment": [
+      "Aktenordner",
+      "Konferenzraum"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=glassmorphism panels. Must show: ruhiges Anwaltsbüro, Akten und Stadtblick, Verhandlungstisch. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=hero_background. Medium=glass_3d. Illustration language=glassmorphism panels. Must show: ruhiges Anwaltsbüro, Akten und Stadtblick, Verhandlungstisch. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=glassmorphism panels. Must show: Beratung, Dokumente, Bibliothek, Empfang. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=glassmorphism panels. Must show: Beratung, Dokumente. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=team. Medium=isometric_illustration. Illustration language=glassmorphism panels. Must show: Anwalt im Gespräch. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=equipment. Medium=isometric_illustration. Illustration language=glassmorphism panels. Must show: Aktenordner, Konferenzraum. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=glassmorphism panels. Must show: Bibliothek, Empfang. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=illustration. Medium=isometric_illustration. Illustration language=glassmorphism panels. Must show: ruhiges Anwaltsbüro, Akten und Stadtblick. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=glassmorphism panels. Must show: soft rounded symbols. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «Kanzlei Bergmann» (law) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=glassmorphism panels. Must show: ruhiges Anwaltsbüro, Akten und Stadtblick, Verhandlungstisch. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "brand_name": "Meisterbau Hoffmann",
+  "niche_id": "handwerk",
+  "package_id": "premium",
+  "positioning": "Solides Handwerk mit klarer Haltung",
+  "archetype_primary": "The Craftsman",
+  "archetype_secondary": "The Expert",
+  "brand_promise": "Arbeit, die hält — und sich sehen lassen kann.",
+  "core_emotion": "Vertrauen",
+  "secondary_emotion": "Handwerklicher Stolz",
+  "tone": [
+    "Direkt",
+    "Ehrlich",
+    "Kompetent",
+    "Bodenständig"
+  ],
+  "visual_style": "Craft Modern · isometric craft marks",
+  "visual_metaphor": "Werkstattlicht auf sauberem Werkzeug",
+  "photography": [
+    "Baustelle innen",
+    "Fliesenverlegung",
+    "Handwerker in Arbeitskleidung",
+    "Bodenverlegung",
+    "Küchenmontage",
+    "Treppenbau",
+    "Werkzeugwand"
+  ],
+  "forbidden": [
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting"
+  ],
+  "motion_language": "industrial snap · sharp transitions · tool hover",
+  "motion_token": "business",
+  "palette": {
+    "names": [
+      "Charcoal",
+      "Steel",
+      "Ochre",
+      "Warm White"
+    ],
+    "accent_hex": "#b45309",
+    "surface_hex": "#eee4dc",
+    "ink_hex": "#f4f6f8",
+    "secondary_hex": "#328f59",
+    "highlight_hex": "#b45309"
+  },
+  "typography_display": "Oswald",
+  "typography_body": "Figtree",
+  "typography_pair_id": "oswald_figtree_craft",
+  "typography_emotion": "confidence",
+  "icon_style": "line geometric marks",
+  "border_radius_px": 10,
+  "shadow_style": "Soft Deep",
+  "glass_level": "medium",
+  "texture": [
+    "Holz",
+    "Metall",
+    "Beton"
+  ],
+  "scene_language": [
+    "Baustelle innen",
+    "Fliesenverlegung",
+    "Handwerker in Arbeitskleidung"
+  ],
+  "cta_style": "Klare Buttons · Keine Hektik",
+  "trust_strategy": [
+    "Meister",
+    "Referenzen",
+    "Garantie"
+  ],
+  "atmosphere_mode": "dusk",
+  "dna_style": "modern_clinical",
+  "dna_palette_family": "charcoal_ochre",
+  "hero_concept": "Baustelle innen · Fliesenverlegung · Handwerker in Arbeitskleidung",
+  "fingerprint": "0d7088f6e3ae02825242e95e",
+  "media_dna": {
+    "required": [
+      "Workshop",
+      "Tools",
+      "Material",
+      "Hands at work"
+    ],
+    "preferred": [
+      "Work light",
+      "Bench",
+      "Craft detail"
+    ],
+    "forbidden": [
+      "Café",
+      "Office",
+      "Beauty",
+      "Laptop",
+      "Coworking"
+    ],
+    "hero_proof": "Craftsperson at the bench or on site with tools — daily work, not décor.",
+    "profession_keywords": [
+      "workshop",
+      "tool",
+      "craft",
+      "handwerk",
+      "bench",
+      "material"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "city_hint": ""
+}

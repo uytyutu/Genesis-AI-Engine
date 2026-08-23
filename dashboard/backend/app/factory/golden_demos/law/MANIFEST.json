@@ -1,11 +1,11 @@
 {
   "niche": "law",
   "business_name": "Kanzlei Weber",
-  "product_id": "9da17e93-cc52-4a7d-86f0-ae2181dc96f2",
+  "product_id": "8a214209-97c8-4d08-b7f9-8f8a361668ae",
   "headline": "Kanzlei Weber",
   "preview_note": "Open local index.html in browser for visual review",
   "local_index": "dashboard/backend/app/factory/golden_demos/law/index.html",
-  "zip_bytes": 3122968,
+  "zip_bytes": 3123113,
   "zip_name": "kanzlei-weber.zip",
   "hard_passed": true,
   "score_passed": true,

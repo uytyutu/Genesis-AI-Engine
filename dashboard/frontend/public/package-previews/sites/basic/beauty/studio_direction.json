@@ -1,0 +1,570 @@
+{
+  "studio_id": "digital_creative_studio_v4_studio_era",
+  "era": "Virtus Core Studio Era",
+  "product_noun": "Digital Experience Generation",
+  "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+  "digital_signature_aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+  "philosophy": "virtus_core_studio_era_digital_experience_generation",
+  "immutable_law_1": "Каждый новый проект обязан быть не хуже предыдущего лучшего проекта. Если генерация ухудшила качество — REBUILD. Если она повторила шаблон — REBUILD. Если сайт выглядит как конструктор — REBUILD. Если сайт уступает современным digital-студиям — REBUILD.",
+  "immutable_law_2": "Любая новая идея должна сначала стать заметной клиенту. Если появляется Director, Engine, Rule или Memory — ответь: «Что изменится в первом впечатлении клиента?» Если ответ: «Пока ничего, но архитектура стала лучше» — работа ещё не закончена.",
+  "pipeline": [
+    "human_first",
+    "brand_story",
+    "core_emotion",
+    "core_promise",
+    "visual_metaphor",
+    "creative_theme",
+    "scene_language",
+    "motion_language",
+    "typography_voice",
+    "color_emotion",
+    "interaction_style",
+    "creative_conflict",
+    "owner_preview"
+  ],
+  "scene_arc": [
+    "scene",
+    "story",
+    "emotion",
+    "interaction",
+    "experience",
+    "conversion"
+  ],
+  "package_id": "basic",
+  "niche_id": "beauty",
+  "studio_approach": {
+    "id": "luxury",
+    "label": "Luxury",
+    "pillars": [
+      "minimalism",
+      "generous air",
+      "large photography",
+      "little text",
+      "quiet confidence"
+    ],
+    "composition_bias": [
+      "luxury_brand",
+      "cinematic",
+      "whisper",
+      "atelier_night",
+      "breath"
+    ],
+    "type_bias": [
+      "playfair_manrope",
+      "bodoni_jakarta",
+      "gloock_manrope"
+    ],
+    "color_feeling": "restrained ink + warm metal accent",
+    "motion": "slow reveal, soft parallax",
+    "niches_affinity": [
+      "fashion",
+      "beauty",
+      "jewelry",
+      "realestate",
+      "psychology"
+    ],
+    "notes": "Premium invites looking"
+  },
+  "moodboard": {
+    "niche_id": "beauty",
+    "emotion": "trust and desire to stay",
+    "keywords": [
+      "depth",
+      "rhythm",
+      "hero presence",
+      "niche truth",
+      "morning light"
+    ],
+    "avoid": [
+      "template ladder",
+      "flat white",
+      "metric PASS theater",
+      "noir_club",
+      "gaming",
+      "aggressive_sale",
+      "dark_corporate"
+    ],
+    "hero_feeling": "Every day can begin again.",
+    "atmosphere": "dawn windows, soft gold, open horizon",
+    "references": [
+      "Best contemporary niche studios"
+    ]
+  },
+  "brand_dna": {
+    "business_name": "Salon Mira",
+    "niche_id": "beauty",
+    "package_id": "basic",
+    "voice": "optimistic editorial — clear, warm, awake",
+    "feeling": "trust and desire to stay",
+    "why_hero_exists": "The Hero exists to make 'Morning Light' felt in 3 seconds: Every day can begin again.",
+    "color_feeling": "cream, pale gold, sky blue breath",
+    "type_voice": "optimistic editorial — clear, warm, awake",
+    "scene_arc": "dawn windows, soft gold, open horizon",
+    "avoid": [
+      "noir_club",
+      "gaming",
+      "aggressive_sale",
+      "dark_corporate"
+    ],
+    "fingerprint": "2ace02dcf0333203",
+    "brand_story": "Sofia built Salon Mira because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: beauty.",
+    "core_emotion": "trust and desire to stay",
+    "core_promise": "Every day can begin again.",
+    "visual_metaphor": "first light through linen curtains",
+    "creative_theme": "Morning Light",
+    "creative_theme_id": "morning_light",
+    "scene_language": "dawn windows, soft gold, open horizon",
+    "motion_language": "soft rise — light enters the frame",
+    "interaction_style": "inviting, hopeful, one clear next step",
+    "photo_world": "morning desk, coffee steam, open notebook",
+    "founder_name": "Sofia"
+  },
+  "creative_identity": {
+    "title": "Morning Light",
+    "theme_id": "morning_light",
+    "idea": "Every day can begin again.",
+    "human": {
+      "founder_name": "Sofia",
+      "founder_role": "founder",
+      "client_age_range": "30–50",
+      "why_choose_them": "They are specific — not interchangeable.",
+      "visitor_must_feel": "trust and desire to stay",
+      "niche_revealed_later": "beauty"
+    },
+    "brand_story": "Sofia built Salon Mira because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: beauty.",
+    "core_emotion": "trust and desire to stay",
+    "core_promise": "Every day can begin again.",
+    "visual_metaphor": "first light through linen curtains",
+    "creative_theme": "Morning Light",
+    "scene_language": "dawn windows, soft gold, open horizon",
+    "motion_language": "soft rise — light enters the frame",
+    "typography_voice": "optimistic editorial — clear, warm, awake",
+    "color_emotion": "cream, pale gold, sky blue breath",
+    "interaction_style": "inviting, hopeful, one clear next step",
+    "photo_world": "morning desk, coffee steam, open notebook",
+    "niche_revealed": "beauty",
+    "package_id": "basic",
+    "surface": "site",
+    "conflict": {
+      "ok": true,
+      "action": "CONTINUE",
+      "conflicts": []
+    },
+    "forbidden": [
+      "noir_club",
+      "gaming",
+      "aggressive_sale",
+      "dark_corporate"
+    ],
+    "owner_preview": "PENDING_OWNER",
+    "html_export_allowed": true,
+    "html_blocked_reason": "",
+    "fingerprint": "2ace02dcf0333203",
+    "generated_at": "2026-08-07T05:57:36.748124+00:00",
+    "sprint": "Creative Identity Generation",
+    "agency_note": "Think like a creative agency director on a €50,000 brief. No idea → no HTML. Creative Identity becomes site, store, social, video, ads.",
+    "pipeline": [
+      "human_first",
+      "brand_story",
+      "core_emotion",
+      "core_promise",
+      "visual_metaphor",
+      "creative_theme",
+      "scene_language",
+      "motion_language",
+      "typography_voice",
+      "color_emotion",
+      "interaction_style",
+      "creative_conflict",
+      "owner_preview"
+    ],
+    "before_html": true,
+    "naming": "Creative Identity — not Concept",
+    "question": "Who is the human — and what idea can you feel?",
+    "not_question": "How do we assemble a psychologist website?"
+  },
+  "observatory": {
+    "niche_id": "beauty",
+    "era": "2026+",
+    "study_sources": [
+      "European digital studio portfolios",
+      "Premium SaaS brand sites",
+      "Luxury ecommerce craft"
+    ],
+    "first_screen": [
+      "Emotional job in 3 seconds",
+      "Brand voice before feature list",
+      "One visual center"
+    ],
+    "page_rhythm": [
+      "Scene → Story → Emotion → Interaction → Experience → Conversion"
+    ],
+    "composition_depth": [
+      "Living atmosphere",
+      "Asymmetry",
+      "Depth layers"
+    ],
+    "typography": "Voice-matched display + readable body",
+    "micro_interactions": "Purposeful motion — never decoration spam",
+    "trust": "Specific proof woven into scenes",
+    "cta_craft": "One primary ask per scene",
+    "brand_feel": [
+      "modern",
+      "confident",
+      "alive"
+    ],
+    "invent": "Original Brand DNA for beauty — invent, never recycle prior sites.",
+    "never": [
+      "Constructor ladder",
+      "White empty slabs",
+      "Identical niche clones"
+    ],
+    "lenses": [
+      {
+        "id": "first_screen",
+        "question": "Why does the first screen exist?",
+        "principles": [
+          "One emotional job in 3 seconds",
+          "Visual center owns the fold",
+          "Brand voice before feature list"
+        ],
+        "anti_patterns": [
+          "Hero as feature dump",
+          "equal card grid first",
+          "logo wall as hero"
+        ]
+      },
+      {
+        "id": "rhythm",
+        "question": "How does the page breathe?",
+        "principles": [
+          "Scenes with distinct moods",
+          "Alternating density — never identical section padding",
+          "Story → emotion → interaction → conversion"
+        ],
+        "anti_patterns": [
+          "Hero→Text→Cards→Text→Cards",
+          "uniform white slabs"
+        ]
+      },
+      {
+        "id": "trust",
+        "question": "How is confidence earned?",
+        "principles": [
+          "Proof woven into scenes, not bolted as a strip",
+          "Specific over generic claims",
+          "Quiet credentials beat badge spam"
+        ],
+        "anti_patterns": [
+          "fake counters",
+          "stock handshake photos as trust"
+        ]
+      },
+      {
+        "id": "cta",
+        "question": "How does desire become action?",
+        "principles": [
+          "CTA matches emotional temperature of the scene",
+          "Secondary path without visual noise",
+          "One primary ask per scene"
+        ],
+        "anti_patterns": [
+          "identical pill buttons everywhere",
+          "three equal CTAs"
+        ]
+      }
+    ]
+  },
+  "observatory_brief": "Design Observatory · beauty · 2026+\nRule: analyze principles — invent original — never copy pixels.\nFirst screen: Emotional job in 3 seconds; Brand voice before feature list; One visual center\nRhythm: Scene → Story → Emotion → Interaction → Experience → Conversion\nDepth: Living atmosphere; Asymmetry; Depth layers\nType: V; o; i\nMotion: P; u; r\nTrust: S; p; e\nCTA: O; n; e\nInvent: Original Brand DNA for beauty — invent, never recycle prior sites.\nNever: Constructor ladder; White empty slabs; Identical niche clones",
+  "benchmark_brief": "",
+  "quality_floor": "Starter ≥ modern small-business website (sellable without shame at Starter price)",
+  "why_hero_exists": "The Hero exists to make 'Morning Light' felt in 3 seconds: Every day can begin again.",
+  "scene_sequence": [
+    "scene",
+    "interaction",
+    "experience",
+    "conversion",
+    "emotion",
+    "interaction",
+    "experience",
+    "scene",
+    "emotion",
+    "story",
+    "interaction",
+    "conversion"
+  ],
+  "taste": null,
+  "law_1": {},
+  "memory_bias": {
+    "compositions": [
+      "chamber",
+      "narrative",
+      "solstice"
+    ],
+    "approaches": [
+      "luxury",
+      "boutique"
+    ],
+    "typography": [
+      "cormorant_source",
+      "fraunces_dm",
+      "gloock_manrope"
+    ],
+    "heroes": [
+      "D",
+      "B",
+      "F"
+    ],
+    "prior_best_overall": 72.125,
+    "rule": "Bias principles from memory — never copy a prior site literally"
+  },
+  "agency_review": {
+    "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+    "roles": [
+      {
+        "id": "ceo",
+        "title": "CEO",
+        "question": "Does this strengthen the client's business presence — not just fill a page?"
+      },
+      {
+        "id": "creative_director",
+        "title": "Creative Director",
+        "question": "Is the creative direction clear, ownable, and non-template?"
+      },
+      {
+        "id": "brand_strategist",
+        "title": "Brand Strategist",
+        "question": "What is this brand's personality — and why does it exist?"
+      },
+      {
+        "id": "marketing_strategist",
+        "title": "Marketing Strategist",
+        "question": "What should the stranger feel in 3 seconds — and what should they do?"
+      },
+      {
+        "id": "ux_researcher",
+        "title": "UX Researcher",
+        "question": "Is the path human, calm, credible — free of constructor anxiety?"
+      },
+      {
+        "id": "art_director",
+        "title": "Art Director",
+        "question": "Does every scene have its own composition, rhythm, mood, and visual center?"
+      },
+      {
+        "id": "typography_director",
+        "title": "Typography Director",
+        "question": "Does type carry character and brand voice — not a default stack?"
+      },
+      {
+        "id": "color_director",
+        "title": "Color Director",
+        "question": "Does color create the intended emotion — not decoration?"
+      },
+      {
+        "id": "motion_director",
+        "title": "Motion Director",
+        "question": "Does every animation have meaning — or is it noise?"
+      },
+      {
+        "id": "frontend_architect",
+        "title": "Frontend Architect",
+        "question": "Is the craft export clean, resilient, and worthy of a studio?"
+      },
+      {
+        "id": "accessibility_specialist",
+        "title": "Accessibility Specialist",
+        "question": "Can everyone use this with dignity?"
+      },
+      {
+        "id": "performance_engineer",
+        "title": "Performance Engineer",
+        "question": "Does beauty stay fast on real devices?"
+      },
+      {
+        "id": "qa_designer",
+        "title": "QA Designer",
+        "question": "Would a European digital studio ship this without shame?"
+      },
+      {
+        "id": "owner_review",
+        "title": "Owner Review",
+        "question": "Has the owner said: \"Да. Я бы купил такой сайт.\"?"
+      }
+    ],
+    "digital_signature": {
+      "name": "Virtus Core Digital Signature",
+      "aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+      "craft_marks": [
+        "attention to detail",
+        "meaningful motion",
+        "strong typography",
+        "harmonious spacing",
+        "considered interactive states",
+        "coherent interaction sequences"
+      ],
+      "never": [
+        "same colors across every niche",
+        "identical compositions",
+        "constructor ladders",
+        "empty decorative zones",
+        "motion without meaning"
+      ]
+    },
+    "ecosystem_frame": {
+      "wrong": "Create a dentist website.",
+      "right": "Create the digital business of a dental clinic.",
+      "for_this_project": "Create the digital business of Salon Mira (beauty) — experience is one surface of the ecosystem, not the end product.",
+      "surfaces": [
+        {
+          "id": "experience",
+          "label": "Digital Experience (site/store)",
+          "role": "first impression & brand face"
+        },
+        {
+          "id": "booking",
+          "label": "Booking / scheduling",
+          "role": "convert intent to appointments"
+        },
+        {
+          "id": "crm",
+          "label": "CRM",
+          "role": "remember and serve the client"
+        },
+        {
+          "id": "reminders",
+          "label": "Automated reminders",
+          "role": "reduce no-shows"
+        },
+        {
+          "id": "chat",
+          "label": "Chat / assistant",
+          "role": "answer when humans sleep"
+        },
+        {
+          "id": "reviews",
+          "label": "Reviews",
+          "role": "trust at scale"
+        },
+        {
+          "id": "seo",
+          "label": "SEO",
+          "role": "be found"
+        },
+        {
+          "id": "ads",
+          "label": "Advertising",
+          "role": "reach with brand integrity"
+        },
+        {
+          "id": "analytics",
+          "label": "Analytics",
+          "role": "learn what works"
+        },
+        {
+          "id": "video",
+          "label": "Video",
+          "role": "emotion and proof"
+        },
+        {
+          "id": "social",
+          "label": "Social",
+          "role": "presence beyond the site"
+        },
+        {
+          "id": "cabinet",
+          "label": "Client cabinet",
+          "role": "ongoing relationship"
+        }
+      ],
+      "package_id": "basic"
+    },
+    "owner_buy_phrase": "Да. Я бы купил такой сайт.",
+    "owner_review": "PENDING_OWNER",
+    "note": "Roles are questions every generation must face. PASS only after human approval."
+  },
+  "variants_considered": [],
+  "chosen": null,
+  "dna": {
+    "emotion": "trust",
+    "style": "modern_clinical",
+    "palette_family": "sage_mist",
+    "typography_pair": "cormorant_source",
+    "motion": "soft",
+    "hero_concept": "trust_panel",
+    "hero_layout": "C",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "clean",
+    "package_id": "basic",
+    "niche_id": "beauty",
+    "fingerprint": "ab8d4a5a1e401016f7df9ebe0da02ce540595b6e5b07f60d9caefc169d51ae03",
+    "section_treatments": [
+      [
+        "stats",
+        "ink"
+      ],
+      [
+        "services",
+        "glass"
+      ],
+      [
+        "mid_cta",
+        "tint"
+      ],
+      [
+        "benefits",
+        "glass"
+      ],
+      [
+        "trust",
+        "ink"
+      ],
+      [
+        "process",
+        "gradient"
+      ],
+      [
+        "showcase",
+        "illustration"
+      ],
+      [
+        "gallery",
+        "ink"
+      ],
+      [
+        "about",
+        "glass"
+      ],
+      [
+        "faq",
+        "tint"
+      ],
+      [
+        "reviews",
+        "glass"
+      ],
+      [
+        "maps",
+        "ink"
+      ],
+      [
+        "contact",
+        "gradient"
+      ]
+    ],
+    "accent_hex": "#5b7c6e",
+    "surface_hex": "#f3f6f4",
+    "ink_hex": "#243029"
+  },
+  "layout_profile_id": null,
+  "section_order": [],
+  "hero_layout": "C",
+  "generation_status": "OK_TO_BUILD",
+  "creative_review": "PASS_INTERNAL",
+  "kpi_question": "Without Virtus Core logo — would a stranger believe a modern European digital studio built this?",
+  "owner_review": "PENDING_OWNER",
+  "owner_required": "Да, я бы без стыда продал этот сайт клиенту",
+  "optimize_for": "designer_decisions_and_taste",
+  "note": "FAIL: Commercial Owner FAIL — sites/stores still read as niche templates, not living 5-year-old companies. Invent the business (name, legend, services, team, FAQ, demo-labeled reviews). Would a stranger believe this company exists? If no → FAIL. No new features — generation quality only. Creative Identity required before marketing HTML."
+}

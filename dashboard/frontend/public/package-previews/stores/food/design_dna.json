@@ -1,0 +1,72 @@
+{
+  "emotion": "warmth",
+  "style": "organic_premium",
+  "palette_family": "warm_clay",
+  "typography_pair": "fraunces_dm",
+  "motion": "business",
+  "hero_concept": "soft_orb_photo",
+  "hero_layout": "C",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "timeline",
+  "package_id": "business",
+  "niche_id": "restaurant",
+  "fingerprint": "8f461464610ac07bde53fd0c970f146682ecaa3e9762b538b6be3c7fb547f5c9",
+  "section_treatments": [
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "about",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "services",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "trust",
+      "illustration"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "stats",
+      "gradient"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#a68a6d",
+  "surface_hex": "#faf6f1",
+  "ink_hex": "#292524"
+}

@@ -59,7 +59,7 @@ def test_register_login_profile_addresses_wishlist(tmp_path: Path):
 
     me = svc.me(oid, buyer_id)
     assert me["orders"] == []
-    assert "Commerce" in me["orders_note"]
+    assert "Checkout" in me["orders_note"]
 
     svc.update_profile(oid, buyer_id, {"phone": "+491234", "first_name": "Anne"})
     assert svc.me(oid, buyer_id)["buyer"]["phone"] == "+491234"

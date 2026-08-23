@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "realestate",
+  "niche": "realestate",
+  "package_id": "business",
+  "product_id": "1363f16e-01d8-44cf-b1cd-98b4066bba9f",
+  "business_name": "WohnRaum Partner",
+  "generated_at": "2026-08-07T10:56:33.375445+00:00",
+  "engine": "FactoryService.build_landing + Design DNA + Design Engine + VIE",
+  "index_bytes": 103158,
+  "data_tier_ok": true,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/business/realestate/index.html"
+}

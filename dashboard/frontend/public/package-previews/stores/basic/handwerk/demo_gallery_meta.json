@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "handwerk",
+  "package_id": "basic",
+  "category": "handwerk",
+  "store_name": "Werkstatt Direkt",
+  "generated_at": "2026-08-07T06:57:31.437938+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 30216,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/basic/handwerk/index.html"
+}

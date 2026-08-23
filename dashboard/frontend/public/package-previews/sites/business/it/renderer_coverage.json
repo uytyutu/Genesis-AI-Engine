@@ -1,0 +1,47 @@
+{
+  "gate": "RENDERER_COVERAGE",
+  "strategies": {
+    "craftsman": "PASS",
+    "editorial": "PASS",
+    "luxury": "PASS",
+    "corporate": "PASS",
+    "commerce": "PASS",
+    "clinic": "PASS",
+    "legal": "PASS",
+    "restaurant": "PASS",
+    "technology": "PASS",
+    "minimal": "PASS",
+    "classic": "SHRINK"
+  },
+  "niche_counts": {
+    "craftsman": 0,
+    "editorial": 2,
+    "luxury": 1,
+    "corporate": 10,
+    "commerce": 2,
+    "clinic": 2,
+    "legal": 1,
+    "restaurant": 1,
+    "technology": 1,
+    "minimal": 1,
+    "classic": 1
+  },
+  "niche_pct": {
+    "craftsman": 0.0,
+    "editorial": 9.1,
+    "luxury": 4.5,
+    "corporate": 45.5,
+    "commerce": 9.1,
+    "clinic": 9.1,
+    "legal": 4.5,
+    "restaurant": 4.5,
+    "technology": 4.5,
+    "minimal": 4.5,
+    "classic": 4.5
+  },
+  "classic_pct": 4.5,
+  "compositions_mapped": 30,
+  "compositions_total": 50,
+  "kpi": "Drive classic_pct toward 0 without new Engine layers",
+  "this_product": "technology"
+}

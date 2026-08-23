@@ -1,0 +1,349 @@
+{
+  "brand_name": "NordLicht Autohaus",
+  "niche_id": "car_dealership",
+  "package_id": "premium",
+  "metaphor": "Offenes Licht auf ruhiger Fläche",
+  "core_emotion": "Vertrauen",
+  "atmosphere_mode": "atelier",
+  "scene_language": [
+    "heller Autosalon",
+    "Neuwagen Ausstellung",
+    "Schlüsselübergabe"
+  ],
+  "texture_language": [
+    "Paper",
+    "Light"
+  ],
+  "motion_language": "industrial snap · sharp transitions · tool hover",
+  "camera_feeling": "calm eye-level · clear space",
+  "scroll_feeling": "steady soft reveals",
+  "cta_feeling": "clear large buttons · calm spacing · Große Buttons · Ruhiger Abstand",
+  "sound_mood": "quiet professional room tone",
+  "illustration_style": "abstract gradient orbs",
+  "glass_level": "medium",
+  "shadow_language": "soft lift · Soft",
+  "icon_language": "technical blueprint icons",
+  "lighting": "even daylight · soft fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "heller Autosalon · Neuwagen Ausstellung · Schlüsselübergabe",
+      "must_include": [
+        "heller Autosalon",
+        "Neuwagen Ausstellung",
+        "Schlüsselübergabe",
+        "Showroom",
+        "Probefahrt"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "NordLicht Autohaus|car_dealership|premium|c2d873ed677f9cb6c7ad8ef0|hero|ad1cc0533df8bdd7c003",
+      "size": [
+        1600,
+        900
+      ],
+      "image_prompt": "Premium German brand visual for «NordLicht Autohaus» (car_dealership) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=abstract gradient orbs. Must show: Neuwagen Ausstellung, Schlüsselübergabe, heller Autosalon. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "background",
+      "concept": "scene · heller Autosalon · Neuwagen Ausstellung · Schlüsselübergabe",
+      "must_include": [
+        "heller Autosalon",
+        "Neuwagen Ausstellung",
+        "Schlüsselübergabe",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "NordLicht Autohaus|car_dealership|premium|c2d873ed677f9cb6c7ad8ef0|bg|ad1cc0533df8bdd7c003",
+      "size": [
+        1920,
+        1080
+      ],
+      "image_prompt": "Premium German brand visual for «NordLicht Autohaus» (car_dealership) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=abstract gradient orbs. Must show: Neuwagen Ausstellung, Schlüsselübergabe, heller Autosalon. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Showroom",
+      "must_include": [
+        "Showroom",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "NordLicht Autohaus|car_dealership|premium|c2d873ed677f9cb6c7ad8ef0|gal0|ad1cc0533df8bdd7c003",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «NordLicht Autohaus» (car_dealership) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=abstract gradient orbs. Must show: Showroom, Probefahrt, Beratungstisch, Auslieferung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Showroom."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Probefahrt",
+      "must_include": [
+        "Probefahrt",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "NordLicht Autohaus|car_dealership|premium|c2d873ed677f9cb6c7ad8ef0|gal1|ad1cc0533df8bdd7c003",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «NordLicht Autohaus» (car_dealership) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=abstract gradient orbs. Must show: Showroom, Probefahrt, Beratungstisch, Auslieferung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Probefahrt."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Beratungstisch",
+      "must_include": [
+        "Beratungstisch",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "NordLicht Autohaus|car_dealership|premium|c2d873ed677f9cb6c7ad8ef0|gal2|ad1cc0533df8bdd7c003",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «NordLicht Autohaus» (car_dealership) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=abstract gradient orbs. Must show: Showroom, Probefahrt, Beratungstisch, Auslieferung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Beratungstisch."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Auslieferung",
+      "must_include": [
+        "Auslieferung",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "NordLicht Autohaus|car_dealership|premium|c2d873ed677f9cb6c7ad8ef0|gal3|ad1cc0533df8bdd7c003",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «NordLicht Autohaus» (car_dealership) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=abstract gradient orbs. Must show: Showroom, Probefahrt, Beratungstisch, Auslieferung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Auslieferung."
+    },
+    {
+      "role": "before_after",
+      "concept": "before / after proof",
+      "must_include": [
+        "heller Autosalon",
+        "Neuwagen Ausstellung"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "NordLicht Autohaus|car_dealership|premium|c2d873ed677f9cb6c7ad8ef0|before_after|ad1cc0533df8bdd7c003",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «NordLicht Autohaus» (car_dealership) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=abstract gradient orbs. Must show: Showroom, Probefahrt. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "team",
+      "concept": "team of this company",
+      "must_include": [
+        "Verkaufsberater",
+        "Auslieferungs-Team"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "NordLicht Autohaus|car_dealership|premium|c2d873ed677f9cb6c7ad8ef0|team|ad1cc0533df8bdd7c003",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «NordLicht Autohaus» (car_dealership) in Germany. Role=team. Medium=glass_3d. Illustration language=abstract gradient orbs. Must show: Verkaufsberater, Auslieferungs-Team. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "equipment",
+      "concept": "tools & equipment of the trade",
+      "must_include": [
+        "Showroom-Beleuchtung",
+        "Tablet-Konfigurator"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "NordLicht Autohaus|car_dealership|premium|c2d873ed677f9cb6c7ad8ef0|equipment|ad1cc0533df8bdd7c003",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «NordLicht Autohaus» (car_dealership) in Germany. Role=equipment. Medium=glass_3d. Illustration language=abstract gradient orbs. Must show: Showroom-Beleuchtung, Tablet-Konfigurator. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "illustration",
+      "concept": "abstract gradient orbs",
+      "must_include": [
+        "heller Autosalon",
+        "Neuwagen Ausstellung"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "NordLicht Autohaus|car_dealership|premium|c2d873ed677f9cb6c7ad8ef0|illustration|ad1cc0533df8bdd7c003",
+      "size": [
+        1200,
+        1200
+      ],
+      "image_prompt": "Premium German brand visual for «NordLicht Autohaus» (car_dealership) in Germany. Role=illustration. Medium=glass_3d. Illustration language=abstract gradient orbs. Must show: Neuwagen Ausstellung, Schlüsselübergabe. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    }
+  ],
+  "fingerprint": "8b01bee3a6359f4eb11c0674",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

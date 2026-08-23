@@ -17,6 +17,7 @@ import { formatApiDetail } from "../../lib/formatApiError";
 import { startOrderCheckout } from "../../lib/orderCheckout";
 import { publicApiBase } from "../../lib/publicApiBase";
 import { getVisitorId } from "../../lib/visitorId";
+import { companyProfileFromMe } from "../../lib/companyProfile";
 import { uiLangForMarket } from "../../lib/marketLang";
 
 const API = publicApiBase();
@@ -194,6 +195,34 @@ function ShopOrderInner() {
     setLoggedIn(Boolean(getClientToken()));
   }, []);
 
+  useEffect(() => {
+    if (!getClientToken()) return;
+    let cancelled = false;
+    fetch(`${API}/api/client/me`, {
+      headers: { ...clientAuthHeaders() },
+      cache: "no-store",
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((me) => {
+        if (cancelled || !me) return;
+        const profile = companyProfileFromMe(me);
+        setLoggedIn(true);
+        if (profile.email) setEmail((prev) => prev || profile.email);
+        if (profile.phone) setPhone((prev) => prev || profile.phone);
+        if (profile.company_name) {
+          setBrief((b) => ({
+            ...b,
+            company_name: b.company_name || profile.company_name,
+            store_name: b.store_name || profile.company_name,
+          }));
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const registerNext = useMemo(() => {
     const q = market ? `?market=${encodeURIComponent(market)}` : "";
     return `/order/shop${q}`;
@@ -354,11 +383,11 @@ function ShopOrderInner() {
         brand: BRAND_NAME,
         defaultValue: `← ${BRAND_NAME} storefront`,
       })}
-      eyebrow="AI Store by Virtus Core"
+      eyebrow="AI Store Basic / Start"
       title={t("aiStore.title", {
         defaultValue: "Tell us about your business",
       })}
-      priceLabel={t("aiStore.priceLine", { defaultValue: "from 799 €" })}
+      priceLabel={t("aiStore.priceLine", { defaultValue: "799 € once" })}
       subtitle={t("aiStore.positioning", {
         defaultValue:
           "Virtus Core creates a professional online shop for your business — not a generic website package. After payment your shop appears in your client cabinet.",
@@ -679,7 +708,7 @@ function ShopOrderInner() {
         <div className="space-y-4">
           <p className="text-lg font-semibold text-white">
             {t("aiStore.readyPay", {
-              defaultValue: "Ready for payment — from 799 €",
+              defaultValue: "Ready for payment — 799 € once",
             })}
           </p>
           <p className="text-sm text-zinc-300">

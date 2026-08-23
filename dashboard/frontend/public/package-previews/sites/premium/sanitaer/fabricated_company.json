@@ -1,0 +1,151 @@
+{
+  "legal_name": "WasserKlar Sanitär",
+  "brand_name": "WasserKlar Sanitär",
+  "slogan": "Klar. Menschlich. Präzise.",
+  "mission": "Kunden in Stuttgart spürbar besser bedienen als gestern.",
+  "history": "Was als kleines Vorhaben in Stuttgart begann, ist über die Jahre zu einem festen Ort mit Stammgästen und klarer Handschrift geworden. Seit 2020 wächst WasserKlar Sanitär bewusst — Qualität vor Tempo.",
+  "values": [
+    "Präzision",
+    "Menschlichkeit",
+    "Transparenz",
+    "Verlässlichkeit",
+    "Handwerk"
+  ],
+  "approach": "Klarheit, Handwerk, langfristige Beziehung.",
+  "founded_year": 2020,
+  "city": "Stuttgart",
+  "niche_id": "sanitaer",
+  "services": [
+    [
+      "Workshop",
+      "Team-Workshop vor Ort",
+      "ab 490 €"
+    ],
+    [
+      "Audit",
+      "Qualitäts- & Prozesscheck",
+      "ab 290 €"
+    ],
+    [
+      "Support",
+      "Priorisierter Support",
+      "inkl."
+    ],
+    [
+      "Dokumentation",
+      "Transparente Unterlagen",
+      "inkl."
+    ],
+    [
+      "Beratung",
+      "Individuelle Erstberatung",
+      "auf Anfrage"
+    ],
+    [
+      "Analyse",
+      "Bestandsaufnahme & Empfehlung",
+      "ab 99 €"
+    ],
+    [
+      "Umsetzung",
+      "Umsetzung mit klaren Meilensteinen",
+      "auf Anfrage"
+    ],
+    [
+      "Betreuung",
+      "Laufende Begleitung",
+      "Monatsabo"
+    ]
+  ],
+  "advantages": [
+    "Seit 2020 in Stuttgart",
+    "Transparente Preise",
+    "Feste Ansprechpartner",
+    "Termine mit Bestätigung",
+    "Nachvollziehbarer Ablauf"
+  ],
+  "team": [
+    [
+      "Erik Keller",
+      "Leitung",
+      "Leitung bei WasserKlar Sanitär — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Felix Becker",
+      "Spezialist/in",
+      "Spezialist/in bei WasserKlar Sanitär — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Erik Schulz",
+      "Beratung",
+      "Beratung bei WasserKlar Sanitär — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Felix Keller",
+      "Assistenz",
+      "Assistenz bei WasserKlar Sanitär — Fokus auf Qualität und ruhige Abläufe."
+    ]
+  ],
+  "faq": [
+    [
+      "Wie vereinbare ich einen Termin bei WasserKlar Sanitär?",
+      "Über das Kontaktformular, telefonisch oder per E-Mail. Sie erhalten eine Bestätigung."
+    ],
+    [
+      "Wie transparent sind die Kosten?",
+      "Vor Beginn erhalten Sie eine klare Einschätzung. Keine versteckten Positionen."
+    ],
+    [
+      "Seit wann gibt es WasserKlar Sanitär?",
+      "Seit 2020 in Stuttgart — gewachsen mit Stammkunden und klarer Handschrift."
+    ],
+    [
+      "Gibt es Parkplätze / Anreise?",
+      "Zentral in Stuttgart. Details zur Anreise senden wir mit der Terminbestätigung."
+    ],
+    [
+      "Arbeitet ihr auch online / hybrid?",
+      "Wo sinnvoll ja — Details klären wir im Erstkontakt."
+    ]
+  ],
+  "reviews": [
+    [
+      "Seriös, klar, ohne Show. Weiterzuempfehlen.",
+      "Jonas · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Fühlt sich nach echtem Handwerk an — nicht nach Vorlage.",
+      "Noah · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Transparente Kommunikation. Genau das wollte ich.",
+      "Clara · Demo-Bewertung — kein echter Kundenname"
+    ]
+  ],
+  "process_steps": [
+    "Kennenlernen & Bedarf",
+    "Klare Empfehlung & Preis",
+    "Umsetzung mit Abstimmung",
+    "Nachsorge & Feedback"
+  ],
+  "blog_titles": [
+    "Warum WasserKlar Sanitär anders arbeitet",
+    "3 Dinge, die Kunden in Stuttgart uns am häufigsten fragen",
+    "Hinter den Kulissen: Qualität statt Tempo",
+    "So bereiten Sie Ihren ersten Termin vor"
+  ],
+  "certificates": [
+    "Qualitätsversprechen",
+    "Transparente Prozesse",
+    "Versicherungsschutz"
+  ],
+  "hours": "Mo–Fr 09:00–18:00 · Sa nach Vereinbarung",
+  "phone": "+49 711 3344556",
+  "email": "kontakt@wasserklar-demo.example.de",
+  "social": [
+    "instagram.com/wasserklarsanitär.demo",
+    "linkedin.com/company/wasserklar-sanitär-demo"
+  ],
+  "fingerprint": "7845dbfb9e2c8e42",
+  "demo_content": true
+}

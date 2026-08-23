@@ -1,0 +1,150 @@
+{
+  "brand_name": "DachKlar Shop",
+  "niche_id": "dachreinigung",
+  "package_id": "premium",
+  "metaphor": "Frischer Regen nach dem Sturm — nasse Ziegel, klarer Himmel",
+  "core_emotion": "Erleichterung",
+  "atmosphere_mode": "cinematic",
+  "scene_language": [
+    "Sky",
+    "Height",
+    "Light",
+    "Wind",
+    "Rain"
+  ],
+  "texture_language": [
+    "Beton",
+    "Schiefer",
+    "Wasser"
+  ],
+  "motion_language": "Langsam · Flüssig · Präzise",
+  "camera_feeling": "drone height · slow orbit over wet tiles · sky dominant",
+  "scroll_feeling": "soft descent from sky to roof · long breathing reveals",
+  "cta_feeling": "calm large buttons · generous air · no urgency red · Große Buttons · Viel Abstand · Keine Aggressivität",
+  "sound_mood": "distant rain clearing · wind on ridge · quiet confidence",
+  "illustration_style": "industrial silhouette · slate geometry · water glints",
+  "glass_level": "medium",
+  "shadow_language": "soft deep under eaves · long cool ground shadow · Soft Deep",
+  "icon_language": "Outline Industrial",
+  "lighting": "post-storm morning sun · cool sky rim · warm tile specular",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "roof_after_rain",
+      "must_include": [
+        "Echte Dächer",
+        "Morgensonne nach Regen",
+        "Wassertropfen",
+        "Arbeiter in Schutzkleidung",
+        "Luftaufnahmen"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "nail salon",
+        "coffee shop",
+        "yoga studio",
+        "tech landing"
+      ],
+      "seed": "DachKlar Shop|dachreinigung|premium|cd2e9556ac0f286996149993|hero",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "role": "background",
+      "concept": "scene · Sky · Height · Light",
+      "must_include": [
+        "Sky",
+        "Height",
+        "Light",
+        "Wind",
+        "Rain",
+        "Beton",
+        "Schiefer"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "nail salon",
+        "coffee shop",
+        "yoga studio",
+        "tech landing"
+      ],
+      "seed": "DachKlar Shop|dachreinigung|premium|cd2e9556ac0f286996149993|bg",
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "role": "gallery",
+      "concept": "proof texture · craft detail",
+      "must_include": [
+        "Wassertropfen",
+        "Arbeiter in Schutzkleidung",
+        "Luftaufnahmen"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "nail salon",
+        "coffee shop",
+        "yoga studio",
+        "tech landing"
+      ],
+      "seed": "DachKlar Shop|dachreinigung|premium|cd2e9556ac0f286996149993|gal",
+      "size": [
+        1400,
+        1000
+      ]
+    }
+  ],
+  "fingerprint": "1ecd1bfdfd7ca0cbab6934b3",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

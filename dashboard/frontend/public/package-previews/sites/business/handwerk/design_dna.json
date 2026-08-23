@@ -1,0 +1,75 @@
+{
+  "emotion": "confidence",
+  "style": "modern_clinical",
+  "palette_family": "charcoal_ochre",
+  "typography_pair": "oswald_figtree_craft",
+  "motion": "business",
+  "hero_concept": "workshop_precision",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "low",
+  "composition": "immersive",
+  "package_id": "business",
+  "niche_id": "handwerk",
+  "fingerprint": "48b317f5e1da099606c34d2ad7349ed6c490b1c6a757fa37bc764c5dd1060afc",
+  "section_treatments": [
+    [
+      "gallery",
+      "gradient"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "about",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "services",
+      "illustration"
+    ],
+    [
+      "process",
+      "tint"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "late_cta",
+      "gradient"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#b45309",
+  "surface_hex": "#fafaf9",
+  "ink_hex": "#1c1917",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "7350933bc43e42d1bb282ee2",
+  "border_radius_px": 10
+}

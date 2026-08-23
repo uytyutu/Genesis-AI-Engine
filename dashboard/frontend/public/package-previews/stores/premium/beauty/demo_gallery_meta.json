@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "beauty",
+  "package_id": "premium",
+  "category": "beauty",
+  "store_name": "Glow Lab Beauty",
+  "generated_at": "2026-08-08T16:19:48.070004+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 43237,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/beauty/catalog.html"
+}

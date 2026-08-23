@@ -118,7 +118,7 @@ class SupportInboxService:
             "inbound_ready": has_key and has_from and has_inbound_secret,
             "support_email": (
                 os.getenv("GENESIS_SUPPORT_EMAIL", "").strip()
-                or "hello@genesis-ai-engine.com"
+                or "hello@virtuscore.com"
             ),
             "env_file_hint": "dashboard/backend/.env.local",
         }

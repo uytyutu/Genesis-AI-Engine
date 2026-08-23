@@ -1,0 +1,52 @@
+{
+  "niche_id": "psychology",
+  "emotion": "Ruhe",
+  "keywords": [
+    "quiet luxury",
+    "nature path",
+    "editorial stillness",
+    "glass soft light",
+    "breathing space",
+    "editorial calm",
+    "light",
+    "space",
+    "silence"
+  ],
+  "avoid": [
+    "salon glam",
+    "clinic fluorescent",
+    "equal card grid first",
+    "purple mesh clone",
+    "Hero→cards→text ladder",
+    "tech_saas",
+    "gaming",
+    "corporate_office",
+    "neon",
+    "stock_handshake",
+    "coupon_hero",
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting",
+    "neon spa",
+    "stock yoga beach",
+    "purple wellness",
+    "crystal cliché"
+  ],
+  "hero_feeling": "Weiches Morgenlicht in einem stillen Raum",
+  "atmosphere": "Light · Space · Silence · Breath",
+  "references": [
+    "European private therapy studios",
+    "Nordic wellness editorial sites"
+  ]
+}

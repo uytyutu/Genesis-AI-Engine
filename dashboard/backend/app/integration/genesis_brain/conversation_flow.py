@@ -99,7 +99,7 @@ def journey_ux_reply(
         niche = state.business_type or "бизнеса"
         return (
             f"Принял задачу: сайт для {niche}.\n\n"
-            f"Пакеты **350 / 650 / 1200 €** на /order. Срок — {MISSION1_LANDING_TIMELINE}.\n\n"
+            f"Пакеты **199 / 399 / 699 €** на /order. Срок — {MISSION1_LANDING_TIMELINE}.\n\n"
             "Следующий шаг — уточнить требования или перейти к оформлению."
         )
 

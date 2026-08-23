@@ -1,0 +1,32 @@
+﻿diff --git a/dashboard/frontend/app/lib/marketLang.ts b/dashboard/frontend/app/lib/marketLang.ts
+index e0d4694..01dfa0e 100644
+--- a/dashboard/frontend/app/lib/marketLang.ts
++++ b/dashboard/frontend/app/lib/marketLang.ts
+@@ -9,6 +9,9 @@ export const MARKET_UI_LANG: Record<string, string> = {
+   AU: "en",
+   NZ: "en",
+   IE: "en",
++  SG: "en",
++  JP: "en",
++  KR: "en",
+   FR: "fr",
+   IT: "it",
+   ES: "es",
+@@ -18,7 +21,8 @@ export const MARKET_UI_LANG: Record<string, string> = {
+   PL: "pl",
+   CZ: "cs",
+   SK: "cs",
+-  RO: "ro",
++  // No Romanian UI pack yet тАФ keep EN copy; prices still use market=RO via selector.
++  RO: "en",
+   UA: "uk",
+   RU: "ru",
+ };
+@@ -36,6 +40,7 @@ export const LANG_CANONICAL_MARKET: Record<string, string> = {
+   pt: "PT",
+   pl: "PL",
+   cs: "CZ",
++  ro: "RO",
+ };
+ 
+ /** Languages we actively sell on Country Desk / Path A. */

@@ -1,0 +1,20 @@
+{
+  "niche_id": "photography",
+  "idea": "Bilder, die Ihre Marke tragen.",
+  "who": "Fotostudio für Marken, die ernst genommen werden wollen — Licht mit Absicht.",
+  "character": [],
+  "metaphor": "editorial",
+  "hero_concept": "",
+  "emotion_3s": "",
+  "source": "dream_brief",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Bilder, die Ihre Marke tragen.",
+    "who": "Fotostudio für Marken, die ernst genommen werden wollen — Licht mit Absicht.",
+    "package_id": "premium",
+    "source": "dream_brief",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

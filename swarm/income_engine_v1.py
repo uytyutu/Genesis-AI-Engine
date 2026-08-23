@@ -1009,8 +1009,36 @@ class IncomeEngineV1:
         mode: str = "once",
         note: str = "",
     ) -> dict[str, Any]:
-        """Approve once | batch uses auto_approve_limit for siblings."""
+        """Approve once | batch uses auto_approve_limit for siblings.
+
+        If the opportunity is Alpha Hunter adapter-backed (WAITING_APPROVAL),
+        route to ``approve_micro_test`` so Approve actually calls adapter.execute
+        and advances lifecycle to RUNNING — not a silent dry-run toast.
+        """
         with self._lock:
+            # Prefer real Execution Engine path when strategy_id is known.
+            try:
+                opp_store = self._lab._load_opportunities()
+                lab_opp = next(
+                    (
+                        o
+                        for o in (opp_store.get("items") or [])
+                        if isinstance(o, dict)
+                        and str(o.get("id") or "") == str(opportunity_id or "")
+                    ),
+                    None,
+                )
+                sid = str((lab_opp or {}).get("strategy_id") or "").strip()
+                life = str((lab_opp or {}).get("lifecycle") or "")
+                if sid and life in (
+                    "WAITING_APPROVAL",
+                    "PREPARED",
+                    "VERIFIED",
+                ):
+                    return self.approve_micro_test(sid)
+            except Exception:
+                pass
+
             state = self._load_state()
             lab = self._lab._load_lab()
             stage = str(lab.get("stage") or STAGE_PAPER)
@@ -1032,6 +1060,11 @@ class IncomeEngineV1:
             )
             if not target:
                 return {"ok": False, "error": "opportunity_not_found"}
+
+            # Mission card with strategy_id → same Execution Engine bridge.
+            sid2 = str(target.get("strategy_id") or "").strip()
+            if sid2 and target.get("adapter_backed"):
+                return self.approve_micro_test(sid2)
 
             bal = _safe_float(state.get("balance_eur"))
             gate = self._lab.assert_experiment_allowed(
@@ -1096,32 +1129,53 @@ class IncomeEngineV1:
                 "executed": results,
                 "mission": mission,
                 "message_ru": (
-                    "Одобрено. Система подготовила/выполнила только легальные действия. "
-                    "Прибыль не гарантируется — ждём реальный результат источника."
+                    "Одобрено (prepare/dry-run). Это НЕ запуск адаптера. "
+                    "Для WAITING_APPROVAL → RUNNING используйте «Одобрить действие» "
+                    "(approve-micro-test → adapter.execute). "
+                    "Прибыль не гарантируется."
                 ),
             }
 
     def reject(self, opportunity_id: str, *, note: str = "") -> dict[str, Any]:
+        """Reject mission candidate AND archive Alpha Hunter lab card (if same id)."""
+        lab_result = self._lab.reject_opportunity(opportunity_id, note=note, archive=False)
         with self._lock:
             state = self._load_state()
             mission = state.get("mission")
             if not isinstance(mission, dict):
+                if lab_result.get("ok"):
+                    return {
+                        "ok": True,
+                        "opportunity": lab_result.get("opportunity"),
+                        "alpha_hunter": lab_result,
+                        "detail_ru": lab_result.get("detail_ru"),
+                    }
                 return {"ok": False, "error": "no_mission"}
             opps = list(mission.get("opportunities") or [])
             target = next(
                 (o for o in opps if o.get("id") == opportunity_id), None
             )
-            if not target:
+            if not target and not lab_result.get("ok"):
                 return {"ok": False, "error": "opportunity_not_found"}
-            target["status"] = "rejected"
-            target["reject_note"] = note
-            mission["opportunities"] = opps
-            state["mission"] = mission
-            self._save_state(state)
-            learning = self._load_learning()
-            learning["rejects"] = int(learning.get("rejects") or 0) + 1
-            self._save_learning(learning)
-            return {"ok": True, "opportunity": target}
+            if target:
+                target["status"] = "rejected"
+                target["reject_note"] = note
+                mission["opportunities"] = opps
+                state["mission"] = mission
+                self._save_state(state)
+                learning = self._load_learning()
+                learning["rejects"] = int(learning.get("rejects") or 0) + 1
+                self._save_learning(learning)
+            return {
+                "ok": True,
+                "opportunity": target or lab_result.get("opportunity"),
+                "alpha_hunter": lab_result if lab_result.get("ok") else None,
+                "detail_ru": (
+                    lab_result.get("detail_ru")
+                    if lab_result.get("ok")
+                    else "Mission reject сохранён."
+                ),
+            }
 
     def _maybe_auto_approve(
         self, state: dict[str, Any], mission: dict[str, Any]

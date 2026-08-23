@@ -1,0 +1,42 @@
+{
+  "niche_id": "fashion",
+  "emotion": "Vertrauen",
+  "keywords": [
+    "depth",
+    "rhythm",
+    "hero presence",
+    "niche truth",
+    "modern clear · soft 3d product icons",
+    "professioneller arbeitsort",
+    "team bei echter arbeit",
+    "deutsche alltagsszene"
+  ],
+  "avoid": [
+    "template ladder",
+    "flat white",
+    "metric PASS theater",
+    "corporate_office",
+    "gaming",
+    "neon",
+    "stock_family_park",
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting"
+  ],
+  "hero_feeling": "Offenes Licht auf ruhiger Fläche",
+  "atmosphere": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "references": [
+    "Best contemporary niche studios"
+  ]
+}

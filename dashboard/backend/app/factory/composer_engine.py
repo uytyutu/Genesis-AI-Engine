@@ -104,6 +104,7 @@ class CompositionResult:
     content_gate: dict[str, Any] = field(default_factory=dict)
     analysis: AnalysisResult | None = None
     market_profile: dict[str, Any] = field(default_factory=dict)
+    design_dna: dict[str, Any] = field(default_factory=dict)
 
 
 def _profile_chrome(profile: MarketProfile) -> dict[str, str]:
@@ -126,6 +127,7 @@ def resolve_composition_plan(
     client_trust: dict | None = None,
     has_maps: bool = False,
     has_process: bool = False,
+    diversity_salt: str = "",
 ) -> CompositionPlan:
     """Client × Package × Market × Niche → deterministic composition plan."""
     profile = resolve_market_profile(market_code)
@@ -136,12 +138,14 @@ def resolve_composition_plan(
         package_id=package_id,
         market_code=market,
         niche_id=niche_id,
+        diversity_salt=diversity_salt,
     )
     hero = resolve_hero_for_layout(
         layout,
         niche_id=niche_id,
         business_name=business_name,
         package_id=package_id,
+        diversity_salt=diversity_salt,
     )
     component = resolve_component_for_layout(
         layout,
@@ -149,6 +153,7 @@ def resolve_composition_plan(
         business_name=business_name,
         package_id=package_id,
         niche_id=niche_id,
+        diversity_salt=diversity_salt,
     )
     evidence = collect_trust_evidence(
         client_trust=client_trust,
@@ -229,6 +234,10 @@ def compose_landing(
     calculator: bool = False,
     include_testimonials: bool = False,
     large_headline: bool = False,
+    diversity_salt: str = "",
+    studio_plan: object | None = None,
+    approach: str = "",
+    contacts: dict | None = None,
 ) -> CompositionResult:
     """Full Path A compose: Content Gate → Media → Page Composition via plan."""
     from app.factory.content_gate import run_content_gate
@@ -291,7 +300,163 @@ def compose_landing(
         client_trust=client_trust,
         has_maps=bool(features.maps),
         has_process=bool(features.process),
+        diversity_salt=diversity_salt,
     )
+
+    # Digital Creative Studio — design the brand BEFORE any marketing HTML
+    from app.factory.design_dna.art_director import run_digital_creative_studio
+    from app.factory.design_dna.concept_gate import (
+        REALITY_BENCHMARK_NOTE,
+        gate_report,
+        should_export_marketing_html,
+    )
+    from app.factory.design_dna.quality_floor import validate_quality_floor_html
+    from app.factory.design_dna.visual_benchmark import quality_floor_for
+
+    studio = run_digital_creative_studio(
+        business_name=analysis.business_name,
+        niche_id=analysis.niche,
+        package_id=features.package_id,
+        diversity_salt=diversity_salt,
+        product_dir=Path(product_dir) if product_dir is not None else None,
+        surface="site",
+    )
+    dna = studio.dna
+    if product_dir is not None and studio.generation_status == "FAIL_TEMPLATE":
+        try:
+            import json as _json
+
+            (Path(product_dir) / "design_dna_gate.json").write_text(
+                _json.dumps(
+                    {
+                        "generation_status": "FAIL_TEMPLATE",
+                        "action": "REBUILD",
+                        "reason": studio.note,
+                        "philosophy": studio.philosophy,
+                        "quality_floor": quality_floor_for(features.package_id),
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+        except OSError:
+            pass
+
+    # Reality Benchmark FAIL: freeze marketing HTML — Creative Identity Owner Preview
+    if product_dir is not None and not should_export_marketing_html(
+        studio_generation_status=studio.generation_status
+    ):
+        from app.factory.design_dna.creative_identity import (
+            invent_creative_identity,
+            write_creative_identity,
+            write_identity_preview_as_index,
+        )
+
+        identity = studio.creative_identity or invent_creative_identity(
+            business_name=analysis.business_name,
+            niche_id=analysis.niche,
+            package_id=features.package_id,
+            surface="site",
+            diversity_salt=diversity_salt,
+            allow_html_export=False,
+            html_blocked_reason=REALITY_BENCHMARK_NOTE,
+        )
+        write_creative_identity(Path(product_dir), identity)
+        html = write_identity_preview_as_index(Path(product_dir), identity).read_text(
+            encoding="utf-8"
+        )
+        try:
+            import json as _json
+
+            (Path(product_dir) / "html_export_gate.json").write_text(
+                _json.dumps(gate_report(html_allowed=False), ensure_ascii=False, indent=2)
+                + "\n",
+                encoding="utf-8",
+            )
+        except OSError:
+            pass
+        return CompositionResult(
+            html=html,
+            plan=plan,
+            media_plan=media_plan_obj.as_dict() if media_plan_obj else {},
+            media_css=media_css,
+            media_background=media_background,
+            gallery=gallery,
+            hero_ok=hero_ok,
+            hero_from_client=hero_client,
+            content_gate={"status": "CREATIVE_IDENTITY_ONLY", "note": REALITY_BENCHMARK_NOTE},
+            analysis=analysis,
+            market_profile=profile.as_dict(),
+            design_dna=dna.as_dict() if dna is not None else {},
+        )
+
+    if dna is None:
+        from app.factory.design_dna import resolve_design_dna
+        from app.factory.design_dna.rhythm import DEFAULT_SECTION_KEYS
+
+        dna = resolve_design_dna(
+            business_name=analysis.business_name,
+            niche_id=analysis.niche,
+            package_id=features.package_id,
+            section_keys=DEFAULT_SECTION_KEYS,
+            diversity_salt=diversity_salt,
+        )
+
+    # Apply chosen composition: layout order + hero (impression over structure)
+    if studio.layout_profile is not None:
+        new_comp = resolve_component_for_layout(
+            studio.layout_profile,
+            hero_layout=studio.hero_layout or dna.hero_layout,
+            business_name=analysis.business_name,
+            package_id=features.package_id,
+            niche_id=analysis.niche,
+            diversity_salt=diversity_salt,
+        )
+        plan = replace(
+            plan,
+            layout_profile=studio.layout_profile,
+            hero_layout=studio.hero_layout or dna.hero_layout,
+            component_profile=new_comp,
+        )
+    elif dna.hero_layout and dna.hero_layout != plan.hero_layout:
+        new_comp = resolve_component_for_layout(
+            plan.layout_profile,
+            hero_layout=dna.hero_layout,
+            business_name=analysis.business_name,
+            package_id=features.package_id,
+            niche_id=analysis.niche,
+            diversity_salt=diversity_salt,
+        )
+        plan = replace(plan, hero_layout=dna.hero_layout, component_profile=new_comp)
+
+    if product_dir is not None:
+        try:
+            import json as _json
+
+            (Path(product_dir) / "visual_benchmark.json").write_text(
+                _json.dumps(
+                    {
+                        "quality_floor": quality_floor_for(features.package_id),
+                        "optimize_for": "first_visual_effect",
+                        "benchmark_brief": studio.benchmark_brief,
+                        "studio_id": studio.studio_id,
+                        "owner_review": studio.owner_review,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+        except OSError:
+            pass
+
+    # Starter also gets soft motion — unfinished static pages fail the shame test
+    effective_motion = motion_level
+    if features.package_id == "basic" and dna.motion == "soft":
+        effective_motion = "css"
 
     html = build_landing_html(
         analysis,
@@ -304,7 +469,7 @@ def compose_landing(
         calculator=calculator,
         include_testimonials=include_testimonials,
         large_headline=large_headline,
-        motion_level=motion_level,
+        motion_level=effective_motion,
         market_code=plan.market_code,
         market_profile=profile,
         catalog=catalog,
@@ -313,11 +478,37 @@ def compose_landing(
         client_logo_src=client_logo_src,
         client_gallery=gallery,
         hero_photo=hero_ok,
+        hero_video=(
+            "assets/hero.mp4"
+            if product_dir is not None
+            and (Path(product_dir) / "assets" / "hero.mp4").is_file()
+            else ""
+        ),
         brand_style=brand_style,
         client_trust=client_trust,
         media_css=media_css,
         media_background=media_background,
+        composition_plan=plan,
+        studio_plan=studio_plan,
+        design_dna=dna,
+        product_dir=Path(product_dir) if product_dir is not None else None,
+        approach=approach,
+        contacts=contacts,
     )
+
+    floor_fails = validate_quality_floor_html(html, dna)
+    if floor_fails and product_dir is not None:
+        try:
+            (product_dir / "design_dna_gate.json").write_text(
+                __import__("json").dumps(
+                    {"failures": floor_fails, "dna": dna.as_dict()},
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+        except OSError:
+            pass
 
     cg_result, _ = run_content_gate(
         analysis=analysis,
@@ -338,4 +529,5 @@ def compose_landing(
         content_gate=cg_result.as_dict(),
         analysis=analysis,
         market_profile=profile.as_dict(),
+        design_dna=dna.as_dict(),
     )

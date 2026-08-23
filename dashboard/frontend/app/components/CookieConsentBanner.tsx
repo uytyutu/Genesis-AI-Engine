@@ -56,6 +56,7 @@ export function CookieConsentBanner() {
 
   return (
     <div
+      data-cookie-consent="1"
       className="fixed inset-x-0 bottom-0 z-[80] p-3 sm:p-4"
       role="dialog"
       aria-modal="true"

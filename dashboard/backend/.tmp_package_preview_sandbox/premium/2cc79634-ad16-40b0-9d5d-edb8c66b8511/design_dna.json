@@ -1,0 +1,75 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "heller Autosalon · Neuwagen Ausstellung · Schlüsselübergabe",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "cinematic",
+  "package_id": "premium",
+  "niche_id": "car_dealership",
+  "fingerprint": "45aedb4a02ffe1978d0e21cfbb0bf625dd01c75a118e05b130b03ba2735f9903",
+  "section_treatments": [
+    [
+      "showcase",
+      "illustration"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "about",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "process",
+      "illustration"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "tint"
+    ],
+    [
+      "late_cta",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#e6eaf0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "c2d873ed677f9cb6c7ad8ef0",
+  "border_radius_px": 12
+}

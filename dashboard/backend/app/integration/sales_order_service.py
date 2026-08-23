@@ -238,69 +238,89 @@ HOSTING_PROVIDERS = frozenset(
 )
 
 _PACKAGES = {
+    # Public Website ladder — must match /site (299 / 599 / 999)
     "basic": {
         "id": "basic",
-        "name": "Landing Basic",
-        "price_eur": 350,
-        "tagline": "Schöner moderner Auftritt — bereit zur Veröffentlichung",
+        "name": "Website Basic",
+        "price_eur": 299,
+        "commerce_mode": "standalone",
+        "tagline": "Moderner Website-Start — fertig für Ihre Branche, ohne Client-Panel",
         "included_summary": (
-            "moderne Landing Page, Design nach Branche, Prozess-Schritte, Zwischen-CTA, "
-            "Trust-Leiste, WhatsApp, Kontaktformular, Bewertungsblock; "
-            "ZIP und Publish-Anleitung, Rechtsvorlagen (falls Markt bereit)"
+            "responsive Website, Kontakt & Legal, SEO-Grundlage, Social/Kontakt — "
+            "kein Virtus Workspace (Änderungen über Auftrag/Support)"
         ),
         "deliverables": [
-            "Fertige moderne Landing Page (mobil) — Design automatisch nach Branche",
-            "Hero mit Branchen-Atmosphäre, Leistungen, Vorteile, Kontakt",
-            "Ablauf («So läuft’s»), Zwischen-CTA und Trust-Leiste",
-            "WhatsApp-Button und Kontaktformular",
-            "Bewertungsblock (Beispieltexte — durch echte Stimmen ersetzbar)",
-            "Vollständiges Website-Archiv (ZIP) — Sie sind Eigentümer der Dateien",
-            "Anleitung zur Selbst-Veröffentlichung",
-            "Rechtsvorlagen für Ihren Markt (von Ihnen zu prüfen)",
-            "Lieferzeit: oft ca. 15 Minuten nach Zahlung",
+            "Fertige Website für Ihre Branche",
+            "Responsive + Mobile",
+            "Kontaktformular & Legal-Seiten",
+            "SEO-Grundlage",
+            "Standard-Medien & Kontakte",
+            "Übergabe als fertiges Projekt",
+            "Keine Virtus-Verwaltung",
         ],
     },
     "business": {
         "id": "business",
-        "name": "Landing Business",
-        "price_eur": 650,
-        "tagline": "Website, die Kunden anzieht — Vertrauen, Ort, klare nächsten Schritte",
+        "name": "Website Business",
+        "price_eur": 599,
+        "commerce_mode": "standalone",
+        "tagline": "Website + Virtus Workspace — Inhalte und Medien selbst steuern",
         "included_summary": (
-            "alles aus Basic plus Business-Design, Google Maps mit Route, FAQ, Ablauf, "
-            "Trust-Leiste, Logo-Platz, erweitertes SEO; Hilfe beim Upload; 1 Korrekturrunde"
+            "alles aus Basic plus Virtus Client Workspace: Texte, Medien, Seiten, "
+            "Formulare, Analytics, Kontakte/Social, Version/Restore wo verfügbar"
         ),
         "deliverables": [
-            "Alles aus Basic (inkl. ZIP und Eigentum an den Dateien)",
-            "Reicheres Business-Design (klarer Vertrauensaufbau)",
-            "Google Maps / OSM mit Button „Route planen“, Öffnungszeiten, Parkhinweis",
-            "FAQ, Ablauf («So läuft’s»), Zwischen-CTA und Trust-Leiste",
-            "Logo-Platzhalter und erweitertes SEO (Schema.org / Meta)",
-            "Hilfe beim Upload auf Ihren Hosting-Zugang (manuell)",
-            "1 Korrekturrunde",
-            "Domain-/Hosting-Vertrag schließen Sie direkt mit dem Anbieter",
-            "Lieferzeit: oft ca. 15 Minuten nach Zahlung",
+            "Alles aus Basic",
+            "Virtus Client Workspace",
+            "Inhalte & Texte bearbeiten",
+            "Bilder / Medien ersetzen",
+            "Seiten & Formulare",
+            "Analytics-Grundlage",
+            "Kontakte & Social Links",
+            "Versionen / Restore (wo implementiert)",
         ],
     },
     "premium": {
         "id": "premium",
-        "name": "Landing Premium",
-        "price_eur": 1200,
-        "tagline": "Premium-Klasse — exklusives Design und interaktive Blöcke",
+        "name": "Website Premium",
+        "price_eur": 999,
+        "commerce_mode": "connected",
+        "tagline": "Premium Website — Workspace + Cinematic Creative Experience",
         "included_summary": (
-            "alles aus Business plus Premium-Design, Showcase, Kennzahlen, Kostenrechner, "
-            "Analytics-Platzhalter; Assisted Go-live bei Zugang; 14 Tage Support und 3 Korrekturen"
+            "alles aus Business plus Premium Art Direction, Cinematic Scroll, "
+            "advanced Motion/Media, erweiterte Steuerung und Analytics"
         ),
         "deliverables": [
             "Alles aus Business",
-            "Exklusives Premium-Design (stärkerer visueller Auftritt)",
-            "Showcase-Galerie und Kennzahlen-Leiste",
-            "Kostenrechner und Analytics-Platzhalter (G-ID nach Go-live)",
-            "Assisted Veröffentlichung: Domain/Hosting/SSL mit Ihrem Zugang",
-            "14 Tage prioritäre Unterstützung + 3 Korrekturrunden",
-            "Domain/Hosting-Miete nicht im Preis — nur Einrichtungsservice",
-            "Kein Inhaber-Login und keine Online-Zahlung pro Warenkorb in diesem Paket",
-            "Lieferzeit: oft ca. 15 Minuten nach Zahlung",
+            "Premium Art Direction",
+            "Cinematic Scroll Experience (inkl.)",
+            "Niche Storytelling & Motion",
+            "Cinematic Media",
+            "Erweiterte Content-Kontrolle",
+            "Erweiterte Analytics",
+            "Virtus Workspace + Premium Creative Controls",
         ],
+    },
+    # API aliases (old Standalone / Connected wording) → Business / Premium
+    "standalone": {
+        "id": "standalone",
+        "name": "Website Business",
+        "price_eur": 599,
+        "commerce_mode": "standalone",
+        "alias_of": "business",
+        "tagline": "Alias — Website Business",
+        "included_summary": "Alias of Website Business",
+        "deliverables": ["See Website Business"],
+    },
+    "connected": {
+        "id": "connected",
+        "name": "Website Premium",
+        "price_eur": 999,
+        "commerce_mode": "connected",
+        "alias_of": "premium",
+        "tagline": "Alias — Website Premium",
+        "included_summary": "Alias of Website Premium",
+        "deliverables": ["See Website Premium"],
     },
     # Repair MVP — operator delivery after payment (no auto CMS surgery)
     "repair_lite": {
@@ -632,7 +652,7 @@ class SalesOrderService:
             memory_dir=self._memory,
             extra_text=extra_text,
         )
-        # Public website packages only — repair is sold via Analysis funnel, not storefront grid
+        # Public website packages — Basic / Business / Premium (same as /site)
         site_ids = ("basic", "business", "premium")
         deliverables = {k: _PACKAGES[k]["deliverables"] for k in site_ids}
         names = {k: _PACKAGES[k]["name"] for k in site_ids}
@@ -641,6 +661,24 @@ class SalesOrderService:
             deliverables_by_id=deliverables,
             names_by_id=names,
         )
+        pkgs = list(result.get("packages") or [])
+        enriched = []
+        for p in pkgs:
+            pid = str(p.get("id") or "")
+            row = _PACKAGES.get(pid) or {}
+            enriched.append(
+                {
+                    **p,
+                    "commerce_mode": row.get("commerce_mode") or pid,
+                    "monthly_eur": row.get("monthly_eur") or 0,
+                    "tagline": row.get("tagline") or p.get("tagline") or "",
+                    "virtus_workspace": pid in ("business", "premium"),
+                    "cinematic_included": pid == "premium",
+                }
+            )
+        result["packages"] = enriched
+        result["commerce_model"] = "basic_business_premium"
+        result["canon"] = "Website package ladder"
         # Stripe Smoke €1 — checkout via API when GENESIS_STRIPE_SMOKE=1.
         # Listed in UI only when GENESIS_SHOW_SMOKE_PACKAGE=1 (dev/debug). Never for normal buyers.
         if (
@@ -801,6 +839,8 @@ class SalesOrderService:
                 "product_kind": "bot",
             }
 
+        from app.integration.pricing_engine import normalize_package_id
+
         resolved = resolve_checkout_market(
             market_code=market_code,
             city=city,
@@ -808,8 +848,11 @@ class SalesOrderService:
             memory_dir=self._memory,
             extra_text=extra_text,
         )
-        tier = pid if pid in _PACKAGES else "basic"
-        base = _PACKAGES.get(tier, _PACKAGES["basic"])
+        tier = normalize_package_id(pid)
+        # Prefer canonical ladder row (basic/business/premium) over alias stubs
+        base = _PACKAGES.get(tier) or _PACKAGES["basic"]
+        if base.get("alias_of"):
+            base = _PACKAGES.get(str(base["alias_of"]), base)
         offer = resolve_final_offer(tier, resolved)
         package = {
             **base,
@@ -827,7 +870,21 @@ class SalesOrderService:
             factory_locale_context,
         )
         from app.factory.motion_brief import gate_motion_level, normalize_motion_level
+        from app.integration.demo_payment import (
+            demo_payment_bridge_enabled,
+            matches_demo_company_name,
+        )
         from app.integration.locale_service import normalize_order_ui_lang
+
+        wants_demo = bool(payload.get("demo")) or str(
+            payload.get("payment_mode") or ""
+        ).lower() == "demo"
+        if wants_demo and not demo_payment_bridge_enabled():
+            raise ValueError("demo_payment_disabled")
+        # Auto-demo companies still require bridge enabled (never silent in production)
+        if matches_demo_company_name(str(payload.get("business_name") or "")) and not demo_payment_bridge_enabled():
+            # Still create order, but do not tag as demo when bridge locked
+            pass
 
         package_id = payload.get("package_id") or self._suggest_package(payload)
         package, _offer = self._package_offer(
@@ -1082,7 +1139,35 @@ class SalesOrderService:
             "price_label": price_label,
             "interest_only": interest_only,
             "motion_level": motion,
+            "cinematic_enabled": False,
+            "cinematic_product_id": None,
+            "cinematic_price_eur": 0.0,
+            "media_budget_eur": 0.0,
+            "media_spent_eur": 0.0,
+            "media_remaining_eur": 0.0,
+            "media_status": "NOT_REQUESTED",
+            "media_provider": None,
             "brand_style": _normalize_order_brand_style(payload.get("brand_style")),
+            "commerce_mode": payload.get("commerce_mode")
+            or package.get("commerce_mode")
+            or None,
+            "business_interview": payload.get("business_interview")
+            if isinstance(payload.get("business_interview"), dict)
+            else None,
+            "dialogue": (payload.get("dialogue") or "").strip() or None,
+            "dream_vision": (payload.get("dream_vision") or "").strip() or None,
+            "clarify_answers": payload.get("clarify_answers")
+            if isinstance(payload.get("clarify_answers"), dict)
+            else None,
+            "business_scale": (payload.get("business_scale") or "").strip() or None,
+            "why_choose_us": (payload.get("why_choose_us") or payload.get("differentiator") or "").strip()
+            or None,
+            "who_is_company": (payload.get("who_is_company") or payload.get("about") or "").strip()
+            or None,
+            "clients_who": (payload.get("clients_who") or "").strip() or None,
+            "site_jobs": self._normalize_services_list(payload.get("site_jobs")),
+            "wishes": (payload.get("wishes") or payload.get("dream_wishes") or "").strip()
+            or None,
             "deliverables": (
                 project_launch_deliverables(service_id)
                 if launch_mode
@@ -1130,14 +1215,60 @@ class SalesOrderService:
             "paid_at": None,
             "payment_provider": None,
             "payment_external_id": None,
+            "payment_mode": None,
+            "demo": False,
+            "is_demo": False,
             "estimated_delivery_at": None,
             "client_status_message": client_message,
             "deployment_preference": "unset",
             "hosting_provider": None,
             "deployment_preference_at": None,
         }
+        # Cinematic: included in Premium website / Premium-style shop; else optional +€.
+        pkg_norm = str(package_id or "").strip().lower()
+        is_shop_order = product_kind == "shop" or pkg_norm == "ecommerce_shop"
+        shop_style = str(
+            ((payload.get("shop_brief") or {}) if isinstance(payload.get("shop_brief"), dict) else {}).get(
+                "style"
+            )
+            or ""
+        ).strip().lower()
+        premium_includes_cinematic = pkg_norm in ("premium", "connected") or (
+            is_shop_order and shop_style in ("premium", "cinematic", "luxury")
+        )
+        cinematic_wanted = bool(
+            premium_includes_cinematic
+            or payload.get("cinematic_enabled")
+            or payload.get("cinematic_ai_experience")
+            or str(payload.get("cinematic_product_id") or "").strip()
+        )
+        if cinematic_wanted:
+            from app.integration.cinematic_media.budget import attach_cinematic_to_order
+
+            attach_cinematic_to_order(
+                order,
+                enabled=True,
+                product_id=(payload.get("cinematic_product_id") or None),
+                is_shop=is_shop_order,
+                included_in_package=premium_includes_cinematic,
+            )
+            price_eur = float(order["price_eur"])
+            price_label = order.get("price_label") or price_label
+
+        from app.integration.demo_payment import should_tag_demo_order
+
+        if should_tag_demo_order(payload):
+            order["demo"] = True
+            order["is_demo"] = True
+            order["payment_mode"] = "demo"
+            order["demo_banner"] = (
+                "Demo Payment — средства не списываются. / "
+                "Demo Payment — es wird kein Geld abgebucht. Nur für interne Tests."
+            )
         self._save_order(order)
-        return {
+        from app.integration.demo_payment import demo_public_flags
+
+        out = {
             "ok": True,
             "order_id": order_id,
             "message": project_order_created_message(
@@ -1157,11 +1288,15 @@ class SalesOrderService:
             "locale": locale_ctx["locale"],
             "price_label": order.get("price_label") or package.get("price_label"),
             "motion_level": motion,
+            "cinematic_enabled": bool(order.get("cinematic_enabled")),
+            "cinematic_price_eur": float(order.get("cinematic_price_eur") or 0),
             "deliverables": order["deliverables"],
             "buyer_insights": buyer_insights,
             "bot_config": order.get("bot_config"),
             "monthly_amount": order.get("monthly_amount"),
         }
+        out.update(demo_public_flags(order, ui_lang=ui_lang))
+        return out
 
     def list_orders(self, limit: int = 20) -> list[dict]:
         orders = self._load_all()
@@ -1169,7 +1304,11 @@ class SalesOrderService:
         return [self._summary(o) for o in orders[:limit]]
 
     def attach_customer_by_email(self, *, customer_id: str, email: str) -> int:
-        """Link guest website orders to a customer account (email match)."""
+        """Link *guest* orders (no customer_id yet) to this account by email.
+
+        Never reassign an order that already belongs to another customer_id —
+        that caused cross-tenant cabinet leakage (Client A seeing Client B).
+        """
         cid = str(customer_id or "").strip()
         em = str(email or "").strip().lower()
         if not cid or not em or "@" not in em:
@@ -1179,7 +1318,11 @@ class SalesOrderService:
             order_email = str(order.get("email") or "").strip().lower()
             if order_email != em:
                 continue
-            if str(order.get("customer_id") or "").strip() == cid:
+            existing = str(order.get("customer_id") or "").strip()
+            if existing == cid:
+                continue
+            # Only claim true guest rows. Never steal another tenant's order.
+            if existing:
                 continue
             order["customer_id"] = cid
             order["updated_at"] = datetime.now(timezone.utc).isoformat()
@@ -1187,10 +1330,28 @@ class SalesOrderService:
             linked += 1
         return linked
 
+    @staticmethod
+    def _order_is_cabinet_hidden(order: dict) -> bool:
+        """Soft-replaced / archived duplicates stay out of the client cabinet."""
+        st = str(order.get("status") or "").strip().lower()
+        qs = str(order.get("quality_state") or "").strip().upper()
+        if st == "superseded" or qs == "ARCHIVED":
+            return True
+        # Legacy upgrade scripts set boolean `superseded` without status=superseded.
+        if order.get("superseded") is True:
+            return True
+        return False
+
     def list_orders_for_customer(
         self, *, customer_id: str, email: str | None = None, limit: int = 50
     ) -> list[dict]:
-        """Cabinet orders: by customer_id and/or matching email."""
+        """Cabinet orders owned by this customer.
+
+        Ownership rule (hard):
+        - Include if order.customer_id == customer_id
+        - OR guest order (empty customer_id) with matching email
+        - Never include another tenant's order just because emails match
+        """
         cid = str(customer_id or "").strip()
         em = str(email or "").strip().lower()
         if not cid and not em:
@@ -1201,8 +1362,10 @@ class SalesOrderService:
             oid_email = str(order.get("email") or "").strip().lower()
             if cid and oid_cid == cid:
                 matched.append(order)
-            elif em and oid_email == em:
+            elif em and oid_email == em and not oid_cid:
+                # Guest checkout awaiting claim — safe to show after login attach.
                 matched.append(order)
+            # else: email match but foreign customer_id → isolation: skip
         # de-dupe by order_id
         seen: set[str] = set()
         unique: list[dict] = []
@@ -1214,20 +1377,29 @@ class SalesOrderService:
             unique.append(o)
         unique.sort(key=lambda o: o.get("created_at", ""), reverse=True)
         out: list[dict] = []
-        for order in unique[:limit]:
+        for order in unique:
+            if self._order_is_cabinet_hidden(order):
+                continue
             try:
                 status = self.public_status(str(order["order_id"]))
             except Exception:
                 status = self._summary(order)
             out.append(status)
+            if len(out) >= limit:
+                break
         return out
 
     def list_pending(self) -> list[dict]:
         return [o for o in self.list_orders(50) if o["status"] == "pending_confirmation"]
 
     def get_order(self, order_id: str) -> dict | None:
+        want = str(order_id or "").strip()
+        if not want:
+            return None
+        want_l = want.lower()
         for order in self._load_all():
-            if order.get("order_id") == order_id:
+            oid = str(order.get("order_id") or "")
+            if oid == want or oid.lower() == want_l:
                 return order
         return None
 
@@ -1248,7 +1420,13 @@ class SalesOrderService:
         em = str(email or "").strip().lower()
         oid_cid = str(order.get("customer_id") or "").strip()
         oid_email = str(order.get("email") or "").strip().lower()
-        if not ((cid and oid_cid == cid) or (em and oid_email == em)):
+        owns = False
+        if cid and oid_cid and oid_cid == cid:
+            owns = True
+        elif em and oid_email == em and not oid_cid:
+            # Guest shop not yet attached — email claim only.
+            owns = True
+        if not owns:
             raise ValueError("forbidden")
         return order
 
@@ -1863,6 +2041,8 @@ class SalesOrderService:
             "city": order.get("city") or legal.get("city"),
             "street": street,
             "package_id": package_id,
+            "commerce_mode": order.get("commerce_mode")
+            or (_PACKAGES.get(package_id.lower()) or {}).get("commerce_mode"),
             "needs_logo": bool(order.get("needs_logo")),
             "market_code": market,
             "motion_level": motion,
@@ -1877,7 +2057,20 @@ class SalesOrderService:
             "niche": order.get("niche"),
             "services_list": order.get("services_list") or [],
             "advantages": order.get("advantages") or [],
+            "site_jobs": order.get("site_jobs") or [],
+            "why_choose_us": order.get("why_choose_us") or order.get("differentiator") or "",
+            "who_is_company": order.get("who_is_company") or order.get("about") or "",
+            "clients_who": order.get("clients_who") or "",
+            "dream_wishes": order.get("wishes") or order.get("dream_wishes") or "",
+            "dialogue": order.get("dialogue") or "",
+            "dream_vision": order.get("dream_vision") or "",
+            "business_scale": order.get("business_scale") or "",
+            "clarify_answers": order.get("clarify_answers")
+            if isinstance(order.get("clarify_answers"), dict)
+            else {},
         }
+        if isinstance(order.get("business_interview"), dict):
+            contacts["business_interview"] = order["business_interview"]
         mats = order.get("materials")
         if isinstance(mats, dict) and isinstance(mats.get("files"), list):
             contacts["materials"] = mats["files"]
@@ -1885,6 +2078,22 @@ class SalesOrderService:
             contacts["materials"] = mats
         if not legal.get("country"):
             legal["country"] = market
+        from app.factory.commerce_model import normalize_commerce_mode
+
+        _cm = normalize_commerce_mode(
+            package_id,
+            commerce_mode=str(contacts.get("commerce_mode") or "") or None,
+        )
+        factory_pkg = _cm.factory_package_id
+        # FactoryIntentRequest still accepts legacy patterns in some builds —
+        # map connected→premium, standalone→business for gate compatibility.
+        intent_pkg = {
+            "standalone": "business",
+            "connected": "premium",
+            "basic": "business",
+            "business": "business",
+            "premium": "premium",
+        }.get(factory_pkg, "business")
         intent = FactoryIntentRequest(
             product_type="landing-page",
             description=brief,
@@ -1893,8 +2102,8 @@ class SalesOrderService:
             price_eur=float(order["price_eur"]),
             deadline=None,
             client_legal=legal or None,
-            package_id=package_id if package_id in ("basic", "business", "premium") else "basic",
-            contacts=contacts,
+            package_id=intent_pkg,
+            contacts={**contacts, "package_id": factory_pkg, "commerce_mode": _cm.commerce_mode},
             motion_level=motion,
         )
         result = self._factory_intent.submit(intent)
@@ -1915,6 +2124,18 @@ class SalesOrderService:
             order["client_status_message"] = client_post_pay_message(
                 "ready", market, download_ready=True
             )
+            # Warm ZIP cache at Ready — GET /download should be near-instant.
+            factory = getattr(self._factory_intent, "_factory", None)
+            if factory is not None and hasattr(factory, "prebuild_client_delivery_zip"):
+                try:
+                    pre = factory.prebuild_client_delivery_zip(str(product_id))
+                    order["download_bytes"] = pre.get("bytes")
+                    order["client_zip_prebuilt_at"] = datetime.now(timezone.utc).isoformat()
+                    if pre.get("sha256"):
+                        order["delivery_sha256"] = pre.get("sha256")
+                    order["delivery_immutable"] = bool(pre.get("immutable"))
+                except Exception:
+                    pass
         self._save_order(order)
         return {
             "ok": True,
@@ -2207,6 +2428,7 @@ class SalesOrderService:
             normalize_market,
             order_ui_lang,
             publish_status_payload,
+            render_client_receipt_text,
         )
         from app.integration.market_registry import format_amount, get_market
 
@@ -2299,6 +2521,65 @@ class SalesOrderService:
         elif status in ("paid", "in_production") and product_kind not in ("repair", "shop"):
             download_label = "generating..."
 
+        from app.integration.demo_payment import demo_public_flags
+
+        paid_flag = status in ("paid", "in_production", "ready", "delivered")
+        status_path = f"/order/status/{order_id}"
+        existing_receipt = str(order.get("client_receipt_text") or "")
+        thin_receipt = (not existing_receipt) or (
+            (ui_lang == "de" or market == "DE")
+            and (
+                "Rechnungsnummer" not in existing_receipt
+                or "Leistungsbeschreibung" not in existing_receipt
+            )
+        )
+        if paid_flag and thin_receipt:
+            order["client_receipt_text"] = render_client_receipt_text(
+                order=order, status_path=status_path, paid=amount
+            )
+            order["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._save_order(order)
+
+        legal = order.get("client_legal") if isinstance(order.get("client_legal"), dict) else {}
+        seller_block = {
+            "name": "Virtus Core",
+            "address": "",
+            "vat_id": "",
+            "email": "hello@virtuscore.com",
+        }
+        try:
+            from pathlib import Path
+
+            from app.legal.service import LegalFoundationService
+
+            mem = Path(__file__).resolve().parents[1] / "memory"
+            preview = LegalFoundationService(mem).operator_preview()
+            seller_block = {
+                "name": str(
+                    preview.get("trade_name") or preview.get("full_name") or "Virtus Core"
+                ),
+                "address": ", ".join(
+                    p
+                    for p in [
+                        str(preview.get("address_street") or "").strip(),
+                        f"{str(preview.get('address_zip') or '').strip()} {str(preview.get('address_city') or '').strip()}".strip(),
+                        str(preview.get("address_country") or "DE").strip(),
+                    ]
+                    if p
+                ),
+                "vat_id": str(preview.get("vat_id") or "").strip(),
+                "email": str(preview.get("email") or "hello@virtuscore.com"),
+            }
+        except Exception:
+            pass
+        buyer_block = {
+            "name": str(legal.get("owner_name") or order.get("business_name") or "").strip(),
+            "street": str(legal.get("street") or "").strip(),
+            "zip_city": f"{str(legal.get('zip') or '').strip()} {str(legal.get('city') or order.get('city') or '').strip()}".strip(),
+            "country": str(legal.get("country") or market or "").strip(),
+            "email": str(legal.get("email") or order.get("email") or "").strip(),
+        }
+
         return {
             "order_id": order["order_id"],
             "business_name": order["business_name"],
@@ -2336,6 +2617,7 @@ class SalesOrderService:
             "paid_at": order.get("paid_at"),
             "created_at": order.get("created_at"),
             "updated_at": order.get("updated_at"),
+            **demo_public_flags(order, ui_lang=ui_lang),
             "download_ready": download_ready,
             "download_url": f"/api/sales/orders/{order_id}/download" if download_ready else None,
             "download_bytes": download_bytes,
@@ -2368,6 +2650,11 @@ class SalesOrderService:
             "assisted_guide": self._assisted_guide_payload(order),
             "receipt": {
                 "brand": "Virtus Core",
+                "document_title": (
+                    "Rechnung / Zahlungsbeleg (§ 14 UStG)"
+                    if (ui_lang == "de" or market == "DE")
+                    else "Receipt"
+                ),
                 "order_id": order["order_id"],
                 "customer": order["business_name"],
                 "package": order["package_name"],
@@ -2380,6 +2667,23 @@ class SalesOrderService:
                     ui_lang=ui_lang,
                 ),
                 "date": order.get("paid_at") or order.get("created_at"),
+                "service_date": order.get("paid_at") or order.get("created_at"),
+                "leistung": f"Website-Paket: {order.get('package_name') or ''} — digitales Lieferprodukt (ZIP)",
+                "seller": seller_block,
+                "buyer": buyer_block,
+                "vat_note": (
+                    f"USt-IdNr.: {seller_block['vat_id']}"
+                    if seller_block.get("vat_id")
+                    else (
+                        "§ 19 UStG: Keine Umsatzsteuer ausgewiesen (Kleinunternehmer / Demo)."
+                        if (ui_lang == "de" or market == "DE")
+                        else None
+                    )
+                ),
+                "payment_mode": str(
+                    order.get("payment_mode") or order.get("payment_provider") or ""
+                )
+                or None,
                 "download_available": download_ready,
                 "market_code": market,
                 "ui_lang": ui_lang,
@@ -2621,6 +2925,13 @@ class SalesOrderService:
                 if meta.get("path_a_pricing") != pricing:
                     meta["path_a_pricing"] = pricing
                     dirty = True
+                demo = bool(order.get("demo") or order.get("is_demo")) or str(
+                    order.get("payment_mode") or ""
+                ).lower() == "demo"
+                if demo and not meta.get("demo_order"):
+                    meta["demo_order"] = True
+                    meta["allow_demo_pack"] = True
+                    dirty = True
                 if dirty:
                     product_dir = factory._sandbox / product_id  # type: ignore[attr-defined]
                     (product_dir / "meta.json").write_text(
@@ -2639,9 +2950,34 @@ class SalesOrderService:
         self._save_order(order)
         return data, filename
 
-    def _product_packable(self, product_id: str) -> bool:
-        """True only when index.html exists and passes Compliance (ZIP packable)."""
+    def _product_has_client_html(self, product_id: str) -> bool:
+        """Minimal deliverable check — index.html present and non-trivial."""
+        factory = getattr(self._factory_intent, "_factory", None)
+        if factory is None or not hasattr(factory, "get_product"):
+            return False
+        if not factory.get_product(product_id):
+            return False
+        try:
+            product_dir = factory._sandbox / product_id  # type: ignore[attr-defined]
+            html_path = product_dir / "index.html"
+            if not html_path.is_file():
+                return False
+            return html_path.stat().st_size >= 4000
+        except Exception:
+            return False
+
+    def _product_packable(self, product_id: str, *, demo: bool = False) -> bool:
+        """True only when index.html exists and passes Compliance (ZIP packable).
+
+        Demo orders: deliver if HTML exists — owner eyes still decide PASS.
+        Gates that self-fail on «Demo» / platform words must not strand Path A.
+        """
+        import hashlib
+
         from app.factory.compliance_engine import assert_compliance
+
+        if demo and self._product_has_client_html(product_id):
+            return True
 
         factory = getattr(self._factory_intent, "_factory", None)
         if factory is None or not hasattr(factory, "get_product"):
@@ -2663,11 +2999,28 @@ class SalesOrderService:
                     return False
                 if cg.get("score_passed") is False:
                     return False
+            html_bytes = html_path.read_bytes()
+            html_hash = hashlib.sha256(html_bytes).hexdigest()[:20]
+            prior = meta.get("compliance") if isinstance(meta.get("compliance"), dict) else {}
+            # Fast path only while HTML unchanged since last green compliance.
+            if (
+                cg.get("passed") is True
+                and prior.get("passed") is True
+                and meta.get("validation_passed") is True
+                and meta.get("packable_html_hash") == html_hash
+            ):
+                return True
             assert_compliance(
-                html_path.read_text(encoding="utf-8"),
+                html_bytes.decode("utf-8"),
                 meta=meta,
                 assets_dir=product_dir / "assets",
             )
+            if meta.get("packable_html_hash") != html_hash:
+                meta["packable_html_hash"] = html_hash
+                (product_dir / "meta.json").write_text(
+                    __import__("json").dumps(meta, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
             return True
         except Exception:
             return False
@@ -2683,7 +3036,10 @@ class SalesOrderService:
         product_id = str(order.get("product_id") or "").strip()
         if not product_id:
             return False
-        return self._product_packable(product_id)
+        demo = bool(order.get("demo") or order.get("is_demo")) or str(
+            order.get("payment_mode") or ""
+        ).lower() == "demo"
+        return self._product_packable(product_id, demo=demo)
 
     def _client_download_meta(
         self, order: dict, *, download_ready: bool

@@ -1,0 +1,63 @@
+{
+  "brand_name": "StromWerk Meisterbetrieb",
+  "niche_id": "elektro",
+  "fingerprint": "8ec9598e19855f69fb64",
+  "color": {
+    "primary": "#0a0c1e",
+    "accent": "#01c32d",
+    "secondary": "#474b7d",
+    "surface": "#dcdef0",
+    "cards": "#d6daee",
+    "background": "#0a0c1e",
+    "gradient": "linear-gradient(145deg,#0a0c1e 0%,#006116 48%,#01c32d 100%)",
+    "glow": "rgba(1,195,45,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "isometric_illustration",
+    "glass_3d",
+    "abstract_gradient"
+  ],
+  "illustration_pack": "soft 3D product icons",
+  "motion_language": "kinetic micro-motion · glow pulse · scroll scenes",
+  "icon_style": "line geometric marks",
+  "scene_library": {
+    "hero": [
+      "Sicherungskasten",
+      "Fachkraft mit Messgerät",
+      "Elektroinstallation"
+    ],
+    "gallery": [
+      "Leitungsverlegung",
+      "Smart-Home Panel",
+      "Messung"
+    ],
+    "team": [
+      "Elektriker"
+    ],
+    "equipment": [
+      "Multimeter",
+      "Leitungszieher"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Sicherungskasten, Fachkraft mit Messgerät, Elektroinstallation. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=hero_background. Medium=glass_3d. Illustration language=soft 3D product icons. Must show: Sicherungskasten, Fachkraft mit Messgerät, Elektroinstallation. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Leitungsverlegung, Smart-Home Panel, Messung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Leitungsverlegung, Smart-Home Panel. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=team. Medium=isometric_illustration. Illustration language=soft 3D product icons. Must show: Elektriker. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=equipment. Medium=isometric_illustration. Illustration language=soft 3D product icons. Must show: Multimeter, Leitungszieher. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Messung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=illustration. Medium=isometric_illustration. Illustration language=soft 3D product icons. Must show: Sicherungskasten, Fachkraft mit Messgerät. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=soft 3D product icons. Must show: line geometric marks. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Sicherungskasten, Fachkraft mit Messgerät, Elektroinstallation. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

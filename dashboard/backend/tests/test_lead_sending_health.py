@@ -59,12 +59,28 @@ def test_lead_sending_health_explains_gmail_and_resend(tmp_path: Path):
 def test_bot_packages_have_tier_differences():
     body = list_bot_packages("DE")
     assert body["product_id"] == "prod_ai_business_bot"
+    assert "Telegram" in body["channels_available"]
     assert "Website Chat" in body["channels_available"]
+    assert "Website Chat" not in body["channels_coming_soon"]
     assert "WhatsApp" in body["channels_coming_soon"]
     by_id = {p["package_id"]: p for p in body["packages"]}
     assert by_id["bot_starter"]["features"]["max_bots"] == 1
     assert by_id["bot_business"]["features"]["max_bots"] == 3
     assert by_id["bot_professional"]["features"]["max_bots"] is None
-    assert "До 1 источника" in by_id["bot_starter"]["features"]["knowledge_sources"]
+    assert "Website Chat" in by_id["bot_starter"]["features"]["extra_channels"]
+    assert by_id["bot_starter"]["features"]["knowledge_enforced"] is False
+    assert by_id["bot_starter"]["features"]["languages_enforced"] is False
+    assert "not enforced" in by_id["bot_starter"]["features"]["knowledge_sources"]
     assert by_id["bot_starter"]["features"]["ai_analysis"] is False
     assert by_id["bot_business"]["features"]["ai_analysis"] is True
+    assert by_id["bot_starter"]["max_bots"] == 1
+    assert body["ssot"]["ssot_version"] == "ai_employee_ladder_v1"
+    assert body["ssot"]["channels_live"] == ["Telegram", "Website Chat"]
+    assert "Website Chat" not in body["ssot"]["channels_coming_soon"]
+    assert "WhatsApp" in body["ssot"]["channels_coming_soon"]
+    assert body["ssot"]["tiers"][0]["knowledge_enforced"] is False
+    assert body["ssot"]["tiers"][0]["buy_promise_en"].startswith("One AI employee")
+    assert body["ssot"]["tiers"][1]["max_bots"] == 3
+    assert body["ssot"]["tiers"][2]["max_bots"] is None
+    assert body["ssot"]["tiers"][1]["analytics"] == "claim"
+    assert body["ssot"]["tiers"][0]["automation"] == "coming_soon"

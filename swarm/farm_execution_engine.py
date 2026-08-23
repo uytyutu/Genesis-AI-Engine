@@ -20,7 +20,9 @@ import os
 import re
 import shutil
 import subprocess
+import threading
 import time
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -39,6 +41,10 @@ STAGES = (
 
 WORK_ROOT_NAME = "opire_workspaces"
 MAX_TEST_ATTEMPTS = 3
+
+# One Clone/pipeline at a time per bounty id (parallel Approve/retry races).
+_CLONE_LOCKS: dict[str, threading.Lock] = {}
+_CLONE_LOCKS_GUARD = threading.Lock()
 
 _GIT_CANDIDATES = (
     r"C:\Program Files\Git\cmd\git.exe",
@@ -63,6 +69,38 @@ def resolve_git_binary() -> str | None:
     return None
 
 
+def noninteractive_git_env(extra: dict[str, str] | None = None) -> dict[str, str]:
+    """Env for Farm git — never open Git Credential Manager / browser OAuth.
+
+    Opening /farm-engine runs Sniper (git ls-remote). On Windows, GCM otherwise
+    pops «GitHub — Select an account» (often showing x-access-token) over Chrome.
+    """
+    merged = os.environ.copy()
+    if extra:
+        merged.update(extra)
+    # Force — do not use setdefault (user env may have GCM_INTERACTIVE=auto).
+    merged["GIT_TERMINAL_PROMPT"] = "0"
+    merged["GCM_INTERACTIVE"] = "never"
+    merged["GCM_AUTHORITY"] = "basic"
+    merged["GH_PROMPT_DISABLED"] = "1"
+    merged["GIT_ASKPASS"] = ""
+    # Empty askpass helper: if something still asks, fail closed instead of UI.
+    merged["SSH_ASKPASS"] = ""
+    return merged
+
+
+def git_no_credential_helper_args(git_bin: str, *git_args: str) -> list[str]:
+    """Prepend -c credential.helper= so manager-core / GCM cannot open a browser."""
+    return [
+        git_bin,
+        "-c",
+        "credential.helper=",
+        "-c",
+        "credential.helper=",
+        *git_args,
+    ]
+
+
 def _run(
     cmd: list[str],
     *,
@@ -70,10 +108,7 @@ def _run(
     timeout: int = 120,
     env: dict[str, str] | None = None,
 ) -> dict[str, Any]:
-    merged = os.environ.copy()
-    if env:
-        merged.update(env)
-    merged.setdefault("GIT_TERMINAL_PROMPT", "0")
+    merged = noninteractive_git_env(env)
     try:
         proc = subprocess.run(
             cmd,
@@ -117,11 +152,198 @@ def _authed_github_clone_url(repo_url: str, token: str) -> str | None:
     return f"https://x-access-token:{token}@github.com/{owner}/{repo}.git"
 
 
+def _lock_for_reward(reward_id: str) -> threading.Lock:
+    key = (reward_id or "").strip() or "_anon"
+    with _CLONE_LOCKS_GUARD:
+        lock = _CLONE_LOCKS.get(key)
+        if lock is None:
+            lock = threading.Lock()
+            _CLONE_LOCKS[key] = lock
+        return lock
+
+
+def remove_path_robust(path: Path, *, attempts: int = 6) -> dict[str, Any]:
+    """Delete file/dir with retries (Windows file locks). ok=False if still present."""
+    target = Path(path)
+    if not target.exists():
+        return {"ok": True, "path": str(target), "removed": False}
+    last_err = ""
+    for i in range(max(1, attempts)):
+        try:
+            if target.is_dir() and not target.is_symlink():
+                shutil.rmtree(target)
+            elif target.exists():
+                target.unlink()
+        except OSError as exc:
+            last_err = str(exc)
+            shutil.rmtree(target, ignore_errors=True)
+        if not target.exists():
+            return {"ok": True, "path": str(target), "removed": True, "attempts": i + 1}
+        time.sleep(0.05 * (i + 1))
+    return {
+        "ok": False,
+        "path": str(target),
+        "removed": False,
+        "error": last_err or "path_still_exists",
+        "attempts": attempts,
+    }
+
+
+def github_slug_from_remote_url(url: str) -> str | None:
+    """owner/repo from a GitHub remote URL (https or ssh)."""
+    m = re.search(r"github\.com[/:]([^/]+)/([^/\s]+)", (url or "").strip(), re.I)
+    if not m:
+        return None
+    owner = m.group(1).strip()
+    repo = m.group(2).strip().removesuffix(".git")
+    if not owner or not repo:
+        return None
+    return f"{owner}/{repo}".lower()
+
+
+def normalize_repo_slug(repo_or_url: str) -> str:
+    raw = (repo_or_url or "").strip().removesuffix(".git")
+    if not raw:
+        return ""
+    if "github.com" in raw.lower():
+        return github_slug_from_remote_url(raw) or ""
+    parts = raw.strip("/").split("/")
+    if len(parts) >= 2:
+        return f"{parts[-2]}/{parts[-1]}".lower()
+    return raw.lower()
+
+
+def read_workspace_origin_slug(src: Path) -> str | None:
+    """Read `origin` remote and return owner/repo slug (or None)."""
+    git = resolve_git_binary() or "git"
+    root = Path(src)
+    if not root.is_dir():
+        return None
+    res = _run(
+        git_no_credential_helper_args(git, "remote", "get-url", "origin"),
+        cwd=root,
+        timeout=30,
+        env=noninteractive_git_env(),
+    )
+    if not res.get("ok"):
+        return None
+    return github_slug_from_remote_url((res.get("stdout") or "").strip())
+
+
+def workspace_matches_repository(src: Path, repository: str) -> dict[str, Any]:
+    """ALLOW reuse only when workspace origin == task.repository."""
+    expected = normalize_repo_slug(repository)
+    if not expected:
+        return {
+            "ok": False,
+            "error": "missing_repository",
+            "expected": "",
+            "actual": None,
+        }
+    actual = read_workspace_origin_slug(src)
+    if not actual:
+        return {
+            "ok": False,
+            "error": "missing_origin",
+            "expected": expected,
+            "actual": None,
+        }
+    if actual != expected:
+        return {
+            "ok": False,
+            "error": "WORKSPACE_REPOSITORY_MISMATCH",
+            "expected": expected,
+            "actual": actual,
+        }
+    return {"ok": True, "expected": expected, "actual": actual}
+
+
+def quarantine_path(path: Path) -> dict[str, Any]:
+    """Move path aside (rename) so a new clone can use the original name.
+
+    On Windows, locked .git pack files often cannot be deleted immediately, but
+    renaming the directory still frees the destination name for git clone.
+    """
+    target = Path(path)
+    if not target.exists():
+        return {"ok": True, "path": str(target), "quarantined": False}
+    trash = target.parent / f".trash-{target.name}-{uuid.uuid4().hex[:10]}"
+    try:
+        target.rename(trash)
+    except OSError as exc:
+        # Last resort: delete in place
+        deleted = remove_path_robust(target)
+        if deleted.get("ok") and not target.exists():
+            return {"ok": True, "path": str(target), "quarantined": False, "deleted": True}
+        return {
+            "ok": False,
+            "path": str(target),
+            "error": f"quarantine_failed: {exc}; {deleted.get('error')}",
+        }
+    # Best-effort delete of trash (ignore failures — name is free either way)
+    remove_path_robust(trash)
+    if target.exists():
+        return {
+            "ok": False,
+            "path": str(target),
+            "error": "path_still_present_after_quarantine",
+        }
+    return {"ok": True, "path": str(target), "quarantined": True, "trash": str(trash)}
+
+
+def ensure_fresh_workspace(ws: Path) -> dict[str, Any]:
+    """Guarantee workspace root is a brand-new empty directory."""
+    root = Path(ws)
+    cleared = quarantine_path(root)
+    if not cleared.get("ok"):
+        return {
+            "ok": False,
+            "error": "workspace_cleanup_failed",
+            "detail": cleared.get("error") or str(root),
+            "cleanup": cleared,
+        }
+    # Drop leftover staging / trash dirs from crashed clones
+    parent = root.parent
+    if parent.is_dir():
+        for child in list(parent.iterdir()):
+            name = child.name
+            if name.startswith(".cloning-") or name.startswith(".trash-"):
+                remove_path_robust(child)
+    try:
+        root.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        quarantine_path(root)
+        root.mkdir(parents=True, exist_ok=True)
+    if not root.is_dir():
+        return {
+            "ok": False,
+            "error": "workspace_missing",
+            "detail": f"Workspace dir missing after recreate: {root}",
+        }
+    leftovers = list(root.iterdir())
+    if leftovers:
+        return {
+            "ok": False,
+            "error": "workspace_not_empty",
+            "detail": f"Workspace not empty after recreate: {[p.name for p in leftovers][:8]}",
+        }
+    return {"ok": True, "workspace": str(root)}
+
+
 def classify_clone_error(stderr: str, *, repo_url: str = "") -> dict[str, str]:
     """Map raw git stderr → stable code + CEO-facing Russian detail."""
     text = (stderr or "").strip()
     low = text.lower()
     repo = (repo_url or "").split("@")[-1] if repo_url else ""
+    if "already exists" in low and "not an empty" in low:
+        return {
+            "code": "workspace_dirty",
+            "detail_ru": (
+                "Каталог clone (src) уже существовал после прошлой попытки.\n"
+                "Virtus должен был очистить workspace перед git clone — это баг lifecycle.\n"
+                "Повторите Execution; система пересоздаёт workspace автоматически."
+            ),
+        }
     if "repository not found" in low or "not found" in low and "fatal" in low:
         return {
             "code": "repo_not_found",
@@ -152,8 +374,34 @@ def classify_clone_error(stderr: str, *, repo_url: str = "") -> dict[str, str]:
     }
 
 
+def _normalize_clone_url(repo_url: str) -> str:
+    url = (repo_url or "").strip().rstrip("/")
+    # Local path → file:// so git does not do hardlink quirks / nested clones.
+    local = Path(url)
+    if url and not url.startswith(("http://", "https://", "git@", "file:")) and local.exists():
+        return local.resolve().as_uri()
+    if url.startswith("git@github.com:"):
+        url = "https://github.com/" + url.removeprefix("git@github.com:")
+    if url and "github.com" in url and not url.endswith(".git"):
+        url = url.rstrip("/") + ".git"
+    return url
+
+
+def _git_clone_into(git: str, url: str, dest: Path, *, timeout: int) -> dict[str, Any]:
+    return _run(
+        git_no_credential_helper_args(
+            git, "clone", "--depth", "1", "--single-branch", url, str(dest)
+        ),
+        timeout=timeout,
+    )
+
+
 def clone_repository(repo_url: str, dest: Path, *, timeout: int = 180) -> dict[str, Any]:
-    """Shallow clone with Windows-safe git resolution. Never prompts for credentials."""
+    """Shallow clone into a fresh path (idempotent).
+
+    Never clones onto a dirty leftover `src`. Stages into `.cloning-*` then
+    replaces `dest` so git never sees «already exists and is not an empty directory».
+    """
     git = resolve_git_binary()
     if not git:
         return {
@@ -169,45 +417,331 @@ def clone_repository(repo_url: str, dest: Path, *, timeout: int = 180) -> dict[s
             "git_binary": None,
             "error_code": "git_missing",
         }
-    if dest.exists():
-        shutil.rmtree(dest, ignore_errors=True)
+
+    dest = Path(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
-    url = (repo_url or "").strip().rstrip("/")
-    if url.startswith("git@github.com:"):
-        url = "https://github.com/" + url.removeprefix("git@github.com:")
-    if url and "github.com" in url and not url.endswith(".git"):
-        url = url.rstrip("/") + ".git"
-    res = _run(
-        [git, "clone", "--depth", "1", "--single-branch", url, str(dest)],
-        timeout=timeout,
-    )
-    res["git_binary"] = git
-    res["repo_url"] = url
-    # Private / rate-limited: one retry with token if anonymous clone failed
-    if not res["ok"]:
-        token = _github_token()
-        authed = _authed_github_clone_url(url, token)
-        if authed and dest.exists():
-            shutil.rmtree(dest, ignore_errors=True)
-        if authed:
-            res2 = _run(
-                [git, "clone", "--depth", "1", "--single-branch", authed, str(dest)],
-                timeout=timeout,
-            )
-            res2["git_binary"] = git
-            res2["repo_url"] = url  # never expose token URL
-            res2["auth_retry"] = True
-            res = res2
-    if not res["ok"]:
+    url = _normalize_clone_url(repo_url)
+    staging = dest.parent / f".cloning-{uuid.uuid4().hex[:12]}"
+    # Free the destination name (Windows: rename locked .git trees aside)
+    q = quarantine_path(dest)
+    if not q.get("ok") or dest.exists():
+        return {
+            "ok": False,
+            "code": -5,
+            "stdout": "",
+            "stderr": f"cannot free clone dest: {q.get('error') or dest}",
+            "cmd": ["git", "clone", repo_url],
+            "git_binary": git,
+            "error_code": "workspace_dirty",
+            "error_detail_ru": classify_clone_error(
+                "already exists and is not an empty directory",
+                repo_url=url,
+            )["detail_ru"],
+        }
+    remove_path_robust(staging)
+
+    def _fail(res: dict[str, Any]) -> dict[str, Any]:
         classified = classify_clone_error(
             str(res.get("stderr") or res.get("stdout") or ""),
             repo_url=url,
         )
         res["error_code"] = classified["code"]
         res["error_detail_ru"] = classified["detail_ru"]
+        remove_path_robust(staging)
+        remove_path_robust(dest)
+        return res
+
+    res = _git_clone_into(git, url, staging, timeout=timeout)
+    res["git_binary"] = git
+    res["repo_url"] = url
+    res["staged_via"] = str(staging)
+
+    # Private / rate-limited: one retry with token if anonymous clone failed
+    if not res["ok"]:
+        token = _github_token()
+        authed = _authed_github_clone_url(url, token)
+        if authed:
+            remove_path_robust(staging)
+            import base64
+
+            basic = base64.b64encode(f"x-access-token:{token}".encode()).decode()
+            res2 = _run(
+                git_no_credential_helper_args(
+                    git,
+                    "-c",
+                    f"http.extraHeader=Authorization: Basic {basic}",
+                    "clone",
+                    "--depth",
+                    "1",
+                    "--single-branch",
+                    url,
+                    str(staging),
+                ),
+                timeout=timeout,
+            )
+            if not res2["ok"]:
+                remove_path_robust(staging)
+                res2 = _git_clone_into(git, authed, staging, timeout=timeout)
+            res2["git_binary"] = git
+            res2["repo_url"] = url  # never expose token URL
+            res2["auth_retry"] = True
+            res2["staged_via"] = str(staging)
+            res = res2
+
+    if not res["ok"]:
+        return _fail(res)
+
+    # Promote staging → dest. Dest MUST be absent — never shutil.move into an
+    # existing directory (that nests staging inside dirty src on Windows).
+    cleared = quarantine_path(dest)
+    if not cleared.get("ok") or dest.exists():
+        res = {
+            "ok": False,
+            "code": -3,
+            "stdout": "",
+            "stderr": (
+                "workspace_promote_failed: cannot clear dest before rename; "
+                f"{cleared.get('error') or dest}"
+            ),
+            "git_binary": git,
+            "repo_url": url,
+        }
+        return _fail(res)
+    try:
+        staging.rename(dest)
+    except OSError as exc:
+        # Cross-device fallback only when dest is still absent
         if dest.exists():
-            shutil.rmtree(dest, ignore_errors=True)
+            res = {
+                "ok": False,
+                "code": -3,
+                "stdout": "",
+                "stderr": f"workspace_promote_failed: dest reappeared; {exc}",
+                "git_binary": git,
+                "repo_url": url,
+            }
+            return _fail(res)
+        try:
+            shutil.copytree(str(staging), str(dest))
+            remove_path_robust(staging)
+        except OSError as exc2:
+            res = {
+                "ok": False,
+                "code": -3,
+                "stdout": "",
+                "stderr": f"workspace_promote_failed: {exc}; {exc2}",
+                "git_binary": git,
+                "repo_url": url,
+            }
+            return _fail(res)
+
+    if not (dest / ".git").is_dir() or any(
+        p.name.startswith(".cloning-") for p in dest.iterdir() if p.is_dir()
+    ):
+        res = {
+            "ok": False,
+            "code": -4,
+            "stdout": "",
+            "stderr": "clone_missing_git_dir after promote",
+            "git_binary": git,
+            "repo_url": url,
+        }
+        return _fail(res)
+
+    expected_slug = ""
+    if "github.com" in (url or "").lower() or "github.com" in (repo_url or "").lower():
+        expected_slug = normalize_repo_slug(url) or normalize_repo_slug(repo_url)
+    if expected_slug:
+        identity = workspace_matches_repository(dest, expected_slug)
+        if not identity.get("ok"):
+            res = {
+                "ok": False,
+                "code": -6,
+                "stdout": "",
+                "stderr": (
+                    f"origin_mismatch after clone: expected={expected_slug} "
+                    f"actual={identity.get('actual')}"
+                ),
+                "git_binary": git,
+                "repo_url": url,
+                "error_code": "WORKSPACE_REPOSITORY_MISMATCH",
+                "identity": identity,
+            }
+            return _fail(res)
+        res["origin_slug"] = identity.get("actual")
+
+    res["ok"] = True
+    res["dest"] = str(dest)
     return res
+
+
+def detect_workspace_file_changes(root: Path, git: str | None = None) -> dict[str, Any]:
+    """Detect real git changes in a clone (uncommitted + commits ahead of base).
+
+    Used when Implementation Agent reports ok/touched=[] but the workspace
+    actually contains a valid diff — recover patch instead of awaiting_external.
+    """
+    src = Path(root)
+    git_bin = git or resolve_git_binary() or "git"
+    if not src.is_dir() or not (src / ".git").is_dir():
+        return {"ok": False, "files": [], "has_changes": False, "error": "not_a_git_repo"}
+
+    files: list[str] = []
+
+    def _add_paths(text: str) -> None:
+        for line in (text or "").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            # status --porcelain: " M path" / "?? path" / "R  a -> b"
+            if len(line) >= 4 and line[2] == " ":
+                path = line[3:].strip()
+            else:
+                path = line
+            if " -> " in path:
+                path = path.split(" -> ", 1)[-1].strip()
+            path = path.strip().strip('"')
+            if path and path not in files:
+                files.append(path)
+
+    st = _run([git_bin, "status", "--porcelain"], cwd=src, timeout=60)
+    if st.get("ok"):
+        _add_paths(str(st.get("stdout") or ""))
+
+    base: str | None = None
+    for cand in (
+        "@{upstream}",
+        "origin/HEAD",
+        "origin/main",
+        "origin/master",
+        "main",
+        "master",
+    ):
+        chk = _run([git_bin, "rev-parse", "--verify", cand], cwd=src, timeout=30)
+        if chk.get("ok") and (chk.get("stdout") or "").strip():
+            base = cand
+            break
+    if base:
+        diff = _run(
+            [git_bin, "diff", "--name-only", f"{base}...HEAD"],
+            cwd=src,
+            timeout=60,
+        )
+        if diff.get("ok"):
+            _add_paths(str(diff.get("stdout") or ""))
+        # Unstaged vs base (when no local commit yet)
+        diff2 = _run(
+            [git_bin, "diff", "--name-only", base],
+            cwd=src,
+            timeout=60,
+        )
+        if diff2.get("ok"):
+            _add_paths(str(diff2.get("stdout") or ""))
+
+    # Cached / staged
+    cached = _run([git_bin, "diff", "--cached", "--name-only"], cwd=src, timeout=60)
+    if cached.get("ok"):
+        _add_paths(str(cached.get("stdout") or ""))
+
+    return {
+        "ok": True,
+        "files": files,
+        "has_changes": bool(files),
+        "base": base,
+        "uncommitted": bool((st.get("stdout") or "").strip()) if st.get("ok") else None,
+    }
+
+
+def recover_patch_from_workspace(
+    *,
+    src: Path,
+    git: str,
+    impl: dict[str, Any],
+    report: dict[str, Any],
+    title: str,
+    issue_id: str,
+) -> dict[str, Any]:
+    """If Implementation left empty files_touched but git has a real diff — promote it."""
+    detected = detect_workspace_file_changes(src, git)
+    if not detected.get("has_changes"):
+        return {
+            "recovered": False,
+            "reason": "no_changes",
+            "detection": detected,
+        }
+    files = list(detected.get("files") or [])
+    impl = dict(impl)
+    impl["files_touched"] = sorted(set((impl.get("files_touched") or []) + files))
+    impl["ok"] = True
+    impl["patch_recovered_from_git"] = True
+    impl["patch_recovery"] = {
+        "files": files,
+        "base": detected.get("base"),
+    }
+    prev_mode = str(impl.get("mode") or "")
+    if prev_mode in ("needs_external", "", "deferred"):
+        impl["mode"] = "workspace_diff_recovery"
+    impl["message_ru"] = (
+        f"Patch recovered from workspace git diff ({len(files)} файл.). "
+        "Push/PR — только после CEO Submit."
+    )
+    report["stages"]["implementation"] = impl
+
+    # Commit recovered changes if not already committed
+    commit_stage = report["stages"].get("commit") or {}
+    if not commit_stage.get("ok"):
+        for junk in src.rglob("__pycache__"):
+            shutil.rmtree(junk, ignore_errors=True)
+        for junk in src.rglob("*.pyc"):
+            try:
+                junk.unlink()
+            except OSError:
+                pass
+        _run([git, "add", "-A"], cwd=src, timeout=60)
+        commit = _run(
+            [
+                git,
+                "-c",
+                "user.email=farm@virtus.local",
+                "-c",
+                "user.name=Virtus Farm Engine",
+                "commit",
+                "-m",
+                f"fix: {title[:60]} (Opire #{issue_id})",
+            ],
+            cwd=src,
+            timeout=60,
+        )
+        report["stages"]["commit"] = {
+            "ok": commit["ok"],
+            "result": commit,
+            "pushed": False,
+            "recovered_from_workspace": True,
+            "note_ru": "Commit локальный (patch recovery). Push/PR — только после CEO Submit.",
+        }
+        # Nothing to commit (already clean after previous commit) still counts if files listed
+        if not commit["ok"] and "nothing to commit" in (
+            (commit.get("stdout") or "") + (commit.get("stderr") or "")
+        ).lower():
+            report["stages"]["commit"]["ok"] = True
+            report["stages"]["commit"]["already_committed"] = True
+
+    validation = report["stages"].get("validation") or {}
+    if validation.get("skipped") and validation.get("reason") == "waiting_for_implementation":
+        report["stages"]["validation"] = {
+            "ok": True,
+            "skipped": True,
+            "reason": "recovered_patch_no_test_rerun",
+            "passed": True,
+            "attempts": validation.get("attempts") or [],
+        }
+
+    return {
+        "recovered": True,
+        "files": files,
+        "detection": detected,
+        "impl": impl,
+    }
 
 
 def detect_stack(root: Path) -> dict[str, Any]:
@@ -399,54 +933,256 @@ class FarmExecutionEngine:
 
         ws = self.workspace_for(reward_id)
         src = ws / "src"
+        clone_lock = _lock_for_reward(reward_id)
+        force_fresh = bool(task.get("force_fresh_workspace"))
+
+        def _attach_failure_meta(err_code: str, detail: str) -> None:
+            from swarm.farm_stabilization import build_failure_visibility
+
+            vis = build_failure_visibility(
+                job_id=reward_id,
+                queue="BOUNTY_EXECUTION_QUEUE",
+                stage="repo_intelligence",
+                attempt=int(task.get("execution_attempts") or 0),
+                error=detail,
+                error_code=err_code,
+                workspace=str(ws),
+            )
+            report["error_class"] = vis["error_class"]
+            report["retryable"] = vis["retryable"]
+            report["next_action"] = vis["next_action"]
+            report["failure"] = vis
 
         # --- Stage 1: Repository Intelligence ---
         if clone:
-            if ws.exists():
-                shutil.rmtree(ws, ignore_errors=True)
-            ws.mkdir(parents=True, exist_ok=True)
-            if not repo_url:
+            if not clone_lock.acquire(blocking=False):
                 report["stages"]["repo_intelligence"] = {
                     "ok": False,
-                    "error": "missing_repository",
+                    "error": "concurrent_clone",
+                    "error_detail": (
+                        "Clone уже выполняется для этой bounty. "
+                        "Дождитесь завершения — параллельный Clone запрещён."
+                    ),
                 }
                 report["stage"] = "failed"
-                report["error"] = "missing_repository"
-                report["error_detail"] = "В задаче нет repository (owner/repo)."
-                return report
-            clone_res = clone_repository(repo_url, src, timeout=180)
-            if not clone_res["ok"]:
-                detail = (
-                    clone_res.get("error_detail_ru")
-                    or (clone_res.get("stderr") or clone_res.get("stdout") or "")[:500]
-                )
-                report["stages"]["repo_intelligence"] = {
-                    "ok": False,
-                    "clone": {
-                        k: v
-                        for k, v in clone_res.items()
-                        if k != "cmd" or "x-access-token" not in str(v)
-                    },
-                    "error_detail": detail,
-                }
-                report["stage"] = "failed"
-                report["error"] = clone_res.get("error_code") or "clone_failed"
-                report["error_detail"] = detail or "git clone failed"
+                report["error"] = "concurrent_clone"
+                report["error_detail"] = report["stages"]["repo_intelligence"]["error_detail"]
+                _attach_failure_meta("concurrent_clone", report["error_detail"])
                 report["elapsed_sec"] = round(time.time() - started, 1)
                 return report
+            try:
+                from swarm.farm_stabilization import is_valid_git_workspace
+
+                # Resume: valid clean src ONLY if origin matches task.repository
+                repo_slug = normalize_repo_slug(
+                    str(task.get("repository") or "") or repo_url
+                )
+                if (
+                    not force_fresh
+                    and is_valid_git_workspace(src)
+                    and repo_slug
+                ):
+                    identity = workspace_matches_repository(src, repo_slug)
+                    if identity.get("ok"):
+                        report["stages"]["repo_intelligence"] = {
+                            "ok": True,
+                            "workspace": str(src),
+                            "reused": True,
+                            "repo_url": repo_url,
+                            "origin_slug": identity.get("actual"),
+                        }
+                    else:
+                        # Wrong repo in src (e.g. Genesis-AI-Engine) → quarantine + fresh
+                        from swarm.farm_stabilization import quarantine_workspace_safe
+
+                        q = quarantine_workspace_safe(ws)
+                        report["stages"]["workspace_mismatch"] = {
+                            "ok": False,
+                            "error": "WORKSPACE_REPOSITORY_MISMATCH",
+                            "expected": identity.get("expected"),
+                            "actual": identity.get("actual"),
+                            "quarantine": q,
+                        }
+                        fresh = ensure_fresh_workspace(ws)
+                        if not fresh.get("ok"):
+                            detail = str(
+                                fresh.get("detail")
+                                or fresh.get("error")
+                                or "workspace_cleanup_failed"
+                            )
+                            report["stages"]["repo_intelligence"] = {
+                                "ok": False,
+                                "error": fresh.get("error") or "workspace_cleanup_failed",
+                                "error_detail": detail,
+                                "cleanup": fresh,
+                                "mismatch": identity,
+                            }
+                            report["stage"] = "failed"
+                            report["error"] = "WORKSPACE_REPOSITORY_MISMATCH"
+                            report["error_detail"] = (
+                                f"Workspace origin {identity.get('actual')} ≠ "
+                                f"{identity.get('expected')}; cleanup failed: {detail}"
+                            )
+                            _attach_failure_meta(
+                                "WORKSPACE_REPOSITORY_MISMATCH",
+                                report["error_detail"],
+                            )
+                            report["elapsed_sec"] = round(time.time() - started, 1)
+                            return report
+                        if not repo_url:
+                            report["stages"]["repo_intelligence"] = {
+                                "ok": False,
+                                "error": "missing_repository",
+                            }
+                            report["stage"] = "failed"
+                            report["error"] = "missing_repository"
+                            report["error_detail"] = "В задаче нет repository (owner/repo)."
+                            _attach_failure_meta(
+                                "missing_repository", report["error_detail"]
+                            )
+                            return report
+                        clone_res = clone_repository(repo_url, src, timeout=180)
+                        if not clone_res["ok"]:
+                            detail = (
+                                clone_res.get("error_detail_ru")
+                                or (clone_res.get("stderr") or clone_res.get("stdout") or "")[
+                                    :500
+                                ]
+                            )
+                            err_code = str(
+                                clone_res.get("error_code") or "clone_failed"
+                            )
+                            report["stages"]["repo_intelligence"] = {
+                                "ok": False,
+                                "clone": {
+                                    k: v
+                                    for k, v in clone_res.items()
+                                    if k != "cmd" or "x-access-token" not in str(v)
+                                },
+                                "error_detail": detail,
+                                "mismatch": identity,
+                            }
+                            report["stage"] = "failed"
+                            report["error"] = err_code
+                            report["error_detail"] = detail or "git clone failed"
+                            _attach_failure_meta(err_code, report["error_detail"])
+                            report["elapsed_sec"] = round(time.time() - started, 1)
+                            quarantine_workspace_safe(ws)
+                            return report
+                        report["stages"]["repo_intelligence"] = {
+                            "ok": True,
+                            "workspace": str(src),
+                            "reused": False,
+                            "repo_url": repo_url,
+                            "recovered_from_mismatch": True,
+                            "mismatch": identity,
+                            "origin_slug": clone_res.get("origin_slug"),
+                        }
+                elif (
+                    not force_fresh
+                    and is_valid_git_workspace(src)
+                    and repo_url
+                    and not repo_slug
+                ):
+                    # No repository slug → cannot safely reuse
+                    report["stages"]["repo_intelligence"] = {
+                        "ok": False,
+                        "error": "missing_repository",
+                    }
+                    report["stage"] = "failed"
+                    report["error"] = "missing_repository"
+                    report["error_detail"] = "В задаче нет repository (owner/repo)."
+                    _attach_failure_meta(
+                        "missing_repository", report["error_detail"]
+                    )
+                    report["elapsed_sec"] = round(time.time() - started, 1)
+                    return report
+                else:
+                    fresh = ensure_fresh_workspace(ws)
+                    if not fresh.get("ok"):
+                        detail = str(
+                            fresh.get("detail") or fresh.get("error") or "workspace_cleanup_failed"
+                        )
+                        report["stages"]["repo_intelligence"] = {
+                            "ok": False,
+                            "error": fresh.get("error") or "workspace_cleanup_failed",
+                            "error_detail": detail,
+                            "cleanup": fresh,
+                        }
+                        report["stage"] = "failed"
+                        report["error"] = "workspace_cleanup_failed"
+                        report["error_detail"] = detail
+                        _attach_failure_meta("workspace_cleanup_failed", detail)
+                        report["elapsed_sec"] = round(time.time() - started, 1)
+                        from swarm.farm_stabilization import quarantine_workspace_safe
+
+                        quarantine_workspace_safe(ws)
+                        return report
+                    if not repo_url:
+                        report["stages"]["repo_intelligence"] = {
+                            "ok": False,
+                            "error": "missing_repository",
+                        }
+                        report["stage"] = "failed"
+                        report["error"] = "missing_repository"
+                        report["error_detail"] = "В задаче нет repository (owner/repo)."
+                        _attach_failure_meta(
+                            "missing_repository", report["error_detail"]
+                        )
+                        remove_path_robust(ws)
+                        return report
+                    clone_res = clone_repository(repo_url, src, timeout=180)
+                    if not clone_res["ok"]:
+                        detail = (
+                            clone_res.get("error_detail_ru")
+                            or (clone_res.get("stderr") or clone_res.get("stdout") or "")[
+                                :500
+                            ]
+                        )
+                        err_code = str(clone_res.get("error_code") or "clone_failed")
+                        report["stages"]["repo_intelligence"] = {
+                            "ok": False,
+                            "clone": {
+                                k: v
+                                for k, v in clone_res.items()
+                                if k != "cmd" or "x-access-token" not in str(v)
+                            },
+                            "error_detail": detail,
+                        }
+                        report["stage"] = "failed"
+                        report["error"] = err_code
+                        report["error_detail"] = detail or "git clone failed"
+                        _attach_failure_meta(err_code, report["error_detail"])
+                        report["elapsed_sec"] = round(time.time() - started, 1)
+                        from swarm.farm_stabilization import quarantine_workspace_safe
+
+                        quarantine_workspace_safe(ws)
+                        return report
+                    report["stages"]["repo_intelligence"] = {
+                        "ok": True,
+                        "workspace": str(src),
+                        "reused": False,
+                        "repo_url": repo_url,
+                        "origin_slug": clone_res.get("origin_slug"),
+                    }
+            finally:
+                clone_lock.release()
         elif not src.is_dir():
             report["stages"]["repo_intelligence"] = {"ok": False, "error": "no_workspace"}
             report["stage"] = "failed"
             report["error"] = "no_workspace"
+            _attach_failure_meta("no_workspace", "no_workspace")
             return report
 
         stack = detect_stack(src)
+        reused = bool((report.get("stages") or {}).get("repo_intelligence", {}).get("reused"))
         report["stages"]["repo_intelligence"] = {
             "ok": True,
             "workspace": str(src),
             "stack": stack,
             "repo_url": repo_url,
             "git_binary": resolve_git_binary(),
+            "reused": reused,
         }
 
         # --- Stage 2: Planning ---
@@ -465,11 +1201,11 @@ class FarmExecutionEngine:
             "plan": plan,
         }
 
-        # Branch for work
+        # Branch for work (-B: idempotent if workspace reused after crash)
         git = resolve_git_binary() or "git"
         branch = f"virtus/opire-{issue_id or reward_id[:8]}"
         branch = re.sub(r"[^a-zA-Z0-9_./-]+", "-", branch)[:80]
-        br = _run([git, "checkout", "-b", branch], cwd=src, timeout=30)
+        br = _run([git, "checkout", "-B", branch], cwd=src, timeout=30)
         report["stages"]["branch"] = {"ok": br["ok"], "name": branch, "result": br}
 
         # --- Stage 3: Execution Manager (orchestrator) ---
@@ -847,20 +1583,51 @@ class FarmExecutionEngine:
                     "note_ru": "Commit локальный. Push/PR — только после CEO Submit.",
                 }
 
+        # Recover real workspace git diff when agent forgot to report files_touched
+        impl_probe = report["stages"].get("implementation") or {}
+        if run_impl and not (impl_probe.get("files_touched") or []):
+            recovery = recover_patch_from_workspace(
+                src=src,
+                git=git,
+                impl=impl_probe,
+                report=report,
+                title=title,
+                issue_id=issue_id,
+            )
+            report["stages"]["patch_recovery"] = {
+                "ok": bool(recovery.get("recovered")),
+                "reason": recovery.get("reason"),
+                "files": recovery.get("files") or [],
+                "detection": recovery.get("detection"),
+            }
+            if recovery.get("recovered") and recovery.get("impl"):
+                impl_probe = recovery["impl"]
+
         # If local engineer produced nothing useful — fail closed (not fake success)
         if (
             route.get("route") == "local_engineer"
             and run_impl
             and not (report["stages"].get("implementation") or {}).get("files_touched")
         ):
-            report["ok"] = False
-            report["stage"] = "failed"
-            report["error"] = "implementation_empty"
-            report["error_detail"] = (
-                (report["stages"].get("implementation") or {}).get("message_ru")
-                or (report["stages"].get("implementation") or {}).get("cannot_reason")
-                or "Нет безопасного патча — Farm сказал «не могу» вместо ложного PR."
-            )
+            # Distinguish honest no_changes from empty failure
+            det = (report["stages"].get("patch_recovery") or {}).get("detection") or {}
+            if det.get("ok") and not det.get("has_changes"):
+                report["ok"] = False
+                report["stage"] = "failed"
+                report["error"] = "no_changes"
+                report["error_detail"] = (
+                    "Implementation завершился без изменений в git workspace (no_changes). "
+                    "Фиктивный patch не создавался."
+                )
+            else:
+                report["ok"] = False
+                report["stage"] = "failed"
+                report["error"] = "implementation_empty"
+                report["error_detail"] = (
+                    (report["stages"].get("implementation") or {}).get("message_ru")
+                    or (report["stages"].get("implementation") or {}).get("cannot_reason")
+                    or "Нет безопасного патча — Farm сказал «не могу» вместо ложного PR."
+                )
             report["elapsed_sec"] = round(time.time() - started, 1)
             return report
 
@@ -868,7 +1635,7 @@ class FarmExecutionEngine:
         patch_ready = bool(impl_final.get("files_touched"))
         paused_external = (
             route.get("route") == "needs_external"
-            and impl_final.get("mode") == "needs_external"
+            and str(impl_final.get("mode") or "") in ("needs_external",)
             and not patch_ready
         )
 
@@ -918,16 +1685,30 @@ class FarmExecutionEngine:
         report["patch_ready"] = patch_ready
 
         if paused_external:
+            recovery_meta = report["stages"].get("patch_recovery") or {}
+            honest_no_changes = (recovery_meta.get("reason") == "no_changes") or (
+                not (recovery_meta.get("files") or [])
+                and (recovery_meta.get("detection") or {}).get("has_changes") is False
+            )
             report["stage"] = "awaiting_external"
+            report["error"] = "no_changes" if honest_no_changes else "patch_missing"
             report["ready_for_ceo"] = {
                 "message_ru": (
-                    "Impossible в авто-режиме: патч не получен. "
-                    "Задача будет снята (Skip) — следующая bounty, без Cursor."
+                    "Clone/Analysis/Planning OK. Workspace git: no_changes "
+                    "(файлы репозитория не изменены). Фиктивный patch не создавался. "
+                    "Нужен внешний engineer / другой bounty — не баг workspace."
+                    if honest_no_changes
+                    else (
+                        "Патч не получен после Implementation. "
+                        "Workspace diff пуст — Skip или внешний engineer."
+                    )
                 ),
                 "actions": ["skip"],
                 "route": "needs_external",
                 "patch_ready": False,
+                "no_changes": honest_no_changes,
             }
+            report["error_detail"] = report["ready_for_ceo"]["message_ru"]
             return report
 
         ready_msg = (

@@ -13,6 +13,13 @@ from typing import Any
 _URL_RE = re.compile(r"(https?://|www\.|\S+\.(com|de|ru|net|org|io)\b)", re.I)
 _MIN_LEN = 20
 _MAX_LEN = 1000
+_GUEST_NAME_MAX = 80
+_GUEST_COMPANY_MAX = 120
+_GUEST_EMAIL_MAX = 160
+_RATE_WINDOW_SEC = 3600
+_RATE_MAX_PER_EMAIL = 3
+_RATE_MAX_PER_IP = 8
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 # Compact RU/DE/EN insult / spam markers — flag only, never auto-delete.
 _PROFANITY = frozenset(
@@ -80,6 +87,9 @@ class ClientReviewService:
 
     def _path(self) -> Path:
         return self._memory / "client_reviews.jsonl"
+
+    def _rate_path(self) -> Path:
+        return self._memory / "client_review_rate.json"
 
     def _load_all(self) -> list[dict[str, Any]]:
         path = self._path()
@@ -240,19 +250,145 @@ class ClientReviewService:
     def list_published(self) -> list[dict[str, Any]]:
         return [r for r in self._load_all() if r.get("status") == "published"]
 
+    def list_all(self, *, status: str | None = None) -> list[dict[str, Any]]:
+        rows = self._load_all()
+        st = (status or "").strip().lower()
+        if st in ("pending", "published", "rejected"):
+            rows = [r for r in rows if str(r.get("status") or "") == st]
+        rows.sort(key=lambda r: str(r.get("created_at") or ""), reverse=True)
+        return rows
+
+    def _check_rate_limit(self, *, email: str, ip: str) -> None:
+        """Raise rate_limited if email/IP exceeded window."""
+        path = self._rate_path()
+        now = datetime.now(timezone.utc)
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+        except (OSError, json.JSONDecodeError):
+            raw = {}
+        if not isinstance(raw, dict):
+            raw = {}
+        cutoff = now.timestamp() - _RATE_WINDOW_SEC
+
+        def _prune(key: str) -> list[float]:
+            vals = raw.get(key) or []
+            if not isinstance(vals, list):
+                return []
+            out: list[float] = []
+            for v in vals:
+                try:
+                    ts = float(v)
+                except (TypeError, ValueError):
+                    continue
+                if ts >= cutoff:
+                    out.append(ts)
+            return out
+
+        email_key = f"email:{email.lower()}"
+        ip_key = f"ip:{(ip or 'unknown').strip() or 'unknown'}"
+        email_hits = _prune(email_key)
+        ip_hits = _prune(ip_key)
+        if len(email_hits) >= _RATE_MAX_PER_EMAIL or len(ip_hits) >= _RATE_MAX_PER_IP:
+            raise ValueError("rate_limited")
+        email_hits.append(now.timestamp())
+        ip_hits.append(now.timestamp())
+        raw[email_key] = email_hits
+        raw[ip_key] = ip_hits
+        # Drop stale keys
+        keep = {k: v for k, v in raw.items() if isinstance(v, list) and v}
+        try:
+            path.write_text(json.dumps(keep, ensure_ascii=False, indent=2), encoding="utf-8")
+        except OSError:
+            pass
+
+    def submit_guest(
+        self,
+        *,
+        author_name: str,
+        email: str,
+        stars: int,
+        text: str,
+        company: str | None = None,
+        honeypot: str = "",
+        client_ip: str = "",
+    ) -> dict[str, Any]:
+        """Open storefront review — pending until CEO publish."""
+        if (honeypot or "").strip():
+            raise ValueError("spam")
+        name = _normalize_text(author_name)[:_GUEST_NAME_MAX]
+        if len(name) < 2:
+            raise ValueError("bad_name")
+        em = _normalize_text(email)[:_GUEST_EMAIL_MAX].lower()
+        if not _EMAIL_RE.match(em):
+            raise ValueError("bad_email")
+        company_n = _normalize_text(company or "")[:_GUEST_COMPANY_MAX] or None
+        try:
+            star_n = int(stars)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("bad_stars") from exc
+        if star_n < 1 or star_n > 5:
+            raise ValueError("bad_stars")
+        body = _normalize_text(text)
+        if len(body) > _MAX_LEN:
+            raise ValueError("too_long")
+        if len(body) < _MIN_LEN:
+            raise ValueError("too_short")
+        self._check_rate_limit(email=em, ip=client_ip)
+        flags = screen_review_text(body)
+        now = _now()
+        row = {
+            "review_id": f"REV-{uuid.uuid4().hex[:10].upper()}",
+            "order_id": "GUEST",
+            "stars": star_n,
+            "text": body,
+            "author_name": name,
+            "author_email": em,
+            "show_company_name": bool(company_n),
+            "show_logo": False,
+            "company_display_name": company_n,
+            "logo_url": None,
+            "package_id": None,
+            "service_kind": "website",
+            "service_label": None,
+            "verified_purchase": False,
+            "status": "pending",
+            "flags": flags,
+            "source": "guest_public",
+            "created_at": now,
+            "published_at": None,
+            "rejected_at": None,
+            "moderation_note": "",
+        }
+        self._append(row)
+        return {
+            "ok": True,
+            "review_id": row["review_id"],
+            "status": "pending",
+            "flags": flags,
+            "message_ru": "Спасибо. Отзыв отправлен на проверку перед публикацией.",
+            "message_de": "Danke. Die Bewertung wird vor der Veröffentlichung geprüft.",
+            "message_en": "Thank you. Your review will be checked before publishing.",
+        }
+
     def moderate(self, review_id: str, *, action: str, note: str = "") -> dict[str, Any]:
         rid = (review_id or "").strip()
         act = (action or "").strip().lower()
-        if act not in ("publish", "reject"):
+        if act not in ("publish", "reject", "delete"):
             raise ValueError("bad_action")
         rows = self._load_all()
         found = None
-        for row in rows:
+        found_i = -1
+        for i, row in enumerate(rows):
             if str(row.get("review_id") or "") == rid:
                 found = row
+                found_i = i
                 break
         if not found:
             raise ValueError("not_found")
+        if act == "delete":
+            rows.pop(found_i)
+            self._rewrite(rows)
+            return {"review_id": rid, "status": "deleted"}
         if found.get("status") not in ("pending", "published", "rejected"):
             raise ValueError("bad_status")
         now = _now()
@@ -391,13 +527,15 @@ class ClientReviewService:
                     "review_id": r.get("review_id"),
                     "stars": int(r.get("stars") or 0),
                     "text": text,
+                    "author_name": r.get("author_name") or None,
                     "company_display_name": company,
                     "service_label": r.get("service_label") or r.get("package_id") or None,
                     "service_kind": r.get("service_kind") or "website",
                     "show_logo": bool(r.get("show_logo") and r.get("logo_url")),
                     "logo_url": r.get("logo_url") if r.get("show_logo") else None,
                     "verified_purchase": bool(r.get("verified_purchase", True)),
-                    "published_at": r.get("published_at"),
+                    "published_at": r.get("published_at") or r.get("created_at"),
+                    "created_at": r.get("created_at"),
                 }
             )
         if not cards:

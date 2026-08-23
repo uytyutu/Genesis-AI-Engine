@@ -1,0 +1,126 @@
+BRAND BOOK
+Brand Name
+WasserKlar Sanitär
+
+Positioning
+Klare lokale Marke
+
+Brand Archetype
+The Expert
++
+The Guide
+
+Brand Promise
+Klar. Vertrauenswürdig. Vor Ort.
+
+Core Emotion
+Vertrauen
+
+Secondary Emotion
+Klarheit
+
+Tone of Voice
+  Klar
+  Freundlich
+  Kompetent
+
+Visual Style
+Modern Clear · soft 3D product icons
+
+Visual Metaphor
+Offenes Licht auf ruhiger Fläche
+
+Photography
+  moderne Badbaustelle
+  Rohrleitung
+  Sanitär-Meister
+  Armaturenmontage
+  Heizung
+  Wasserschaden-Diagnose
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+
+Motion
+atelier drift · glass shimmer · slow depth
+
+Palette
+Slate, Sage, Warm White
+Accent #5b7c6e
+Surface #e0f0fa
+Ink #f4f6f8
+
+Typography
+Manrope
++
+IBM Plex Sans
+(manrope_ibm_plex_industrial)
+
+Icon Style
+technical blueprint icons
+
+Border Radius
+12 px
+
+Shadow Style
+Soft
+
+Glass Level
+medium
+
+Texture
+  Paper
+  Light
+
+Scene Language
+  moderne Badbaustelle
+  Rohrleitung
+  Sanitär-Meister
+
+CTA Style
+Große Buttons · Ruhiger Abstand
+
+Trust Strategy
+  Transparenz
+  Kontakt
+  Prozess
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Real workplace
+✔ People at craft
+✔ Daylight
+
+Preferred
+✔ Local place
+✔ Honest detail
+
+Forbidden
+✖ Café
+✖ Coworking
+✖ Abstract business
+✖ Laptop stock
+✖ Beauty salon
+
+Hero Proof
+A frame that answers: what does this company live every day?
+
+Fingerprint
+09fb694c7e3d15c656d946dd
+

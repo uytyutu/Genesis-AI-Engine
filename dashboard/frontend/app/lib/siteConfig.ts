@@ -1,9 +1,22 @@
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://beta.genesis-ai-engine.com";
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://virtuscore.com";
 
 export const SITE_NAME = "Virtus Core";
 export const SITE_TAGLINE = "Vector · Digital Company";
-export const CONTACT_EMAIL = "hello@genesis-ai-engine.com";
+
+/**
+ * Public contact / Support Inbox — Resend receiving address only.
+ * Never fall back to hello@virtuscore.com (no inbound mail on that domain).
+ */
+const _rawContact =
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() ||
+  process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() ||
+  "";
+
+export const CONTACT_EMAIL =
+  _rawContact && !/virtuscore\.com$/i.test(_rawContact.split("@")[1] || "")
+    ? _rawContact
+    : "hello@genesis-ai-engine.com";
 
 /** Filled via env after Gewerbeanmeldung — DOB must never be published */
 export const LEGAL = {

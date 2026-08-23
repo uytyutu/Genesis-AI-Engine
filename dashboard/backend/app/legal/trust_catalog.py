@@ -69,7 +69,7 @@ def build_data_storage_guide(cfg: LegalEntityConfig) -> list[dict[str, str]]:
     """Plain-language storage transparency — no legal jargon."""
     dp = cfg.data_processing
     op = cfg.operator
-    contact = op.email.strip() or "hello@genesis-ai-engine.com"
+    contact = op.email.strip() or "hello@virtuscore.com"
     return [
         {
             "id": "what",

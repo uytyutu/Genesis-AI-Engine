@@ -1,0 +1,72 @@
+{
+  "emotion": "warmth",
+  "style": "organic_premium",
+  "palette_family": "warm_clay",
+  "typography_pair": "space_grotesk_inter",
+  "motion": "soft",
+  "hero_concept": "soft_orb_photo",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "soft",
+  "package_id": "basic",
+  "niche_id": "computer",
+  "fingerprint": "37868e7be49b775fd19568f6818e683628e7d8b190580be9080f99000c534e08",
+  "section_treatments": [
+    [
+      "stats",
+      "photo_band"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "illustration"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "process",
+      "gradient"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "faq",
+      "illustration"
+    ],
+    [
+      "reviews",
+      "tint"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#a68a6d",
+  "surface_hex": "#faf6f1",
+  "ink_hex": "#292524"
+}

@@ -1,0 +1,85 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Quiet room",
+      "Daylight",
+      "Soft space",
+      "Human pace"
+    ],
+    "preferred": [
+      "Empty chair with air",
+      "Window light",
+      "Paper",
+      "Calm hands"
+    ],
+    "forbidden": [
+      "Neon spa",
+      "Yoga beach stock",
+      "Purple wellness",
+      "Crystal cliché"
+    ],
+    "hero_proof": "A quiet chamber where the first breath feels slower — not a spa brochure.",
+    "profession_keywords": [
+      "therapy",
+      "praxis",
+      "ruhe",
+      "gespräch",
+      "raum"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [
+    {
+      "ok": false,
+      "beautiful": true,
+      "brand_fit": false,
+      "profession_fit": false,
+      "action": "REBUILD",
+      "reasons": [
+        "forbidden_tokens:dashboard",
+        "missing_profession_proof",
+        "brand_mismatch"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\premium\\c24a857c-eee1-4f1a-8959-afa88834d023\\assets\\hero.jpg",
+      "role": "hero"
+    },
+    {
+      "ok": true,
+      "action": "REBUILT",
+      "role": "hero",
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\premium\\c24a857c-eee1-4f1a-8959-afa88834d023\\assets\\hero.jpg",
+      "reasons": [
+        "rebuilt_from_media_dna"
+      ]
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\premium\\c24a857c-eee1-4f1a-8959-afa88834d023\\assets\\background.jpg",
+      "role": "background"
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\premium\\c24a857c-eee1-4f1a-8959-afa88834d023\\assets\\gallery.jpg",
+      "role": "gallery"
+    }
+  ],
+  "rebuilds": [
+    "hero"
+  ],
+  "ok": false
+}

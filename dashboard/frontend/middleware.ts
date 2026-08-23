@@ -33,6 +33,7 @@ const PUBLIC_EXACT = new Set([
   "/robots.txt",
   "/sitemap.xml",
   "/manifest.webmanifest",
+  "/tools/website-auditor",
 ]);
 
 const PUBLIC_ASSET_PREFIXES = [
@@ -40,8 +41,11 @@ const PUBLIC_ASSET_PREFIXES = [
   "/products/",
   "/site/",
   "/brand/",
+  "/tools/",
   "/_next/",
   "/package-previews/",
+  "/reality-gallery",
+  "/reality-gallery/",
   "/icon",
   "/favicon",
 ];

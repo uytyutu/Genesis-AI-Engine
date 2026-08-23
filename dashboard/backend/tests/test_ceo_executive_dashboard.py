@@ -6,11 +6,21 @@ from app.integration.ceo_executive_dashboard import build_ceo_executive_dashboar
 
 
 def test_ceo_dashboard_shape(tmp_path: Path):
-    out = build_ceo_executive_dashboard(tmp_path, finance={"mrr_eur": 0, "revenue_total_eur": 0})
+    out = build_ceo_executive_dashboard(
+        tmp_path,
+        finance={"mrr_eur": 0, "revenue_total_eur": 0},
+        include_deployment=True,
+    )
     assert out["ok"] is True
     assert out["phase"]["id"] == "D"
     assert out["phase"]["name"] == "Proof"
     assert out["frontend_deployment"]["local_commit"]
+    assert out["deployment_inspector"]["id"] == "deployment_inspector"
+    assert out["deployment_inspector"]["explanation_ru"]
+    assert isinstance(out["deployment_inspector"]["actions"], list)
+    assert out["deployment_manager"]["id"] == "deployment_manager"
+    assert out["deployment_manager"]["policy"]["production"] == "ovh"
+    assert out["deployment_manager"]["explanation_ru"]
     assert len(out["income_contours"]["farms"]) == 3
     assert {f["id"] for f in out["income_contours"]["farms"]} >= {
         "opire_farm",
@@ -43,6 +53,21 @@ def test_ceo_dashboard_shape(tmp_path: Path):
     assert wc["impact"]
     assert wc["action"]
     assert wc["rule_ru"]
+
+
+def test_ceo_dashboard_defers_deployment_by_default(tmp_path: Path):
+    out = build_ceo_executive_dashboard(tmp_path, finance={})
+    assert out["deployment_manager"]["status"] == "deferred"
+    assert out["deployment_manager"].get("deferred") is True
+    assert out["frontend_deployment"]["status"] == "deferred"
+    assert out.get("stage") == "core"
+    assert out["farm"].get("deferred") is True
+
+
+def test_ceo_dashboard_full_stage_loads_farm(tmp_path: Path):
+    out = build_ceo_executive_dashboard(tmp_path, finance={}, stage="full")
+    assert out.get("stage") == "full"
+    assert out["farm"].get("deferred") is not True
 
 
 def test_first_real_euro_reached_from_ledger(tmp_path: Path):

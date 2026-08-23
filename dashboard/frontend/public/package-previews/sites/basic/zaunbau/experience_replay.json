@@ -1,0 +1,228 @@
+{
+  "engine": "experience_replay_v1",
+  "title_ru": "Почему получился именно такой сайт?",
+  "title_en": "Why does this site look like this?",
+  "package_id": "basic",
+  "niche": "green",
+  "luxury_mode": false,
+  "decisions": [
+    {
+      "director": "Industry Director",
+      "choice": "modern_default",
+      "reason": "Соответствует ожиданиям аудитории (современный нейтральный)."
+    },
+    {
+      "director": "Luxury Director",
+      "choice": "Off",
+      "reason": "Luxury Mode только для Premium — клиент купил эмоцию дорогого бренда."
+    },
+    {
+      "director": "Typography Director",
+      "choice": "Manrope",
+      "reason": "Лучше читается на мобильных устройствах."
+    },
+    {
+      "director": "Motion Director",
+      "choice": "Subtle / none",
+      "reason": "Starter: быстрый опыт без тяжёлого motion."
+    },
+    {
+      "director": "Conversion Director",
+      "choice": "Sell-first layout",
+      "reason": "Кнопки, форма и доверие расставлены ради конверсии, не декора."
+    },
+    {
+      "director": "Trust Director",
+      "choice": "Clean trust basics",
+      "reason": "Базовые контакты и доверие без перегруза."
+    },
+    {
+      "director": "Performance Director",
+      "choice": "Light delivery",
+      "reason": "Luxury и скорость балансируются автоматически."
+    },
+    {
+      "director": "Accessibility Director",
+      "choice": "Inclusive baseline",
+      "reason": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта."
+    },
+    {
+      "director": "Localization Director",
+      "choice": "Germany · DACH",
+      "reason": "Impressum, Datenschutz, строгий стиль."
+    },
+    {
+      "director": "Experience Director",
+      "choice": "First Impression 88",
+      "reason": "Первое впечатление в норме для пакета."
+    },
+    {
+      "director": "Commercial Readiness",
+      "choice": "Overall Commercial 94",
+      "reason": "Visual 90 · Trust 92 · Conversion 96 · Performance 88 · Mobile 100 · A11y 98 → Commercial Ready"
+    },
+    {
+      "director": "Conversion Director",
+      "choice": "CTA 100",
+      "reason": "Hold — conversion structure OK."
+    }
+  ],
+  "design_director": {
+    "engine": "ai_design_director_v2",
+    "product": "Digital Experience Factory",
+    "ok": true,
+    "overall": 87,
+    "scores": {
+      "visual": 90,
+      "typography": 100,
+      "motion": 65,
+      "premium_feeling": 72,
+      "first_impression": 88,
+      "brand_emotion": 60,
+      "trust": 90,
+      "conversion_readiness": 90,
+      "mobile_experience": 100,
+      "creativity": 90
+    },
+    "threshold_premium_feeling": 80,
+    "threshold_first_impression_premium": 90,
+    "package_id": "basic",
+    "niche": "green",
+    "luxury_mode": false,
+    "identity": {
+      "theme": "modern_default",
+      "feel_ru": "современный нейтральный",
+      "hero_bias": "photo"
+    },
+    "fingerprint": "5f3ca277df04a737",
+    "markers": {
+      "data_tier_ok": true,
+      "hero": true,
+      "layout_profile": true,
+      "vie": true,
+      "font_signals": 4,
+      "kpi_trust_signals": 19,
+      "rich_media_signals": 4,
+      "viewport": true,
+      "responsive_css": true
+    },
+    "recommendations": [
+      "Hold — candidate for 5-second blind tier test"
+    ],
+    "acceptance_5s_ru": "Если показать три версии рядом без ценников, человек должен почти всегда понять, где Starter, где Business и где Premium.",
+    "rule_ru": "Клиент должен узнать Virtus Core по качеству, а не по шаблону."
+  },
+  "design_memory": {
+    "engine": "design_memory_v1",
+    "similarity_pct": 0,
+    "threshold": 92,
+    "rebuild_needed": false,
+    "match": null,
+    "action_ru": "OK — достаточно уникально"
+  },
+  "commercial_readiness": {
+    "engine": "commercial_readiness_v1",
+    "threshold": 90,
+    "scores": {
+      "visual": 90,
+      "trust": 92,
+      "conversion": 96,
+      "performance": 88,
+      "mobile": 100,
+      "accessibility": 98
+    },
+    "overall_commercial": 94,
+    "commercial_ready": true,
+    "label": "Commercial Ready",
+    "status": "PASS",
+    "conversion_detail": {
+      "engine": "conversion_director_v1",
+      "scores": {
+        "hero": 92,
+        "cta": 100,
+        "trust": 91,
+        "contact_visibility": 98,
+        "booking_flow": 98
+      },
+      "overall": 96,
+      "hero_status": "PASS",
+      "recommendations": [
+        "Hold — conversion structure OK."
+      ],
+      "markers": {
+        "has_mid_cta": true,
+        "has_form": true,
+        "has_contact": true
+      }
+    },
+    "performance_detail": {
+      "engine": "performance_director_v1",
+      "mobile_score": 88,
+      "has_video": false,
+      "has_webgl": false,
+      "status": "PASS",
+      "action_ru": "OK — лёгкая доставка",
+      "veto_video": false
+    },
+    "accessibility_detail": {
+      "engine": "accessibility_director_v1",
+      "overall": 98,
+      "missing_alt": 0,
+      "has_skip_link": true,
+      "has_lang": true,
+      "status": "PASS"
+    },
+    "design_director_overall": 87,
+    "ssot_ru": "Главный KPI — Commercial Readiness Score. Только при ≥ 90 Factory ставит Commercial Ready."
+  },
+  "studio": {
+    "engine": "digital_creative_studio_v2",
+    "apply_keys": [
+      "accessibility",
+      "body_font",
+      "brands_strip",
+      "certs_near_hero",
+      "contact_above_fold_hint",
+      "conversion",
+      "cta_after_services",
+      "cta_tone",
+      "data_luxury",
+      "data_studio",
+      "display_font",
+      "faq_before_footer",
+      "focus_visible",
+      "font_label",
+      "font_pack",
+      "forbid_heavy_video_on_mobile_fail",
+      "guarantees_in_benefits",
+      "hero_bias",
+      "hero_layout_prefer",
+      "industry_theme",
+      "lazy_images",
+      "legal_pack",
+      "localization",
+      "luxury_mode",
+      "map_with_contacts",
+      "market_code",
+      "max_motion",
+      "min_body_px",
+      "motion_level",
+      "motion_tier",
+      "package_id",
+      "performance",
+      "portfolio_weight",
+      "prefer_static_hero",
+      "require_alt",
+      "require_mid_cta",
+      "reveal",
+      "reviews_before_contact",
+      "scale",
+      "skip_link",
+      "social_proof_weight",
+      "style",
+      "trust",
+      "trust_density"
+    ]
+  },
+  "ssot_ru": "Virtus Core объясняет дизайнерские и коммерческие решения — Digital Creative Studio, не чёрный ящик."
+}

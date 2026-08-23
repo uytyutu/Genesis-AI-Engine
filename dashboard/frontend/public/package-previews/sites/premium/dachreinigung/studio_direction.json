@@ -1,0 +1,1401 @@
+{
+  "studio_id": "digital_creative_studio_v4_studio_era",
+  "era": "Virtus Core Studio Era",
+  "product_noun": "Digital Experience Generation",
+  "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+  "digital_signature_aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+  "philosophy": "virtus_core_studio_era_digital_experience_generation",
+  "immutable_law_1": "Каждый новый проект обязан быть не хуже предыдущего лучшего проекта. Если генерация ухудшила качество — REBUILD. Если она повторила шаблон — REBUILD. Если сайт выглядит как конструктор — REBUILD. Если сайт уступает современным digital-студиям — REBUILD.",
+  "immutable_law_2": "Любая новая идея должна сначала стать заметной клиенту. Если появляется Director, Engine, Rule или Memory — ответь: «Что изменится в первом впечатлении клиента?» Если ответ: «Пока ничего, но архитектура стала лучше» — работа ещё не закончена.",
+  "pipeline": [
+    "human_first",
+    "brand_story",
+    "core_emotion",
+    "core_promise",
+    "visual_metaphor",
+    "creative_theme",
+    "scene_language",
+    "motion_language",
+    "typography_voice",
+    "color_emotion",
+    "interaction_style",
+    "creative_conflict",
+    "owner_preview"
+  ],
+  "scene_arc": [
+    "scene",
+    "story",
+    "emotion",
+    "interaction",
+    "experience",
+    "conversion"
+  ],
+  "package_id": "premium",
+  "niche_id": "dachreinigung",
+  "studio_approach": {
+    "id": "scandinavian",
+    "label": "Scandinavian",
+    "pillars": [
+      "natural materials",
+      "calm colors",
+      "soft typography",
+      "honest space",
+      "human warmth"
+    ],
+    "composition_bias": [
+      "garden",
+      "sanctuary",
+      "chamber",
+      "nature",
+      "hearth"
+    ],
+    "type_bias": [
+      "cormorant_source",
+      "instrument_onest",
+      "newsreader_public"
+    ],
+    "color_feeling": "sage, sand, soft wood, daylight",
+    "motion": "gentle fade, no neon bounce",
+    "niches_affinity": [
+      "psychology",
+      "dental",
+      "green",
+      "furniture"
+    ],
+    "notes": ""
+  },
+  "moodboard": {
+    "niche_id": "dachreinigung",
+    "emotion": "Erleichterung",
+    "keywords": [
+      "depth",
+      "rhythm",
+      "hero presence",
+      "niche truth",
+      "industrial modern",
+      "sky",
+      "height",
+      "light"
+    ],
+    "avoid": [
+      "template ladder",
+      "flat white",
+      "metric PASS theater",
+      "noir_club",
+      "gaming",
+      "aggressive_sale",
+      "dark_corporate",
+      "cafe",
+      "restaurant interior",
+      "beauty salon",
+      "spa",
+      "saas dashboard",
+      "startup office",
+      "coworking",
+      "stock handshake",
+      "generic purple gradient",
+      "luxury champagne cliché without craft proof",
+      "laptop",
+      "coffee",
+      "abstract business",
+      "office meeting",
+      "nail salon",
+      "coffee shop",
+      "yoga studio",
+      "tech landing"
+    ],
+    "hero_feeling": "Frischer Regen nach dem Sturm — nasse Ziegel, klarer Himmel",
+    "atmosphere": "Sky · Height · Light · Wind · Rain",
+    "references": [
+      "Best contemporary niche studios"
+    ]
+  },
+  "business_identity": {
+    "brand_name": "DachKlar Service",
+    "niche_id": "dachreinigung",
+    "package_id": "premium",
+    "founded_year": 2022,
+    "company_age_years": 4,
+    "mission": "Ein Dach, dem Hausbesitzer wieder vertrauen können.",
+    "core_services": [
+      "Dachreinigung",
+      "Moosentfernung",
+      "Imprägnierung",
+      "Dachrinne",
+      "Inspektion"
+    ],
+    "geography": "Nürnberg und Region (Fürth, Erlangen, Schwabach, Bamberg)",
+    "advantages": [
+      "Transparente Festpreise",
+      "Höhenarbeit mit Sicherung",
+      "Fotodokumentation",
+      "Lokaler Ansprechpartner"
+    ],
+    "values": [
+      "Sicherheit",
+      "Präzision",
+      "Ehrlichkeit",
+      "Handwerk"
+    ],
+    "client_types": [
+      "Hausbesitzer",
+      "Verwaltungen",
+      "Eigentümergemeinschaften"
+    ],
+    "price_segment": "Mittel bis Premium (klar kalkuliert)",
+    "brand_character": "Craftsman + Guardian — ruhig, präzise, lokal",
+    "team_size_label": "4–6 Personen (Demo)",
+    "marketing_dna_stub": {
+      "audience": "Hausbesitzer 35–65 in der Region Nürnberg",
+      "goal": "Anfrage / Festpreis-Angebot",
+      "emotion": "Sicherheit und Stolz auf das Zuhause",
+      "pacing": "langsam · vertrauensbildend",
+      "platforms": [
+        "Meta",
+        "Google",
+        "Website Hero"
+      ]
+    },
+    "video_dna_stub": {
+      "camera": [
+        "Drone",
+        "Macro",
+        "Handheld"
+      ],
+      "mood": "Calm after storm",
+      "music": "Ambient · light piano",
+      "pacing": "Slow",
+      "required_scenes": [
+        "Roof",
+        "Worker harness",
+        "Water / washing",
+        "Before/After",
+        "Drone"
+      ],
+      "forbidden": [
+        "Office",
+        "Laptop",
+        "Coffee",
+        "Coworking",
+        "Café"
+      ]
+    },
+    "fingerprint": "085391757de6ba212394e499",
+    "demo": true,
+    "chain": [
+      "business_identity",
+      "brand_book",
+      "atmosphere",
+      "reputation",
+      "local_identity",
+      "website",
+      "store",
+      "marketing"
+    ]
+  },
+  "brand_book": {
+    "brand_name": "DachKlar Service",
+    "niche_id": "dachreinigung",
+    "package_id": "premium",
+    "positioning": "Premium Roof Care",
+    "archetype_primary": "The Craftsman",
+    "archetype_secondary": "The Guardian",
+    "brand_promise": "Nach dem Regen sieht das Dach wieder neu aus.",
+    "core_emotion": "Erleichterung",
+    "secondary_emotion": "Stolz auf das eigene Zuhause",
+    "tone": [
+      "Ruhig",
+      "Präzise",
+      "Ehrlich",
+      "Kompetent"
+    ],
+    "visual_style": "Industrial Modern",
+    "visual_metaphor": "Frischer Regen nach dem Sturm — nasse Ziegel, klarer Himmel",
+    "photography": [
+      "Echte Dächer",
+      "Morgensonne nach Regen",
+      "Wassertropfen",
+      "Arbeiter in Schutzkleidung",
+      "Luftaufnahmen"
+    ],
+    "forbidden": [
+      "cafe",
+      "restaurant interior",
+      "beauty salon",
+      "spa",
+      "saas dashboard",
+      "startup office",
+      "coworking",
+      "stock handshake",
+      "generic purple gradient",
+      "luxury champagne cliché without craft proof",
+      "laptop",
+      "coffee",
+      "abstract business",
+      "office meeting",
+      "nail salon",
+      "coffee shop",
+      "yoga studio",
+      "tech landing"
+    ],
+    "motion_language": "Langsam · Flüssig · Präzise",
+    "motion_token": "premium",
+    "palette": {
+      "names": [
+        "Slate",
+        "Steel",
+        "Sky Blue",
+        "Warm White",
+        "Safety Orange"
+      ],
+      "accent_hex": "#3b82c4",
+      "surface_hex": "#f8fafc",
+      "ink_hex": "#0f172a",
+      "secondary_hex": "#64748b",
+      "highlight_hex": "#f97316"
+    },
+    "typography_display": "Manrope",
+    "typography_body": "IBM Plex Sans",
+    "typography_pair_id": "manrope_ibm_plex_industrial",
+    "typography_emotion": "confidence",
+    "icon_style": "Outline Industrial",
+    "border_radius_px": 12,
+    "shadow_style": "Soft Deep",
+    "glass_level": "medium",
+    "texture": [
+      "Beton",
+      "Schiefer",
+      "Wasser"
+    ],
+    "scene_language": [
+      "Sky",
+      "Height",
+      "Light",
+      "Wind",
+      "Rain"
+    ],
+    "cta_style": "Große Buttons · Viel Abstand · Keine Aggressivität",
+    "trust_strategy": [
+      "Vorher/Nachher",
+      "Zertifikate",
+      "Fahrzeuge",
+      "Team",
+      "Versicherung",
+      "Garantie"
+    ],
+    "atmosphere_mode": "cinematic",
+    "dna_style": "tech_precision",
+    "dna_palette_family": "slate_steel",
+    "hero_concept": "roof_after_rain",
+    "fingerprint": "778a3b395f86a2a55beadde9",
+    "media_dna": {
+      "required": [
+        "Roof",
+        "Water",
+        "Sky",
+        "Drone",
+        "Height",
+        "Worker",
+        "Equipment"
+      ],
+      "preferred": [
+        "Morning light",
+        "Clouds",
+        "Wet tiles",
+        "Family house",
+        "Gutter",
+        "Safety harness"
+      ],
+      "forbidden": [
+        "Café",
+        "Restaurant",
+        "Office",
+        "Beauty",
+        "Laptop",
+        "Coworking",
+        "Abstract business",
+        "Coffee smile stock"
+      ],
+      "hero_proof": "Worker in safety harness cleaning a wet roof after rain — not a pretty empty roof, not a café.",
+      "profession_keywords": [
+        "roof",
+        "dach",
+        "tile",
+        "ziegel",
+        "gutter",
+        "rinne",
+        "moss",
+        "moos",
+        "harness",
+        "ladder",
+        "drone",
+        "height",
+        "water",
+        "rain"
+      ],
+      "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+    },
+    "city_hint": ""
+  },
+  "atmosphere_pack": {
+    "brand_name": "DachKlar Service",
+    "niche_id": "dachreinigung",
+    "package_id": "premium",
+    "metaphor": "Frischer Regen nach dem Sturm — nasse Ziegel, klarer Himmel",
+    "core_emotion": "Erleichterung",
+    "atmosphere_mode": "cinematic",
+    "scene_language": [
+      "Sky",
+      "Height",
+      "Light",
+      "Wind",
+      "Rain"
+    ],
+    "texture_language": [
+      "Beton",
+      "Schiefer",
+      "Wasser"
+    ],
+    "motion_language": "Langsam · Flüssig · Präzise",
+    "camera_feeling": "drone height · slow orbit over wet tiles · sky dominant",
+    "scroll_feeling": "soft descent from sky to roof · long breathing reveals",
+    "cta_feeling": "calm large buttons · generous air · no urgency red · Große Buttons · Viel Abstand · Keine Aggressivität",
+    "sound_mood": "distant rain clearing · wind on ridge · quiet confidence",
+    "illustration_style": "industrial silhouette · slate geometry · water glints",
+    "glass_level": "medium",
+    "shadow_language": "soft deep under eaves · long cool ground shadow · Soft Deep",
+    "icon_language": "Outline Industrial",
+    "lighting": "post-storm morning sun · cool sky rim · warm tile specular",
+    "layers": [
+      "content",
+      "atmosphere",
+      "motion",
+      "depth",
+      "identity"
+    ],
+    "media_briefs": [
+      {
+        "role": "hero",
+        "concept": "roof_after_rain",
+        "must_include": [
+          "Echte Dächer",
+          "Morgensonne nach Regen",
+          "Wassertropfen",
+          "Arbeiter in Schutzkleidung",
+          "Luftaufnahmen"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "nail salon",
+          "coffee shop",
+          "yoga studio",
+          "tech landing"
+        ],
+        "seed": "DachKlar Service|dachreinigung|premium|778a3b395f86a2a55beadde9|hero",
+        "size": [
+          1600,
+          900
+        ]
+      },
+      {
+        "role": "background",
+        "concept": "scene · Sky · Height · Light",
+        "must_include": [
+          "Sky",
+          "Height",
+          "Light",
+          "Wind",
+          "Rain",
+          "Beton",
+          "Schiefer"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "nail salon",
+          "coffee shop",
+          "yoga studio",
+          "tech landing"
+        ],
+        "seed": "DachKlar Service|dachreinigung|premium|778a3b395f86a2a55beadde9|bg",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "role": "gallery",
+        "concept": "proof texture · craft detail",
+        "must_include": [
+          "Wassertropfen",
+          "Arbeiter in Schutzkleidung",
+          "Luftaufnahmen"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting",
+          "nail salon",
+          "coffee shop",
+          "yoga studio",
+          "tech landing"
+        ],
+        "seed": "DachKlar Service|dachreinigung|premium|778a3b395f86a2a55beadde9|gal",
+        "size": [
+          1400,
+          1000
+        ]
+      }
+    ],
+    "fingerprint": "78667cd2b6c02c3d88c30286",
+    "director": "brand_book",
+    "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+  },
+  "brand_dna": {
+    "business_name": "DachKlar Service",
+    "niche_id": "dachreinigung",
+    "package_id": "premium",
+    "voice": "Manrope + IBM Plex Sans",
+    "feeling": "Erleichterung",
+    "why_hero_exists": "The Hero exists to make 'Morning Light' felt in 3 seconds: Every day can begin again.",
+    "color_feeling": "Industrial Modern",
+    "type_voice": "Manrope / IBM Plex Sans",
+    "scene_arc": "dawn windows, soft gold, open horizon",
+    "avoid": [
+      "noir_club",
+      "gaming",
+      "aggressive_sale",
+      "dark_corporate",
+      "cafe",
+      "restaurant interior",
+      "beauty salon",
+      "spa",
+      "saas dashboard",
+      "startup office",
+      "coworking",
+      "stock handshake",
+      "generic purple gradient",
+      "luxury champagne cliché without craft proof",
+      "laptop",
+      "coffee",
+      "abstract business",
+      "office meeting",
+      "nail salon",
+      "coffee shop",
+      "yoga studio",
+      "tech landing"
+    ],
+    "fingerprint": "3ae9a93e5445620a",
+    "brand_story": "Noah built DachKlar Service because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: dachreinigung.",
+    "core_emotion": "Erleichterung",
+    "core_promise": "Nach dem Regen sieht das Dach wieder neu aus.",
+    "visual_metaphor": "Frischer Regen nach dem Sturm — nasse Ziegel, klarer Himmel",
+    "creative_theme": "Morning Light",
+    "creative_theme_id": "morning_light",
+    "scene_language": "Sky · Height · Light · Wind · Rain",
+    "motion_language": "Langsam · Flüssig · Präzise",
+    "interaction_style": "inviting, hopeful, one clear next step",
+    "photo_world": "Echte Dächer · Morgensonne nach Regen · Wassertropfen · Arbeiter in Schutzkleidung · Luftaufnahmen",
+    "founder_name": "Noah"
+  },
+  "creative_identity": {
+    "title": "Morning Light",
+    "theme_id": "morning_light",
+    "idea": "Every day can begin again.",
+    "human": {
+      "founder_name": "Noah",
+      "founder_role": "founder",
+      "client_age_range": "30–50",
+      "why_choose_them": "They are specific — not interchangeable.",
+      "visitor_must_feel": "trust and desire to stay",
+      "niche_revealed_later": "dachreinigung"
+    },
+    "brand_story": "Noah built DachKlar Service because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: dachreinigung.",
+    "core_emotion": "trust and desire to stay",
+    "core_promise": "Every day can begin again.",
+    "visual_metaphor": "first light through linen curtains",
+    "creative_theme": "Morning Light",
+    "scene_language": "dawn windows, soft gold, open horizon",
+    "motion_language": "soft rise — light enters the frame",
+    "typography_voice": "Manrope + IBM Plex Sans",
+    "color_emotion": "cream, pale gold, sky blue breath",
+    "interaction_style": "inviting, hopeful, one clear next step",
+    "photo_world": "morning desk, coffee steam, open notebook",
+    "niche_revealed": "dachreinigung",
+    "package_id": "premium",
+    "surface": "site",
+    "conflict": {
+      "ok": true,
+      "action": "CONTINUE",
+      "conflicts": []
+    },
+    "forbidden": [
+      "noir_club",
+      "gaming",
+      "aggressive_sale",
+      "dark_corporate"
+    ],
+    "owner_preview": "PENDING_OWNER",
+    "html_export_allowed": true,
+    "html_blocked_reason": "",
+    "fingerprint": "3ae9a93e5445620a",
+    "generated_at": "2026-08-07T17:27:49.035509+00:00",
+    "sprint": "Creative Identity Generation",
+    "agency_note": "Think like a creative agency director on a €50,000 brief. No idea → no HTML. Creative Identity becomes site, store, social, video, ads.",
+    "pipeline": [
+      "human_first",
+      "brand_story",
+      "core_emotion",
+      "core_promise",
+      "visual_metaphor",
+      "creative_theme",
+      "scene_language",
+      "motion_language",
+      "typography_voice",
+      "color_emotion",
+      "interaction_style",
+      "creative_conflict",
+      "owner_preview"
+    ],
+    "before_html": true,
+    "naming": "Creative Identity — not Concept",
+    "question": "Who is the human — and what idea can you feel?",
+    "not_question": "How do we assemble a psychologist website?"
+  },
+  "observatory": {
+    "niche_id": "dachreinigung",
+    "era": "2026+",
+    "study_sources": [
+      "European digital studio portfolios",
+      "Premium SaaS brand sites",
+      "Luxury ecommerce craft"
+    ],
+    "first_screen": [
+      "Emotional job in 3 seconds",
+      "Brand voice before feature list",
+      "One visual center"
+    ],
+    "page_rhythm": [
+      "Scene → Story → Emotion → Interaction → Experience → Conversion"
+    ],
+    "composition_depth": [
+      "Living atmosphere",
+      "Asymmetry",
+      "Depth layers"
+    ],
+    "typography": "Voice-matched display + readable body",
+    "micro_interactions": "Purposeful motion — never decoration spam",
+    "trust": "Specific proof woven into scenes",
+    "cta_craft": "One primary ask per scene",
+    "brand_feel": [
+      "modern",
+      "confident",
+      "alive"
+    ],
+    "invent": "Original Brand DNA for dachreinigung — invent, never recycle prior sites.",
+    "never": [
+      "Constructor ladder",
+      "White empty slabs",
+      "Identical niche clones"
+    ],
+    "lenses": [
+      {
+        "id": "first_screen",
+        "question": "Why does the first screen exist?",
+        "principles": [
+          "One emotional job in 3 seconds",
+          "Visual center owns the fold",
+          "Brand voice before feature list"
+        ],
+        "anti_patterns": [
+          "Hero as feature dump",
+          "equal card grid first",
+          "logo wall as hero"
+        ]
+      },
+      {
+        "id": "rhythm",
+        "question": "How does the page breathe?",
+        "principles": [
+          "Scenes with distinct moods",
+          "Alternating density — never identical section padding",
+          "Story → emotion → interaction → conversion"
+        ],
+        "anti_patterns": [
+          "Hero→Text→Cards→Text→Cards",
+          "uniform white slabs"
+        ]
+      },
+      {
+        "id": "trust",
+        "question": "How is confidence earned?",
+        "principles": [
+          "Proof woven into scenes, not bolted as a strip",
+          "Specific over generic claims",
+          "Quiet credentials beat badge spam"
+        ],
+        "anti_patterns": [
+          "fake counters",
+          "stock handshake photos as trust"
+        ]
+      },
+      {
+        "id": "cta",
+        "question": "How does desire become action?",
+        "principles": [
+          "CTA matches emotional temperature of the scene",
+          "Secondary path without visual noise",
+          "One primary ask per scene"
+        ],
+        "anti_patterns": [
+          "identical pill buttons everywhere",
+          "three equal CTAs"
+        ]
+      }
+    ]
+  },
+  "observatory_brief": "Design Observatory · dachreinigung · 2026+\nRule: analyze principles — invent original — never copy pixels.\nFirst screen: Emotional job in 3 seconds; Brand voice before feature list; One visual center\nRhythm: Scene → Story → Emotion → Interaction → Experience → Conversion\nDepth: Living atmosphere; Asymmetry; Depth layers\nType: V; o; i\nMotion: P; u; r\nTrust: S; p; e\nCTA: O; n; e\nInvent: Original Brand DNA for dachreinigung — invent, never recycle prior sites.\nNever: Constructor ladder; White empty slabs; Identical niche clones",
+  "benchmark_brief": "Visual Benchmark · dachreinigung\nComposition: Full-bleed Hero, asymmetric next fold, no equal-card stack\nRhythm: Contrast ladder; never two open-light bands in a row\nHero: First viewport must sell the craft before any section list\nColor: Niche-true palette; no default purple mesh\nType: Expressive display + calm body\nDepth: Photo + glass + atmosphere layers\nAtmosphere: Living canvas, not flat white\nAvoid: Template ladder; Metric PASS without eye check",
+  "quality_floor": "Premium > Virtus Core /site — expensive European digital-studio impression (logo off still reads studio)",
+  "why_hero_exists": "Hero exists for 'DachKlar Service': Frischer Regen nach dem Sturm — nasse Ziegel, klarer Himmel — Nach dem Regen sieht das Dach wieder neu aus.",
+  "scene_sequence": [
+    "scene",
+    "story",
+    "emotion",
+    "conversion",
+    "experience",
+    "interaction",
+    "experience",
+    "scene",
+    "interaction",
+    "conversion"
+  ],
+  "taste": {
+    "overall": 55.38,
+    "axes": [
+      {
+        "axis": "rhythm",
+        "score": 18.0,
+        "note": "scene arc vs ladder"
+      },
+      {
+        "axis": "emotion",
+        "score": 85.0,
+        "note": "feeling + why-hero"
+      },
+      {
+        "axis": "brand",
+        "score": 83.0,
+        "note": "approach + composition identity"
+      },
+      {
+        "axis": "beauty",
+        "score": 50.0,
+        "note": "atmosphere + media integrity"
+      },
+      {
+        "axis": "visual_value",
+        "score": 50.0,
+        "note": "worth looking at"
+      },
+      {
+        "axis": "trust",
+        "score": 55.0,
+        "note": "proof craft"
+      },
+      {
+        "axis": "modernity",
+        "score": 77.0,
+        "note": "2026 studio language"
+      },
+      {
+        "axis": "uniqueness",
+        "score": 65.0,
+        "note": "not another clone"
+      }
+    ],
+    "verdict": "FAIL_TASTE",
+    "rebuild": true,
+    "reasons": [
+      "Constructor ladder / FAIL_TEMPLATE kills rhythm",
+      "Law #1 risk: taste 60 < prior best 72"
+    ],
+    "philosophy": "Taste judges the whole impression — not isolated CSS rules.",
+    "owner_still_decides_pass": true
+  },
+  "law_1": {
+    "law": "Every new project must not be worse than the previous best. Quality regression → REBUILD. Template repeat → REBUILD. Constructor look → REBUILD. Below modern digital studios → REBUILD.",
+    "ok": false,
+    "action": "REBUILD",
+    "reasons": [
+      "Template repeat",
+      "Below modern digital-studio bar",
+      "Worse than prior best (55 < 72)"
+    ]
+  },
+  "memory_bias": {
+    "compositions": [
+      "atelier",
+      "cascade",
+      "bento"
+    ],
+    "approaches": [
+      "scandinavian",
+      "luxury",
+      "boutique"
+    ],
+    "typography": [
+      "manrope_ibm_plex_industrial",
+      "fraunces_dm",
+      "newsreader_public"
+    ],
+    "heroes": [
+      "D",
+      "B"
+    ],
+    "prior_best_overall": 72.125,
+    "rule": "Bias principles from memory — never copy a prior site literally"
+  },
+  "agency_review": {
+    "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+    "roles": [
+      {
+        "id": "ceo",
+        "title": "CEO",
+        "question": "Does this strengthen the client's business presence — not just fill a page?"
+      },
+      {
+        "id": "creative_director",
+        "title": "Creative Director",
+        "question": "Is the creative direction clear, ownable, and non-template?"
+      },
+      {
+        "id": "brand_strategist",
+        "title": "Brand Strategist",
+        "question": "What is this brand's personality — and why does it exist?"
+      },
+      {
+        "id": "marketing_strategist",
+        "title": "Marketing Strategist",
+        "question": "What should the stranger feel in 3 seconds — and what should they do?"
+      },
+      {
+        "id": "ux_researcher",
+        "title": "UX Researcher",
+        "question": "Is the path human, calm, credible — free of constructor anxiety?"
+      },
+      {
+        "id": "art_director",
+        "title": "Art Director",
+        "question": "Does every scene have its own composition, rhythm, mood, and visual center?"
+      },
+      {
+        "id": "typography_director",
+        "title": "Typography Director",
+        "question": "Does type carry character and brand voice — not a default stack?"
+      },
+      {
+        "id": "color_director",
+        "title": "Color Director",
+        "question": "Does color create the intended emotion — not decoration?"
+      },
+      {
+        "id": "motion_director",
+        "title": "Motion Director",
+        "question": "Does every animation have meaning — or is it noise?"
+      },
+      {
+        "id": "frontend_architect",
+        "title": "Frontend Architect",
+        "question": "Is the craft export clean, resilient, and worthy of a studio?"
+      },
+      {
+        "id": "accessibility_specialist",
+        "title": "Accessibility Specialist",
+        "question": "Can everyone use this with dignity?"
+      },
+      {
+        "id": "performance_engineer",
+        "title": "Performance Engineer",
+        "question": "Does beauty stay fast on real devices?"
+      },
+      {
+        "id": "qa_designer",
+        "title": "QA Designer",
+        "question": "Would a European digital studio ship this without shame?"
+      },
+      {
+        "id": "owner_review",
+        "title": "Owner Review",
+        "question": "Has the owner said: \"Да. Я бы купил такой сайт.\"?"
+      }
+    ],
+    "digital_signature": {
+      "name": "Virtus Core Digital Signature",
+      "aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+      "craft_marks": [
+        "attention to detail",
+        "meaningful motion",
+        "strong typography",
+        "harmonious spacing",
+        "considered interactive states",
+        "coherent interaction sequences"
+      ],
+      "never": [
+        "same colors across every niche",
+        "identical compositions",
+        "constructor ladders",
+        "empty decorative zones",
+        "motion without meaning"
+      ]
+    },
+    "ecosystem_frame": {
+      "wrong": "Create a dentist website.",
+      "right": "Create the digital business of a dental clinic.",
+      "for_this_project": "Create the digital business of DachKlar Service (dachreinigung) — experience is one surface of the ecosystem, not the end product.",
+      "surfaces": [
+        {
+          "id": "experience",
+          "label": "Digital Experience (site/store)",
+          "role": "first impression & brand face"
+        },
+        {
+          "id": "booking",
+          "label": "Booking / scheduling",
+          "role": "convert intent to appointments"
+        },
+        {
+          "id": "crm",
+          "label": "CRM",
+          "role": "remember and serve the client"
+        },
+        {
+          "id": "reminders",
+          "label": "Automated reminders",
+          "role": "reduce no-shows"
+        },
+        {
+          "id": "chat",
+          "label": "Chat / assistant",
+          "role": "answer when humans sleep"
+        },
+        {
+          "id": "reviews",
+          "label": "Reviews",
+          "role": "trust at scale"
+        },
+        {
+          "id": "seo",
+          "label": "SEO",
+          "role": "be found"
+        },
+        {
+          "id": "ads",
+          "label": "Advertising",
+          "role": "reach with brand integrity"
+        },
+        {
+          "id": "analytics",
+          "label": "Analytics",
+          "role": "learn what works"
+        },
+        {
+          "id": "video",
+          "label": "Video",
+          "role": "emotion and proof"
+        },
+        {
+          "id": "social",
+          "label": "Social",
+          "role": "presence beyond the site"
+        },
+        {
+          "id": "cabinet",
+          "label": "Client cabinet",
+          "role": "ongoing relationship"
+        }
+      ],
+      "package_id": "premium"
+    },
+    "owner_buy_phrase": "Да. Я бы купил такой сайт.",
+    "owner_review": "PENDING_OWNER",
+    "note": "Roles are questions every generation must face. PASS only after human approval."
+  },
+  "variants_considered": [
+    {
+      "composition_id": "hearth",
+      "composition_label": "Hearth & home",
+      "hero_layout": "A",
+      "layout_profile": "L1-hearth",
+      "dna_style": "tech_precision",
+      "dna_composition": "hearth",
+      "section_order": [
+        "about",
+        "gallery",
+        "benefits",
+        "mid_cta",
+        "services",
+        "reputation",
+        "trust",
+        "process",
+        "showcase",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>gallery>benefits>mid_cta>services>reputation>trust>process>showcase>faq>reviews>maps"
+    },
+    {
+      "composition_id": "nature",
+      "composition_label": "Nature immersion",
+      "hero_layout": "D",
+      "layout_profile": "L6-nature",
+      "dna_style": "tech_precision",
+      "dna_composition": "nature",
+      "section_order": [
+        "gallery",
+        "about",
+        "showcase",
+        "mid_cta",
+        "services",
+        "reputation",
+        "process",
+        "benefits",
+        "trust",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "gallery>about>showcase>mid_cta>services>reputation>process>benefits>trust>faq>reviews>maps"
+    },
+    {
+      "composition_id": "sanctuary",
+      "composition_label": "Sanctuary calm",
+      "hero_layout": "D",
+      "layout_profile": "L2-sanctuary",
+      "dna_style": "tech_precision",
+      "dna_composition": "sanctuary",
+      "section_order": [
+        "about",
+        "gallery",
+        "trust",
+        "mid_cta",
+        "services",
+        "reputation",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>gallery>trust>mid_cta>services>reputation>process>benefits>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "asymmetrical",
+      "composition_label": "Asymmetrical stage",
+      "hero_layout": "D",
+      "layout_profile": "L3-asymmetrical",
+      "dna_style": "tech_precision",
+      "dna_composition": "asymmetrical",
+      "section_order": [
+        "gallery",
+        "about",
+        "mid_cta",
+        "services",
+        "reputation",
+        "showcase",
+        "trust",
+        "benefits",
+        "process",
+        "stats",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "gallery>about>mid_cta>services>reputation>showcase>trust>benefits>process>stats>faq>reviews"
+    },
+    {
+      "composition_id": "atelier_night",
+      "composition_label": "Atelier night",
+      "hero_layout": "F",
+      "layout_profile": "L6-atelier_night",
+      "dna_style": "tech_precision",
+      "dna_composition": "atelier_night",
+      "section_order": [
+        "showcase",
+        "gallery",
+        "about",
+        "mid_cta",
+        "services",
+        "reputation",
+        "process",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>gallery>about>mid_cta>services>reputation>process>trust>benefits>faq>reviews>maps"
+    },
+    {
+      "composition_id": "boutique",
+      "composition_label": "Boutique curation",
+      "hero_layout": "D",
+      "layout_profile": "L3-boutique",
+      "dna_style": "tech_precision",
+      "dna_composition": "boutique",
+      "section_order": [
+        "showcase",
+        "services",
+        "reputation",
+        "gallery",
+        "mid_cta",
+        "about",
+        "trust",
+        "benefits",
+        "process",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>services>reputation>gallery>mid_cta>about>trust>benefits>process>faq>reviews>maps"
+    },
+    {
+      "composition_id": "breath",
+      "composition_label": "Breathing room",
+      "hero_layout": "D",
+      "layout_profile": "L2-breath",
+      "dna_style": "tech_precision",
+      "dna_composition": "breath",
+      "section_order": [
+        "about",
+        "mid_cta",
+        "gallery",
+        "services",
+        "reputation",
+        "trust",
+        "process",
+        "benefits",
+        "showcase",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>mid_cta>gallery>services>reputation>trust>process>benefits>showcase>faq>reviews>maps"
+    },
+    {
+      "composition_id": "cinematic",
+      "composition_label": "Cinematic immersion",
+      "hero_layout": "F",
+      "layout_profile": "L3-cinematic",
+      "dna_style": "tech_precision",
+      "dna_composition": "cinematic",
+      "section_order": [
+        "showcase",
+        "mid_cta",
+        "about",
+        "gallery",
+        "services",
+        "reputation",
+        "trust",
+        "benefits",
+        "process",
+        "faq",
+        "reviews",
+        "maps",
+        "late_cta",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>mid_cta>about>gallery>services>reputation>trust>benefits>process>faq>reviews>maps"
+    },
+    {
+      "composition_id": "creative",
+      "composition_label": "Creative studio",
+      "hero_layout": "B",
+      "layout_profile": "L4-creative",
+      "dna_style": "tech_precision",
+      "dna_composition": "creative",
+      "section_order": [
+        "gallery",
+        "showcase",
+        "about",
+        "services",
+        "reputation",
+        "mid_cta",
+        "process",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "gallery>showcase>about>services>reputation>mid_cta>process>trust>benefits>faq>reviews>maps"
+    },
+    {
+      "composition_id": "diagonal",
+      "composition_label": "Diagonal energy",
+      "hero_layout": "F",
+      "layout_profile": "L4-diagonal",
+      "dna_style": "tech_precision",
+      "dna_composition": "diagonal",
+      "section_order": [
+        "showcase",
+        "about",
+        "services",
+        "reputation",
+        "gallery",
+        "mid_cta",
+        "stats",
+        "process",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>about>services>reputation>gallery>mid_cta>stats>process>trust>benefits>faq>reviews"
+    }
+  ],
+  "chosen": {
+    "composition_id": "hearth",
+    "composition_label": "Hearth & home",
+    "hero_layout": "D",
+    "layout_profile": "L1-hearth",
+    "dna_style": "tech_precision",
+    "dna_composition": "hearth",
+    "section_order": [
+      "about",
+      "gallery",
+      "benefits",
+      "mid_cta",
+      "services",
+      "reputation",
+      "trust",
+      "process",
+      "showcase",
+      "faq",
+      "reviews",
+      "maps",
+      "contact"
+    ],
+    "score": 13.0,
+    "reasons": [
+      "too predictable — classic section ladder",
+      "scene_arc_story_emotion_early",
+      "hero_3s_force_cinematic"
+    ],
+    "rejected": false,
+    "reject_reason": "",
+    "rhythm": "about>gallery>benefits>mid_cta>services>reputation>trust>process>showcase>faq>reviews>maps"
+  },
+  "dna": {
+    "emotion": "confidence",
+    "style": "tech_precision",
+    "palette_family": "slate_steel",
+    "typography_pair": "manrope_ibm_plex_industrial",
+    "motion": "premium",
+    "hero_concept": "roof_after_rain",
+    "hero_layout": "D",
+    "depth": "high",
+    "glass": "medium",
+    "composition": "hearth",
+    "package_id": "premium",
+    "niche_id": "dachreinigung",
+    "fingerprint": "17a0e0e063ade477153dda85f30cf8028557e0622d2614157e4858c7818b3460",
+    "section_treatments": [
+      [
+        "about",
+        "ink"
+      ],
+      [
+        "gallery",
+        "photo_band"
+      ],
+      [
+        "benefits",
+        "gradient"
+      ],
+      [
+        "mid_cta",
+        "ink"
+      ],
+      [
+        "services",
+        "ink"
+      ],
+      [
+        "trust",
+        "tint"
+      ],
+      [
+        "process",
+        "photo_band"
+      ],
+      [
+        "showcase",
+        "ink"
+      ],
+      [
+        "faq",
+        "photo_band"
+      ],
+      [
+        "reviews",
+        "gradient"
+      ],
+      [
+        "maps",
+        "glass"
+      ],
+      [
+        "contact",
+        "ink"
+      ]
+    ],
+    "accent_hex": "#3b82c4",
+    "surface_hex": "#f8fafc",
+    "ink_hex": "#0f172a",
+    "atmosphere_mode": "cinematic",
+    "brand_book_fp": "778a3b395f86a2a55beadde9",
+    "border_radius_px": 12
+  },
+  "layout_profile_id": "L1-hearth",
+  "section_order": [
+    "about",
+    "gallery",
+    "benefits",
+    "mid_cta",
+    "services",
+    "reputation",
+    "trust",
+    "process",
+    "showcase",
+    "faq",
+    "reviews",
+    "maps",
+    "contact"
+  ],
+  "hero_layout": "D",
+  "generation_status": "REBUILD",
+  "creative_review": "FAIL_REBUILD",
+  "kpi_question": "Without Virtus Core logo — would a stranger believe a modern European digital studio built this?",
+  "owner_review": "PENDING_OWNER",
+  "owner_required": "Да, я бы без стыда продал этот сайт клиенту",
+  "optimize_for": "designer_decisions_and_taste",
+  "note": "Law #1 / Taste REBUILD: Template repeat; Below modern digital-studio bar; Worse than prior best (55 < 72). Agent may not PASS."
+}

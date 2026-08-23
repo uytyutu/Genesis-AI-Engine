@@ -15,8 +15,11 @@ LAYOUT_IDS = ("A", "B", "C", "D", "E", "F")
 # Niche limits the pool; seed chooses inside the pool (not one Hero per niche).
 NICHE_LAYOUT_ALLOWLIST: dict[str, tuple[str, ...]] = {
     "dental": ("A", "C", "E"),
+    "psychology": ("D", "C", "A", "E"),
+    "family_psychology": ("D", "C", "A", "E"),
     "auto": ("B", "D", "F"),
     "auto_ankauf": ("B", "D", "F"),
+    "car_dealership": ("B", "D", "F"),
     "cleaning": ("A", "D", "E"),
     "law": ("C", "A", "E"),
     "energy": ("A", "D", "E"),
@@ -25,6 +28,12 @@ NICHE_LAYOUT_ALLOWLIST: dict[str, tuple[str, ...]] = {
     "computer": ("A", "B", "C"),
     "appliance": ("A", "B", "F"),
     "handwerk": ("B", "F", "A"),
+    "restaurant": ("E", "A", "C"),
+    "fashion": ("E", "C", "A"),
+    "accounting": ("C", "A", "E"),
+    "photography": ("E", "D", "A"),
+    "fitness": ("B", "F", "D"),
+    "realestate": ("C", "A", "E"),
     "generic": ("A", "B", "C"),
 }
 
@@ -67,6 +76,7 @@ def compose_hero(
     btn_class: str,
     ui: dict[str, str],
     hero_photo: bool = True,
+    hero_video: str = "",
 ) -> HeroComposition:
     """Build Hero HTML + layout CSS. Strings must already be HTML-escaped where needed."""
     lid = layout_id if layout_id in LAYOUT_IDS else "A"
@@ -88,6 +98,7 @@ def compose_hero(
         if hero_photo
         else ""
     )
+    video = esc(hero_video) if hero_video else ""
 
     builders = {
         "A": _layout_a,
@@ -100,6 +111,7 @@ def compose_hero(
     html, embeds_stats = builders[lid](
         photo=photo,
         img=img,
+        video=video,
         headline=headline,
         subtitle=subtitle,
         trust_html=trust_html,
@@ -135,6 +147,23 @@ def _kpi_html(ui: dict[str, str]) -> str:
 
 def _layout_a(**kw: str) -> tuple[str, bool]:
     # Split clinical: copy + media column, trust, CTA, short advantages, soft deco.
+    kpi_block = (
+        f'<aside class="hero-A-kpis" aria-label="stats">{kw["kpi"]}</aside>'
+        if kw.get("kpi")
+        else ""
+    )
+    media = kw["img"] or (
+        '<svg class="hero-A-illu" viewBox="0 0 320 400" role="img" aria-label="Illustration">'
+        '<defs><linearGradient id="hag" x1="0" y1="0" x2="1" y2="1">'
+        '<stop offset="0%" stop-color="var(--p,#0369a1)"/>'
+        '<stop offset="100%" stop-color="var(--acc,#e0f2fe)"/>'
+        "</linearGradient></defs>"
+        '<rect width="320" height="400" rx="24" fill="url(#hag)"/>'
+        '<circle cx="160" cy="150" r="64" fill="#fff" opacity="0.35"/>'
+        '<rect x="70" y="250" width="180" height="16" rx="8" fill="#fff" opacity="0.55"/>'
+        '<rect x="95" y="280" width="130" height="12" rx="6" fill="#fff" opacity="0.35"/>'
+        "</svg>"
+    )
     html = f"""
   <header class="hero hero-layout-A{kw['photo']}" data-hero-layout="A">
     <div class="hero-A-grid">
@@ -146,15 +175,16 @@ def _layout_a(**kw: str) -> tuple[str, bool]:
           <a class="{kw['btn_class']}" href="#contact">{kw['cta']}</a>{kw['hero_cta_extra']}
         </div>
         <ul class="hero-adv">{kw['adv_html']}</ul>
+        {kpi_block}
       </div>
       <figure class="hero-A-media">
         <span class="hero-A-deco" aria-hidden="true"></span>
-        {kw['img']}
+        {media}
       </figure>
     </div>
   </header>
 """
-    return html, False
+    return html, bool(kw.get("kpi"))
 
 
 def _layout_b(**kw: str) -> tuple[str, bool]:
@@ -178,12 +208,27 @@ def _layout_b(**kw: str) -> tuple[str, bool]:
 
 
 def _layout_c(**kw: str) -> tuple[str, bool]:
-    # Airy trust: whitespace, portrait, thin accent rule, minimal chrome.
+    # Airy trust: whitespace, portrait, thin accent rule, minimal chrome + KPI rail.
+    media = kw["img"] or (
+        '<svg class="hero-C-illu" viewBox="0 0 320 400" role="img" aria-label="Illustration">'
+        '<defs><linearGradient id="hcg" x1="0" y1="0" x2="0" y2="1">'
+        '<stop offset="0%" stop-color="var(--p,#0f766e)"/>'
+        '<stop offset="100%" stop-color="var(--acc,#ccfbf1)"/>'
+        "</linearGradient></defs>"
+        '<rect width="320" height="400" fill="url(#hcg)"/>'
+        '<ellipse cx="160" cy="170" rx="70" ry="84" fill="#fff" opacity="0.28"/>'
+        "</svg>"
+    )
+    kpi_block = (
+        f'<aside class="hero-C-kpis" aria-label="stats">{kw["kpi"]}</aside>'
+        if kw.get("kpi")
+        else ""
+    )
     html = f"""
   <header class="hero hero-layout-C{kw['photo']}" data-hero-layout="C">
     <div class="hero-C-wrap">
       <div class="hero-C-rule" aria-hidden="true"></div>
-      <figure class="hero-C-portrait">{kw['img']}</figure>
+      <figure class="hero-C-portrait">{media}</figure>
       <div class="hero-C-copy">
         <h1{kw['h1_class']}>{kw['headline']}</h1>
         <p{kw['hero_p_class']}>{kw['subtitle']}</p>
@@ -191,17 +236,28 @@ def _layout_c(**kw: str) -> tuple[str, bool]:
         <div class="hero-ctas">
           <a class="{kw['btn_class']}" href="#contact">{kw['cta']}</a>{kw['hero_cta_extra']}
         </div>
+        {kpi_block}
       </div>
     </div>
   </header>
 """
-    return html, False
+    return html, bool(kw.get("kpi"))
 
 
 def _layout_d(**kw: str) -> tuple[str, bool]:
-    # Immersive background + glass panel + floating KPI cards.
+    # Immersive full-viewport background + glass panel + soft atmospheric veil.
+    video = (kw.get("video") or "").strip()
+    media_layer = ""
+    if video:
+        media_layer = (
+            f'<video class="hero-bg-video" autoplay muted loop playsinline '
+            f'poster="assets/hero.jpg" aria-hidden="true">'
+            f'<source src="{video}" type="video/mp4"></video>'
+        )
     html = f"""
-  <header class="hero hero-layout-D{kw['photo']} hero-bleed" data-hero-layout="D">
+  <header class="hero hero-layout-D{kw['photo']} hero-bleed hero-immersive" data-hero-layout="D">
+    {media_layer}
+    <div class="hero-atmosphere" aria-hidden="true"></div>
     <div class="hero-D-panel">
       <h1{kw['h1_class']}>{kw['headline']}</h1>
       <p{kw['hero_p_class']}>{kw['subtitle']}</p>
@@ -217,13 +273,31 @@ def _layout_d(**kw: str) -> tuple[str, bool]:
 
 
 def _layout_e(**kw: str) -> tuple[str, bool]:
-    # Soft magazine: large circular media, wash gradient, round chips.
+    # Soft magazine: large circular media, wash gradient, round chips + KPI rail.
+    # Business Visual Pack: never leave orb as empty decorative blob — KPI fills accent.
+    media = kw["img"] or (
+        '<svg class="hero-E-illu" viewBox="0 0 320 320" role="img" aria-label="Illustration">'
+        '<defs><linearGradient id="heg" x1="0" y1="0" x2="1" y2="1">'
+        '<stop offset="0%" stop-color="var(--p,#be185d)"/>'
+        '<stop offset="100%" stop-color="var(--acc,#fbcfe8)"/>'
+        "</linearGradient></defs>"
+        '<circle cx="160" cy="160" r="120" fill="url(#heg)" opacity="0.9"/>'
+        '<circle cx="160" cy="160" r="72" fill="#fff" opacity="0.35"/>'
+        '<path d="M110 190c28-48 72-48 100 0" fill="none" stroke="#fff" stroke-width="10" '
+        'stroke-linecap="round" opacity="0.85"/>'
+        "</svg>"
+    )
+    kpi_aside = (
+        f'<aside class="hero-E-kpis" aria-label="stats">{kw["kpi"]}</aside>'
+        if kw.get("kpi")
+        else ""
+    )
     html = f"""
   <header class="hero hero-layout-E{kw['photo']}" data-hero-layout="E">
     <div class="hero-E-stage">
       <figure class="hero-E-orb">
         <span class="hero-E-ring" aria-hidden="true"></span>
-        {kw['img']}
+        {media}
       </figure>
       <div class="hero-E-wash" aria-hidden="true"></div>
       <div class="hero-E-copy">
@@ -234,11 +308,12 @@ def _layout_e(**kw: str) -> tuple[str, bool]:
           <a class="{kw['btn_class']}" href="#contact">{kw['cta']}</a>{kw['hero_cta_extra']}
         </div>
         <div{kw['trust_class']}>{kw['trust_html']}</div>
+        {kpi_aside}
       </div>
     </div>
   </header>
 """
-    return html, False
+    return html, bool(kw.get("kpi"))
 
 
 def _layout_f(**kw: str) -> tuple[str, bool]:
@@ -346,10 +421,21 @@ def _layout_css(layout_id: str) -> str:
       overflow: hidden; aspect-ratio: 4 / 5; background: var(--line, #e2e8f0);
       box-shadow: var(--shadow, 0 16px 40px rgba(15,23,42,0.12));
     }
-    .hero-A-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-A-media img, .hero-A-media .hero-A-illu {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .hero-A-media .hero-A-illu { object-fit: contain; }
     .hero-A-deco {
       position: absolute; z-index: 0; width: 42%; height: 42%; right: -8%; bottom: -10%;
       border-radius: 50%; background: var(--acc, #e0f2fe); opacity: 0.9;
+    }
+    .hero-A-kpis {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.55rem;
+      margin-top: 1.25rem;
+    }
+    .hero-A-kpis .hero-kpi {
+      background: #fff; border: 1px solid var(--line, #bae6fd); border-radius: 12px;
+      padding: 0.65rem 0.7rem;
     }
 """,
         "B": """
@@ -401,9 +487,19 @@ def _layout_css(layout_id: str) -> str:
       border-radius: 4px; background: var(--surface, #f8fafc);
       box-shadow: 0 8px 24px rgba(15,23,42,0.08);
     }
-    .hero-C-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(18%); }
+    .hero-C-portrait img, .hero-C-portrait .hero-C-illu {
+      width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(18%);
+    }
+    .hero-C-portrait .hero-C-illu { filter: none; object-fit: contain; }
     .hero-C-copy h1 { font-weight: 600; letter-spacing: 0.01em; font-size: clamp(1.85rem, 3.5vw, 2.6rem); }
     .hero-C-copy .lead { max-width: 28rem; color: var(--muted); font-size: 1.05rem; line-height: 1.75; }
+    .hero-C-kpis {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.55rem;
+      margin-top: 1.35rem;
+    }
+    .hero-C-kpis .hero-kpi {
+      border-top: 1px solid var(--line, #e2e8f0); padding-top: 0.65rem;
+    }
     .hero-layout-C .trust-pill {
       background: transparent; color: var(--pd); border: 0; border-bottom: 1px solid var(--acc);
       border-radius: 0; padding: 0.15rem 0;
@@ -414,22 +510,45 @@ def _layout_css(layout_id: str) -> str:
 """,
         "D": """
     body[data-hero-layout="D"] .hero.hero-layout-D {
-      min-height: 82vh; position: relative; color: #fff;
-      display: grid; align-items: center; padding: 3.5rem 1.25rem;
+      min-height: 100vh; min-height: 100dvh; position: relative; color: #fff;
+      display: grid; align-items: center; padding: 4rem 1.25rem;
+      overflow: hidden;
     }
     body[data-hero-layout="D"] .hero.hero-layout-D.has-photo {
       background-image:
-        linear-gradient(160deg, rgba(20,83,45,.55), rgba(22,163,74,.25) 45%, rgba(0,0,0,.35)),
+        linear-gradient(160deg, rgba(12,10,9,.72), rgba(28,25,23,.38) 45%, rgba(63,90,79,.32) 100%),
         url("assets/hero.jpg");
+      background-size: cover; background-position: center;
+    }
+    body[data-hero-layout="D"] .hero-atmosphere {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        radial-gradient(ellipse 55% 40% at 70% 30%, rgba(201,184,166,0.22), transparent 60%),
+        linear-gradient(180deg, transparent 55%, rgba(12,10,9,0.45));
+      animation: heroAtmosphere 14s ease-in-out infinite alternate;
+    }
+    @keyframes heroAtmosphere {
+      from { opacity: 0.75; transform: scale(1); }
+      to { opacity: 1; transform: scale(1.04); }
+    }
+    body[data-hero-layout="D"] .hero-bg-video {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; z-index: 0; pointer-events: none;
     }
     .hero-D-panel {
-      position: relative; z-index: 2; max-width: 28rem;
+      position: relative; z-index: 2; max-width: 34rem;
       margin-left: max(1rem, 8vw);
-      padding: 1.75rem 1.5rem;
-      border-radius: calc(var(--radius, 18px));
-      background: rgba(255,255,255,0.14);
-      border: 1px solid rgba(255,255,255,0.28);
-      backdrop-filter: blur(10px);
+      padding: 2.25rem 2rem;
+      border-radius: 20px;
+      background: rgba(12,10,9,0.48);
+      border: 1px solid rgba(255,255,255,0.22);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.35);
+      animation: heroPanelIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes heroPanelIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .hero-D-float {
       position: absolute; right: max(1rem, 6vw); top: 18%;
@@ -463,7 +582,10 @@ def _layout_css(layout_id: str) -> str:
       border-radius: 50%; overflow: hidden;
       box-shadow: var(--shadow, 0 18px 40px rgba(190,24,93,0.18));
     }
-    .hero-E-orb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-E-orb img, .hero-E-orb .hero-E-illu {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .hero-E-orb .hero-E-illu { object-fit: contain; padding: 8%; box-sizing: border-box; }
     .hero-E-ring {
       position: absolute; inset: -14px; border-radius: 50%;
       border: 2px dashed color-mix(in srgb, var(--p) 45%, transparent);
@@ -481,6 +603,14 @@ def _layout_css(layout_id: str) -> str:
     .hero-E-chips li {
       background: #fff; border-radius: 999px; padding: 0.45rem 0.95rem;
       font-size: 0.85rem; box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+    .hero-E-kpis {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.65rem;
+      margin-top: 1.25rem;
+    }
+    .hero-E-kpis .hero-kpi {
+      background: #fff; border-radius: 14px; padding: 0.75rem 0.85rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
     }
     body[data-hero-layout="E"] .hero .trust-pill {
       background: rgba(255,255,255,0.7); color: var(--pd); border-color: transparent;

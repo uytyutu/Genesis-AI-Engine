@@ -1,0 +1,103 @@
+{
+  "niche_id": "law",
+  "era": "2026+",
+  "study_sources": [
+    "Boutique European law firms",
+    "Editorial corporate brand sites",
+    "Quiet prestige consulting"
+  ],
+  "first_screen": [
+    "Authority without marble cliché",
+    "Precise headline — one mandate",
+    "Dark or ink editorial, not stock gavel"
+  ],
+  "page_rhythm": [
+    "Credentials early as craft",
+    "Practice areas as narrative, not icon grid dump",
+    "Contact as confident close"
+  ],
+  "composition_depth": [
+    "Editorial columns",
+    "Hairline rules used sparingly",
+    "Photo as evidence"
+  ],
+  "typography": [
+    "Classical serif + precise sans",
+    "Tight but readable scale"
+  ],
+  "micro_interactions": [
+    "Understated underline / ink shifts",
+    "No playful bounce"
+  ],
+  "trust": [
+    "Named expertise",
+    "Process clarity",
+    "Impressum as professionalism"
+  ],
+  "cta_craft": "Erstberatung — calm, not salesy",
+  "brand_feel": [
+    "prestige",
+    "clarity",
+    "confidence"
+  ],
+  "invent": "Original firm personality — not a gray template with a logo.",
+  "never": [
+    "Stock handshake hero",
+    "Fake award counters"
+  ],
+  "lenses": [
+    {
+      "id": "first_screen",
+      "question": "Why does the first screen exist?",
+      "principles": [
+        "One emotional job in 3 seconds",
+        "Visual center owns the fold",
+        "Brand voice before feature list"
+      ],
+      "anti_patterns": [
+        "Hero as feature dump",
+        "equal card grid first",
+        "logo wall as hero"
+      ]
+    },
+    {
+      "id": "rhythm",
+      "question": "How does the page breathe?",
+      "principles": [
+        "Scenes with distinct moods",
+        "Alternating density — never identical section padding",
+        "Story → emotion → interaction → conversion"
+      ],
+      "anti_patterns": [
+        "Hero→Text→Cards→Text→Cards",
+        "uniform white slabs"
+      ]
+    },
+    {
+      "id": "trust",
+      "question": "How is confidence earned?",
+      "principles": [
+        "Proof woven into scenes, not bolted as a strip",
+        "Specific over generic claims",
+        "Quiet credentials beat badge spam"
+      ],
+      "anti_patterns": [
+        "fake counters",
+        "stock handshake photos as trust"
+      ]
+    },
+    {
+      "id": "cta",
+      "question": "How does desire become action?",
+      "principles": [
+        "CTA matches emotional temperature of the scene",
+        "Secondary path without visual noise",
+        "One primary ask per scene"
+      ],
+      "anti_patterns": [
+        "identical pill buttons everywhere",
+        "three equal CTAs"
+      ]
+    }
+  ]
+}

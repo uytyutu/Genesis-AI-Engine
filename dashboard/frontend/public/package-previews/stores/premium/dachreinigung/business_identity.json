@@ -1,0 +1,83 @@
+{
+  "brand_name": "DachKlar Shop",
+  "niche_id": "dachreinigung",
+  "package_id": "premium",
+  "founded_year": 2022,
+  "company_age_years": 4,
+  "mission": "Ein Dach, dem Hausbesitzer wieder vertrauen können.",
+  "core_services": [
+    "Dachreinigung",
+    "Moosentfernung",
+    "Imprägnierung",
+    "Dachrinne",
+    "Inspektion"
+  ],
+  "geography": "Nürnberg und Region (Fürth, Erlangen, Schwabach, Bamberg)",
+  "advantages": [
+    "Transparente Festpreise",
+    "Höhenarbeit mit Sicherung",
+    "Fotodokumentation",
+    "Lokaler Ansprechpartner"
+  ],
+  "values": [
+    "Sicherheit",
+    "Präzision",
+    "Ehrlichkeit",
+    "Handwerk"
+  ],
+  "client_types": [
+    "Hausbesitzer",
+    "Verwaltungen",
+    "Eigentümergemeinschaften"
+  ],
+  "price_segment": "Mittel bis Premium (klar kalkuliert)",
+  "brand_character": "Craftsman + Guardian — ruhig, präzise, lokal",
+  "team_size_label": "4–6 Personen (Demo)",
+  "marketing_dna_stub": {
+    "audience": "Hausbesitzer 35–65 in der Region Nürnberg",
+    "goal": "Anfrage / Festpreis-Angebot",
+    "emotion": "Sicherheit und Stolz auf das Zuhause",
+    "pacing": "langsam · vertrauensbildend",
+    "platforms": [
+      "Meta",
+      "Google",
+      "Website Hero"
+    ]
+  },
+  "video_dna_stub": {
+    "camera": [
+      "Drone",
+      "Macro",
+      "Handheld"
+    ],
+    "mood": "Calm after storm",
+    "music": "Ambient · light piano",
+    "pacing": "Slow",
+    "required_scenes": [
+      "Roof",
+      "Worker harness",
+      "Water / washing",
+      "Before/After",
+      "Drone"
+    ],
+    "forbidden": [
+      "Office",
+      "Laptop",
+      "Coffee",
+      "Coworking",
+      "Café"
+    ]
+  },
+  "fingerprint": "041743eb96279014e857dcf5",
+  "demo": true,
+  "chain": [
+    "business_identity",
+    "brand_book",
+    "atmosphere",
+    "reputation",
+    "local_identity",
+    "website",
+    "store",
+    "marketing"
+  ]
+}

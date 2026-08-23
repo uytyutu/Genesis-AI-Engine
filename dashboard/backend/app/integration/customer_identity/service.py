@@ -176,6 +176,19 @@ class CustomerIdentityService:
             prior_visitor_id=prior_visitor_id,
         )
         token = issue_client_token(customer_id=account.customer_id, email=account.email)
+        try:
+            from app.integration.sales_order_service import SalesOrderService
+            from app.integration.factory_intent_service import FactoryIntentService
+            from app.factory.factory_service import FactoryService
+
+            factory = FactoryService(memory_dir=self._memory)
+            intent = FactoryIntentService(memory_dir=self._memory, factory=factory)
+            sales = SalesOrderService(self._memory, intent)
+            sales.attach_customer_by_email(
+                customer_id=account.customer_id, email=account.email
+            )
+        except Exception:
+            pass
         return self._session_response(
             token=token,
             account=account,
@@ -229,17 +242,54 @@ class CustomerIdentityService:
         card = self._store.load_card(customer_id)
         company = self._store.load_company_by_customer(customer_id)
         welcome = self._store.load_welcome(customer_id)
+        business_id = ""
+        if card:
+            from app.integration.customer_identity.support_center import SupportCenterService
+
+            card = SupportCenterService(self._memory).ensure_business_id(card)
+            business_id = card.business_id
         return {
             "version": IDENTITY_VERSION,
             "customer_id": account.customer_id,
+            "business_id": business_id,
             "name": account.name,
             "email": account.email,
             "email_verified": account.email_verified,
             "tier": card.tier if card else "free",
             "company_name": company.name if company else None,
+            "company_display_name": (card.company_display_name if card else "")
+            or (company.name if company else None),
             "headline": headline_ready(),
             "welcome": welcome_payload(welcome, name=account.name) if welcome else None,
             "platform_visitor_id": card.platform_visitor_id if card else None,
+            "gift_account": bool(card.gift_account) if card else False,
+            "gift_unlimited": bool(getattr(card, "gift_unlimited", False) or getattr(card, "unlimited", False))
+            if card
+            else False,
+            "unlimited": bool(getattr(card, "unlimited", False) or getattr(card, "gift_unlimited", False))
+            if card
+            else False,
+            "workspace_mode": str(getattr(card, "workspace_mode", "standard") or "standard")
+            if card
+            else "standard",
+            "primary_niche": str(getattr(card, "primary_niche", "") or "") if card else "",
+            "phone": (card.phone if card else None) or None,
+            "company_profile": {
+                "company_name": (card.company_display_name if card else "")
+                or (company.name if company else "")
+                or "",
+                "email": account.email,
+                "phone": (card.phone if card else None) or "",
+                "primary_niche": str(getattr(card, "primary_niche", "") or "") if card else "",
+                "complete": bool(
+                    (
+                        (card.company_display_name if card else "")
+                        or (company.name if company else "")
+                    )
+                    and account.email
+                ),
+            },
+            "forced_setup": False,
         }
 
     def get_welcome(self, customer_id: str) -> dict[str, Any]:

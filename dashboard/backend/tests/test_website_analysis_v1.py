@@ -46,7 +46,7 @@ def test_report_from_healthy_flags():
     business = next(r for r in report["recommendations"] if r["id"] == "new_business")
     assert business["availability"] == "available"
     assert business["cta"] == "order_now"
-    assert "350" in business["price_label"] or "1200" in business["price_label"]
+    assert "199" in business["price_label"] or "699" in business["price_label"]
     repair = next(r for r in report["recommendations"] if r["id"] == "repair")
     assert repair["cta"] == "order_now"
     assert repair["availability"] == "available"

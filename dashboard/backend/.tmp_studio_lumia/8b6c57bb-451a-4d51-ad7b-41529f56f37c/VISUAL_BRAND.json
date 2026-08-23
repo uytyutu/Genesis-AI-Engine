@@ -1,0 +1,63 @@
+{
+  "brand_name": "Studio LUMIA",
+  "niche_id": "photography",
+  "fingerprint": "d02e1113701400bfd1da",
+  "color": {
+    "primary": "#101014",
+    "accent": "#e76456",
+    "secondary": "#65a0a6",
+    "surface": "#e2e2e6",
+    "cards": "#dcdee4",
+    "background": "#101014",
+    "gradient": "linear-gradient(145deg,#101014 0%,#73322b 48%,#e76456 100%)",
+    "glow": "rgba(231,100,86,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "editorial_photo",
+    "minimal_illustration",
+    "abstract_gradient",
+    "premium_business_graphic"
+  ],
+  "illustration_pack": "soft 3D product icons",
+  "motion_language": "editorial fade · staggered cards · calm hover",
+  "icon_style": "technical blueprint icons",
+  "scene_library": {
+    "hero": [
+      "Porträtsession",
+      "Kamera und Lichtsetup",
+      "Fotostudio Softbox"
+    ],
+    "gallery": [
+      "Produktsetup",
+      "Outdoor-Session",
+      "Retusche-Arbeitsplatz"
+    ],
+    "team": [
+      "Fotograf hinter Kamera"
+    ],
+    "equipment": [
+      "Softbox",
+      "Blitzanlage"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «Studio LUMIA» (photography) in Germany. Role=hero. Medium=editorial_photo. Illustration language=soft 3D product icons. Must show: Porträtsession, Kamera und Lichtsetup, Fotostudio Softbox. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «Studio LUMIA» (photography) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=soft 3D product icons. Must show: Porträtsession, Kamera und Lichtsetup, Fotostudio Softbox. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «Studio LUMIA» (photography) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=soft 3D product icons. Must show: Produktsetup, Outdoor-Session, Retusche-Arbeitsplatz. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «Studio LUMIA» (photography) in Germany. Role=before_after. Medium=editorial_photo. Illustration language=soft 3D product icons. Must show: Produktsetup, Outdoor-Session. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «Studio LUMIA» (photography) in Germany. Role=team. Medium=minimal_illustration. Illustration language=soft 3D product icons. Must show: Fotograf hinter Kamera. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «Studio LUMIA» (photography) in Germany. Role=equipment. Medium=minimal_illustration. Illustration language=soft 3D product icons. Must show: Softbox, Blitzanlage. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «Studio LUMIA» (photography) in Germany. Role=projects. Medium=editorial_photo. Illustration language=soft 3D product icons. Must show: Retusche-Arbeitsplatz. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «Studio LUMIA» (photography) in Germany. Role=illustration. Medium=minimal_illustration. Illustration language=soft 3D product icons. Must show: Porträtsession, Kamera und Lichtsetup. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «Studio LUMIA» (photography) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=soft 3D product icons. Must show: technical blueprint icons. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «Studio LUMIA» (photography) in Germany. Role=video_storyboard. Medium=editorial_photo. Illustration language=soft 3D product icons. Must show: Porträtsession, Kamera und Lichtsetup, Fotostudio Softbox. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

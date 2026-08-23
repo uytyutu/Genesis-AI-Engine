@@ -1,0 +1,67 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "Elektroinstallation · Sicherungskasten · Fachkraft mit Messgerät",
+  "hero_layout": "B",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "whisper",
+  "package_id": "premium",
+  "niche_id": "elektro",
+  "fingerprint": "70d7fe6a2effc0abbf7a7754053c8e9da544705fb1add96eafe79fadb70c1979",
+  "section_treatments": [
+    [
+      "about",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "services",
+      "tint"
+    ],
+    [
+      "showcase",
+      "illustration"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "faq",
+      "gradient"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "photo_band"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#dcdef0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "88954b586a424a7d87faec5c",
+  "border_radius_px": 12
+}

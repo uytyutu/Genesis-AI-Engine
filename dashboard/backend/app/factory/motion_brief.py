@@ -176,17 +176,36 @@ def merge_motion_into_brief(
     return out
 
 
-def gate_motion_level(level: str | None) -> dict[str, Any]:
-    """Factory/research gate: allow css/none, reject 3d_premium."""
+def gate_motion_level(
+    level: str | None,
+    *,
+    package_id: str | None = None,
+    niche_id: str | None = None,
+) -> dict[str, Any]:
+    """Allow CSS/none always. Allow 3d_premium only when Studio says it sells."""
     ml = normalize_motion_level(level)
-    if ml == "3d_premium":
-        return {
-            "ok": False,
-            "code": "WAITLIST_REQUIRED",
-            "motion_level": ml,
-            "message_key": "3d_premium_waitlist",
-        }
-    return {"ok": True, "code": "ok", "motion_level": ml}
+    if ml != "3d_premium":
+        return {"ok": True, "code": "ok", "motion_level": ml}
+    try:
+        from app.factory.studio_renderer_v2 import decide_webgl
+
+        decision = decide_webgl(niche_id, package_id)
+        if decision.enabled and str(decision.sell_reason or "").strip():
+            return {
+                "ok": True,
+                "code": "studio_3d_sells",
+                "motion_level": ml,
+                "sell_reason": decision.sell_reason,
+                "webgl_mode": decision.mode,
+            }
+    except Exception:
+        pass
+    return {
+        "ok": False,
+        "code": "WAITLIST_REQUIRED",
+        "motion_level": ml,
+        "message_key": "3d_premium_waitlist",
+    }
 
 
 def vector_motion_clarify_question(lang: str | None = "ru") -> str:
@@ -206,8 +225,7 @@ def receipt_motion_line(motion_level: str | None) -> str:
         return "Inklusive: Agency CSS-Motion-Paket aktiviert"
     if ml == "3d_premium":
         return (
-            "Hinweis: Echtes 3D (WebGL) ist Waitlist — noch nicht im Lieferumfang. "
-            "Bitte wählen Sie CSS-Motion oder Classic."
+            "Inklusive: Studio 3D Experience (WebGL) — nur wenn es den Verkauf stärkt."
         )
     return ""
 

@@ -1,0 +1,42 @@
+{
+  "niche_id": "generic",
+  "emotion": "Vertrauen",
+  "keywords": [
+    "depth",
+    "rhythm",
+    "hero presence",
+    "niche truth",
+    "modern clear · abstract gradient orbs",
+    "professioneller arbeitsort",
+    "team bei echter arbeit",
+    "deutsche alltagsszene"
+  ],
+  "avoid": [
+    "template ladder",
+    "flat white",
+    "metric PASS theater",
+    "fire_smoke",
+    "mediterranean_evening",
+    "pastel_cute",
+    "gaming_rgb",
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting"
+  ],
+  "hero_feeling": "Offenes Licht auf ruhiger Fläche",
+  "atmosphere": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "references": [
+    "Best contemporary niche studios"
+  ]
+}

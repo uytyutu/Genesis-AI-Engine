@@ -1,0 +1,91 @@
+{
+  "niche_id": "energy",
+  "subniche_id": "roof_cleaning",
+  "subniche_label": "Dachreinigung",
+  "business_model": "roof_cleaning_tech_small_team",
+  "city": "Hannover",
+  "company_name": "SolarNord Energie",
+  "who": "Photovoltaik-Team aus Hannover: saubere Planung, ehrliche Erträge, Montage ohne Chaos.",
+  "trust_why": "Nachweisbare Arbeit · Dachreinigung · Hannover",
+  "sells": "['PV-Planung', 'Montage', 'Speicher', 'Wartung']",
+  "differentiator": "Ertragsfokus, saubere Montage, Nachbetreuung",
+  "atmosphere": "tech",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Work, place, people, proof",
+  "media_brief": {
+    "hero": "Professional energy scene — European studio 2026",
+    "gallery": "Work, place, people, proof",
+    "video": "Niche atmosphere loop if provider available",
+    "before_after": "",
+    "team": "People of the company",
+    "equipment": "",
+    "atmosphere": "tech",
+    "subniche": "roof_cleaning",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "contact_form",
+      "label": "Contact Form",
+      "why": "Kern-CTA."
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "why": "Schneller Kanal."
+    },
+    {
+      "id": "map",
+      "label": "Map",
+      "why": "Lokalität."
+    },
+    {
+      "id": "reviews",
+      "label": "Reviews",
+      "why": "Social proof (Demo-label)."
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "why": "Einwände vor dem Anruf."
+    },
+    {
+      "id": "gallery",
+      "label": "Gallery",
+      "why": "Visueller Beweis."
+    },
+    {
+      "id": "before_after",
+      "label": "Before / After",
+      "why": "Sub-niche needs visual proof."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services"
+  ],
+  "style": "tech",
+  "clients_who": "Haushalte und Gewerbe in der Region Hannover",
+  "fingerprint": "5e8369766196998fbe7a",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

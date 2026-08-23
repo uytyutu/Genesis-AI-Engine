@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "product_first",
+  "package_id": "business",
+  "niche_id": "fitness",
+  "fingerprint": "b83639b02d36abbcac6459ca7caec711962a13763a36ad3d812badd4fac8545a",
+  "section_treatments": [
+    [
+      "catalog",
+      "glass"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "services",
+      "tint"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "faq",
+      "photo_band"
+    ],
+    [
+      "reviews",
+      "tint"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#1c1917",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "5fe86ac95d1f4c6666bd2fc8",
+  "border_radius_px": 12
+}

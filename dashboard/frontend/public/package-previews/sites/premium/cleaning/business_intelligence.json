@@ -1,0 +1,86 @@
+{
+  "niche_id": "cleaning",
+  "subniche_id": "residential_cleaning",
+  "subniche_label": "Reinigung",
+  "business_model": "residential_cleaning_modern_small_team_quality_over_price",
+  "city": "Köln",
+  "company_name": "KlarRaum Facility",
+  "who": "Facility-Team mit Checklisten statt Chaos — Büros und Glas, die morgens fertig sind.",
+  "trust_why": "Nachweisbare Arbeit · Reinigung · Köln",
+  "sells": "['Büroreinigung', 'Fensterreinigung', 'Unterhalt', 'Sonderreinigung']",
+  "differentiator": "Feste Ansprechpartner, transparente Touren, Qualitätskontrolle",
+  "atmosphere": "modern",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Work, place, people, proof",
+  "media_brief": {
+    "hero": "Professional cleaning scene — European studio 2026",
+    "gallery": "Work, place, people, proof",
+    "video": "Niche atmosphere loop if provider available",
+    "before_after": "",
+    "team": "People of the company",
+    "equipment": "",
+    "atmosphere": "modern",
+    "subniche": "residential_cleaning",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "contact_form",
+      "label": "Contact Form",
+      "why": "Kern-CTA."
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "why": "Schneller Kanal."
+    },
+    {
+      "id": "map",
+      "label": "Map",
+      "why": "Lokalität."
+    },
+    {
+      "id": "reviews",
+      "label": "Reviews",
+      "why": "Social proof (Demo-label)."
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "why": "Einwände vor dem Anruf."
+    },
+    {
+      "id": "gallery",
+      "label": "Gallery",
+      "why": "Visueller Beweis."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services"
+  ],
+  "style": "modern",
+  "clients_who": "KMU und Praxen in Köln",
+  "fingerprint": "7755f2cb6a54c6888c80",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

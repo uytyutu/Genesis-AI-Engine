@@ -81,7 +81,7 @@ def test_wait_until_ready_restarts_alive_not_ready(monkeypatch):
 
     t0 = 1000.0
 
-    def repair(m, root=None):
+    def repair(m, root=None, **kwargs):
         state["repaired"] = True
         state["http200"] = True
         return True, "restarted"
@@ -94,12 +94,13 @@ def test_wait_until_ready_restarts_alive_not_ready(monkeypatch):
 
     def fake_time():
         tick["n"] += 1
-        return t0 + min(tick["n"] * 0.5, 12.0)
+        # Advance past ALIVE_NOT_READY_SEC (55) without waiting real wall clock.
+        return t0 + tick["n"] * 20.0
 
     monkeypatch.setattr("launcher.processes.time.time", fake_time)
 
     ready, err = proc_mod.wait_until_ready(
-        timeout=10,
+        timeout=120,
         managed=managed,
         auto_repair=True,
     )

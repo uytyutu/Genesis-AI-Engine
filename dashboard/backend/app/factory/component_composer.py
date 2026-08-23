@@ -16,11 +16,11 @@ PROFILE_IDS = ("A", "B", "C")
 # Hero layout → compatible Component Profiles (CEO map).
 HERO_PROFILE_COMPAT: dict[str, tuple[str, ...]] = {
     "A": ("A", "C"),
-    "B": ("B",),
+    "B": ("A", "B"),  # Premium cinematic can still use glass cards (A)
     "C": ("C", "A"),
-    "D": ("B", "C"),
+    "D": ("A", "B", "C"),
     "E": ("A",),
-    "F": ("B",),
+    "F": ("A", "B"),
 }
 
 
@@ -156,7 +156,12 @@ def compose_page_sections(
     services = _CARD_RENDERERS[cards_key](
         analysis_services, service_descriptions, ui, sec
     )
-    benefits_html = _BENEFIT_RENDERERS[profile.benefits](benefits, why_title, sec)
+    clean_benefits = [b for b in (benefits or ()) if str(b).strip()]
+    benefits_html = (
+        _BENEFIT_RENDERERS[profile.benefits](clean_benefits, why_title, sec)
+        if clean_benefits
+        else ""
+    )
     faq_html = _FAQ_RENDERERS[faq_key](ui, sec) if include_faq else ""
     gallery_html = (
         _GALLERY_RENDERERS[gallery_key](gallery_paths, ui, business, sec)
@@ -197,6 +202,13 @@ def remapped_cta(html: str, *, section_id: str) -> str:
 
 # --- Family registries (extend by adding a key; no selection if/else) ----------
 
+_SVC_ICONS = ("◆", "●", "▲", "◇", "▣", "✦", "◎", "▣", "◈", "✧", "⬡", "⬢")
+
+
+def _svc_icon(i: int) -> str:
+    return f'<span class="svc-ico" aria-hidden="true">{_SVC_ICONS[i % len(_SVC_ICONS)]}</span>'
+
+
 def _cards_glass(
     services: list[str],
     descriptions: tuple[str, ...] | list[str],
@@ -206,9 +218,9 @@ def _cards_glass(
     esc = html_lib.escape
     descs = list(descriptions) + [""] * max(0, len(services) - len(descriptions))
     cards = "".join(
-        f'<li class="svc-card svc-glass"><h3>{esc(t)}</h3>'
+        f'<li class="svc-card svc-glass">{_svc_icon(i)}<h3>{esc(t)}</h3>'
         f'<p class="service-desc">{esc(d)}</p></li>'
-        for t, d in zip(services, descs)
+        for i, (t, d) in enumerate(zip(services, descs))
     )
     return f"""
   <section class="{sec} services-block" id="services" data-comp-family="cards" data-comp-variant="glass">
@@ -228,8 +240,8 @@ def _cards_solid(
     descs = list(descriptions) + [""] * max(0, len(services) - len(descriptions))
     cards = "".join(
         f'<li class="svc-card svc-solid"><span class="svc-accent" aria-hidden="true"></span>'
-        f'<h3>{esc(t)}</h3><p class="service-desc">{esc(d)}</p></li>'
-        for t, d in zip(services, descs)
+        f'{_svc_icon(i)}<h3>{esc(t)}</h3><p class="service-desc">{esc(d)}</p></li>'
+        for i, (t, d) in enumerate(zip(services, descs))
     )
     return f"""
   <section class="{sec} services-block" id="services" data-comp-family="cards" data-comp-variant="solid">
@@ -248,9 +260,9 @@ def _cards_minimal(
     esc = html_lib.escape
     descs = list(descriptions) + [""] * max(0, len(services) - len(descriptions))
     cards = "".join(
-        f'<li class="svc-card svc-minimal"><h3>{esc(t)}</h3>'
+        f'<li class="svc-card svc-minimal">{_svc_icon(i)}<h3>{esc(t)}</h3>'
         f'<p class="service-desc">{esc(d)}</p></li>'
-        for t, d in zip(services, descs)
+        for i, (t, d) in enumerate(zip(services, descs))
     )
     return f"""
   <section class="{sec} services-block" id="services" data-comp-family="cards" data-comp-variant="minimal">
@@ -269,9 +281,9 @@ def _cards_list(
     esc = html_lib.escape
     descs = list(descriptions) + [""] * max(0, len(services) - len(descriptions))
     rows = "".join(
-        f'<li class="svc-row"><h3>{esc(t)}</h3>'
+        f'<li class="svc-row">{_svc_icon(i)}<h3>{esc(t)}</h3>'
         f'<p class="service-desc">{esc(d)}</p></li>'
-        for t, d in zip(services, descs)
+        for i, (t, d) in enumerate(zip(services, descs))
     )
     return f"""
   <section class="{sec} services-block" id="services" data-comp-family="cards" data-comp-variant="list">
@@ -346,13 +358,25 @@ _BENEFIT_RENDERERS: dict[str, Callable[..., str]] = {
 
 def _faq_rounded(ui: dict[str, str], sec: str) -> str:
     esc = html_lib.escape
+    items = []
+    for i in range(1, 6):
+        q = (ui.get(f"faq_q{i}") or "").strip()
+        a = (ui.get(f"faq_a{i}") or "").strip()
+        if q and a:
+            items.append(
+                f'<article class="faq-bubble"><h3>{esc(q)}</h3><p>{esc(a)}</p></article>'
+            )
+    if not items:
+        items = [
+            f'<article class="faq-bubble"><h3>{esc(ui["faq_q1"])}</h3><p>{esc(ui["faq_a1"])}</p></article>',
+            f'<article class="faq-bubble"><h3>{esc(ui["faq_q2"])}</h3><p>{esc(ui["faq_a2"])}</p></article>',
+            f'<article class="faq-bubble"><h3>{esc(ui["faq_q3"])}</h3><p>{esc(ui["faq_a3"])}</p></article>',
+        ]
     return f"""
   <section class="{sec}" id="faq" data-comp-family="faq" data-comp-variant="rounded">
     <h2>{esc(ui['faq_title'])}</h2>
     <div class="faq-rounded">
-      <article class="faq-bubble"><h3>{esc(ui['faq_q1'])}</h3><p>{esc(ui['faq_a1'])}</p></article>
-      <article class="faq-bubble"><h3>{esc(ui['faq_q2'])}</h3><p>{esc(ui['faq_a2'])}</p></article>
-      <article class="faq-bubble"><h3>{esc(ui['faq_q3'])}</h3><p>{esc(ui['faq_a3'])}</p></article>
+      {''.join(items)}
     </div>
   </section>
 """
@@ -360,7 +384,17 @@ def _faq_rounded(ui: dict[str, str], sec: str) -> str:
 
 def _faq_twocol(ui: dict[str, str], sec: str) -> str:
     esc = html_lib.escape
-    return f"""
+    items = []
+    for i in range(1, 6):
+        q = (ui.get(f"faq_q{i}") or "").strip()
+        a = (ui.get(f"faq_a{i}") or "").strip()
+        if q and a:
+            span = " faq-span" if i == 3 and len(items) >= 2 else ""
+            items.append(
+                f'<article class="faq-panel{span}"><h3>{esc(q)}</h3><p>{esc(a)}</p></article>'
+            )
+    if not items:
+        return f"""
   <section class="{sec}" id="faq" data-comp-family="faq" data-comp-variant="twocol">
     <h2>{esc(ui['faq_title'])}</h2>
     <div class="faq-twocol">
@@ -370,17 +404,38 @@ def _faq_twocol(ui: dict[str, str], sec: str) -> str:
     </div>
   </section>
 """
+    return f"""
+  <section class="{sec}" id="faq" data-comp-family="faq" data-comp-variant="twocol">
+    <h2>{esc(ui['faq_title'])}</h2>
+    <div class="faq-twocol">
+      {''.join(items)}
+    </div>
+  </section>
+"""
 
 
 def _faq_accordion(ui: dict[str, str], sec: str) -> str:
     esc = html_lib.escape
+    items = []
+    for i in range(1, 6):
+        q = (ui.get(f"faq_q{i}") or "").strip()
+        a = (ui.get(f"faq_a{i}") or "").strip()
+        if q and a:
+            open_attr = " open" if i == 1 else ""
+            items.append(
+                f'<details class="faq-acc"{open_attr}><summary>{esc(q)}</summary><p>{esc(a)}</p></details>'
+            )
+    if not items:
+        items = [
+            f'<details class="faq-acc" open><summary>{esc(ui["faq_q1"])}</summary><p>{esc(ui["faq_a1"])}</p></details>',
+            f'<details class="faq-acc"><summary>{esc(ui["faq_q2"])}</summary><p>{esc(ui["faq_a2"])}</p></details>',
+            f'<details class="faq-acc"><summary>{esc(ui["faq_q3"])}</summary><p>{esc(ui["faq_a3"])}</p></details>',
+        ]
     return f"""
   <section class="{sec}" id="faq" data-comp-family="faq" data-comp-variant="accordion">
     <h2>{esc(ui['faq_title'])}</h2>
-    <div class="faq-accordion">
-      <details class="faq-acc" open><summary>{esc(ui['faq_q1'])}</summary><p>{esc(ui['faq_a1'])}</p></details>
-      <details class="faq-acc"><summary>{esc(ui['faq_q2'])}</summary><p>{esc(ui['faq_a2'])}</p></details>
-      <details class="faq-acc"><summary>{esc(ui['faq_q3'])}</summary><p>{esc(ui['faq_a3'])}</p></details>
+    <div class="faq-acc-wrap">
+      {''.join(items)}
     </div>
   </section>
 """
@@ -588,7 +643,10 @@ def _profile_css(profile: ComponentProfile) -> str:
       background: transparent; color: inherit; border: 2px solid currentColor;
       box-shadow: none;
     }}
-    body[data-comp-profile="{pid}"] .hero .btn-outline {{
+    /* Dark/full-bleed heroes only — light A/C/E handled by Design DNA quality floor */
+    body[data-comp-profile="{pid}"] .hero.hero-layout-B .btn-outline,
+    body[data-comp-profile="{pid}"] .hero.hero-layout-D .btn-outline,
+    body[data-comp-profile="{pid}"] .hero.hero-layout-F .btn-outline {{
       color: #fff; border-color: rgba(255,255,255,0.9);
     }}
 """

@@ -1,0 +1,260 @@
+{
+  "business": {
+    "engine": "business_analyzer_v1",
+    "business_name": "Nordlicht Atelier",
+    "business_type": "fashion",
+    "niche": "fashion",
+    "target_audience": "",
+    "city": "Berlin",
+    "market": "DE",
+    "style": "Premium",
+    "brand_tone": "",
+    "products_or_services": [
+      {
+        "name": "Ready-to-Wear",
+        "blurb": "Looks für Arbeit und Abend."
+      },
+      {
+        "name": "Outerwear",
+        "blurb": "Jacken und Mäntel mit klarer Silhouette."
+      },
+      {
+        "name": "Essentials",
+        "blurb": "Basics mit besserem Stoff."
+      },
+      {
+        "name": "Accessoires",
+        "blurb": "Taschen und Details, die den Look schließen."
+      }
+    ],
+    "cta": "Kollektion ansehen",
+    "preferred_colors": [],
+    "logo_url": "",
+    "existing_images": [],
+    "description": "Fashion Store Mode Kollektion",
+    "product_kind": "shop",
+    "invented_facts": false,
+    "notes": "Only fields supplied by the client were used.",
+    "phone": "+49 30 1122334",
+    "email": "hello@nordlicht-atelier-demo.example.de",
+    "instagram": "https://www.instagram.com/",
+    "telegram": "https://t.me/",
+    "street": "Torstraße 44",
+    "zip": "10119",
+    "accent": "#c9a27a",
+    "accent2": "#6e4b32",
+    "about_title": "Mode mit ruhiger Haltung",
+    "about_body": "Nordlicht Atelier ist ein Premium Fashion Store in Berlin — kuratierte Looks für den deutschen Alltag: klare Linien, gute Stoffe, kein Lärm. Die Kollektion wächst mit der Saison; der Shop führt vom cinematic Hero zur Produktentdeckung — und zum Kauf.",
+    "about_points": [
+      "Kuratierte Capsule statt Endloskatalog",
+      "Transparente Materialien & Größen",
+      "Schneller Versand in DE",
+      "14 Tage Rückgabe"
+    ],
+    "marketing_lines": [
+      "Nordlicht Atelier — Premium Mode aus Berlin.",
+      "Stoffe und Schnitte — Details, die halten.",
+      "Kuratierte Looks. Faire Preise. Klarer Stil.",
+      "Vom Look zur Bestellung — ohne Chaos.",
+      "Schneller Versand in Deutschland.",
+      "Kollektion entdecken — jetzt shoppen."
+    ],
+    "gallery": [
+      {
+        "src": "assets/01_store.jpg",
+        "alt": "Store",
+        "caption": "Store — ruhig, editorial."
+      },
+      {
+        "src": "assets/02_fabric.jpg",
+        "alt": "Stoff",
+        "caption": "Stoff — Bewegung und Qualität."
+      },
+      {
+        "src": "assets/03_detail.jpg",
+        "alt": "Detail",
+        "caption": "Detail — Nähte und Form."
+      },
+      {
+        "src": "assets/04_look.jpg",
+        "alt": "Look",
+        "caption": "Look — im Kontext."
+      },
+      {
+        "src": "assets/05_style.jpg",
+        "alt": "Stil",
+        "caption": "Stil — Capsule."
+      },
+      {
+        "src": "assets/06_result.jpg",
+        "alt": "Ergebnis",
+        "caption": "Ergebnis — tragbar und klar."
+      }
+    ],
+    "gallery_title": "Lookbook",
+    "gallery_lead": "Store → Stoff → Detail → Look → Stil → Ergebnis — dann die Kollektion.",
+    "shop_products": [
+      {
+        "name": "Linen Shirt",
+        "price": "89 €",
+        "image": "assets/p1.jpg"
+      },
+      {
+        "name": "City Jacket",
+        "price": "249 €",
+        "image": "assets/p2.jpg"
+      },
+      {
+        "name": "Everyday Trousers",
+        "price": "129 €",
+        "image": "assets/p3.jpg"
+      },
+      {
+        "name": "Canvas Tote",
+        "price": "69 €",
+        "image": "assets/p4.jpg"
+      }
+    ]
+  },
+  "creative": {
+    "engine": "creative_director_v1",
+    "business": "Nordlicht Atelier",
+    "city": "Berlin",
+    "niche": "fashion",
+    "niche_key": "fashion",
+    "concept": "fabric motion into shoppable collection",
+    "visual_style": "realistic premium",
+    "art_direction": {
+      "lighting": "editorial studio · soft key light",
+      "environment": "editorial studio · soft key light",
+      "subject": "Nordlicht Atelier",
+      "camera_language": "model approach · fabric motion · collection",
+      "motion": "cloth flow, look change, product cards",
+      "transition": "scroll-bound beats",
+      "cta_moment": "final beat / 100% scroll"
+    },
+    "scene_type": "image_to_video",
+    "hero_motion": "slow cinematic camera movement",
+    "cta": "Kollektion ansehen",
+    "strategy": {
+      "preferred_scene": "fabric_runway",
+      "camera": "model approach · fabric motion · collection",
+      "motion": "cloth flow, look change, product cards",
+      "environment": "editorial studio · soft key light",
+      "cta": "Shop collection",
+      "fallback": [
+        "IMAGE_SCROLL",
+        "STATIC_HERO"
+      ],
+      "aspect": "16:9",
+      "duration_target_sec": 10,
+      "commerce_path": [
+        "hero",
+        "collection",
+        "products",
+        "pdp",
+        "cart"
+      ],
+      "niche_key": "fashion"
+    },
+    "commerce_path": [
+      "hero",
+      "collection",
+      "products",
+      "pdp",
+      "cart"
+    ]
+  },
+  "scene": {
+    "engine": "scene_director_v1",
+    "scene_type": "product_reveal",
+    "scene_title": "Product cinematic — Nordlicht Atelier",
+    "business_name": "Nordlicht Atelier",
+    "city": "Berlin",
+    "niche": "fashion",
+    "style": "premium",
+    "product_kind": "shop",
+    "preferred_capability": "IMAGE_TO_VIDEO",
+    "fallback": [
+      "TEXT_TO_VIDEO",
+      "WEBGL_PROCEDURAL"
+    ],
+    "beats": [
+      {
+        "scroll": 0.0,
+        "action": "studio_dark"
+      },
+      {
+        "scroll": 0.2,
+        "action": "product_enters"
+      },
+      {
+        "scroll": 0.4,
+        "action": "detail_orbit"
+      },
+      {
+        "scroll": 0.65,
+        "action": "lifestyle_context"
+      },
+      {
+        "scroll": 0.85,
+        "action": "catalog_grid"
+      },
+      {
+        "scroll": 1.0,
+        "action": "buy_cta"
+      }
+    ],
+    "shots": [
+      {
+        "shot": 1,
+        "scroll": 0.0,
+        "action": "studio_dark",
+        "title": "Studio Dark"
+      },
+      {
+        "shot": 2,
+        "scroll": 0.2,
+        "action": "product_enters",
+        "title": "Product Enters"
+      },
+      {
+        "shot": 3,
+        "scroll": 0.4,
+        "action": "detail_orbit",
+        "title": "Detail Orbit"
+      },
+      {
+        "shot": 4,
+        "scroll": 0.65,
+        "action": "lifestyle_context",
+        "title": "Lifestyle Context"
+      },
+      {
+        "shot": 5,
+        "scroll": 0.85,
+        "action": "catalog_grid",
+        "title": "Catalog Grid"
+      },
+      {
+        "shot": 6,
+        "scroll": 1.0,
+        "action": "buy_cta",
+        "title": "Buy Cta"
+      }
+    ],
+    "scroll_binding": "video_progress = scroll_percent",
+    "note": "Specification only — no media generated"
+  },
+  "scroll": {},
+  "posters": [
+    "assets/01_store.jpg",
+    "assets/02_fabric.jpg",
+    "assets/03_detail.jpg",
+    "assets/04_look.jpg",
+    "assets/05_style.jpg",
+    "assets/06_result.jpg"
+  ],
+  "kind": "shop",
+  "craft_cinema": true
+}

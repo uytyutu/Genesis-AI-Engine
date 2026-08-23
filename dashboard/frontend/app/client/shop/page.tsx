@@ -1,82 +1,196 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ClientWorkspaceShell } from "../../components/ClientWorkspaceShell";
+import { getClientToken } from "../../lib/clientAuth";
+import { publicApiBase } from "../../lib/publicApiBase";
+import { portalFetchAllow404 } from "../../lib/portalApi";
 import {
-  HUB_AGENCY_SERVICE_IDS,
-  SERVICE_SPECS,
-  getServiceSpec,
-} from "../../lib/serviceOrderSpecs";
+  MARKETPLACE_LIVE,
+  MARKETPLACE_SOON,
+  marketplaceHref,
+  resolveMarketplaceBadge,
+  signalsFromOrdersAndProducts,
+  type MarketplaceBadge,
+  type MarketplaceServiceDef,
+} from "../../lib/clientServiceMarketplace";
+
+type OrderRow = {
+  package_id?: string;
+  product_kind?: string;
+  status?: string;
+  published_at?: string;
+};
+
+type ProductRow = {
+  product_type?: string;
+  product_id?: string;
+};
+
+function badgeLabel(b: MarketplaceBadge): string {
+  if (b === "active") return "Active";
+  if (b === "activate") return "Activate";
+  return "Coming Soon";
+}
+
+function badgeClass(b: MarketplaceBadge): string {
+  if (b === "active")
+    return "border-emerald-500/40 bg-emerald-950/40 text-emerald-200";
+  if (b === "activate")
+    return "border-sky-500/40 bg-sky-950/30 text-sky-100";
+  return "border-white/10 bg-white/5 text-zinc-400";
+}
+
+function ctaLabel(badge: MarketplaceBadge, def: MarketplaceServiceDef): string {
+  if (badge === "coming_soon") return "Coming Soon";
+  if (badge === "active") return "Открыть →";
+  if (def.ctaKind === "order") return "Заказать →";
+  return "Activate →";
+}
+
+function ServiceRow({
+  def,
+  badge,
+}: {
+  def: MarketplaceServiceDef;
+  badge: MarketplaceBadge;
+}) {
+  const href = marketplaceHref(def, badge);
+  return (
+    <li className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="text-lg font-semibold text-white">
+            <span className="mr-2" aria-hidden>
+              {def.icon}
+            </span>
+            {def.name}
+          </p>
+          {def.priceHint ? (
+            <p className="mt-1 text-base font-semibold text-emerald-200/95">{def.priceHint}</p>
+          ) : null}
+        </div>
+        <span
+          className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${badgeClass(badge)}`}
+        >
+          {badgeLabel(badge)}
+        </span>
+      </div>
+      <p className="mt-2 text-sm text-genesis-muted">{def.blurb}</p>
+      {(def.includes || []).length > 0 ? (
+        <ul className="mt-3 space-y-1 text-sm text-zinc-300">
+          {(def.includes || []).map((line) => (
+            <li key={line} className="flex gap-2">
+              <span className="text-emerald-400" aria-hidden>
+                ✓
+              </span>
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <div className="mt-4">
+        {badge === "coming_soon" || !href ? (
+          <span className="inline-flex min-h-[40px] items-center rounded-xl border border-white/10 px-4 text-sm text-zinc-500">
+            Coming Soon
+          </span>
+        ) : (
+          <Link
+            href={href}
+            className={
+              badge === "active"
+                ? "inline-flex min-h-[40px] items-center rounded-xl border border-emerald-400/40 px-4 text-sm font-semibold text-emerald-100 hover:bg-emerald-950/40"
+                : "inline-flex min-h-[40px] items-center rounded-xl bg-emerald-500 px-4 text-sm font-semibold text-black hover:brightness-110"
+            }
+          >
+            {ctaLabel(badge, def)}
+          </Link>
+        )}
+      </div>
+    </li>
+  );
+}
 
 export default function ClientShopPage() {
-  const agency = HUB_AGENCY_SERVICE_IDS.map((id) => getServiceSpec(id)!).filter(
-    Boolean,
+  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [products, setProducts] = useState<ProductRow[]>([]);
+
+  const load = useCallback(async () => {
+    const token = getClientToken();
+    const api = publicApiBase();
+    if (token) {
+      try {
+        const res = await fetch(`${api}/api/client/orders`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
+        if (res.ok) {
+          const body = await res.json();
+          if (Array.isArray(body?.orders)) setOrders(body.orders);
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    try {
+      const owned = await portalFetchAllow404<ProductRow[]>("/portal/my-products");
+      if (Array.isArray(owned)) setProducts(owned);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const signals = useMemo(
+    () => signalsFromOrdersAndProducts({ orders, products }),
+    [orders, products],
   );
-  const core = SERVICE_SPECS.filter((s) =>
-    ["landing_website", "ai_business_bot"].includes(s.id),
+
+  const liveRows = useMemo(
+    () =>
+      MARKETPLACE_LIVE.map((def) => ({
+        def,
+        badge: resolveMarketplaceBadge(def, signals),
+      })),
+    [signals],
   );
 
   return (
     <ClientWorkspaceShell
-      title="Магазин услуг"
-      subtitle="Website Services и сайты — заказ через форму, результат в кабинете."
+      title="Service Marketplace"
+      subtitle="Витрина услуг Virtus Core — подключайте по мере роста. CRM и Gen2 — Coming Soon."
     >
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200/80">
-        Core
+      <p className="mb-6 max-w-2xl text-sm text-zinc-400">
+        После сайта можно подключить магазин, аналитику, SEO, Digital Employee и
+        другие сервисы. Activate ведёт на заказ или настройку. Coming Soon — после
+        Public Launch (Gen2).
       </p>
-      <ul className="mb-8 grid gap-3 sm:grid-cols-2">
-        {core.map((c) => (
-          <li
-            key={c.id}
-            className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <p className="text-lg font-semibold text-white">{c.name}</p>
-              <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-emerald-200">
-                Live
-              </span>
-            </div>
-            <p className="mt-1 text-sm font-medium text-emerald-200/90">
-              {c.price_label}
-            </p>
-            <p className="mt-2 flex-1 text-sm text-zinc-400">{c.blurb}</p>
-            <Link
-              href={c.href}
-              className="mt-4 inline-flex rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-black"
-            >
-              Заказать
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200/80">
-        Website Services
-      </p>
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {agency.map((c) => (
-          <li
-            key={c.id}
-            className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-          >
-            <p className="text-base font-semibold text-white">{c.name}</p>
-            <p className="mt-1 text-sm font-medium text-emerald-200/90">
-              {c.price_label}
-            </p>
-            <p className="mt-2 text-xs text-zinc-500">{c.timeline}</p>
-            <ul className="mt-2 space-y-1 text-xs text-zinc-400">
-              {c.includes.slice(0, 4).map((line) => (
-                <li key={line}>✓ {line}</li>
-              ))}
-            </ul>
-            <Link
-              href={`${c.href}${c.href.includes("?") ? "&" : "?"}form=1`}
-              className="mt-4 inline-flex rounded-xl border border-emerald-400/40 px-3 py-2 text-sm text-emerald-100 hover:bg-emerald-950/40"
-            >
-              Заказать →
-            </Link>
-          </li>
-        ))}
-      </ul>
+
+      <section className="mb-10">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300/80">
+          Services
+        </h2>
+        <ul className="grid gap-4 sm:grid-cols-2">
+          {liveRows.map(({ def, badge }) => (
+            <ServiceRow key={def.id} def={def} badge={badge} />
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500">
+          Coming Soon · Gen2
+        </h2>
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {MARKETPLACE_SOON.map((def) => (
+            <ServiceRow key={def.id} def={def} badge="coming_soon" />
+          ))}
+        </ul>
+      </section>
     </ClientWorkspaceShell>
   );
 }

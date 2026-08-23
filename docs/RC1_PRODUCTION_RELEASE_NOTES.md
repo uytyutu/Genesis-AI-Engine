@@ -22,6 +22,32 @@
 
 **Do not open G3.2** until Release Approved (or CEO explicitly reopens Evolution scope).
 
+### Launch smoke (does not change HOLD)
+
+| Check | Result |
+|-------|--------|
+| `verify_release.py` | ✅ exit 0 |
+| Launcher window | ✅ |
+| Backend `/api/status` | ✅ |
+| Basic start chain | ✅ RC1 tip is not launch-broken |
+
+`verify_release` / launch smoke neither clear HOLD nor worsen it.
+
+### Maintenance issue (not a release blocker)
+
+```text
+Issue:     Launcher / tkinter threading warning
+           RuntimeError: main thread is not in main loop
+Severity:  Low
+Blocks Release: No
+Recommended: Investigate after RC1 release or during launcher maintenance.
+```
+
+Do **not** spend RC HOLD time on tkinter. Priority until **Release Approved**:
+1. Full pytest green (1226 PASS / 44 FAIL → 0 FAIL)
+2. Clean working tree (or WIP on a separate branch)
+3. CEO **🟢 Release Approved** → first production push
+
 ---
 
 ## What is in Production (this RC)
@@ -70,9 +96,9 @@ Ticket → Analysis → Proposal → Owner Approve → Rule Candidate → Owner 
 | 3a. Security Regression Suite | ✅ PASS | `scripts/s1_security_regression_suite.py` → **4/4** |
 | 3b. Milestone pack (S1 + G2.3 + G3.1) | ✅ PASS | **49** tests passed |
 | 3c. Full backend pytest | ❌ FAIL | **1226 passed · 44 failed** (see debt below) |
-| 3d. `verify_release.py` | ⚠ incomplete | Hung / tkinter thread error in agent environment; not used as PASS |
+| 3d. `verify_release.py` | ✅ exit 0 (launch smoke) | Does not clear HOLD; tkinter thread warning = Low, non-blocking |
 | 4. Release Notes | ✅ this file | |
-| 5. Push decision | ⏸ HOLD | Do not push until CEO accepts HOLD items |
+| 5. Push decision | ⏸ HOLD | Dirty tree + 44 pytest failures only |
 
 ### Dirty tree (must stay out of push)
 

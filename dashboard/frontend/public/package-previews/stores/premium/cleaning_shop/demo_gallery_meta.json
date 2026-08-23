@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "cleaning_shop",
+  "package_id": "premium",
+  "category": "cleaning",
+  "store_name": "FrischMittel Profi",
+  "generated_at": "2026-08-08T16:20:05.099900+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 43136,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/cleaning_shop/catalog.html"
+}

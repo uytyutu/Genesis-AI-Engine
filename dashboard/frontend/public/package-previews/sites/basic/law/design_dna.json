@@ -1,0 +1,72 @@
+{
+  "emotion": "trust",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "newsreader_public",
+  "motion": "soft",
+  "hero_concept": "trust_panel",
+  "hero_layout": "C",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "clean",
+  "package_id": "basic",
+  "niche_id": "law",
+  "fingerprint": "c6ec362d39d76d40f2ad3fe1e121a31e8f8502e9ab2296e7b6497d57286ecce0",
+  "section_treatments": [
+    [
+      "stats",
+      "illustration"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "glass"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "showcase",
+      "gradient"
+    ],
+    [
+      "gallery",
+      "illustration"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "tint"
+    ],
+    [
+      "maps",
+      "glass"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f3f6f4",
+  "ink_hex": "#243029"
+}

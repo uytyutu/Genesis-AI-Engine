@@ -16,6 +16,7 @@ Scan cadence: every 6 hours (state-driven; also manual POST /scan).
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -132,11 +133,61 @@ _PLATFORM_SEED: list[dict[str, Any]] = [
         "api_receive_payout": True,
         "automation_pct": 90,
         "tos_automation": "allowed_as_seller",
+        "env_key": "RAPIDAPI_KEY",
         "reason_ru": (
             "Не биржа задач: клиенты вызывают ваш API → выплата провайдеру. "
             "Близко к Commercial API Virtus (Audit), не к Toloka-worker."
         ),
-        "next_ru": "Усилить API Products (seo-report / translate) — уже наш контур.",
+        "next_ru": (
+            "Ключ RAPIDAPI_KEY — в env. Candidate: не строить Worker Adapter до "
+            "решения CEO (seller API vs worker). Усилить API Products при Approve."
+        ),
+    },
+    {
+        "id": "orbofi_experimental",
+        "name": "Orbofi (AI agents / tokens)",
+        "verdict": "candidate",
+        "stars": 2,
+        "api_get_task": False,
+        "api_submit_result": False,
+        "api_receive_payout": False,
+        "automation_pct": 20,
+        "tos_automation": "needs_review",
+        "env_key": "ORBOFI_KEY",
+        "experimental": True,
+        "reason_ru": (
+            "Experimental — не смешивать с ядром Virtus Core / Work Farm. "
+            "Доход только если агент реально используется в экосистеме Orbofi; "
+            "ключ ≠ автозаработок. 100 стартовых монет — бонус платформы, не прибыль."
+        ),
+        "next_ru": (
+            "Research Lab → Orbofi Integration (Experimental). Сначала 3 проверки: "
+            "(1) какие функции даёт API; (2) можно ли создавать/публиковать агентов; "
+            "(3) есть ли статистика и начисления. Без PASS — не строить бизнес-модель."
+        ),
+    },
+    {
+        "id": "orbofi_experimental",
+        "name": "Orbofi (AI agents / tokens)",
+        "verdict": "candidate",
+        "stars": 2,
+        "api_get_task": False,
+        "api_submit_result": False,
+        "api_receive_payout": False,
+        "automation_pct": 20,
+        "tos_automation": "needs_review",
+        "env_key": "ORBOFI_KEY",
+        "experimental": True,
+        "reason_ru": (
+            "Experimental — не смешивать с ядром Virtus Core / Work Farm. "
+            "Доход только если агент реально используется в экосистеме Orbofi; "
+            "ключ ≠ автозаработок. 100 стартовых монет — бонус платформы, не прибыль."
+        ),
+        "next_ru": (
+            "Research Lab → Orbofi Integration (Experimental). Сначала 3 проверки: "
+            "(1) какие функции даёт API; (2) можно ли создавать/публиковать агентов; "
+            "(3) есть ли статистика и начисления. Без PASS — не строить бизнес-модель."
+        ),
     },
     {
         "id": "digistore_affiliate",
@@ -481,6 +532,13 @@ class WorkerResearchLab:
         state = self._load_state()
         platforms = list((state.get("platforms") or {}).values())
         platforms = [p for p in platforms if isinstance(p, dict)]
+        for p in platforms:
+            env_name = str(p.get("env_key") or "").strip()
+            if env_name:
+                p["env_key_present"] = bool(os.getenv(env_name, "").strip())
+            elif str(p.get("id") or "") == "rapidapi_provider":
+                p["env_key"] = "RAPIDAPI_KEY"
+                p["env_key_present"] = bool(os.getenv("RAPIDAPI_KEY", "").strip())
         platforms.sort(key=lambda p: (-int(p.get("stars") or 0), str(p.get("name"))))
         working = [p for p in platforms if p.get("verdict") == "working"]
         candidates = [p for p in platforms if p.get("verdict") in ("candidate", "partial")]

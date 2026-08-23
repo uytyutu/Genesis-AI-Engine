@@ -25,6 +25,8 @@ export type OrderDraftPayload = {
   packageId: string;
   manualPackage: boolean;
   brandStyle: string;
+  /** website | shop | ai | other */
+  projectType: string;
   businessName: string;
   description: string;
   companyWebsite: string;

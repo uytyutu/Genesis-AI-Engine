@@ -21,6 +21,32 @@ def _f(v: Any, default: float = 0.0) -> float:
         return default
 
 
+def _farm_stub() -> dict[str, Any]:
+    """Placeholder so Today Focus / Health paint without Opire panel cost."""
+    return {
+        "ok": True,
+        "deferred": True,
+        "scanned": 0,
+        "high_roi": 0,
+        "approved": 0,
+        "executed": 0,
+        "draft_pr": 0,
+        "merged": 0,
+        "confirmed_usd": 0.0,
+        "payout_usd": 0.0,
+        "paid_count": 0,
+        "win_rate": None,
+        "avg_hours": None,
+        "avg_earn_usd": None,
+        "learning_closed": 0,
+        "execution_success": {},
+        "avg_execution_s": None,
+        "finish_line": ["Approve", "Draft PR", "Merge", "Payout Confirmed"],
+        "next_unlock_ru": "Polar / Algora — после Payout Confirmed",
+        "bottleneck_ru": None,
+    }
+
+
 def _farm_snapshot(memory_dir: Path) -> dict[str, Any]:
     """Lightweight Farm KPIs — no live Opire rescan (use cached state)."""
     try:
@@ -171,7 +197,7 @@ def _virtus_snapshot(
     }
 
 
-def _company_snapshot(memory_dir: Path) -> dict[str, Any]:
+def _company_snapshot(memory_dir: Path, *, light: bool = False) -> dict[str, Any]:
     from app.integration.launch_readiness import build_launch_readiness
 
     launch = build_launch_readiness(memory_dir)
@@ -194,19 +220,37 @@ def _company_snapshot(memory_dir: Path) -> dict[str, Any]:
     gwt_total = max(1, len(golden.get("blockers") or []))
     gwt_pct = 100 if str(golden.get("status") or "").upper() == "PASS" else round(100.0 * gwt_done / gwt_total)
 
-    try:
-        from app.integration.demo_gallery_audit import build_demo_gallery_snapshot
+    if light:
+        demo_gallery = {"ok": True, "status": "deferred", "deferred": True}
+        commercial_acceptance = {"ok": True, "status": "deferred", "deferred": True}
+        factory_metrics = {"ok": True, "deferred": True, "avg_total_e2e_s": None}
+    else:
+        try:
+            from app.integration.demo_gallery_audit import build_demo_gallery_snapshot
 
-        demo_gallery = build_demo_gallery_snapshot(memory_dir)
-    except Exception as exc:  # noqa: BLE001
-        demo_gallery = {"ok": False, "status": "FAIL", "error": str(exc)[:160]}
+            demo_gallery = build_demo_gallery_snapshot(memory_dir)
+        except Exception as exc:  # noqa: BLE001
+            demo_gallery = {"ok": False, "status": "FAIL", "error": str(exc)[:160]}
 
-    try:
-        from app.integration.factory_metrics import summary as factory_metrics_summary
+        try:
+            from app.integration.commercial_acceptance_gate import (
+                build_commercial_acceptance_gate,
+            )
 
-        factory_metrics = factory_metrics_summary(memory_dir, limit=100)
-    except Exception as exc:  # noqa: BLE001
-        factory_metrics = {"ok": False, "error": str(exc)[:160]}
+            commercial_acceptance = build_commercial_acceptance_gate()
+        except Exception as exc:  # noqa: BLE001
+            commercial_acceptance = {
+                "ok": False,
+                "status": "FAIL",
+                "error": str(exc)[:160],
+            }
+
+        try:
+            from app.integration.factory_metrics import summary as factory_metrics_summary
+
+            factory_metrics = factory_metrics_summary(memory_dir, limit=100)
+        except Exception as exc:  # noqa: BLE001
+            factory_metrics = {"ok": False, "error": str(exc)[:160]}
 
     return {
         "ok": True,
@@ -218,6 +262,7 @@ def _company_snapshot(memory_dir: Path) -> dict[str, Any]:
         "ads_allowed": bool(golden.get("ads_allowed")),
         "golden_website_test": golden,
         "demo_gallery": demo_gallery,
+        "commercial_acceptance": commercial_acceptance,
         "factory_metrics": factory_metrics,
         "phase": launch.get("phase"),
         "next": launch.get("next"),
@@ -842,11 +887,18 @@ def build_ceo_executive_dashboard(
     memory_dir: Path,
     *,
     finance: dict[str, Any] | None = None,
+    include_deployment: bool = False,
+    stage: str = "core",
 ) -> dict[str, Any]:
+    """
+    stage=core  — Today Focus + Health + Virtus fast path (≤2s target)
+    stage=full  — includes live Farm panel + heavy company audits
+    """
     root = Path(memory_dir)
+    light = str(stage or "core").strip().lower() != "full"
     virtus = _virtus_snapshot(root, finance=finance)
-    farm = _farm_snapshot(root)
-    company = _company_snapshot(root)
+    farm = _farm_stub() if light else _farm_snapshot(root)
+    company = _company_snapshot(root, light=light)
     today = _today_focus(virtus, farm, company)
     first_euro = _first_real_euro(root, finance=finance, farm=farm)
     health = _dashboard_health(
@@ -866,20 +918,108 @@ def build_ceo_executive_dashboard(
         health=health,
     )
 
-    try:
-        from app.integration.frontend_deployment_status import (
-            build_frontend_deployment_status,
-        )
+    # RC1: SSH/DNS/HTTP deployment probes must NOT block morning CEO open.
+    # Live probe: GET /api/owner/deployment-manager (lazy from UI).
+    if include_deployment:
+        try:
+            from app.integration.deployment_manager import build_deployment_manager
 
-        frontend_deployment = build_frontend_deployment_status()
-    except Exception as exc:  # noqa: BLE001
+            deployment_manager = build_deployment_manager()
+            deployment_inspector = deployment_manager.get("inspector") or {}
+            frontend_deployment = deployment_inspector.get("legacy_card") or {
+                "id": "frontend_deployment",
+                "title": "Frontend Deployment",
+                "status": deployment_manager.get("status") or "unknown",
+                "mark": deployment_manager.get("mark") or "🟡",
+                "detail_ru": deployment_manager.get("explanation_ru") or "",
+                "deploy": "UNKNOWN",
+            }
+            if isinstance(frontend_deployment, dict):
+                frontend_deployment = {
+                    **frontend_deployment,
+                    "inspector_status": deployment_inspector.get("status"),
+                    "manager_status": deployment_manager.get("status"),
+                    "explanation_ru": deployment_manager.get("explanation_ru"),
+                    "actions": deployment_manager.get("actions") or [],
+                }
+        except Exception as exc:  # noqa: BLE001
+            deployment_manager = {
+                "id": "deployment_manager",
+                "title": "Deployment Manager",
+                "status": "unknown",
+                "mark": "🟡",
+                "explanation_ru": f"manager failed: {type(exc).__name__}",
+                "actions": [],
+                "policy": {"production": "ovh", "preview": "vercel"},
+            }
+            try:
+                from app.integration.deployment_inspector import build_deployment_inspector
+
+                deployment_inspector = build_deployment_inspector()
+                frontend_deployment = deployment_inspector.get("legacy_card") or {
+                    "id": "frontend_deployment",
+                    "status": "unknown",
+                    "mark": "🟡",
+                    "detail_ru": str(exc),
+                    "deploy": "UNKNOWN",
+                }
+            except Exception as exc2:  # noqa: BLE001
+                deployment_inspector = {
+                    "id": "deployment_inspector",
+                    "status": "unknown",
+                    "mark": "🟡",
+                    "explanation_ru": f"inspector failed: {type(exc2).__name__}",
+                    "actions": [],
+                }
+                frontend_deployment = {
+                    "id": "frontend_deployment",
+                    "title": "Frontend Deployment",
+                    "status": "unknown",
+                    "mark": "🟡",
+                    "detail_ru": f"deploy check failed: {type(exc).__name__}",
+                    "deploy": "UNKNOWN",
+                }
+    else:
+        deployment_manager = {
+            "id": "deployment_manager",
+            "title": "Deployment Manager",
+            "status": "deferred",
+            "mark": "🟡",
+            "explanation_ru": (
+                "Live OVH/SSH probe загружается отдельно — не блокирует утренний пульт. "
+                "Откройте карточку или GET /api/owner/deployment-manager."
+            ),
+            "actions": [
+                {
+                    "id": "load_live",
+                    "label_ru": "Проверить production (live)",
+                    "href": "/api/owner/deployment-manager",
+                }
+            ],
+            "policy": {
+                "production": "ovh",
+                "preview": "vercel",
+                "chain_ru": "Local → Vercel Preview → OVH Production",
+            },
+            "deferred": True,
+        }
+        deployment_inspector = {
+            "id": "deployment_inspector",
+            "title": "Deployment Inspector",
+            "status": "deferred",
+            "mark": "🟡",
+            "explanation_ru": "Deferred — see Deployment Manager live endpoint.",
+            "actions": [],
+            "deferred": True,
+        }
         frontend_deployment = {
             "id": "frontend_deployment",
             "title": "Frontend Deployment",
-            "status": "unknown",
+            "status": "deferred",
             "mark": "🟡",
-            "detail_ru": f"deploy check failed: {type(exc).__name__}",
-            "deploy": "UNKNOWN",
+            "detail_ru": "Deferred for CEO Dashboard speed.",
+            "deploy": "DEFERRED",
+            "deferred": True,
         }
 
     return {
@@ -902,6 +1042,8 @@ def build_ceo_executive_dashboard(
                 "Opire cycle → Payout",
             ],
         },
+        "deployment_manager": deployment_manager,
+        "deployment_inspector": deployment_inspector,
         "frontend_deployment": frontend_deployment,
         "virtus": virtus,
         "farm": farm,
@@ -943,5 +1085,12 @@ def build_ceo_executive_dashboard(
             ],
             "sink_ru": "Все подтверждённые деньги → REAL Ledger (Financial Truth).",
         },
+        "stage": "core" if light else "full",
         "updated_at": _now(),
     }
+
+
+def build_ceo_farm_section(memory_dir: Path) -> dict[str, Any]:
+    """Lazy Farm KPIs for CEO Dashboard after first paint."""
+    farm = _farm_snapshot(Path(memory_dir))
+    return {"ok": True, "farm": farm, "updated_at": _now()}

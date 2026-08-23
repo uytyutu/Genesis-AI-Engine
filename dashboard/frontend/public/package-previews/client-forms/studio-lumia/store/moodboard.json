@@ -1,0 +1,45 @@
+{
+  "niche_id": "beauty",
+  "emotion": "Ruhe",
+  "keywords": [
+    "depth",
+    "rhythm",
+    "hero presence",
+    "niche truth",
+    "atelier light · abstract gradient orbs",
+    "professioneller arbeitsort",
+    "team bei echter arbeit",
+    "deutsche alltagsszene"
+  ],
+  "avoid": [
+    "template ladder",
+    "flat white",
+    "metric PASS theater",
+    "family_care",
+    "gaming",
+    "neon_sale",
+    "grid_amazon",
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting",
+    "neon salon",
+    "pink glitter stock",
+    "waiting room chairs row"
+  ],
+  "hero_feeling": "Helles Atelierlicht — ruhige Hände, kein Neon-Salon",
+  "atmosphere": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "references": [
+    "Best contemporary niche studios"
+  ]
+}

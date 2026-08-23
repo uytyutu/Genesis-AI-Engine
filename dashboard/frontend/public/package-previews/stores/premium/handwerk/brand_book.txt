@@ -1,0 +1,131 @@
+BRAND BOOK
+Brand Name
+Werkstatt Direkt
+
+Positioning
+Solides Handwerk mit klarer Haltung
+
+Brand Archetype
+The Craftsman
++
+The Expert
+
+Brand Promise
+Arbeit, die hält — und sich sehen lassen kann.
+
+Core Emotion
+Vertrauen
+
+Secondary Emotion
+Handwerklicher Stolz
+
+Tone of Voice
+  Direkt
+  Ehrlich
+  Kompetent
+  Bodenständig
+
+Visual Style
+Craft Modern · soft 3D product icons
+
+Visual Metaphor
+Werkstattlicht auf sauberem Werkzeug
+
+Photography
+  Baustelle innen
+  Fliesenverlegung
+  Handwerker in Arbeitskleidung
+  Bodenverlegung
+  Küchenmontage
+  Treppenbau
+  Werkzeugwand
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+
+Motion
+kinetic micro-motion · glow pulse · scroll scenes
+
+Palette
+Charcoal, Steel, Ochre, Warm White
+Accent #b45309
+Surface #eee4dc
+Ink #f4f6f8
+
+Typography
+Oswald
++
+Figtree
+(oswald_figtree_craft)
+
+Icon Style
+filled craft glyphs
+
+Border Radius
+10 px
+
+Shadow Style
+Soft Deep
+
+Glass Level
+medium
+
+Texture
+  Holz
+  Metall
+  Beton
+
+Scene Language
+  Baustelle innen
+  Fliesenverlegung
+  Handwerker in Arbeitskleidung
+
+CTA Style
+Klare Buttons · Keine Hektik
+
+Trust Strategy
+  Meister
+  Referenzen
+  Garantie
+
+Atmosphere Mode
+dusk
+
+MEDIA DNA
+Required
+✔ Workshop
+✔ Tools
+✔ Material
+✔ Hands at work
+
+Preferred
+✔ Work light
+✔ Bench
+✔ Craft detail
+
+Forbidden
+✖ Café
+✖ Office
+✖ Beauty
+✖ Laptop
+✖ Coworking
+
+Hero Proof
+Craftsperson at the bench or on site with tools — daily work, not décor.
+
+Fingerprint
+1862890eceaa65bc0c385979
+

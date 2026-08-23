@@ -1,0 +1,63 @@
+{
+  "brand_name": "NetzKlar IT",
+  "niche_id": "computer",
+  "fingerprint": "49eaa56e6b69bb6f5348",
+  "color": {
+    "primary": "#0a0e1c",
+    "accent": "#31750d",
+    "secondary": "#77b15d",
+    "surface": "#dce0ee",
+    "cards": "#d6dcec",
+    "background": "#0a0e1c",
+    "gradient": "linear-gradient(145deg,#0a0e1c 0%,#183a06 48%,#31750d 100%)",
+    "glow": "rgba(49,117,13,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "editorial_photo",
+    "minimal_illustration",
+    "abstract_gradient",
+    "premium_business_graphic"
+  ],
+  "illustration_pack": "glassmorphism panels",
+  "motion_language": "cinematic parallax · soft reveal · magnetic CTA",
+  "icon_style": "minimal stroke set",
+  "scene_library": {
+    "hero": [
+      "geöffneter Laptop",
+      "Diagnose-Monitor",
+      "IT-Werkbank"
+    ],
+    "gallery": [
+      "Mainboard-Reparatur",
+      "Datenrettung",
+      "Kundenübergabe Notebook"
+    ],
+    "team": [
+      "Techniker mit ESD-Armband"
+    ],
+    "equipment": [
+      "Lötkolbenstation",
+      "Diagnose-PC"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «NetzKlar IT» (computer) in Germany. Role=hero. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: geöffneter Laptop, Diagnose-Monitor, IT-Werkbank. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «NetzKlar IT» (computer) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=glassmorphism panels. Must show: geöffneter Laptop, Diagnose-Monitor, IT-Werkbank. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «NetzKlar IT» (computer) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: Mainboard-Reparatur, Datenrettung, Kundenübergabe Notebook. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «NetzKlar IT» (computer) in Germany. Role=before_after. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: Mainboard-Reparatur, Datenrettung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «NetzKlar IT» (computer) in Germany. Role=team. Medium=minimal_illustration. Illustration language=glassmorphism panels. Must show: Techniker mit ESD-Armband. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «NetzKlar IT» (computer) in Germany. Role=equipment. Medium=minimal_illustration. Illustration language=glassmorphism panels. Must show: Lötkolbenstation, Diagnose-PC. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «NetzKlar IT» (computer) in Germany. Role=projects. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: Kundenübergabe Notebook. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «NetzKlar IT» (computer) in Germany. Role=illustration. Medium=minimal_illustration. Illustration language=glassmorphism panels. Must show: geöffneter Laptop, Diagnose-Monitor. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «NetzKlar IT» (computer) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=glassmorphism panels. Must show: minimal stroke set. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «NetzKlar IT» (computer) in Germany. Role=video_storyboard. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: geöffneter Laptop, Diagnose-Monitor, IT-Werkbank. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

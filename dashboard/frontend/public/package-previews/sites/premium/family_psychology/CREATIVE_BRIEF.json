@@ -1,0 +1,15 @@
+{
+  "brand_name": "NestKlar Familienpraxis",
+  "niche_id": "family_psychology",
+  "package_id": "premium",
+  "media_mode": "editorial_soft",
+  "visual_metaphor": "Warm family room",
+  "hero_concept": "Warm family room | NestKlar Familienpraxis",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": true,
+  "experience_tier": "cinematic",
+  "fingerprint": "554f35d6591dad14130a",
+  "image_prompt": "NestKlar Familienpraxis family_psychology brand hero, Warm family room, European studio, media_mode=editorial_soft, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

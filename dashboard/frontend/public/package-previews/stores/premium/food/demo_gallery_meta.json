@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "food",
+  "package_id": "premium",
+  "category": "food",
+  "store_name": "FeinKost Food",
+  "generated_at": "2026-08-08T16:19:50.580904+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 42815,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/food/catalog.html"
+}

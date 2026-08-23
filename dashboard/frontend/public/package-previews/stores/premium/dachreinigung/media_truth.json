@@ -1,0 +1,53 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Roof",
+      "Water",
+      "Sky",
+      "Drone",
+      "Height",
+      "Worker",
+      "Equipment"
+    ],
+    "preferred": [
+      "Morning light",
+      "Clouds",
+      "Wet tiles",
+      "Family house",
+      "Gutter",
+      "Safety harness"
+    ],
+    "forbidden": [
+      "Café",
+      "Restaurant",
+      "Office",
+      "Beauty",
+      "Laptop",
+      "Coworking",
+      "Abstract business",
+      "Coffee smile stock"
+    ],
+    "hero_proof": "Worker in safety harness cleaning a wet roof after rain — not a pretty empty roof, not a café.",
+    "profession_keywords": [
+      "roof",
+      "dach",
+      "tile",
+      "ziegel",
+      "gutter",
+      "rinne",
+      "moss",
+      "moos",
+      "harness",
+      "ladder",
+      "drone",
+      "height",
+      "water",
+      "rain"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [],
+  "rebuilds": [],
+  "ok": true
+}

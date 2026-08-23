@@ -1,0 +1,39 @@
+{
+  "stage": "creative_identity",
+  "naming": "Creative Identity — not Concept",
+  "before_html": true,
+  "era": "Virtus Core Studio Era",
+  "sprint": "Creative Identity Generation",
+  "theme": "Nordic Kitchen",
+  "idea": "Honest ingredients, quiet excellence.",
+  "thinking": "human_first_then_niche_then_export",
+  "reality_benchmark": "FAIL",
+  "html_export_allowed": true,
+  "brand_story": "Max built FeinKost Food because the room makes you want to stay. Clients (30–50) should feel appetite and belonging. Only then do we name the craft: restaurant.",
+  "core_emotion": "appetite and belonging",
+  "core_promise": "Honest ingredients, quiet excellence.",
+  "visual_metaphor": "a plate like a landscape",
+  "creative_conflict": {
+    "ok": true,
+    "action": "CONTINUE",
+    "conflicts": []
+  },
+  "studio_approach": "boutique",
+  "first_screen_job": "The Hero exists to make 'Nordic Kitchen' felt in 3 seconds: Honest ingredients, quiet excellence.",
+  "scene_sequence": [
+    "scene",
+    "interaction",
+    "experience",
+    "conversion",
+    "emotion",
+    "interaction",
+    "experience",
+    "scene",
+    "emotion",
+    "story",
+    "interaction",
+    "conversion"
+  ],
+  "owner_review": "PENDING_OWNER",
+  "question": "Who is the human — and what idea can you feel?"
+}

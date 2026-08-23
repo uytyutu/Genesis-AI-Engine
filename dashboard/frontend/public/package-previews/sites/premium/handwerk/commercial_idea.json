@@ -1,0 +1,27 @@
+{
+  "niche_id": "handwerk",
+  "idea": "Handwerk mit Haltung.",
+  "who": "Meisterbetrieb: Festpreis, pünktlich, saubere Baustelle.",
+  "character": [
+    "Zuverlässigkeit",
+    "Festpreis",
+    "Sauberkeit",
+    "Tempo",
+    "Werkzeug",
+    "Vor Ort"
+  ],
+  "metaphor": "Meister auf der Leiter — Bohrmaschine, fertige Küche, sauberer Boden",
+  "hero_concept": "meister_on_site",
+  "emotion_3s": "Endlich erledigt — ohne Baustellen-Chaos",
+  "source": "dream_brief",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Handwerk mit Haltung.",
+    "who": "Meisterbetrieb: Festpreis, pünktlich, saubere Baustelle.",
+    "package_id": "premium",
+    "source": "dream_brief",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

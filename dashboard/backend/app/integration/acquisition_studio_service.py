@@ -31,32 +31,32 @@ _SERVICE_CATALOG: list[dict[str, Any]] = [
     {
         "id": "landing_basic",
         "category": "web",
-        "name": "Landing Page Basic",
+        "name": "Website Basic",
         "package_id": "basic",
-        "price_eur": 350,
+        "price_eur": 199,
         "dogfood": True,
         "public": True,
-        "note": "Fertige Seite + ZIP + Selbst-Publish-Anleitung",
+        "note": "Modern website · landing · form · Impressum/Datenschutz · basic SEO",
     },
     {
         "id": "landing_business",
         "category": "web",
-        "name": "Landing Page Business",
+        "name": "Website Business",
         "package_id": "business",
-        "price_eur": 650,
+        "price_eur": 399,
         "dogfood": True,
         "public": True,
-        "note": "Fertige Seite + Hilfe beim Upload (Domain/Hosting zahlt Kunde)",
+        "note": "Multi-page + Admin Dashboard (CMS) + analytics",
     },
     {
         "id": "landing_premium",
         "category": "web",
-        "name": "Landing Page Premium",
+        "name": "Website Premium",
         "package_id": "premium",
-        "price_eur": 1200,
+        "price_eur": 699,
         "dogfood": True,
         "public": True,
-        "note": "Fertige Seite + Voll-Veröffentlichung (Setup, kein Hosting-Abo)",
+        "note": "Blog · advanced SEO · premium design · priority support",
     },
     {
         "id": "site_audit",
@@ -198,10 +198,30 @@ class AcquisitionStudioService:
             )
         return self._runner
 
-    def archive_stale_pipeline_for_fresh_run(self) -> dict[str, Any]:
-        """Hide old visible leads so Start shows a clean multi-market queue.
+    # Mission 1.3: never hide enrichment / near-Ready on Fresh Start.
+    _KEEP_ON_FRESH_START = frozenset(
+        {"needs_email", "pending_approval", "approved", "manual_review"}
+    )
 
-        Batch-save once (reliable). Sent/won/lost stay in History; drafts parked.
+    def _keep_on_fresh_start(self, row: dict[str, Any], meta: dict[str, Any]) -> bool:
+        """True → company stays visible for enrichment / Ready (not quality_archive)."""
+        outreach = str(row.get("outreach_status") or "")
+        if outreach in self._KEEP_ON_FRESH_START:
+            return True
+        if meta.get("website_offer") == "rejected":
+            return True
+        if meta.get("skip_reason") in ("website_offer_ineligible", "healthy_site"):
+            return True
+        if self._contact_has_valid_email(row):
+            return True
+        return False
+
+    def archive_stale_pipeline_for_fresh_run(self) -> dict[str, Any]:
+        """Hide stale idle leads so Start shows a cleaner multi-market queue.
+
+        Mission 1.3: do NOT archive needs_email / Ready-lane / email-bearing leads —
+        Fresh Start used to bury the enrichment queue forever (auto_prepare skips archive).
+        Sent/won/lost stay in History.
         """
         from app.integration.lead_engine_quality_gate import (
             RECONTACT_COOLDOWN_DAYS,
@@ -210,6 +230,7 @@ class AcquisitionStudioService:
 
         archived = 0
         kept_sent = 0
+        kept_pipeline = 0
         recontact_blocked = 0
         rows = self._opportunity._load_rows()
         out: list[dict[str, Any]] = []
@@ -224,6 +245,10 @@ class AcquisitionStudioService:
             outreach = str(row.get("outreach_status") or "")
             if status in ("won", "lost") or outreach == "sent":
                 kept_sent += 1
+                out.append(row)
+                continue
+            if self._keep_on_fresh_start(row, meta):
+                kept_pipeline += 1
                 out.append(row)
                 continue
             reason = "fresh_multi_market_start"
@@ -250,10 +275,90 @@ class AcquisitionStudioService:
             "ok": True,
             "archived": archived,
             "kept_sent_or_closed": kept_sent,
+            "kept_pipeline": kept_pipeline,
             "recontact_blocked": recontact_blocked,
             "message_ru": (
-                f"Fresh Campaign: скрыто {archived} (из них recontact {recontact_blocked}), "
-                f"история Sent/Won/Lost: {kept_sent}"
+                f"Fresh Campaign: скрыто {archived} · сохранено в воронке {kept_pipeline} "
+                f"(needs_email/Ready) · Sent/Won/Lost: {kept_sent}"
+            ),
+        }
+
+    def repair_mission13_enrichment_queue(self) -> dict[str, Any]:
+        """Lift Fresh-Start archive on enrichment leads; migrate legacy healthy_site archive.
+
+        Idempotent. Does not invent emails — only unblocks existing prepare/enrich path.
+        """
+        from app.integration.lead_engine_premium import WEBSITE_OFFER_INELIGIBLE
+
+        rows = self._opportunity._load_rows()
+        restored_fresh = 0
+        migrated_healthy = 0
+        now = datetime.now(timezone.utc).isoformat()
+        out: list[dict[str, Any]] = []
+        dirty = False
+        for row in rows:
+            row = dict(row)
+            meta = dict(row.get("meta") if isinstance(row.get("meta"), dict) else {})
+            if not meta.get("quality_archive"):
+                out.append(row)
+                continue
+            reason = str(meta.get("quality_archive_reason") or "")
+            outreach = str(row.get("outreach_status") or "")
+
+            if reason == "fresh_multi_market_start" and (
+                outreach in self._KEEP_ON_FRESH_START or self._contact_has_valid_email(row)
+            ):
+                for k in (
+                    "quality_archive",
+                    "quality_archive_reason",
+                    "quality_archive_detail",
+                    "quality_archived_at",
+                    "quality_archive_win_pct",
+                ):
+                    meta.pop(k, None)
+                row["meta"] = meta
+                row["updated_at"] = now
+                restored_fresh += 1
+                dirty = True
+                out.append(row)
+                continue
+
+            if reason == "healthy_site":
+                for k in (
+                    "quality_archive",
+                    "quality_archive_reason",
+                    "quality_archive_detail",
+                    "quality_archived_at",
+                    "quality_archive_win_pct",
+                ):
+                    meta.pop(k, None)
+                meta["skip_outreach"] = True
+                meta["skip_reason"] = WEBSITE_OFFER_INELIGIBLE
+                meta["website_offer"] = "rejected"
+                meta["website_offer_reason"] = WEBSITE_OFFER_INELIGIBLE
+                meta["smart_offer_rationale"] = (
+                    meta.get("smart_offer_rationale")
+                    or "Legacy healthy_site archive → website offer ineligible (company kept)"
+                )
+                row["meta"] = meta
+                row["status_label"] = "Website-оффер не подходит · компания сохранена"
+                row["updated_at"] = now
+                migrated_healthy += 1
+                dirty = True
+                out.append(row)
+                continue
+
+            out.append(row)
+
+        if dirty:
+            self._opportunity._save_rows(out)
+        return {
+            "ok": True,
+            "restored_fresh_archive": restored_fresh,
+            "migrated_healthy_site_archive": migrated_healthy,
+            "message_ru": (
+                f"Mission 1.3 repair: снято fresh-archive {restored_fresh} · "
+                f"healthy_site→website_offer_rejected {migrated_healthy}"
             ),
         }
 
@@ -263,6 +368,7 @@ class AcquisitionStudioService:
         from app.integration.outreach_hunt_rotation import active_markets
 
         cleared = self.archive_stale_pipeline_for_fresh_run()
+        repaired = self.repair_mission13_enrichment_queue()
         # Reset hunt cursor so rotation starts fresh among open markets
         try:
             cursor_path = Path(self._memory_dir) / "outreach_hunt_cursor.json"
@@ -307,6 +413,7 @@ class AcquisitionStudioService:
             for r in open_rows
         ) or "нет enabled рынков"
         status["pipeline_cleared"] = cleared
+        status["pipeline_repaired"] = repaired
         status["open_markets"] = open_codes
         # Rebuild any remaining active quotes with current Pricing Engine + Vector brand
         rebuilt = {"rebuilt": 0, "repriced": 0}
@@ -317,8 +424,11 @@ class AcquisitionStudioService:
         status["quotes_rebuilt"] = int(rebuilt.get("rebuilt") or 0)
         status["pipeline"] = rebuilt.get("pipeline") or self.pipeline_leads(limit=40)
         status["last_message_ru"] = (
-            f"Пуск снайпера · старые лиды скрыты ({cleared.get('archived', 0)}) · "
-            f"квоты Vector пересобраны ({status['quotes_rebuilt']}) · "
+            f"Пуск · скрыто idle {cleared.get('archived', 0)} · "
+            f"воронка сохранена {cleared.get('kept_pipeline', 0)} · "
+            f"repair needs_email/healthy "
+            f"{repaired.get('restored_fresh_archive', 0)}+"
+            f"{repaired.get('migrated_healthy_site_archive', 0)} · "
             f"hunt 24/7: {open_label}"
         )
         return status
@@ -944,6 +1054,16 @@ class AcquisitionStudioService:
             sending_health = {}
             email_providers = {}
 
+        places_quota: dict = {}
+        try:
+            from app.integration.places_quota_cooldown import places_quota_status
+
+            places_quota = places_quota_status(self._memory_dir)
+            if places_quota.get("active") and places_quota.get("blocker_ru") and not blocker:
+                blocker = str(places_quota["blocker_ru"])
+        except Exception:
+            places_quota = {}
+
         return {
             "version": "lead_engine_v1",
             "name": "Country Desk · Lead Engine v1",
@@ -969,6 +1089,7 @@ class AcquisitionStudioService:
             "autosend_blocker_ru": blocker,
             "lead_sending_health": sending_health,
             "email_providers": email_providers,
+            "places_quota": places_quota,
             "pipeline_count": len(active_rows),
             "open_markets_now": open_codes,
             "channels": _ACQUISITION_CHANNELS,
@@ -1098,6 +1219,20 @@ class AcquisitionStudioService:
         """
         if not self._places.configured():
             raise ValueError("places_not_configured")
+        from app.integration.places_quota_cooldown import (
+            is_places_quota_blocked,
+            is_quota_exceeded_message,
+            mark_places_quota_exceeded,
+            places_quota_status,
+        )
+
+        if is_places_quota_blocked(self._memory_dir):
+            st = places_quota_status(self._memory_dir)
+            raise ValueError(
+                "places_error:"
+                + (st.get("blocker_ru") or "Quota exceeded — Hunt paused until daily reset")
+            )
+
         hunt = self._hunt()
         city = (city or "").strip() or hunt["target_city"]
         query = query.strip()
@@ -1120,7 +1255,10 @@ class AcquisitionStudioService:
                 radius_m=hunt["search_radius"],
             )
         except RuntimeError as exc:
-            raise ValueError(str(exc).replace("places_textsearch_status:", "places_error:")) from exc
+            msg = str(exc)
+            if is_quota_exceeded_message(msg):
+                mark_places_quota_exceeded(self._memory_dir, detail=msg)
+            raise ValueError(msg.replace("places_textsearch_status:", "places_error:")) from exc
 
         created = 0
         drafted = 0
@@ -1361,32 +1499,64 @@ class AcquisitionStudioService:
         from app.integration.lead_engine_premium import apply_premium_and_offer
 
         smart = apply_premium_and_offer(row, analysis=analysis)
-        if smart.get("skip_outreach"):
+        # Dual commercial products (Website | Platform API) — score, not hard SaaS→API.
+        from app.commercial_api.platform_billing import (
+            draft_platform_api_letter,
+            score_commercial_offers,
+        )
+
+        if smart.get("skip_outreach") or smart.get("website_offer") == "rejected":
+            # Mission 1.2: website offer ineligible ≠ company archive.
+            # May still sell Platform API if it wins the product score.
+            from app.integration.lead_engine_premium import WEBSITE_OFFER_INELIGIBLE
+
+            reason = str(smart.get("skip_reason") or WEBSITE_OFFER_INELIGIBLE)
             meta_skip = dict(row.get("meta") or {})
-            meta_skip["skip_outreach"] = True
-            meta_skip["skip_reason"] = smart.get("skip_reason") or "healthy_site"
+            meta_skip["website_offer"] = "rejected"
+            meta_skip["website_offer_reason"] = reason
+            meta_skip.pop("quality_archive", None)
+            meta_skip.pop("quality_archive_reason", None)
+            meta_skip.pop("quality_archive_detail", None)
+            meta_skip.pop("quality_archived_at", None)
             row["meta"] = meta_skip
-            row["updated_at"] = datetime.now(timezone.utc).isoformat()
-            self._log_interaction(
-                row,
-                "smart_offer_skip",
-                str(smart.get("rationale") or "healthy_site"),
-            )
-            self._archive_quality(
-                row,
-                reason="healthy_site",
-                detail=str(smart.get("rationale") or "Modern healthy site — skip template"),
-            )
-            return {
-                "ok": True,
-                "skipped": True,
-                "reason": "healthy_site",
-                "id": row.get("id"),
-                "company_name": row.get("company_name"),
-                "outreach_status": row.get("outreach_status"),
-                "opportunity": row,
-                "smart_offer": smart,
-            }
+            offer_rank = score_commercial_offers(row)
+            meta_skip["offer_scores"] = offer_rank.get("products")
+            meta_skip["offer_lane"] = offer_rank.get("selected_lane")
+            meta_skip["offer_product_id"] = offer_rank.get("selected_id")
+            if offer_rank.get("selected_lane") == "api" and int(
+                offer_rank.get("selected_score") or 0
+            ) >= 60:
+                meta_skip["skip_outreach"] = False
+                meta_skip.pop("skip_reason", None)
+                row["meta"] = meta_skip
+                # Fall through — Platform API letter below (same Outbox).
+            else:
+                meta_skip["skip_outreach"] = True
+                meta_skip["skip_reason"] = reason
+                row["meta"] = meta_skip
+                row["proposed_message"] = ""
+                row["email_subject"] = ""
+                row["proposed_subject"] = ""
+                row["status_label"] = "Website-оффер не подходит · компания сохранена"
+                row["updated_at"] = datetime.now(timezone.utc).isoformat()
+                self._log_interaction(
+                    row,
+                    "website_offer_ineligible",
+                    str(smart.get("rationale") or reason)[:160],
+                )
+                self._opportunity._save_rows(self._replace_row(str(row["id"]), row))
+                return {
+                    "ok": True,
+                    "skipped": True,
+                    "reason": reason,
+                    "website_offer": "rejected",
+                    "offer_scores": offer_rank.get("products"),
+                    "id": row.get("id"),
+                    "company_name": row.get("company_name"),
+                    "outreach_status": row.get("outreach_status"),
+                    "opportunity": row,
+                    "smart_offer": smart,
+                }
         if smart.get("recommended_package_id"):
             package_id = str(smart["recommended_package_id"])
             rationale = str(smart.get("rationale") or rationale)
@@ -1477,12 +1647,45 @@ class AcquisitionStudioService:
         )
 
         meta = dict(row.get("meta") or {})
+        offer_rank = score_commercial_offers(row)
+        meta["offer_scores"] = offer_rank.get("products")
+        meta["offer_lane"] = offer_rank.get("selected_lane")
+        meta["offer_product_id"] = offer_rank.get("selected_id")
+        # Platform API lane — same Outbox, different product CTA (not a second Hunt).
+        if offer_rank.get("selected_lane") == "api":
+            subject, body = draft_platform_api_letter(
+                company=str(row.get("company_name") or ""),
+                lang=str(lang or "de"),
+            )
+            meta["product_type"] = "platform_api"
+            meta["commercial_engine"] = "platform_api"
+            # Micro €5 — first API buyer path (not €199 website).
+            package_id = "micro"
+            price = 5.0
+            price_label = "5 €"
+            currency = "EUR"
+            symbol = "€"
+            package = {
+                "id": "micro",
+                "name": "Platform API Micro",
+                "price_eur": 5.0,
+                "price_label": "5 €",
+                "currency": "EUR",
+                "symbol": "€",
+                "market_code": market,
+            }
+            rationale = (
+                f"Platform API score {offer_rank.get('selected_score')} ≥ Website · "
+                "Commercial Engine dual offer (не Farm Earn)"
+            )
+        else:
+            meta["product_type"] = "site_audit_report"
+            meta["commercial_engine"] = "website"
         meta["outreach_language"] = lang
         meta["market"] = market
         row["market"] = market
         meta["qualification"] = qualify_lead(row, analysis, evaluation=evaluation)
         meta["audit_report_md"] = audit_md
-        meta["product_type"] = "site_audit_report"
         meta["recommended_currency"] = currency
         meta["recommended_symbol"] = symbol
         meta["recommended_price_label"] = price_label
@@ -2550,6 +2753,17 @@ class AcquisitionStudioService:
             )
         except Exception as exc:
             # Reprice already applied — never leave CEO on a spinning button with no change.
+            err = str(exc)
+            try:
+                from app.integration.places_quota_cooldown import (
+                    is_quota_exceeded_message,
+                    mark_places_quota_exceeded,
+                )
+
+                if is_quota_exceeded_message(err):
+                    mark_places_quota_exceeded(self._memory_dir, detail=err)
+            except Exception:
+                pass
             return {
                 "ok": True,
                 "partial": True,
@@ -2557,12 +2771,12 @@ class AcquisitionStudioService:
                 "query": query_s,
                 "market_code": market_s,
                 "repriced": reprice.get("repriced", 0),
-                "drafts": {"created": 0, "drafted": 0, "error": str(exc)[:200]},
+                "drafts": {"created": 0, "drafted": 0, "error": err[:200]},
                 "pipeline": self.pipeline_leads(limit=40),
                 "gate_funnel": self.gate_funnel(),
                 "message_ru": (
                     f"Цены обновлены: {reprice.get('repriced', 0)}. "
-                    f"Hunt {flag}{market_s}/{city_s} не завершён: {str(exc)[:120]}"
+                    f"Hunt {flag}{market_s}/{city_s} не завершён: {err[:120]}"
                 ),
             }
 

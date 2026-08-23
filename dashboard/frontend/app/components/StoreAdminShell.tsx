@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
-import { BRAND_NAME } from "../../lib/publicBrand";
-import { publicApiBase } from "../../lib/publicApiBase";
+import { BRAND_NAME } from "../lib/publicBrand";
+import { publicApiBase } from "../lib/publicApiBase";
 
 export type StoreAdminSectionId =
   | "dashboard"
@@ -13,6 +13,9 @@ export type StoreAdminSectionId =
   | "commerce"
   | "payments"
   | "shipping"
+  | "email"
+  | "integrations"
+  | "contact"
   | "marketing"
   | "analytics"
   | "design"
@@ -21,15 +24,18 @@ export type StoreAdminSectionId =
 const NAV: { id: StoreAdminSectionId; label: string; icon: string; ready: boolean }[] = [
   { id: "dashboard", label: "Dashboard", icon: "◈", ready: true },
   { id: "products", label: "Products", icon: "▦", ready: true },
-  { id: "orders", label: "Orders", icon: "☰", ready: false },
+  { id: "orders", label: "Orders", icon: "☰", ready: true },
   { id: "customers", label: "Customers", icon: "◎", ready: true },
   { id: "commerce", label: "Commerce", icon: "⬡", ready: true },
   { id: "payments", label: "Payments", icon: "◇", ready: true },
   { id: "shipping", label: "Shipping", icon: "⇢", ready: true },
+  { id: "email", label: "Email", icon: "✉", ready: true },
+  { id: "integrations", label: "Integrations", icon: "⧉", ready: true },
+  { id: "contact", label: "Kontakte", icon: "☎", ready: true },
   { id: "marketing", label: "Marketing", icon: "✦", ready: false },
   { id: "analytics", label: "Analytics", icon: "▣", ready: false },
   { id: "design", label: "Design", icon: "◐", ready: true },
-  { id: "settings", label: "Settings", icon: "⚙", ready: false },
+  { id: "settings", label: "Einstellungen", icon: "⚙", ready: true },
 ];
 
 const THEME_KEY = "virtus_store_admin_theme_v1";
@@ -41,6 +47,10 @@ type Props = {
   section: StoreAdminSectionId;
   onSection: (id: StoreAdminSectionId) => void;
   onThemeChange?: (theme: "dark" | "light") => void;
+  /** Compact Vector readiness strip under the header */
+  vectorStrip?: ReactNode;
+  /** Docked Vector dialog (Phase 2) */
+  vectorDock?: ReactNode;
   children: ReactNode;
 };
 
@@ -50,6 +60,8 @@ export function StoreAdminShell({
   section,
   onSection,
   onThemeChange,
+  vectorStrip,
+  vectorDock,
   children,
 }: Props) {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -245,7 +257,18 @@ export function StoreAdminShell({
             </button>
           </header>
 
-          <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+          {vectorStrip ? (
+            <div
+              className={`px-4 py-2.5 sm:px-6 ${
+                dark ? "border-b border-white/10" : "border-b border-slate-200/80"
+              }`}
+            >
+              {vectorStrip}
+            </div>
+          ) : null}
+
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-28 sm:pb-8">{children}</main>
+          {vectorDock}
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 """Mission 1 public catalog — single source when pricing_display.json is absent.
 
-Prices match SalesOrderService.packages() (basic 350 / business 650 / premium 1200 €).
+Prices match SalesOrderService.packages() (basic 199 / business 399 / premium 699 €).
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ from app.integration.sales_order_service import _PACKAGES as SALES_PACKAGES
 
 TRUTH_VERSION = "g23-commercial-1"
 MISSION1_LANDING_TIMELINE = "oft ca. 15 Minuten"
-MISSION1_PACKAGE_PRICES_EUR = (350, 650, 1200)
+MISSION1_PACKAGE_PRICES_EUR = (199, 399, 699)
 
 
 def _landing_packages() -> list[dict]:
@@ -37,17 +37,17 @@ def _landing_packages() -> list[dict]:
 
 def min_landing_price_eur(packages: list[dict[str, Any]] | None = None) -> int:
     pkgs = packages if packages is not None else _landing_packages()
-    return min((p["price_eur"] for p in pkgs), default=350)
+    return min((p["price_eur"] for p in pkgs), default=199)
 
 
 def format_order_packages_block(packages: list[dict[str, Any]] | None = None) -> str:
     pkgs = packages if packages is not None else _landing_packages()
-    lines: list[str] = []
+    out_lines: list[str] = []
     for p in pkgs:
         deliverables = p.get("deliverables") or []
         d = "; ".join(deliverables[:4]) if deliverables else ""
-        lines.append(f"- {p['name']} ({p['id']}): {p['price_eur']} € — {d}")
-    return "\n".join(lines) if lines else "- Landing Basic (basic): 350 €"
+        out_lines.append(f"- {p['name']} ({p['id']}): {p['price_eur']} € — {d}")
+    return "\n".join(out_lines) if out_lines else "- Website Basic (basic): 199 €"
 
 
 def load_public_pricing_display(memory_dir: Path | None = None) -> dict[str, Any]:
@@ -62,14 +62,14 @@ def studio_unavailable_message() -> str:
         f"**{STUDIO_NAME}** (рабочая среда и подписка) **пока в разработке** — купить онлайн нельзя.\n\n"
         f"**Сейчас доступно:**\n"
         f"• Бесплатная работа с {ASSISTANT_NAME} в вашей цифровой компании\n"
-        f"• Заказ **лендинга** под ключ — пакеты **350 / 650 / 1200 €** на странице заказа"
+        f"• Заказ **сайта** под ключ — пакеты **199 / 399 / 699 €** на странице заказа"
     )
 
 
 def unavailable_online_message(product_label: str) -> str:
     return (
         f"**{product_label}** под ключ **пока нельзя оформить на сайте**.\n\n"
-        "Сейчас онлайн можно заказать **лендинг** — пакеты **350 / 650 / 1200 €** на **/order**.\n"
+        "Сейчас онлайн можно заказать **сайт** — пакеты **199 / 399 / 699 €** на **/order**.\n"
         "Опишите задачу — подберём пакет под проект."
     )
 
@@ -215,7 +215,7 @@ def build_truth_pricing_display(market_code: str | None = None) -> dict:
     currency = str(checkout.get("currency") or "EUR")
     symbol = str(checkout.get("symbol") or "€")
     resolved = str(checkout.get("market_code") or code)
-    min_label = packages[0].get("price_label") if packages else f"350 {symbol}"
+    min_label = packages[0].get("price_label") if packages else f"199 {symbol}"
     for p in packages:
         if p.get("id") == "basic":
             min_label = p.get("price_label") or min_label

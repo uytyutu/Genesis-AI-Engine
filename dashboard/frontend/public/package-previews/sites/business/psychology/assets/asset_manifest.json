@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "gate": "MEDIA_INTEGRITY",
+  "referenced": [
+    {
+      "path": "assets/motion_kit.css",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "4047B",
+      "bytes": 4047
+    },
+    {
+      "path": "assets/hero.jpg",
+      "slot": "hero",
+      "exists": true,
+      "ok": true,
+      "detail": "1600x900:28823B",
+      "bytes": 28823
+    },
+    {
+      "path": "assets/hero_pack/services.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1600x900:360142B",
+      "bytes": 360142
+    },
+    {
+      "path": "assets/hero_pack/cta.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1600x900:360142B",
+      "bytes": 360142
+    },
+    {
+      "path": "assets/background.jpg",
+      "slot": "background",
+      "exists": true,
+      "ok": true,
+      "detail": "1920x1080:31983B",
+      "bytes": 31983
+    },
+    {
+      "path": "assets/logo.png",
+      "slot": "logo",
+      "exists": true,
+      "ok": true,
+      "detail": "640x640:589853B",
+      "bytes": 589853
+    },
+    {
+      "path": "assets/gallery_1.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1200x800:21893B",
+      "bytes": 21893
+    },
+    {
+      "path": "assets/gallery_2.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1200x800:23926B",
+      "bytes": 23926
+    },
+    {
+      "path": "assets/gallery_3.jpg",
+      "slot": "gallery",
+      "exists": true,
+      "ok": true,
+      "detail": "1200x800:24040B",
+      "bytes": 24040
+    },
+    {
+      "path": "assets/reveal.js",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "3016B",
+      "bytes": 3016
+    },
+    {
+      "path": "assets/ux_polish.js",
+      "slot": "other",
+      "exists": true,
+      "ok": true,
+      "detail": "960B",
+      "bytes": 960
+    }
+  ],
+  "on_disk": [
+    "assets/background.jpg",
+    "assets/gallery.jpg",
+    "assets/gallery_1.jpg",
+    "assets/gallery_2.jpg",
+    "assets/gallery_3.jpg",
+    "assets/hero.jpg",
+    "assets/hero_pack/bg.jpg",
+    "assets/hero_pack/cta.jpg",
+    "assets/hero_pack/gallery.jpg",
+    "assets/hero_pack/hero.jpg",
+    "assets/hero_pack/hero_1.jpg",
+    "assets/hero_pack/hero_2.jpg",
+    "assets/hero_pack/manifest.json",
+    "assets/hero_pack/services.jpg",
+    "assets/logo.png",
+    "assets/media_manifest.json",
+    "assets/motion_kit.css",
+    "assets/reputation/case_0_after.jpg",
+    "assets/reputation/case_0_before.jpg",
+    "assets/reputation/manifest.json",
+    "assets/reputation/team_0.jpg",
+    "assets/reputation/team_1.jpg",
+    "assets/reputation/team_2.jpg",
+    "assets/reputation/team_3.jpg",
+    "assets/reveal.js",
+    "assets/ux_polish.js"
+  ],
+  "integrity_ok": true,
+  "missing": []
+}

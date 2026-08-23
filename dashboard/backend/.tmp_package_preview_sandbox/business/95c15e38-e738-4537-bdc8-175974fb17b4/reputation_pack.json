@@ -1,0 +1,247 @@
+{
+  "brand_name": "DachKlar Service",
+  "niche_id": "dachreinigung",
+  "package_id": "business",
+  "portfolio": [
+    {
+      "title": "Haus in Nürnberg-Nord",
+      "city": "Nürnberg",
+      "task": "Stark vermooste Dachfläche, abflussschwache Rinne",
+      "duration": "1 Arbeitstag",
+      "works": [
+        "Dachreinigung",
+        "Moosentfernung",
+        "Dachrinne",
+        "Fotodoku"
+      ],
+      "before_label": "Moos & Ablagerungen",
+      "after_label": "Klare Dachfläche",
+      "demo_label": "Demonstrationsbeispiel"
+    },
+    {
+      "title": "Familienhaus in Fürth",
+      "city": "Fürth",
+      "task": "Pflege + Imprägnierung nach Regenperiode",
+      "duration": "1–2 Tage",
+      "works": [
+        "Reinigung",
+        "Imprägnierung",
+        "Inspektion"
+      ],
+      "before_label": "Stumpfe Oberfläche",
+      "after_label": "Geschützte Fläche",
+      "demo_label": "Demonstrationsbeispiel"
+    },
+    {
+      "title": "Villa in Erlangen",
+      "city": "Erlangen",
+      "task": "Großfläche mit Höhenarbeit und Dokumentation",
+      "duration": "2 Arbeitstage",
+      "works": [
+        "Inspektion",
+        "Reinigung",
+        "Sicherungsplanung",
+        "Bericht"
+      ],
+      "before_label": "Ungleichmäßige Patina",
+      "after_label": "Einheitliches Ergebnis",
+      "demo_label": "Demonstrationsbeispiel"
+    },
+    {
+      "title": "Townhouse in Schwabach",
+      "city": "Schwabach",
+      "task": "Reihenhaus — enge Zufahrt, präzise Terminplanung",
+      "duration": "1 Arbeitstag",
+      "works": [
+        "Dachreinigung",
+        "Rinne",
+        "Nachbarabstimmung"
+      ],
+      "before_label": "Verstopfte Rinne",
+      "after_label": "Freier Ablauf",
+      "demo_label": "Demonstrationsbeispiel"
+    }
+  ],
+  "team": [
+    {
+      "name": "Jonas Weber",
+      "role": "Gründer",
+      "focus": "Leitung & Qualitätskontrolle",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Anna Becker",
+      "role": "Dachreinigung",
+      "focus": "Reinigung & Imprägnierung",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Lukas Hoffmann",
+      "role": "Höhenarbeiten",
+      "focus": "Sicherung & Arbeitsbühne",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Michael Koch",
+      "role": "Kundenservice",
+      "focus": "Termine & Festpreis-Angebote",
+      "demo_label": "Beispielprofil"
+    }
+  ],
+  "equipment": [
+    "Mercedes Sprinter",
+    "Kärcher Professional",
+    "Sicherheitsgurte / Auffangsysteme",
+    "DJI Drohne (Inspektion)",
+    "Arbeitsbühne"
+  ],
+  "process": [
+    "Anfrage",
+    "Vor-Ort Besichtigung",
+    "Festpreis Angebot",
+    "Termin",
+    "Durchführung",
+    "Fotodokumentation",
+    "Garantie"
+  ],
+  "before_after": [
+    {
+      "before": "Moosbedecktes Dach",
+      "after": "Frisch gereinigte Fläche"
+    },
+    {
+      "before": "Verstopfte Dachrinne",
+      "after": "Freier Wasserablauf"
+    },
+    {
+      "before": "Matte Ziegel",
+      "after": "Gepflegte Optik"
+    }
+  ],
+  "knowledge": [
+    {
+      "title": "Wann sollte ein Dach gereinigt werden?",
+      "teaser": "Meist nach starker Moosbildung oder vor der Imprägnierung — nicht erst wenn Schäden sichtbar sind.",
+      "demo_label": "Demo-Artikel"
+    },
+    {
+      "title": "Moos entfernen oder nicht?",
+      "teaser": "Moos hält Feuchtigkeit. Entfernung schützt die Substanz — richtig ausgeführt und dokumentiert.",
+      "demo_label": "Demo-Artikel"
+    },
+    {
+      "title": "Wie lange hält eine Imprägnierung?",
+      "teaser": "Je nach Lage und Witterung typischerweise mehrere Jahre — wir erklären die Pflegeintervalle transparent.",
+      "demo_label": "Demo-Artikel"
+    },
+    {
+      "title": "Dachrinne selbst reinigen?",
+      "teaser": "Bei erreichbaren Höhen möglich. Ab steilen Dächern empfehlen wir professionelle Sicherung.",
+      "demo_label": "Demo-Artikel"
+    }
+  ],
+  "trust": [
+    {
+      "title": "Versicherung",
+      "detail": "Betriebshaftpflicht — Demo-Hinweis",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Sicherheitsstandards",
+      "detail": "Höhenarbeit mit Sicherung — Demo",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Dokumentation",
+      "detail": "Vorher/Nachher-Fotos zu jedem Auftrag",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Festpreis",
+      "detail": "Klarer Preis vor dem Termin",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Garantie",
+      "detail": "Nacharbeitsfenster nach Leistung (Demo)",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Lokaler Service",
+      "detail": "Nürnberg und Region — Ansprechpartner vor Ort",
+      "demo_label": "Demo-Beispiel"
+    }
+  ],
+  "timeline": [
+    {
+      "year": "2022",
+      "title": "Unternehmen gegründet",
+      "detail": "Start als lokales Dachpflege-Team",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2023",
+      "title": "100 Aufträge (Demo)",
+      "detail": "Erste feste Routinen & Dokumentation",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2024",
+      "title": "Imprägnierung als Service",
+      "detail": "Erweiterung des Leistungsportfolios",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2025",
+      "title": "Team erweitert",
+      "detail": "Höhenarbeit & Kundenservice ausgebaut",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2026",
+      "title": "Region Nürnberg",
+      "detail": "Einsatzgebiet über die Stadtgrenze hinaus",
+      "demo_label": "Demo"
+    }
+  ],
+  "gallery_roles": [
+    "Arbeit auf dem Dach",
+    "Reinigung",
+    "Imprägnierung",
+    "Inspektion",
+    "Drohne"
+  ],
+  "media_truth_rule": "No media ships without profession + brand + story proof. Beauty alone is REBUILD.",
+  "disclaimer": "Demo-Inhalt · Virtus Core Preview — Projekte, Personen, Ausrüstung und Nachweise sind demonstrativ erzeugt und keine echten Referenzen.",
+  "fingerprint": "39c73072202dec63a653840d",
+  "blocks": [
+    "portfolio",
+    "team",
+    "equipment",
+    "process",
+    "before_after",
+    "knowledge",
+    "trust",
+    "timeline"
+  ],
+  "media": {
+    "case_0_before": "assets/reputation/case_0_before.jpg",
+    "case_0_after": "assets/reputation/case_0_after.jpg",
+    "case_1_before": "assets/reputation/case_1_before.jpg",
+    "case_1_after": "assets/reputation/case_1_after.jpg",
+    "case_2_before": "assets/reputation/case_2_before.jpg",
+    "case_2_after": "assets/reputation/case_2_after.jpg",
+    "case_3_before": "assets/reputation/case_3_before.jpg",
+    "case_3_after": "assets/reputation/case_3_after.jpg",
+    "ba_0_before": "assets/reputation/case_0_before.jpg",
+    "ba_0_after": "assets/reputation/case_0_after.jpg",
+    "ba_1_before": "assets/reputation/case_1_before.jpg",
+    "ba_1_after": "assets/reputation/case_1_after.jpg",
+    "ba_2_before": "assets/reputation/case_2_before.jpg",
+    "ba_2_after": "assets/reputation/case_2_after.jpg",
+    "team_0": "assets/reputation/team_0.jpg",
+    "team_1": "assets/reputation/team_1.jpg",
+    "team_2": "assets/reputation/team_2.jpg",
+    "team_3": "assets/reputation/team_3.jpg"
+  }
+}

@@ -1,18 +1,36 @@
 /**
  * Package preview gallery — Path A order / storefront.
  *
- * Production rule: every `src` must be a file under
- * `dashboard/frontend/public/package-previews/` that is **tracked in git**
- * and served as a public URL `/package-previews/...` (never a local disk path).
+ * OWNER SSOT — do NOT mix tiers:
  *
- * `gallery.jpg` = compressed mobile/desktop thumbs (~40–90 KB).
- * Full demo HTML remains at `siteSrc` (open in new tab).
+ *   Basic    = sites/basic/<niche> + stores/basic/<niche>
+ *   Business = cinematic flagships (disk under /premium/) + sites/business when present
+ *   Premium  = empty until product ready (do not re-label Business as Premium)
+ *
+ * Forbidden: sites/premium/* legacy · Family Care / psychology demos.
  */
+
+import {
+  PUBLIC_VITRINE_STORES_BASIC,
+  PUBLIC_VITRINE_STORES_BUSINESS,
+  PUBLIC_VITRINE_STORES_PREMIUM,
+  PUBLIC_VITRINE_THUMB_VERSION,
+  PUBLIC_VITRINE_WEBSITES_BASIC,
+  PUBLIC_VITRINE_WEBSITES_BUSINESS,
+  PUBLIC_VITRINE_WEBSITES_PREMIUM,
+  isBasicStandardHref,
+  isBusinessHref,
+  isPremiumCinematicHref,
+  type PublicVitrineDemo,
+} from "./publicVitrineCatalog";
 
 export type PackagePreviewTier = "basic" | "business" | "premium";
 
 export type PackagePreviewSlide = {
-  /** Relative path under /package-previews/ */
+  /**
+   * Thumb URL: absolute `/vitrine/...` (vitrine SSOT) or relative under
+   * `/package-previews/` (legacy tier galleries).
+   */
   src: string;
   alt: string;
   niche?: string;
@@ -21,80 +39,180 @@ export type PackagePreviewSlide = {
   kind: "image";
 };
 
-/** basic_preview[] — Basic quality sites only */
-export const basic_preview: PackagePreviewSlide[] = [
-  {
-    src: "sites/basic/auto/assets/gallery.jpg",
-    siteSrc: "sites/basic/auto/index.html",
-    alt: "Autowerkstatt · Basic-Website",
-    niche: "auto",
+function vitrineDemoToSlide(demo: PublicVitrineDemo): PackagePreviewSlide {
+  return {
+    src: `${demo.thumb}?v=${PUBLIC_VITRINE_THUMB_VERSION}`,
+    siteSrc: demo.href.replace(/^\/package-previews\//, ""),
+    alt: `${demo.fallback} · ${demo.badge || ""} · ${demo.kind === "store" ? "AI Store" : "Website"}`,
+    niche: demo.niche,
     kind: "image",
-  },
-  {
-    src: "sites/basic/dental/assets/gallery.jpg",
-    siteSrc: "sites/basic/dental/index.html",
-    alt: "Zahnarztpraxis · Basic-Website",
-    niche: "dental",
-    kind: "image",
-  },
-  {
-    src: "sites/basic/beauty/assets/gallery.jpg",
-    siteSrc: "sites/basic/beauty/index.html",
-    alt: "Beauty · Basic-Website",
-    niche: "beauty",
-    kind: "image",
-  },
-];
+  };
+}
 
-/** business_preview[] — Business quality sites only */
-export const business_preview: PackagePreviewSlide[] = [
-  {
-    src: "sites/business/auto/assets/gallery.jpg",
-    siteSrc: "sites/business/auto/index.html",
-    alt: "Autowerkstatt · Business-Website",
-    niche: "auto",
-    kind: "image",
-  },
-  {
-    src: "sites/business/dental/assets/gallery.jpg",
-    siteSrc: "sites/business/dental/index.html",
-    alt: "Zahnarztpraxis · Business-Website",
-    niche: "dental",
-    kind: "image",
-  },
-  {
-    src: "sites/business/praxis/assets/gallery.jpg",
-    siteSrc: "sites/business/praxis/index.html",
-    alt: "Praxis · Business-Website",
-    niche: "praxis",
-    kind: "image",
-  },
-];
+function vitrinePoolFor(
+  tier: PackagePreviewTier,
+  kind: "website" | "store",
+): PublicVitrineDemo[] {
+  if (kind === "store") {
+    if (tier === "premium") return PUBLIC_VITRINE_STORES_PREMIUM;
+    if (tier === "business") return PUBLIC_VITRINE_STORES_BUSINESS;
+    return PUBLIC_VITRINE_STORES_BASIC;
+  }
+  if (tier === "premium") return PUBLIC_VITRINE_WEBSITES_PREMIUM;
+  if (tier === "business") return PUBLIC_VITRINE_WEBSITES_BUSINESS;
+  return PUBLIC_VITRINE_WEBSITES_BASIC;
+}
 
-/** premium_preview[] — Premium quality sites only */
-export const premium_preview: PackagePreviewSlide[] = [
-  {
-    src: "sites/premium/auto/assets/gallery.jpg",
-    siteSrc: "sites/premium/auto/index.html",
-    alt: "Autowerkstatt · Premium-Website",
-    niche: "auto",
-    kind: "image",
-  },
-  {
-    src: "sites/premium/dental/assets/gallery.jpg",
-    siteSrc: "sites/premium/dental/index.html",
-    alt: "Zahnarztpraxis · Premium-Website",
-    niche: "dental",
-    kind: "image",
-  },
-  {
-    src: "sites/premium/path/assets/gallery.jpg",
-    siteSrc: "sites/premium/path/index.html",
-    alt: "Premium-Website · Beispiel",
-    niche: "path",
-    kind: "image",
-  },
-];
+/** Hard gate: never return a slide whose path belongs to another package tier. */
+function assertSlideMatchesTier(
+  tier: PackagePreviewTier,
+  slide: PackagePreviewSlide | null,
+): PackagePreviewSlide | null {
+  if (!slide?.siteSrc) return slide;
+  const href = slide.siteSrc.startsWith("/")
+    ? slide.siteSrc
+    : `/package-previews/${slide.siteSrc}`;
+  if (tier === "premium" && !isPremiumCinematicHref(href)) return null;
+  if (tier === "basic" && !isBasicStandardHref(href)) return null;
+  if (tier === "business") {
+    if (isBasicStandardHref(href) || href.includes("/sites/premium/") || href.includes("/stores/premium/")) {
+      return null;
+    }
+    if (!isBusinessHref(href)) return null;
+  }
+  return slide;
+}
+
+/** Map order-form niche labels (Salon, Mode, …) to catalog niche keys. */
+export function normalizeOrderNicheKey(niche?: string | null): string {
+  const raw = (niche || "").trim().toLowerCase();
+  if (!raw) return "";
+  // Removed niches — never map to a live demo
+  if (
+    raw.includes("family") ||
+    raw.includes("familien") ||
+    raw.includes("psycholog") ||
+    raw === "family_psychology" ||
+    raw === "family_care"
+  ) {
+    return "";
+  }
+  const aliases: Record<string, string> = {
+    salon: "beauty",
+    beauty: "beauty",
+    nail: "beauty",
+    nails: "beauty",
+    brow: "beauty",
+    brows: "beauty",
+    barber: "barbershop",
+    barbershop: "barbershop",
+    zahnarzt: "dental",
+    dental: "dental",
+    restaurant: "restaurant",
+    gastronomie: "restaurant",
+    hotdog: "restaurant",
+    "hot-dog": "restaurant",
+    fashion: "fashion",
+    mode: "fashion",
+    boutique: "fashion",
+    electronics: "electronics",
+    elektronik: "electronics",
+    handwerk: "handwerk",
+    auto: "auto",
+    werkstatt: "auto",
+    law: "law",
+    anwalt: "law",
+    rechtsanwalt: "law",
+    gartenpflege: "gartenpflege",
+    dachreinigung: "dachreinigung",
+    zaunbau: "zaunbau",
+    food: "food",
+    furniture: "furniture",
+    accessories: "accessories",
+  };
+  if (aliases[raw]) return aliases[raw]!;
+  for (const [key, value] of Object.entries(aliases)) {
+    if (raw.includes(key)) return value;
+  }
+  return raw;
+}
+
+/** Flagship niche when order/pricing has no niche yet. */
+function flagshipNiche(tier: PackagePreviewTier, kind: "website" | "store"): string {
+  if (kind === "store") return "fashion";
+  if (tier === "business") return "restaurant";
+  if (tier === "basic") return "beauty";
+  return "";
+}
+
+/**
+ * Order checkout preview: only PUBLISHED showcase demos for that package tier.
+ * Premium → null until Premium demos exist.
+ */
+export function resolveExactOrderPreview(
+  packageId: string | null | undefined,
+  niche?: string | null,
+  kind: "website" | "store" = "website",
+): PackagePreviewSlide | null {
+  const tier = normalizePreviewTier(packageId);
+  if (tier === "premium") {
+    return null;
+  }
+  const nicheKey = normalizeOrderNicheKey(niche) || flagshipNiche(tier, kind);
+  const pool = vitrinePoolFor(tier, kind).map(vitrineDemoToSlide);
+  const exact = nicheKey ? pool.find((s) => s.niche === nicheKey) : undefined;
+  const picked = exact || pool[0] || null;
+  return assertSlideMatchesTier(tier, picked);
+}
+
+/** Contextual demos for /order — product type + package + niche. */
+export function resolveVitrinePreviewSlides(
+  packageId: string | null | undefined,
+  niche?: string | null,
+  max = 6,
+  kind: "website" | "store" = "website",
+): PackagePreviewSlide[] {
+  if (max <= 1) {
+    const one = resolveExactOrderPreview(packageId, niche, kind);
+    return one ? [one] : [];
+  }
+  const id = (packageId || "").toLowerCase();
+  const nicheKey = normalizeOrderNicheKey(niche);
+  const storeish =
+    kind === "store" ||
+    id.includes("store") ||
+    id.includes("shop") ||
+    id === "ai_store" ||
+    id === "ecommerce_shop";
+  const tier = normalizePreviewTier(packageId);
+  const pool = vitrinePoolFor(tier, storeish ? "store" : "website");
+  const slides = pool
+    .map(vitrineDemoToSlide)
+    .map((s) => assertSlideMatchesTier(tier, s))
+    .filter((s): s is PackagePreviewSlide => Boolean(s));
+  if (!nicheKey) return slides.slice(0, Math.min(max, 6));
+  const preferred = slides.filter(
+    (s) => s.niche === nicheKey || s.niche?.includes(nicheKey),
+  );
+  // Same package tier only — never pad with other packages.
+  return preferred.slice(0, Math.min(max, 6));
+}
+
+/** basic_preview[] — Basic quality only (sites/basic). */
+export const basic_preview: PackagePreviewSlide[] =
+  PUBLIC_VITRINE_WEBSITES_BASIC.map(vitrineDemoToSlide);
+
+/** business_preview[] — Business only */
+export const business_preview: PackagePreviewSlide[] =
+  PUBLIC_VITRINE_WEBSITES_BUSINESS.map(vitrineDemoToSlide);
+
+/** premium_preview[] — empty until Premium product demos are ready. */
+export const premium_preview: PackagePreviewSlide[] =
+  PUBLIC_VITRINE_WEBSITES_PREMIUM.map(vitrineDemoToSlide);
+
+/** premium_store_preview[] — empty until Premium shop demos are ready. */
+export const premium_store_preview: PackagePreviewSlide[] =
+  PUBLIC_VITRINE_STORES_PREMIUM.map(vitrineDemoToSlide);
 
 export const PACKAGE_PREVIEW_GALLERY: Record<PackagePreviewTier, PackagePreviewSlide[]> = {
   basic: basic_preview,
@@ -102,11 +220,18 @@ export const PACKAGE_PREVIEW_GALLERY: Record<PackagePreviewTier, PackagePreviewS
   premium: premium_preview,
 };
 
+/** Store demos for Business /site vitrine (cinematic shops). */
+export const PACKAGE_STORE_PREVIEW_GALLERY: PackagePreviewSlide[] =
+  PUBLIC_VITRINE_STORES_BUSINESS.map(vitrineDemoToSlide);
+
 /** Default sample services shown in Premium block until the client enters their own. */
 export const PREMIUM_SAMPLE_SERVICES: Record<string, string[]> = {
   auto: ["Diagnose", "Inspektion & Öl", "Bremsen", "Reifen"],
   dental: ["Prophylaxe", "Füllungen", "Ästhetik", "Implantate"],
-  beauty: ["Schnitt & Styling", "Farbe", "Pflege", "Termin online"],
+  beauty: ["Maniküre & Pediküre", "Augenbrauen", "Wimpern", "Massage"],
+  cleaning: ["Unterhaltsreinigung", "Büro", "Fenster", "Übergabe"],
+  computer: ["Diagnose", "Reparatur", "Datenrettung", "Vor-Ort"],
+  restaurant: ["Speisekarte", "Reservierung", "Mittagsmenü", "Events"],
   praxis: ["Erstberatung", "Therapie", "Nachsorge", "Online-Termin"],
   generic: ["Beratung", "Umsetzung", "Go-live", "Support"],
 };
@@ -131,28 +256,45 @@ export function resolvePremiumServices(
 
 export function normalizePreviewTier(packageId: string | null | undefined): PackagePreviewTier {
   const id = (packageId || "basic").toLowerCase();
-  if (id === "business" || id === "premium") return id;
+  if (id === "connected" || id === "premium") return "premium";
+  if (id === "standalone" || id === "business") return "business";
+  if (id === "basic") return "basic";
   return "basic";
 }
 
-/** Prefer niche-matching slides, then fill — never mix tiers. */
+/**
+ * Prefer /site vitrine SSOT (same thumbs + demos as the public gallery).
+ * Niche match still reorders; tier arrays are fallback only if vitrine empty.
+ */
 export function resolvePackagePreviewSlides(
   packageId: string | null | undefined,
   niche?: string | null,
   max = 5,
+  kind: "website" | "store" = "website",
 ): PackagePreviewSlide[] {
+  const vitrine = resolveVitrinePreviewSlides(
+    packageId,
+    niche,
+    Math.min(Math.max(max, 3), 6),
+    kind,
+  );
+  if (vitrine.length > 0) return vitrine;
+
   const tier = normalizePreviewTier(packageId);
-  const pool = PACKAGE_PREVIEW_GALLERY[tier] || [];
-  const nicheKey = (niche || "").trim().toLowerCase();
+  const pool = (PACKAGE_PREVIEW_GALLERY[tier] || [])
+    .map((s) => assertSlideMatchesTier(tier, s))
+    .filter((s): s is PackagePreviewSlide => Boolean(s));
+  const nicheKey = normalizeOrderNicheKey(niche);
   if (!nicheKey) return pool.slice(0, max);
   const preferred = pool.filter((s) => s.niche === nicheKey);
-  const rest = pool.filter((s) => s.niche !== nicheKey);
-  return [...preferred, ...rest].slice(0, max);
+  // Same tier only — never pad Premium with Basic/Business or stores/premium legacy.
+  return preferred.slice(0, max);
 }
 
 /** All gallery thumb paths the carousel may request (for deploy/self-check). */
 export function allPackagePreviewImagePaths(): string[] {
-  return Object.values(PACKAGE_PREVIEW_GALLERY)
-    .flat()
-    .map((s) => s.src);
+  return [
+    ...Object.values(PACKAGE_PREVIEW_GALLERY).flat(),
+    ...PACKAGE_STORE_PREVIEW_GALLERY,
+  ].map((s) => s.src);
 }

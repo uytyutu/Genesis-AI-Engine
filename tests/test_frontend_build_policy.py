@@ -27,14 +27,18 @@ def test_assess_missing_when_no_build(tmp_path: Path, monkeypatch: pytest.Monkey
     assert state.can_launch_without_rebuild is False
 
 
-def test_owner_stale_needs_choice(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_owner_stale_does_not_nag_on_start(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Stale sources must not open a modal on every Запустить."""
     monkeypatch.setattr("launcher.frontend_build_policy.frontend_build_ready", lambda _=None: True)
     monkeypatch.setattr("launcher.frontend_build_policy.frontend_build_integrity", lambda _=None: True)
     monkeypatch.setattr("launcher.frontend_build_policy.frontend_build_stale", lambda _=None: True)
     state = assess_production_build()
     assert state.status == STATUS_STALE
-    assert needs_stale_choice(LAUNCH_MODE_OWNER, state)
+    assert not needs_stale_choice(LAUNCH_MODE_OWNER, state)
     assert not needs_stale_choice(LAUNCH_MODE_DEVELOPMENT, state)
+    from launcher.frontend_build_policy import stale_status_hint
+
+    assert stale_status_hint(state)
 
 
 def test_owner_default_policy_launch_stable_on_stale(monkeypatch: pytest.MonkeyPatch) -> None:

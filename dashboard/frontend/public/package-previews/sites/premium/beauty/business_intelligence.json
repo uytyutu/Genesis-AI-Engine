@@ -1,0 +1,81 @@
+{
+  "niche_id": "beauty",
+  "subniche_id": "online",
+  "subniche_label": "Online-Sitzungen",
+  "business_model": "online_clinic_small_team_quality_over_price",
+  "city": "Berlin",
+  "company_name": "Salon Mira",
+  "who": "Boutique-Atelier: Beratung vor dem Schnitt, ehrliche Produkte, Alltagstauglichkeit, kein Wartesaal-Gefühl.",
+  "trust_why": "Nachweisbare Arbeit · Online-Sitzungen · Berlin",
+  "sells": "['Balayage', 'Damenhaarschnitt', 'Pflege', 'Styling']",
+  "differentiator": "Online-Termine, Premium-Produkte, erfahrene Stylisten",
+  "atmosphere": "clinic",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Looks, tools, space",
+  "media_brief": {
+    "hero": "Studio process / detail / atmosphere",
+    "gallery": "Looks, tools, space",
+    "video": "Treatment detail",
+    "before_after": "Look transformations (demo-labeled)",
+    "team": "Stylists",
+    "equipment": "Station & tools",
+    "atmosphere": "clinic",
+    "subniche": "online",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "booking",
+      "label": "Online Booking",
+      "why": "Termin ist der CTA."
+    },
+    {
+      "id": "treatments",
+      "label": "Treatments",
+      "why": "Leistungen mit Preisrahmen."
+    },
+    {
+      "id": "gallery",
+      "label": "Look Gallery",
+      "why": "Ergebnisse & Atmosphäre."
+    },
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "why": "Social proof."
+    },
+    {
+      "id": "team",
+      "label": "Stylists",
+      "why": "Personen hinter dem Look."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services"
+  ],
+  "style": "clinic",
+  "clients_who": "Berlinerinnen, die Farbe und Schnitt mit Ruhe wollen",
+  "fingerprint": "23e67d2717f971f1a23e",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

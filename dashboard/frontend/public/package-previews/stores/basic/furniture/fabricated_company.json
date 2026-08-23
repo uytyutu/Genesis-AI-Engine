@@ -1,0 +1,151 @@
+{
+  "legal_name": "Wohnraum Furniture",
+  "brand_name": "Wohnraum Furniture",
+  "slogan": "Klar. Menschlich. Präzise.",
+  "mission": "Kunden in Berlin spürbar besser bedienen als gestern.",
+  "history": "Was als kleines Vorhaben in Berlin begann, ist über die Jahre zu einem festen Ort mit Stammgästen und klarer Handschrift geworden. Seit 2019 wächst Wohnraum Furniture bewusst — Qualität vor Tempo.",
+  "values": [
+    "Präzision",
+    "Menschlichkeit",
+    "Transparenz",
+    "Verlässlichkeit",
+    "Handwerk"
+  ],
+  "approach": "Klarheit, Handwerk, langfristige Beziehung.",
+  "founded_year": 2019,
+  "city": "Berlin",
+  "niche_id": "furniture",
+  "services": [
+    [
+      "Audit",
+      "Qualitäts- & Prozesscheck",
+      "ab 290 €"
+    ],
+    [
+      "Support",
+      "Priorisierter Support",
+      "inkl."
+    ],
+    [
+      "Dokumentation",
+      "Transparente Unterlagen",
+      "inkl."
+    ],
+    [
+      "Beratung",
+      "Individuelle Erstberatung",
+      "auf Anfrage"
+    ],
+    [
+      "Analyse",
+      "Bestandsaufnahme & Empfehlung",
+      "ab 99 €"
+    ],
+    [
+      "Umsetzung",
+      "Umsetzung mit klaren Meilensteinen",
+      "auf Anfrage"
+    ],
+    [
+      "Betreuung",
+      "Laufende Begleitung",
+      "Monatsabo"
+    ],
+    [
+      "Workshop",
+      "Team-Workshop vor Ort",
+      "ab 490 €"
+    ]
+  ],
+  "advantages": [
+    "Seit 2019 in Berlin",
+    "Transparente Preise",
+    "Feste Ansprechpartner",
+    "Termine mit Bestätigung",
+    "Nachvollziehbarer Ablauf"
+  ],
+  "team": [
+    [
+      "Noah Weber",
+      "Leitung",
+      "Leitung bei Wohnraum Furniture — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Erik Hoffmann",
+      "Spezialist/in",
+      "Spezialist/in bei Wohnraum Furniture — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Lea Hoffmann",
+      "Beratung",
+      "Beratung bei Wohnraum Furniture — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Noah Becker",
+      "Assistenz",
+      "Assistenz bei Wohnraum Furniture — Fokus auf Qualität und ruhige Abläufe."
+    ]
+  ],
+  "faq": [
+    [
+      "Wie vereinbare ich einen Termin bei Wohnraum Furniture?",
+      "Über das Kontaktformular, telefonisch oder per E-Mail. Sie erhalten eine Bestätigung."
+    ],
+    [
+      "Wie transparent sind die Kosten?",
+      "Vor Beginn erhalten Sie eine klare Einschätzung. Keine versteckten Positionen."
+    ],
+    [
+      "Seit wann gibt es Wohnraum Furniture?",
+      "Seit 2019 in Berlin — gewachsen mit Stammkunden und klarer Handschrift."
+    ],
+    [
+      "Gibt es Parkplätze / Anreise?",
+      "Zentral in Berlin. Details zur Anreise senden wir mit der Terminbestätigung."
+    ],
+    [
+      "Arbeitet ihr auch online / hybrid?",
+      "Wo sinnvoll ja — Details klären wir im Erstkontakt."
+    ]
+  ],
+  "reviews": [
+    [
+      "Seriös, klar, ohne Show. Weiterzuempfehlen.",
+      "Sofia · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Fühlt sich nach echtem Handwerk an — nicht nach Vorlage.",
+      "Noah · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Transparente Kommunikation. Genau das wollte ich.",
+      "Max · Demo-Bewertung — kein echter Kundenname"
+    ]
+  ],
+  "process_steps": [
+    "Kennenlernen & Bedarf",
+    "Klare Empfehlung & Preis",
+    "Umsetzung mit Abstimmung",
+    "Nachsorge & Feedback"
+  ],
+  "blog_titles": [
+    "Warum Wohnraum Furniture anders arbeitet",
+    "3 Dinge, die Kunden in Berlin uns am häufigsten fragen",
+    "Hinter den Kulissen: Qualität statt Tempo",
+    "So bereiten Sie Ihren ersten Termin vor"
+  ],
+  "certificates": [
+    "Qualitätsversprechen",
+    "Transparente Prozesse",
+    "Versicherungsschutz"
+  ],
+  "hours": "Mo–Fr 09:00–18:00 · Sa nach Vereinbarung",
+  "phone": "+49 40 3197169",
+  "email": "kontakt@wohnraum-furniture.example.de",
+  "social": [
+    "instagram.com/wohnraumfurniture.demo",
+    "linkedin.com/company/wohnraum-furniture-demo"
+  ],
+  "fingerprint": "0cc5689c40145626",
+  "demo_content": true
+}

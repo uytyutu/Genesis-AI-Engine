@@ -1,0 +1,129 @@
+BRAND BOOK
+Brand Name
+GlanzWerk Detailing
+
+Positioning
+Klare lokale Marke
+
+Brand Archetype
+The Expert
++
+The Guide
+
+Brand Promise
+Klar. Vertrauenswürdig. Vor Ort.
+
+Core Emotion
+Vertrauen
+
+Secondary Emotion
+Klarheit
+
+Tone of Voice
+  Klar
+  Freundlich
+  Kompetent
+
+Visual Style
+Modern Clear · premium business geometry
+
+Visual Metaphor
+Offenes Licht auf ruhiger Fläche
+
+Photography
+  Premium-Detailing-Studio
+  Lackpolitur unter LED
+  schwarzer Sportwagen, Spiegelglanz
+  Keramikversiegelung, Dunst und Glanz
+  Lackkorrektur
+  Innenraumreinigung
+  Felgenpflege
+  Scheibenversiegelung
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+
+Motion
+atelier drift · glass shimmer · slow depth
+
+Palette
+Slate, Sage, Warm White
+Accent #5b7c6e
+Surface #dadce0
+Ink #f4f6f8
+
+Typography
+Manrope
++
+IBM Plex Sans
+(manrope_ibm_plex_industrial)
+
+Icon Style
+technical blueprint icons
+
+Border Radius
+12 px
+
+Shadow Style
+Soft
+
+Glass Level
+medium
+
+Texture
+  Paper
+  Light
+
+Scene Language
+  Premium-Detailing-Studio
+  Lackpolitur unter LED
+  schwarzer Sportwagen, Spiegelglanz
+  Keramikversiegelung, Dunst und Glanz
+
+CTA Style
+Große Buttons · Ruhiger Abstand
+
+Trust Strategy
+  Transparenz
+  Kontakt
+  Prozess
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Real workplace
+✔ People at craft
+✔ Daylight
+
+Preferred
+✔ Local place
+✔ Honest detail
+
+Forbidden
+✖ Café
+✖ Coworking
+✖ Abstract business
+✖ Laptop stock
+✖ Beauty salon
+
+Hero Proof
+A frame that answers: what does this company live every day?
+
+Fingerprint
+ce71a2a3d8af043b21eeedc1
+

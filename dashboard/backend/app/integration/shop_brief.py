@@ -74,10 +74,18 @@ CATEGORIES = frozenset(
         "jewelry",
         "furniture",
         "food",
+        "handwerk",
+        "dachreinigung",
+        "zaunbau",
+        "gartenpflege",
+        "psychology",
+        "therapy",
+        "accessories",
+        "restaurant",
         "other",
     }
 )
-CATALOG_SIZES = frozenset({"20", "100", "500", "1000+"})
+CATALOG_SIZES = frozenset({"12", "18", "20", "24", "100", "500", "1000+"})
 PAYMENT_METHODS = frozenset({"stripe", "paypal", "bank"})
 SHIPPING_METHODS = frozenset({"dhl", "hermes", "dpd", "pickup"})
 PAGE_IDS = frozenset(

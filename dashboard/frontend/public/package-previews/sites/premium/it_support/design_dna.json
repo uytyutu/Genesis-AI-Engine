@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "IT-Werkbank · geöffneter Laptop · Diagnose-Monitor",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "ember",
+  "package_id": "premium",
+  "niche_id": "computer",
+  "fingerprint": "50c3362eaa0695a3671f320c0d028780a2b90ed9d78e54e0ca1da10a7cef8d9d",
+  "section_treatments": [
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "showcase",
+      "gradient"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "gallery",
+      "illustration"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "faq",
+      "gradient"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "photo_band"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#dce0ee",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "c97ffec6f2891feba589f911",
+  "border_radius_px": 12
+}

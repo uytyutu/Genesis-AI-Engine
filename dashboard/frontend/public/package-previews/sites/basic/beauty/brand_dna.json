@@ -1,0 +1,29 @@
+{
+  "business_name": "Salon Mira",
+  "niche_id": "beauty",
+  "package_id": "basic",
+  "voice": "optimistic editorial — clear, warm, awake",
+  "feeling": "trust and desire to stay",
+  "why_hero_exists": "The Hero exists to make 'Morning Light' felt in 3 seconds: Every day can begin again.",
+  "color_feeling": "cream, pale gold, sky blue breath",
+  "type_voice": "optimistic editorial — clear, warm, awake",
+  "scene_arc": "dawn windows, soft gold, open horizon",
+  "avoid": [
+    "noir_club",
+    "gaming",
+    "aggressive_sale",
+    "dark_corporate"
+  ],
+  "fingerprint": "2ace02dcf0333203",
+  "brand_story": "Sofia built Salon Mira because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: beauty.",
+  "core_emotion": "trust and desire to stay",
+  "core_promise": "Every day can begin again.",
+  "visual_metaphor": "first light through linen curtains",
+  "creative_theme": "Morning Light",
+  "creative_theme_id": "morning_light",
+  "scene_language": "dawn windows, soft gold, open horizon",
+  "motion_language": "soft rise — light enters the frame",
+  "interaction_style": "inviting, hopeful, one clear next step",
+  "photo_world": "morning desk, coffee steam, open notebook",
+  "founder_name": "Sofia"
+}

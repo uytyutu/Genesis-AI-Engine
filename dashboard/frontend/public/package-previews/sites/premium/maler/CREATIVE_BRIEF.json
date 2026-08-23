@@ -1,0 +1,15 @@
+{
+  "brand_name": "FarbRaum Malermeister",
+  "niche_id": "maler",
+  "package_id": "premium",
+  "media_mode": "atelier_warm",
+  "visual_metaphor": "Paint plane and brush",
+  "hero_concept": "Paint plane and brush | FarbRaum Malermeister",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "0c418387f90fe0de55f9",
+  "image_prompt": "FarbRaum Malermeister maler brand hero, Paint plane and brush, European studio, media_mode=atelier_warm, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

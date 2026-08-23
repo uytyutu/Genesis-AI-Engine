@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "electronics",
+  "package_id": "premium",
+  "category": "electronics",
+  "store_name": "VoltHaus Electronics",
+  "generated_at": "2026-08-08T16:19:48.971469+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 43449,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/electronics/catalog.html"
+}

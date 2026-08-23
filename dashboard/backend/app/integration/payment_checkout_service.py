@@ -156,6 +156,8 @@ class PaymentCheckoutService:
         cur = (currency or "eur").lower()
         from app.integration.pricing_engine import stripe_unit_amount
 
+        from app.integration.genesis_brain.public_brand import BRAND_NAME
+
         amount_cents = stripe_unit_amount(amount, cur)
         # Frontend already sends .../order/status/{id}?paid=1 — do not append a second "?".
         success = success_url.strip()
@@ -168,6 +170,9 @@ class PaymentCheckoutService:
         if "{CHECKOUT_SESSION_ID}" not in success and "session_id=" not in success:
             joiner = "&" if "?" in success else "?"
             success = f"{success}{joiner}session_id={{CHECKOUT_SESSION_ID}}"
+        product_name = label[:120]
+        if BRAND_NAME.lower() not in product_name.lower():
+            product_name = f"{BRAND_NAME} · {product_name}"[:120]
         data = {
             "mode": "payment",
             "success_url": success,
@@ -176,11 +181,15 @@ class PaymentCheckoutService:
             "payment_method_types[0]": "card",
             "line_items[0][price_data][currency]": cur,
             "line_items[0][price_data][unit_amount]": str(amount_cents),
-            "line_items[0][price_data][product_data][name]": label[:120],
+            "line_items[0][price_data][product_data][name]": product_name,
+            "line_items[0][price_data][product_data][description]": f"{BRAND_NAME} — Website / AI Store",
             "line_items[0][quantity]": "1",
+            # Card statement (max 22 chars). Dashboard display name must also be Virtus Core.
+            "payment_intent_data[statement_descriptor]": "VIRTUSCORE",
             "metadata[order_id]": order_id,
             "metadata[motion_level]": motion_level or "none",
             "metadata[market_code]": market_code or "DE",
+            "metadata[brand]": BRAND_NAME,
         }
         for key, val in (extra_metadata or {}).items():
             k = str(key or "").strip()

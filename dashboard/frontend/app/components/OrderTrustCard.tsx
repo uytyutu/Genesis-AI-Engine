@@ -4,6 +4,7 @@ import {
   ORDER_TRUST_CONTENT,
   type OrderPurchaseType,
 } from "../lib/orderTrustCard";
+import { CONTACT_EMAIL } from "../lib/siteConfig";
 
 export function OrderTrustCard({
   purchaseType,
@@ -35,8 +36,8 @@ export function OrderTrustCard({
                   {legalReady === false ? (
                     <>
                       Das vollständige Impressum wird vorbereitet. Kontakt:{" "}
-                      <a href="mailto:hello@genesis-ai-engine.com" className="text-genesis-accent hover:underline">
-                        hello@genesis-ai-engine.com
+                      <a href={`mailto:${CONTACT_EMAIL}`} className="text-genesis-accent hover:underline">
+                        {CONTACT_EMAIL}
                       </a>
                       .
                     </>
@@ -56,8 +57,8 @@ export function OrderTrustCard({
               ) : line.emoji === "📄" && legalReady === false ? (
                 <span>
                   Rechtliche Dokumente werden vorbereitet. Verkäuferkontakt:{" "}
-                  <a href="mailto:hello@genesis-ai-engine.com" className="text-genesis-accent hover:underline">
-                    hello@genesis-ai-engine.com
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="text-genesis-accent hover:underline">
+                    {CONTACT_EMAIL}
                   </a>
                   .
                 </span>
@@ -80,18 +81,11 @@ export function OrderTrustCard({
                   ) : null}
                 </span>
               )}
-              {line.bullets?.length ? (
-                <ul className="mt-1.5 list-disc space-y-0.5 pl-4">
-                  {line.bullets.map((bullet) => (
-                    <li key={bullet}>{bullet}</li>
-                  ))}
-                </ul>
-              ) : null}
             </div>
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-[10px] text-genesis-muted/80">
+      <p className="mt-4 text-center text-[11px]">
         <Link href="/trust" className="text-genesis-accent hover:underline">
           Mehr zu Daten und Vertrauen
         </Link>

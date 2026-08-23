@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
-  "Услуги",
-  "Услуги Virtus Core: заказ сайта под ключ и направления развития компании.",
+  "Leistungen",
+  "Leistungen von Virtus Core: fertige Business-Website bestellen und nächste Schritte für Ihr Unternehmen.",
   "/services"
 );
 

@@ -1,0 +1,225 @@
+{
+  "business": {
+    "business_name": "Atelier Nord Fade",
+    "niche": "barbershop",
+    "city": "Dresden",
+    "description": "Premium Barbershop Fade & Bart",
+    "product_kind": "website",
+    "cta": "Termin buchen",
+    "phone": "+49 351 1234567",
+    "email": "termin@nordfade-demo.example.de",
+    "instagram": "https://www.instagram.com/",
+    "telegram": "https://t.me/",
+    "street": "Königstraße 12",
+    "zip": "01097",
+    "about_title": "Mehr als ein Haarschnitt",
+    "about_body": "Atelier Nord Fade ist ein Premium-Barbershop in Dresden — präzise Contour, ruhiges Handwerk, feste Meister. Showcase-Demo für Virtus Core Premium.",
+    "about_points": [
+      "Feste Meister — kein Fließband",
+      "Transparente Preise vor dem Schnitt",
+      "Termin ohne Wartechaos"
+    ],
+    "marketing_lines": [
+      "Präzise Schnitte.",
+      "Saubere Konturen.",
+      "Dein Style.",
+      "Termin buchen."
+    ],
+    "products_or_services": [
+      {
+        "name": "Signature Fade",
+        "blurb": "Saubere Contour, weiche Übergänge."
+      },
+      {
+        "name": "Bart & Kontur",
+        "blurb": "Symmetrie und Linie."
+      },
+      {
+        "name": "Styling Finish",
+        "blurb": "Produkt und Form für den Alltag."
+      }
+    ],
+    "gallery": [
+      {
+        "src": "assets/01_salon.jpg",
+        "alt": "Story",
+        "caption": ""
+      },
+      {
+        "src": "assets/02_clippers.jpg",
+        "alt": "Story",
+        "caption": ""
+      },
+      {
+        "src": "assets/03_hairfly.jpg",
+        "alt": "Story",
+        "caption": ""
+      },
+      {
+        "src": "assets/04_scissors.jpg",
+        "alt": "Story",
+        "caption": ""
+      },
+      {
+        "src": "assets/05_fade.jpg",
+        "alt": "Story",
+        "caption": ""
+      },
+      {
+        "src": "assets/06_result.jpg",
+        "alt": "Story",
+        "caption": ""
+      }
+    ],
+    "gallery_title": "Die Verwandlung",
+    "gallery_lead": "Schnitt → Styling → Final Look — Showcase-Story.",
+    "showcase_badge": "Showcase Demo · Premium Creative Engine"
+  },
+  "creative": {
+    "engine": "v2",
+    "niche_key": "barbershop",
+    "cta": "Termin buchen"
+  },
+  "scene": {
+    "beats": [
+      {
+        "time": 0.0,
+        "scroll": 0.0,
+        "action": "client_in_chair",
+        "camera": "wide",
+        "continues": null,
+        "index": 0
+      },
+      {
+        "time": 1.0,
+        "scroll": 0.0714,
+        "action": "barber_prepares_clippers",
+        "camera": "medium",
+        "continues": "client_in_chair",
+        "index": 1
+      },
+      {
+        "time": 2.0,
+        "scroll": 0.1429,
+        "action": "tool_closeup",
+        "camera": "macro",
+        "continues": "barber_prepares_clippers",
+        "index": 2
+      },
+      {
+        "time": 3.0,
+        "scroll": 0.2143,
+        "action": "cut_begins",
+        "camera": "close",
+        "continues": "tool_closeup",
+        "index": 3
+      },
+      {
+        "time": 4.0,
+        "scroll": 0.2857,
+        "action": "first_pass",
+        "camera": "close",
+        "continues": "cut_begins",
+        "index": 4
+      },
+      {
+        "time": 5.0,
+        "scroll": 0.3571,
+        "action": "side_view_progress",
+        "camera": "medium",
+        "continues": "first_pass",
+        "index": 5
+      },
+      {
+        "time": 6.0,
+        "scroll": 0.4286,
+        "action": "hair_transforms",
+        "camera": "close",
+        "continues": "side_view_progress",
+        "index": 6
+      },
+      {
+        "time": 7.0,
+        "scroll": 0.5,
+        "action": "scissors_work",
+        "camera": "close",
+        "continues": "hair_transforms",
+        "index": 7
+      },
+      {
+        "time": 8.0,
+        "scroll": 0.5714,
+        "action": "scissors_detail",
+        "camera": "macro",
+        "continues": "scissors_work",
+        "index": 8
+      },
+      {
+        "time": 9.0,
+        "scroll": 0.6429,
+        "action": "texturing_styling",
+        "camera": "close",
+        "continues": "scissors_detail",
+        "index": 9
+      },
+      {
+        "time": 10.0,
+        "scroll": 0.7143,
+        "action": "product_apply",
+        "camera": "medium",
+        "continues": "texturing_styling",
+        "index": 10
+      },
+      {
+        "time": 11.0,
+        "scroll": 0.7857,
+        "action": "final_style",
+        "camera": "medium",
+        "continues": "product_apply",
+        "index": 11
+      },
+      {
+        "time": 12.0,
+        "scroll": 0.8571,
+        "action": "orbit_client",
+        "camera": "wide",
+        "continues": "final_style",
+        "index": 12
+      },
+      {
+        "time": 13.0,
+        "scroll": 0.9286,
+        "action": "finished_look",
+        "camera": "close",
+        "continues": "orbit_client",
+        "index": 13
+      },
+      {
+        "time": 13.5,
+        "scroll": 0.9643,
+        "action": "premium_portrait",
+        "camera": "hero",
+        "continues": "finished_look",
+        "index": 14
+      },
+      {
+        "time": 14.0,
+        "scroll": 1.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "premium_portrait",
+        "index": 15
+      }
+    ]
+  },
+  "posters": [
+    "assets/01_salon.jpg",
+    "assets/02_clippers.jpg",
+    "assets/03_hairfly.jpg",
+    "assets/04_scissors.jpg",
+    "assets/05_fade.jpg",
+    "assets/06_result.jpg"
+  ],
+  "kind": "website",
+  "showcase": true
+}

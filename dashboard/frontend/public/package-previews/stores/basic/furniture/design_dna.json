@@ -1,0 +1,72 @@
+{
+  "emotion": "trust",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "newsreader_public",
+  "motion": "soft",
+  "hero_concept": "trust_panel",
+  "hero_layout": "C",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "clean",
+  "package_id": "basic",
+  "niche_id": "realestate",
+  "fingerprint": "457332d936fb2addf6d0abaef7de196aa9dcbf5e48ba9c7d00a18589dfc56339",
+  "section_treatments": [
+    [
+      "stats",
+      "gradient"
+    ],
+    [
+      "services",
+      "illustration"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "gallery",
+      "gradient"
+    ],
+    [
+      "about",
+      "illustration"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "tint"
+    ],
+    [
+      "contact",
+      "glass"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f3f6f4",
+  "ink_hex": "#243029"
+}

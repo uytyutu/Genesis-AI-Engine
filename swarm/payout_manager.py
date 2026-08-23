@@ -56,7 +56,11 @@ _EARN_PAYOUT_PROFILES: list[dict[str, Any]] = [
         "fees_note_ru": "Marketplace fee ~25% + PayPal",
         "external_dashboard_url": "https://rapidapi.com/developer/billing",
         "virtus_withdraw_api": False,
-        "note_ru": "Earn Rank 2 — адаптер ещё не подключён. Вывод только в кабинете Rapid.",
+        "note_ru": (
+            "API Farm channel (swarm/farm_channels/rapidapi). "
+            "Payout: RapidAPI → PayPal. Virtus пишет Actual только после PAID_OUT Hard REAL. "
+            "Stripe сюда не подмешивается."
+        ),
     },
     {
         "id": "own_api_mpp",

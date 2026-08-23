@@ -1,0 +1,698 @@
+{
+  "demo": "beauty_brows",
+  "frame_count": 20,
+  "min_required": 20,
+  "pass_frames": true,
+  "actions": [
+    "studio_arrive",
+    "prep",
+    "brow_close",
+    "mapping",
+    "work_start",
+    "correction",
+    "shape_change",
+    "detail",
+    "tint_or_fill",
+    "finishing",
+    "result_close",
+    "before_after_feel",
+    "beauty_portrait",
+    "premium_close",
+    "studio_env",
+    "mirror_check",
+    "soft_smile",
+    "ad_still",
+    "final_reveal",
+    "cta"
+  ],
+  "copy_lines": [
+    "Im Studio. Ruhig.",
+    "Vorbereitung.",
+    "Präzise Brows.",
+    "Die Linie wird gesetzt.",
+    "Professionelle Technik.",
+    "Form. Balance.",
+    "Die Form verändert sich.",
+    "Detail. Ruhe.",
+    "Farbe. Definition.",
+    "Finishing.",
+    "Das Ergebnis sitzt.",
+    "Vorher war gestern.",
+    "Dein Look.",
+    "Premium Close-up.",
+    "Studio. Licht. Fokus.",
+    "Spiegelprobe.",
+    "Natürlich. Präzise.",
+    "Brows mit Haltung.",
+    "Fertig. Klar.",
+    "Termin buchen."
+  ],
+  "missing_sources": [],
+  "storyboard": {
+    "niche_key": "beauty_brows",
+    "title": "Studio to Finished Brows",
+    "min_frames": 20,
+    "frames": [
+      {
+        "i": 1,
+        "action": "studio_arrive",
+        "copy": "Im Studio. Ruhig.",
+        "prompt": "client in soft beauty studio"
+      },
+      {
+        "i": 2,
+        "action": "prep",
+        "copy": "Vorbereitung.",
+        "prompt": "brow mapping tools prep"
+      },
+      {
+        "i": 3,
+        "action": "brow_close",
+        "copy": "Präzise Brows.",
+        "prompt": "extreme brow close-up"
+      },
+      {
+        "i": 4,
+        "action": "mapping",
+        "copy": "Die Linie wird gesetzt.",
+        "prompt": "brow mapping marks"
+      },
+      {
+        "i": 5,
+        "action": "work_start",
+        "copy": "Professionelle Technik.",
+        "prompt": "artist starts shaping"
+      },
+      {
+        "i": 6,
+        "action": "correction",
+        "copy": "Form. Balance.",
+        "prompt": "tweezer correction"
+      },
+      {
+        "i": 7,
+        "action": "shape_change",
+        "copy": "Die Form verändert sich.",
+        "prompt": "shape becoming cleaner"
+      },
+      {
+        "i": 8,
+        "action": "detail",
+        "copy": "Detail. Ruhe.",
+        "prompt": "detail work close"
+      },
+      {
+        "i": 9,
+        "action": "tint_or_fill",
+        "copy": "Farbe. Definition.",
+        "prompt": "tint or powder fill"
+      },
+      {
+        "i": 10,
+        "action": "finishing",
+        "copy": "Finishing.",
+        "prompt": "brush through brows"
+      },
+      {
+        "i": 11,
+        "action": "result_close",
+        "copy": "Das Ergebnis sitzt.",
+        "prompt": "finished brows close"
+      },
+      {
+        "i": 12,
+        "action": "before_after_feel",
+        "copy": "Vorher war gestern.",
+        "prompt": "soft reveal transition look"
+      },
+      {
+        "i": 13,
+        "action": "beauty_portrait",
+        "copy": "Dein Look.",
+        "prompt": "beauty portrait"
+      },
+      {
+        "i": 14,
+        "action": "premium_close",
+        "copy": "Premium Close-up.",
+        "prompt": "premium face close"
+      },
+      {
+        "i": 15,
+        "action": "studio_env",
+        "copy": "Studio. Licht. Fokus.",
+        "prompt": "studio environment with client"
+      },
+      {
+        "i": 16,
+        "action": "mirror_check",
+        "copy": "Spiegelprobe.",
+        "prompt": "client checks mirror"
+      },
+      {
+        "i": 17,
+        "action": "soft_smile",
+        "copy": "Natürlich. Präzise.",
+        "prompt": "soft smile result"
+      },
+      {
+        "i": 18,
+        "action": "ad_still",
+        "copy": "Brows mit Haltung.",
+        "prompt": "advertising still"
+      },
+      {
+        "i": 19,
+        "action": "final_reveal",
+        "copy": "Fertig. Klar.",
+        "prompt": "final reveal"
+      },
+      {
+        "i": 20,
+        "action": "cta",
+        "copy": "Termin buchen.",
+        "prompt": "CTA still"
+      }
+    ],
+    "world_lock": " SAME WORLD LOCK: soft daylight premium German beauty studio, pale linen, same woman client 25-35 natural makeup brow journey, calm luxury, photorealistic, no logos, no text, 16:9.",
+    "character_identity": {
+      "character_id": "beauty_client_001",
+      "lock": "same face, age, hair, skin tone across all frames"
+    },
+    "environment_identity": {
+      "environment_id": "soft_beauty_studio_001",
+      "world": "soft daylight beauty studio linen"
+    }
+  },
+  "url": "http://localhost:3000/package-previews/premium/beauty-brows/index.html",
+  "qa": {
+    "frames_20_plus": true,
+    "niche_beauty_brows": true,
+    "copy_synced": true,
+    "scroll_sequence_player": true,
+    "character_lock": "target same client; visual QA required",
+    "status": "PASS"
+  },
+  "creative_project_v2": {
+    "engine": "creative_project_v2",
+    "version": 2,
+    "production_enabled": false,
+    "business_identity": {
+      "business_name": "Línea Brow Studio",
+      "niche": "beauty",
+      "city": "München",
+      "market": "DE",
+      "product_kind": "website",
+      "description": "Brow Studio Mapping Shape Tint",
+      "invented_facts": false
+    },
+    "character_identity": {
+      "character_id": "char_209bd18495",
+      "role": "client",
+      "gender": "female",
+      "age_range": "25-35",
+      "hair": "locked",
+      "facial_features": "ONE face — brows change, identity does not",
+      "skin_tone": "locked from master reference",
+      "clothing": "same soft studio wardrobe",
+      "accessories": "",
+      "lock_rule": "ONE_SITE_ONE_CHARACTER — every shot must reference character_id + master_ref",
+      "master_ref": null,
+      "previous_frame_ref": null
+    },
+    "product_identity": null,
+    "environment_identity": {
+      "environment_id": "env_33ea5e8c69",
+      "world": "warm brow studio",
+      "city_hint": "München",
+      "palette": "soft daylight · clean neutrals",
+      "props": [
+        "brow pencil",
+        "calipers",
+        "brush",
+        "mirror"
+      ],
+      "lock_rule": "ONE_SCENE_ONE_WORLD — camera may move; room must not teleport",
+      "master_ref": null
+    },
+    "scene": {
+      "niche_key": "beauty_brows",
+      "title": "Brows Professional Transformation",
+      "principle": "ACTION → TRANSFORMATION → RESULT",
+      "uses_character": true,
+      "uses_product": false,
+      "world": "warm beauty atelier",
+      "scene_duration_sec": 12,
+      "preferred_delivery": [
+        "image_to_video_clips",
+        "keyframe_crossfade"
+      ],
+      "cta": "Termin buchen",
+      "marketing_lines": [
+        "Präzise Brows.",
+        "Professionelles Styling.",
+        "Dein Look.",
+        "Termin buchen."
+      ],
+      "character_seed": {
+        "role": "client",
+        "gender": "female",
+        "age_range": "25-35",
+        "hair": "locked",
+        "clothing": "same soft studio wardrobe",
+        "facial_features": "ONE face — brows change, identity does not"
+      },
+      "environment_seed": {
+        "world": "warm brow studio",
+        "palette": "soft daylight · clean neutrals",
+        "props": [
+          "brow pencil",
+          "calipers",
+          "brush",
+          "mirror"
+        ]
+      },
+      "beats": [
+        {
+          "t": 0.0,
+          "action": "client_in_studio",
+          "camera": "wide",
+          "continues": null
+        },
+        {
+          "t": 1.0,
+          "action": "tools_ready",
+          "camera": "medium",
+          "continues": "client_in_studio"
+        },
+        {
+          "t": 2.0,
+          "action": "brow_closeup",
+          "camera": "macro",
+          "continues": "tools_ready"
+        },
+        {
+          "t": 3.0,
+          "action": "shape_mapping",
+          "camera": "close",
+          "continues": "brow_closeup"
+        },
+        {
+          "t": 4.5,
+          "action": "professional_work",
+          "camera": "close",
+          "continues": "shape_mapping"
+        },
+        {
+          "t": 6.0,
+          "action": "tool_detail",
+          "camera": "macro",
+          "continues": "professional_work"
+        },
+        {
+          "t": 7.0,
+          "action": "form_correction",
+          "camera": "close",
+          "continues": "tool_detail"
+        },
+        {
+          "t": 8.5,
+          "action": "gradual_change",
+          "camera": "close",
+          "continues": "form_correction"
+        },
+        {
+          "t": 9.5,
+          "action": "finish_pass",
+          "camera": "macro",
+          "continues": "gradual_change"
+        },
+        {
+          "t": 10.5,
+          "action": "pro_closeup",
+          "camera": "hero",
+          "continues": "finish_pass"
+        },
+        {
+          "t": 11.2,
+          "action": "before_after_transition",
+          "camera": "hero",
+          "continues": "pro_closeup"
+        },
+        {
+          "t": 11.7,
+          "action": "final_portrait",
+          "camera": "hero",
+          "continues": "before_after_transition"
+        },
+        {
+          "t": 12.0,
+          "action": "cta",
+          "camera": "hero",
+          "continues": "final_portrait"
+        }
+      ],
+      "clip_plan": [
+        {
+          "id": "A",
+          "from_t": 0.0,
+          "to_t": 4.5,
+          "intent": "setup_to_work"
+        },
+        {
+          "id": "B",
+          "from_t": 4.5,
+          "to_t": 9.5,
+          "intent": "process_detail"
+        },
+        {
+          "id": "C",
+          "from_t": 9.5,
+          "to_t": 12.0,
+          "intent": "reveal_cta"
+        }
+      ],
+      "camera_ladder": [
+        "wide",
+        "medium",
+        "close",
+        "macro",
+        "medium",
+        "hero"
+      ]
+    },
+    "timeline": {
+      "engine": "scene_timeline_v2",
+      "scene_duration": 12.0,
+      "fps_target": 30,
+      "delivery": [
+        "image_to_video_clips",
+        "keyframe_crossfade"
+      ],
+      "rule": "Timeline drives continuous motion. Do NOT emit one JPEG per millisecond.",
+      "keyframes": [
+        {
+          "time": 0.0,
+          "scroll": 0.0,
+          "action": "client_in_studio",
+          "camera": "wide",
+          "continues": null,
+          "index": 0
+        },
+        {
+          "time": 1.0,
+          "scroll": 0.0833,
+          "action": "tools_ready",
+          "camera": "medium",
+          "continues": "client_in_studio",
+          "index": 1
+        },
+        {
+          "time": 2.0,
+          "scroll": 0.1667,
+          "action": "brow_closeup",
+          "camera": "macro",
+          "continues": "tools_ready",
+          "index": 2
+        },
+        {
+          "time": 3.0,
+          "scroll": 0.25,
+          "action": "shape_mapping",
+          "camera": "close",
+          "continues": "brow_closeup",
+          "index": 3
+        },
+        {
+          "time": 4.5,
+          "scroll": 0.375,
+          "action": "professional_work",
+          "camera": "close",
+          "continues": "shape_mapping",
+          "index": 4
+        },
+        {
+          "time": 6.0,
+          "scroll": 0.5,
+          "action": "tool_detail",
+          "camera": "macro",
+          "continues": "professional_work",
+          "index": 5
+        },
+        {
+          "time": 7.0,
+          "scroll": 0.5833,
+          "action": "form_correction",
+          "camera": "close",
+          "continues": "tool_detail",
+          "index": 6
+        },
+        {
+          "time": 8.5,
+          "scroll": 0.7083,
+          "action": "gradual_change",
+          "camera": "close",
+          "continues": "form_correction",
+          "index": 7
+        },
+        {
+          "time": 9.5,
+          "scroll": 0.7917,
+          "action": "finish_pass",
+          "camera": "macro",
+          "continues": "gradual_change",
+          "index": 8
+        },
+        {
+          "time": 10.5,
+          "scroll": 0.875,
+          "action": "pro_closeup",
+          "camera": "hero",
+          "continues": "finish_pass",
+          "index": 9
+        },
+        {
+          "time": 11.2,
+          "scroll": 0.9333,
+          "action": "before_after_transition",
+          "camera": "hero",
+          "continues": "pro_closeup",
+          "index": 10
+        },
+        {
+          "time": 11.7,
+          "scroll": 0.975,
+          "action": "final_portrait",
+          "camera": "hero",
+          "continues": "before_after_transition",
+          "index": 11
+        },
+        {
+          "time": 12.0,
+          "scroll": 1.0,
+          "action": "cta",
+          "camera": "hero",
+          "continues": "final_portrait",
+          "index": 12
+        }
+      ],
+      "clips": [
+        {
+          "id": "A",
+          "from_t": 0.0,
+          "to_t": 4.5,
+          "from_scroll": 0.0,
+          "to_scroll": 0.375,
+          "intent": "setup_to_work",
+          "asset": null
+        },
+        {
+          "id": "B",
+          "from_t": 4.5,
+          "to_t": 9.5,
+          "from_scroll": 0.375,
+          "to_scroll": 0.7917,
+          "intent": "process_detail",
+          "asset": null
+        },
+        {
+          "id": "C",
+          "from_t": 9.5,
+          "to_t": 12.0,
+          "from_scroll": 0.7917,
+          "to_scroll": 1.0,
+          "intent": "reveal_cta",
+          "asset": null
+        }
+      ],
+      "scroll_binding": {
+        "0.0": 0.0,
+        "0.25": 0.25,
+        "0.5": 0.5,
+        "0.75": 0.75,
+        "1.0": 1.0
+      }
+    },
+    "keyframes": [
+      {
+        "time": 0.0,
+        "scroll": 0.0,
+        "action": "client_in_studio",
+        "camera": "wide",
+        "continues": null,
+        "index": 0
+      },
+      {
+        "time": 1.0,
+        "scroll": 0.0833,
+        "action": "tools_ready",
+        "camera": "medium",
+        "continues": "client_in_studio",
+        "index": 1
+      },
+      {
+        "time": 2.0,
+        "scroll": 0.1667,
+        "action": "brow_closeup",
+        "camera": "macro",
+        "continues": "tools_ready",
+        "index": 2
+      },
+      {
+        "time": 3.0,
+        "scroll": 0.25,
+        "action": "shape_mapping",
+        "camera": "close",
+        "continues": "brow_closeup",
+        "index": 3
+      },
+      {
+        "time": 4.5,
+        "scroll": 0.375,
+        "action": "professional_work",
+        "camera": "close",
+        "continues": "shape_mapping",
+        "index": 4
+      },
+      {
+        "time": 6.0,
+        "scroll": 0.5,
+        "action": "tool_detail",
+        "camera": "macro",
+        "continues": "professional_work",
+        "index": 5
+      },
+      {
+        "time": 7.0,
+        "scroll": 0.5833,
+        "action": "form_correction",
+        "camera": "close",
+        "continues": "tool_detail",
+        "index": 6
+      },
+      {
+        "time": 8.5,
+        "scroll": 0.7083,
+        "action": "gradual_change",
+        "camera": "close",
+        "continues": "form_correction",
+        "index": 7
+      },
+      {
+        "time": 9.5,
+        "scroll": 0.7917,
+        "action": "finish_pass",
+        "camera": "macro",
+        "continues": "gradual_change",
+        "index": 8
+      },
+      {
+        "time": 10.5,
+        "scroll": 0.875,
+        "action": "pro_closeup",
+        "camera": "hero",
+        "continues": "finish_pass",
+        "index": 9
+      },
+      {
+        "time": 11.2,
+        "scroll": 0.9333,
+        "action": "before_after_transition",
+        "camera": "hero",
+        "continues": "pro_closeup",
+        "index": 10
+      },
+      {
+        "time": 11.7,
+        "scroll": 0.975,
+        "action": "final_portrait",
+        "camera": "hero",
+        "continues": "before_after_transition",
+        "index": 11
+      },
+      {
+        "time": 12.0,
+        "scroll": 1.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "final_portrait",
+        "index": 12
+      }
+    ],
+    "generated_assets": [],
+    "copy": {
+      "marketing_lines": [
+        "Präzise Brows.",
+        "Professionelles Styling.",
+        "Dein Look.",
+        "Termin buchen."
+      ],
+      "cta": "Termin buchen",
+      "about_hint": "Brows Professional Transformation",
+      "rule": "Niche marketing only — no invented company facts."
+    },
+    "cta": "Termin buchen",
+    "contacts": {
+      "invented": false,
+      "demo": true,
+      "provided": {
+        "phone": "+49 89 445566",
+        "email": "hello@linea-brow-demo.example.de"
+      },
+      "note": "Explicit demo_contacts=true — values are labeled demo, not live client data."
+    },
+    "layers": {
+      "cinematic": {
+        "role": "emotion + desire",
+        "delivery": [
+          "image_to_video_clips",
+          "keyframe_crossfade"
+        ]
+      },
+      "commerce": {
+        "enabled": false,
+        "path": [],
+        "honesty": "Do not show cart/checkout UI that is not implemented for this demo."
+      },
+      "contact": {
+        "show_phone": true,
+        "show_email": true,
+        "show_form": true,
+        "show_social": false
+      }
+    },
+    "continuity_prompt": "CONTINUITY LOCK (mandatory):\n- environment_id=env_33ea5e8c69 world=warm brow studio\n- character_id=char_209bd18495 female 25-35 hair=locked clothing=same soft studio wardrobe\n- SAME person in every shot. Do not invent a new face.\n- Each shot CONTINUES the previous action. Not a random gallery.",
+    "mobile_strategy": {
+      "desktop": "full cinematic scroll (clips preferred)",
+      "mobile": "shorter clip / poster / lightweight crossfade — do not ship desktop megabytes"
+    },
+    "qa": {
+      "engine": "continuity_qa_v2",
+      "status": "PASS",
+      "failures": [],
+      "warnings": [],
+      "retry_scope": null,
+      "message": "Continuous ad film contract OK."
+    }
+  }
+}

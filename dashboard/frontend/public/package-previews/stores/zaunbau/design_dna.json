@@ -1,0 +1,64 @@
+{
+  "emotion": "trust",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "libre_source",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "C",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "chamber",
+  "package_id": "business",
+  "niche_id": "generic",
+  "fingerprint": "056af0e8e42d73684a426007df8670dca4961a5669f6b58d25897fd80338a20d",
+  "section_treatments": [
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "gallery",
+      "glass"
+    ],
+    [
+      "process",
+      "tint"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f3f6f4",
+  "ink_hex": "#243029"
+}

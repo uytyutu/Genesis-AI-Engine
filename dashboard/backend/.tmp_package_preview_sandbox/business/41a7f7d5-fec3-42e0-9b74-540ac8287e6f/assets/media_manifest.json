@@ -1,0 +1,67 @@
+{
+  "hero_src": "assets/hero.jpg",
+  "hero_from_client": false,
+  "hero_ok": true,
+  "gallery": [],
+  "background_src": "assets/background.jpg",
+  "assessments": [
+    {
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/41a7f7d5-fec3-42e0-9b74-540ac8287e6f/assets/hero.jpg",
+      "role": "hero",
+      "ok": true,
+      "width": 1600,
+      "height": 900,
+      "bytes": 48537,
+      "reason": "ok",
+      "source": "brand_book"
+    },
+    {
+      "path": "assets/background.jpg",
+      "role": "background",
+      "ok": true,
+      "width": 1920,
+      "height": 1080,
+      "bytes": 61598,
+      "reason": "ok",
+      "source": "brand_book"
+    }
+  ],
+  "gate_ok": false,
+  "gate_failures": [
+    "media_gate:hero:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/41a7f7d5-fec3-42e0-9b74-540ac8287e6f/assets/hero.jpg — untagged_media",
+    "media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/41a7f7d5-fec3-42e0-9b74-540ac8287e6f/assets/background.jpg — untagged_media"
+  ],
+  "media_gate_ok": false,
+  "media_gate_failures": [
+    "hero:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/41a7f7d5-fec3-42e0-9b74-540ac8287e6f/assets/hero.jpg — untagged_media",
+    "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/41a7f7d5-fec3-42e0-9b74-540ac8287e6f/assets/background.jpg — untagged_media"
+  ],
+  "media_gate": {
+    "engine_id": "media_gate_v1",
+    "passed": false,
+    "failures": [
+      "hero:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/41a7f7d5-fec3-42e0-9b74-540ac8287e6f/assets/hero.jpg — untagged_media",
+      "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/41a7f7d5-fec3-42e0-9b74-540ac8287e6f/assets/background.jpg — untagged_media"
+    ],
+    "checks": [
+      {
+        "section": "hero",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/41a7f7d5-fec3-42e0-9b74-540ac8287e6f/assets/hero.jpg",
+        "ok": false,
+        "tags": [
+          "untagged"
+        ],
+        "detail": "untagged_media"
+      },
+      {
+        "section": "about",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/41a7f7d5-fec3-42e0-9b74-540ac8287e6f/assets/background.jpg",
+        "ok": false,
+        "tags": [
+          "untagged"
+        ],
+        "detail": "untagged_media"
+      }
+    ]
+  }
+}

@@ -116,8 +116,104 @@ type CeoDash = {
     behind?: boolean | null;
     detail_ru?: string;
     note_ru?: string;
+    explanation_ru?: string;
     checklist_ru?: string[];
     local_dirty?: boolean;
+    actions?: Array<{ id: string; label: string; priority?: number; detail_ru?: string }>;
+  };
+  deployment_manager?: {
+    title?: string;
+    mark?: string;
+    status?: string;
+    explanation_ru?: string;
+    note_ru?: string;
+    policy?: {
+      production?: string;
+      preview?: string;
+      chain_ru?: string;
+      vercel_role_ru?: string;
+      publish_pipeline?: string[];
+      auto_deploy_enabled?: boolean;
+      auto_deploy_note_ru?: string;
+    };
+    production_server?: {
+      provider?: string;
+      host?: string;
+      ok?: boolean;
+      frontend_version?: string | null;
+      ssh?: { configured?: boolean; reachable?: boolean; error?: string | null };
+    };
+    local?: {
+      commit?: string;
+      dirty?: boolean;
+      commits_ahead_of_ovh?: number | null;
+    };
+    domain?: {
+      name?: string;
+      points_to_provider?: string;
+      points_to_ovh?: boolean;
+      expected?: string;
+      aws_like?: boolean;
+      commit?: string | null;
+    };
+    vercel?: {
+      commit?: string | null;
+      ok?: boolean;
+      role?: string;
+    };
+    commit_chain?: {
+      text?: string;
+      summary_status?: string;
+      behind_reasons?: string[];
+      rows?: Array<{ id: string; label: string; commit: string; mark: string }>;
+    };
+    production_health?: {
+      title?: string;
+      ok?: boolean;
+      mark?: string;
+      note_ru?: string;
+      items?: Array<{ id: string; label: string; ok: boolean; mark: string; detail?: string }>;
+    };
+    comparison?: {
+      production_commit?: string;
+      local_commit?: string;
+      status?: string;
+    };
+    actions?: Array<{ id: string; label: string; priority?: number; detail_ru?: string }>;
+  };
+  deployment_inspector?: {
+    title?: string;
+    mark?: string;
+    status?: string;
+    explanation_ru?: string;
+    note_ru?: string;
+    production?: {
+      domain?: string;
+      url?: string;
+      points_to?: string;
+      expected?: string;
+    };
+    frontend?: {
+      provider?: string;
+      ok?: boolean;
+      production_found?: boolean;
+      commit?: string | null;
+      preview_only?: boolean;
+    };
+    backend?: {
+      provider?: string;
+      ok?: boolean;
+      url?: string | null;
+      commit?: string | null;
+    };
+    git?: {
+      url?: string | null;
+      branch?: string;
+      local_commit?: string;
+      local_dirty?: boolean;
+      commits_ahead_of_production?: number | null;
+    };
+    actions?: Array<{ id: string; label: string; priority?: number; detail_ru?: string }>;
   };
   dashboard_health?: {
     title?: string;
@@ -169,9 +265,32 @@ type CeoDash = {
         goal?: number;
         ssot?: string;
       };
+      demo_freshness_gate?: {
+        status?: string;
+        ok?: boolean;
+        mark?: string;
+        issues?: string[];
+        ssot_ru?: string;
+      };
+      tier_policy_ru?: Record<string, string>;
       last_generated?: string | null;
       websites?: { pass?: number; goal?: number };
       stores?: { pass?: number; goal?: number };
+    };
+    commercial_acceptance?: {
+      title?: string;
+      status?: string;
+      mark?: string;
+      policy_ru?: string;
+      next_ru?: string;
+      items?: Array<{
+        id: string;
+        label: string;
+        ok: boolean;
+        auto?: boolean;
+        mark?: string;
+        detail?: string;
+      }>;
     };
     golden_website_test?: {
       status?: string;
@@ -225,12 +344,53 @@ export default function ExecutiveDashboardPage() {
     setBusy(true);
     setErr(null);
     try {
-      const res = await fetch(`${API}/api/owner/ceo-dashboard`, { cache: "no-store" });
+      const res = await fetch(
+        `${API}/api/owner/ceo-dashboard?stage=core`,
+        { cache: "no-store" },
+      );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setData((await res.json()) as CeoDash);
+      const body = (await res.json()) as CeoDash;
+      setData(body);
+      setBusy(false);
+
+      // After first paint: Farm KPIs, then Deployment (SSH/DNS).
+      void fetch(`${API}/api/owner/ceo-dashboard/farm`, { cache: "no-store" })
+        .then(async (r) => {
+          if (!r.ok) return;
+          const farmBody = await r.json();
+          setData((prev) =>
+            prev && farmBody?.farm
+              ? { ...prev, farm: farmBody.farm as CeoDash["farm"] }
+              : prev,
+          );
+        })
+        .catch(() => {
+          /* keep stub */
+        });
+
+      if (body.deployment_manager?.status === "deferred") {
+        void fetch(`${API}/api/owner/deployment-manager`, { cache: "no-store" })
+          .then(async (r) => {
+            if (!r.ok) return;
+            const live = await r.json();
+            setData((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    deployment_manager: live as CeoDash["deployment_manager"],
+                    deployment_inspector:
+                      (live as { inspector?: CeoDash["deployment_inspector"] })
+                        .inspector || prev.deployment_inspector,
+                  }
+                : prev,
+            );
+          })
+          .catch(() => {
+            /* keep deferred card */
+          });
+      }
     } catch (e) {
       setErr(e instanceof Error ? e.message : "load_failed");
-    } finally {
       setBusy(false);
     }
   }, []);
@@ -313,7 +473,309 @@ export default function ExecutiveDashboardPage() {
         </section>
       ) : null}
 
-      {data?.frontend_deployment ? (
+      {data?.dashboard_health ? (
+        <section className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold text-white">
+              {data.dashboard_health.title || "CEO Dashboard Health"}
+            </h2>
+            <span className="text-[11px] text-zinc-500">
+              {data.dashboard_health.headline_ru}
+            </span>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {(data.dashboard_health.items || []).map((h) => (
+              <Link
+                key={h.id}
+                href={h.href || "/executive"}
+                className="rounded-lg border border-white/10 bg-black/25 px-2.5 py-2 hover:bg-white/5"
+              >
+                <p className="text-sm">
+                  {h.mark} <span className="font-medium text-white">{h.label}</span>
+                </p>
+                <p className="mt-1 text-[10px] leading-snug text-zinc-400">{h.detail_ru}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <section className="rounded-xl border border-emerald-500/25 bg-emerald-950/15 p-4">
+        <h2 className="text-sm font-semibold text-emerald-100">Today Focus</h2>
+        <ul className="mt-3 space-y-2">
+          {(data?.today_focus || []).map((item) => (
+            <li key={item.id}>
+              <Link
+                href={item.href || "/"}
+                className="flex items-start gap-2 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm hover:bg-white/5"
+              >
+                <span className={item.done ? "text-emerald-300" : "text-zinc-500"}>
+                  {item.done ? "☑" : "☐"}
+                </span>
+                <span>
+                  <span className="text-white">{item.label_ru || item.label}</span>
+                  <span className="mt-0.5 block text-[10px] uppercase tracking-wide text-zinc-500">
+                    {item.track}
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {data?.deployment_manager &&
+      data.deployment_manager.status !== "deferred" ? (
+        <section
+          className={`rounded-xl border p-4 ${
+            data.deployment_manager.status === "in_sync"
+              ? "border-emerald-500/35 bg-emerald-950/20"
+              : data.deployment_manager.status === "dns_mismatch" ||
+                  data.deployment_manager.status === "outdated" ||
+                  data.deployment_manager.status === "ovh_unreachable"
+                ? "border-rose-500/35 bg-rose-950/20"
+                : "border-amber-500/30 bg-amber-950/15"
+          }`}
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold text-white">
+              {data.deployment_manager.title || "Deployment Manager"}
+            </h2>
+            <span className="text-sm">
+              {data.deployment_manager.mark}{" "}
+              {(data.deployment_manager.comparison?.status || data.deployment_manager.status || "").toUpperCase()}
+            </span>
+          </div>
+          {data.deployment_manager.policy?.chain_ru ? (
+            <p className="mt-1 font-mono text-[10px] text-zinc-500">
+              {data.deployment_manager.policy.chain_ru}
+            </p>
+          ) : null}
+          <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">Production Server</dt>
+              <dd className="text-white">
+                {data.deployment_manager.production_server?.provider || "OVH Cloud"}{" "}
+                {data.deployment_manager.production_server?.ok ? "✅" : "❌"}
+                <span className="mt-0.5 block font-mono text-[11px] text-zinc-400">
+                  {data.deployment_manager.production_server?.host || "—"}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">OVH version</dt>
+              <dd className="font-mono text-white">
+                {data.deployment_manager.production_server?.frontend_version || "unknown"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">Local version</dt>
+              <dd className="font-mono text-white">
+                {data.deployment_manager.local?.commit || "—"}
+                {data.deployment_manager.local?.dirty ? " · dirty" : ""}
+                {typeof data.deployment_manager.local?.commits_ahead_of_ovh === "number"
+                  ? ` · +${data.deployment_manager.local.commits_ahead_of_ovh}`
+                  : ""}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">Domain</dt>
+              <dd className="text-sky-200">
+                {data.deployment_manager.domain?.name || "virtuscore.com"} →{" "}
+                {data.deployment_manager.domain?.points_to_ovh
+                  ? "OVH ✅"
+                  : data.deployment_manager.domain?.points_to_provider || "?"}
+                {data.deployment_manager.domain?.aws_like ? " · AWS-like" : ""}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">Vercel</dt>
+              <dd className="text-zinc-300">Preview only (не Production)</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">SSH</dt>
+              <dd className="text-zinc-300">
+                {data.deployment_manager.production_server?.ssh?.configured
+                  ? data.deployment_manager.production_server.ssh.reachable
+                    ? "configured · reachable"
+                    : "configured · unreachable"
+                  : "не настроен"}
+              </dd>
+            </div>
+          </dl>
+          {data.deployment_manager.commit_chain?.rows?.length ? (
+            <div className="mt-3 rounded-lg border border-white/10 bg-black/30 px-3 py-2 font-mono text-[11px] text-zinc-300">
+              {data.deployment_manager.commit_chain.rows.map((r) => (
+                <div key={r.id} className="flex justify-between gap-4 py-0.5">
+                  <span className="text-zinc-500">{r.label}</span>
+                  <span>
+                    {r.commit} {r.mark}
+                  </span>
+                </div>
+              ))}
+              {data.deployment_manager.commit_chain.summary_status === "production_behind" ? (
+                <p className="mt-2 text-amber-200">
+                  Status: Production behind by 1+ deployment.
+                </p>
+              ) : (
+                <p className="mt-2 text-zinc-500">
+                  Status: {data.deployment_manager.commit_chain.summary_status}
+                </p>
+              )}
+            </div>
+          ) : null}
+          {data.deployment_manager.production_health?.items?.length ? (
+            <div className="mt-3 rounded-lg border border-white/10 bg-black/20 p-3">
+              <div className="flex items-baseline justify-between gap-2">
+                <h3 className="text-xs font-semibold text-white">
+                  {data.deployment_manager.production_health.title || "Production Health"}
+                </h3>
+                <span className="text-xs">
+                  {data.deployment_manager.production_health.mark}{" "}
+                  {data.deployment_manager.production_health.ok ? "OK" : "Issues"}
+                </span>
+              </div>
+              <ul className="mt-2 grid gap-1 sm:grid-cols-2">
+                {data.deployment_manager.production_health.items.map((it) => (
+                  <li key={it.id} className="flex items-center gap-2 text-[11px] text-zinc-300">
+                    <span>{it.mark}</span>
+                    <span className="font-medium text-zinc-200">{it.label}</span>
+                    {it.detail ? (
+                      <span className="truncate text-zinc-500">{it.detail}</span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+              {data.deployment_manager.production_health.note_ru ? (
+                <p className="mt-2 text-[10px] text-zinc-500">
+                  {data.deployment_manager.production_health.note_ru}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+          {data.deployment_manager.policy?.publish_pipeline?.length ? (
+            <p className="mt-2 font-mono text-[10px] text-zinc-600">
+              Publish: {data.deployment_manager.policy.publish_pipeline.join(" → ")}
+            </p>
+          ) : null}
+          {data.deployment_manager.explanation_ru ? (
+            <p className="mt-3 text-sm font-medium text-amber-100/95">
+              {data.deployment_manager.explanation_ru}
+            </p>
+          ) : null}
+          {data.deployment_manager.actions?.length ? (
+            <ul className="mt-3 space-y-2">
+              {data.deployment_manager.actions.map((a) => (
+                <li
+                  key={a.id}
+                  className="rounded-lg border border-white/10 bg-black/25 px-3 py-2"
+                >
+                  <p className="text-xs font-semibold text-white">{a.label}</p>
+                  {a.detail_ru ? (
+                    <p className="mt-0.5 text-[11px] text-zinc-400">{a.detail_ru}</p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {data.deployment_manager.note_ru ? (
+            <p className="mt-2 text-[11px] text-zinc-500">{data.deployment_manager.note_ru}</p>
+          ) : null}
+        </section>
+      ) : data?.deployment_inspector ? (
+        <section
+          className={`rounded-xl border p-4 ${
+            data.deployment_inspector.status === "ok"
+              ? "border-emerald-500/35 bg-emerald-950/20"
+              : data.deployment_inspector.status === "mismatch"
+                ? "border-rose-500/35 bg-rose-950/20"
+                : "border-amber-500/30 bg-amber-950/15"
+          }`}
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold text-white">
+              {data.deployment_inspector.title || "Deployment Inspector"}
+            </h2>
+            <span className="text-sm">
+              {data.deployment_inspector.mark}{" "}
+              {data.deployment_inspector.status === "mismatch"
+                ? "Production mismatch"
+                : data.deployment_inspector.status === "ok"
+                  ? "Production OK"
+                  : data.deployment_inspector.status || "unknown"}
+            </span>
+          </div>
+          <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">Frontend</dt>
+              <dd className="text-white">
+                {data.deployment_inspector.frontend?.provider || "—"}{" "}
+                {data.deployment_inspector.frontend?.ok ? "✅" : "❌"}
+                {data.deployment_inspector.frontend?.preview_only ? " · Preview" : ""}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">Backend</dt>
+              <dd className="text-white">
+                {data.deployment_inspector.backend?.provider || "—"}{" "}
+                {data.deployment_inspector.backend?.ok ? "✅" : "❌"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">Domain</dt>
+              <dd className="truncate text-sky-200">
+                {data.deployment_inspector.production?.domain || "—"} →{" "}
+                {data.deployment_inspector.production?.points_to || "?"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">Expected</dt>
+              <dd className="text-zinc-200">
+                {data.deployment_inspector.production?.expected || "auto-detect"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">Local · ahead</dt>
+              <dd className="font-mono text-white">
+                {data.deployment_inspector.git?.local_commit || "—"}
+                {data.deployment_inspector.git?.local_dirty ? " · dirty" : ""}
+                {typeof data.deployment_inspector.git?.commits_ahead_of_production === "number"
+                  ? ` · +${data.deployment_inspector.git.commits_ahead_of_production}`
+                  : ""}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase text-zinc-500">Prod commit</dt>
+              <dd className="font-mono text-white">
+                {data.deployment_inspector.frontend?.commit || "unknown"}
+              </dd>
+            </div>
+          </dl>
+          {data.deployment_inspector.explanation_ru ? (
+            <p className="mt-3 text-sm font-medium text-amber-100/95">
+              {data.deployment_inspector.explanation_ru}
+            </p>
+          ) : null}
+          {data.deployment_inspector.actions?.length ? (
+            <ul className="mt-3 space-y-2">
+              {data.deployment_inspector.actions.map((a) => (
+                <li
+                  key={a.id}
+                  className="rounded-lg border border-white/10 bg-black/25 px-3 py-2"
+                >
+                  <p className="text-xs font-semibold text-white">{a.label}</p>
+                  {a.detail_ru ? (
+                    <p className="mt-0.5 text-[11px] text-zinc-400">{a.detail_ru}</p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {data.deployment_inspector.note_ru ? (
+            <p className="mt-2 text-[11px] text-zinc-500">{data.deployment_inspector.note_ru}</p>
+          ) : null}
+        </section>
+      ) : data?.frontend_deployment ? (
         <section
           className={`rounded-xl border p-4 ${
             data.frontend_deployment.status === "in_sync"
@@ -363,7 +825,9 @@ export default function ExecutiveDashboardPage() {
               </dd>
             </div>
           </dl>
-          <p className="mt-2 text-xs text-zinc-300">{data.frontend_deployment.detail_ru}</p>
+          <p className="mt-2 text-xs text-zinc-300">
+            {data.frontend_deployment.explanation_ru || data.frontend_deployment.detail_ru}
+          </p>
           {data.frontend_deployment.note_ru ? (
             <p className="mt-1 text-[11px] text-zinc-500">{data.frontend_deployment.note_ru}</p>
           ) : null}
@@ -458,57 +922,6 @@ export default function ExecutiveDashboardPage() {
           ) : null}
         </section>
       ) : null}
-
-      {data?.dashboard_health ? (
-        <section className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-sm font-semibold text-white">
-              {data.dashboard_health.title || "CEO Dashboard Health"}
-            </h2>
-            <span className="text-[11px] text-zinc-500">
-              {data.dashboard_health.headline_ru}
-            </span>
-          </div>
-          <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-            {(data.dashboard_health.items || []).map((h) => (
-              <Link
-                key={h.id}
-                href={h.href || "/executive"}
-                className="rounded-lg border border-white/10 bg-black/25 px-2.5 py-2 hover:bg-white/5"
-              >
-                <p className="text-sm">
-                  {h.mark} <span className="font-medium text-white">{h.label}</span>
-                </p>
-                <p className="mt-1 text-[10px] leading-snug text-zinc-400">{h.detail_ru}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <section className="rounded-xl border border-emerald-500/25 bg-emerald-950/15 p-4">
-        <h2 className="text-sm font-semibold text-emerald-100">Today Focus</h2>
-        <ul className="mt-3 space-y-2">
-          {(data?.today_focus || []).map((item) => (
-            <li key={item.id}>
-              <Link
-                href={item.href || "/"}
-                className="flex items-start gap-2 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm hover:bg-white/5"
-              >
-                <span className={item.done ? "text-emerald-300" : "text-zinc-500"}>
-                  {item.done ? "☑" : "☐"}
-                </span>
-                <span>
-                  <span className="text-white">{item.label_ru || item.label}</span>
-                  <span className="mt-0.5 block text-[10px] uppercase tracking-wide text-zinc-500">
-                    {item.track}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <section className="rounded-xl border border-sky-500/20 bg-sky-950/10 p-4">
@@ -664,7 +1077,7 @@ export default function ExecutiveDashboardPage() {
 
       <section className="rounded-xl border border-sky-500/25 bg-sky-950/15 p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-sm font-semibold text-white">Demo Gallery</h2>
+          <h2 className="text-sm font-semibold text-white">Commercial Gallery</h2>
           <span
             className={`text-xs font-semibold uppercase tracking-wide ${
               c?.demo_gallery?.status === "PASS" ? "text-emerald-300" : "text-amber-200"
@@ -706,6 +1119,19 @@ export default function ExecutiveDashboardPage() {
             </p>
           </div>
           <div className="rounded-lg border border-white/10 px-3 py-2">
+            <p className="text-[10px] uppercase tracking-wide text-zinc-500">Freshness</p>
+            <p
+              className={`text-lg font-semibold ${
+                c?.demo_gallery?.demo_freshness_gate?.status === "PASS"
+                  ? "text-emerald-300"
+                  : "text-rose-300"
+              }`}
+            >
+              {c?.demo_gallery?.demo_freshness_gate?.mark ?? ""}{" "}
+              {c?.demo_gallery?.demo_freshness_gate?.status ?? "—"}
+            </p>
+          </div>
+          <div className="rounded-lg border border-white/10 px-3 py-2">
             <p className="text-[10px] uppercase tracking-wide text-zinc-500">Bytes score</p>
             <p className="text-lg font-semibold text-white">
               {c?.demo_gallery?.visual_quality ?? 0} / 100
@@ -720,11 +1146,66 @@ export default function ExecutiveDashboardPage() {
             </p>
           </div>
         </div>
+        {c?.demo_gallery?.demo_freshness_gate?.issues?.length ? (
+          <ul className="mt-2 space-y-0.5 text-[11px] text-rose-200/90">
+            {c.demo_gallery.demo_freshness_gate.issues.slice(0, 6).map((issue) => (
+              <li key={issue}>· {issue}</li>
+            ))}
+          </ul>
+        ) : null}
+        {c?.demo_gallery?.tier_policy_ru ? (
+          <p className="mt-2 text-[11px] text-zinc-400">
+            {c.demo_gallery.tier_policy_ru.basic} · {c.demo_gallery.tier_policy_ru.business} ·{" "}
+            {c.demo_gallery.tier_policy_ru.premium}
+          </p>
+        ) : null}
         <p className="mt-2 text-[11px] text-zinc-500">
-          Gallery PASS = full demos (≥5 KB). Visual Quality Gate = no empty Hero slots on Business — separate
-          launch blocker.
+          Gallery PASS = full demos (≥5 KB). Freshness = Starter/Business/Premium from current Factory
+          (not recycled HTML). VQ Gate = no empty Hero slots on Business.
         </p>
       </section>
+
+      {c?.commercial_acceptance ? (
+        <section
+          className={`rounded-xl border p-4 ${
+            c.commercial_acceptance.status === "PASS"
+              ? "border-emerald-500/30 bg-emerald-950/15"
+              : c.commercial_acceptance.status === "AUTO_PASS"
+                ? "border-amber-500/30 bg-amber-950/15"
+                : "border-rose-500/30 bg-rose-950/15"
+          }`}
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold text-white">
+              {c.commercial_acceptance.title || "Commercial Acceptance"}
+            </h2>
+            <span className="text-xs font-semibold uppercase tracking-wide">
+              {c.commercial_acceptance.mark} {c.commercial_acceptance.status}
+            </span>
+          </div>
+          {c.commercial_acceptance.policy_ru ? (
+            <p className="mt-2 text-[11px] text-zinc-400">{c.commercial_acceptance.policy_ru}</p>
+          ) : null}
+          {c.commercial_acceptance.items?.length ? (
+            <ul className="mt-3 space-y-1.5">
+              {c.commercial_acceptance.items.map((it) => (
+                <li key={it.id} className="flex gap-2 text-[11px] text-zinc-300">
+                  <span>{it.mark}</span>
+                  <span>
+                    <span className="font-medium text-zinc-100">{it.label}</span>
+                    {it.detail ? (
+                      <span className="mt-0.5 block text-zinc-500">{it.detail}</span>
+                    ) : null}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {c.commercial_acceptance.next_ru ? (
+            <p className="mt-2 text-[11px] text-amber-100/80">{c.commercial_acceptance.next_ru}</p>
+          ) : null}
+        </section>
+      ) : null}
 
       <section className="rounded-xl border border-rose-500/25 bg-rose-950/15 p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">

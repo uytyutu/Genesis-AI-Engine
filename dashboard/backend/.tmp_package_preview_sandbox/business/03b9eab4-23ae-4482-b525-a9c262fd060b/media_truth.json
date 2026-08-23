@@ -1,0 +1,82 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Real workplace",
+      "People at craft",
+      "Daylight"
+    ],
+    "preferred": [
+      "Local place",
+      "Honest detail"
+    ],
+    "forbidden": [
+      "Café",
+      "Coworking",
+      "Abstract business",
+      "Laptop stock",
+      "Beauty salon"
+    ],
+    "hero_proof": "A frame that answers: what does this company live every day?",
+    "profession_keywords": [
+      "work",
+      "local",
+      "craft",
+      "service"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [
+    {
+      "ok": false,
+      "beautiful": true,
+      "brand_fit": false,
+      "profession_fit": false,
+      "action": "REBUILD",
+      "reasons": [
+        "forbidden_tokens:dashboard",
+        "missing_profession_proof",
+        "brand_mismatch"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\03b9eab4-23ae-4482-b525-a9c262fd060b\\assets\\hero.jpg",
+      "role": "hero"
+    },
+    {
+      "ok": true,
+      "action": "REBUILT",
+      "role": "hero",
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\03b9eab4-23ae-4482-b525-a9c262fd060b\\assets\\hero.jpg",
+      "reasons": [
+        "rebuilt_from_media_dna"
+      ]
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\03b9eab4-23ae-4482-b525-a9c262fd060b\\assets\\background.jpg",
+      "role": "background"
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\03b9eab4-23ae-4482-b525-a9c262fd060b\\assets\\gallery.jpg",
+      "role": "gallery"
+    }
+  ],
+  "rebuilds": [
+    "hero"
+  ],
+  "ok": false
+}

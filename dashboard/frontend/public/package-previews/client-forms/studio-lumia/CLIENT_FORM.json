@@ -1,0 +1,21 @@
+{
+  "brand": "Studio LUMIA",
+  "founder": "Olena Melnyk (UA → München)",
+  "niche": "Luxury Nail · Brow · Lash · Massage",
+  "webgl": {
+    "enabled": true,
+    "mode": "soft",
+    "reason": "soft_atmosphere_only",
+    "hero_media": "webgl",
+    "sell_reason": "Light glass / float motion supports calm premium atmosphere — not a spinning polish bottle gimmick."
+  },
+  "website": "/package-previews/client-forms/studio-lumia/website/",
+  "store": "/package-previews/client-forms/studio-lumia/store/catalog.html",
+  "forbidden": [
+    "Autohaus",
+    "Gift Set",
+    "Starter Pack",
+    "Safe Space"
+  ],
+  "photos_wired": 36
+}

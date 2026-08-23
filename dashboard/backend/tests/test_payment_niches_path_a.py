@@ -31,7 +31,7 @@ def _pipeline(tmp_path: Path) -> tuple[SalesOrderService, RevenuePipelineService
     return sales, revenue
 
 
-def test_business_order_stores_650_and_rejects_wrong_amount(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def test_business_order_stores_399_and_rejects_wrong_amount(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("GENESIS_PAYMENT_SANDBOX", "1")
     monkeypatch.delenv("STRIPE_SECRET_KEY", raising=False)
     sales, revenue = _pipeline(tmp_path)
@@ -46,13 +46,13 @@ def test_business_order_stores_650_and_rejects_wrong_amount(tmp_path: Path, monk
     )
     order = sales.get_order(created["order_id"])
     assert order["package_id"] == "business"
-    assert float(order["price_eur"]) == 650.0
+    assert float(order["price_eur"]) == 399.0
     assert str(order.get("currency") or "EUR").upper() == "EUR"
 
     with pytest.raises(ValueError, match="amount_mismatch"):
         revenue._apply_payment(
             order_id=created["order_id"],
-            amount_eur=350.0,
+            amount_eur=199.0,
             currency="eur",
             provider="stripe",
             sender="pay@test.de",
@@ -121,7 +121,7 @@ def test_business_factory_path_three_meister_niches(tmp_path: Path):
             }
         )
         order = sales.get_order(created["order_id"])
-        assert float(order["price_eur"]) == 650.0
+        assert float(order["price_eur"]) == 399.0
         order["status"] = "paid"
         sales._save_order(order)
         prod = sales.start_production(created["order_id"])

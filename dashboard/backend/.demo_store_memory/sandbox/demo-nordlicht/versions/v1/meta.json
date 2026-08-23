@@ -1,0 +1,103 @@
+{
+  "id": "demo-nordlicht",
+  "product_id": "demo-nordlicht",
+  "product_kind": "shop",
+  "order_id": "demo-nordlicht",
+  "business_name": "Nordlicht Boots",
+  "package_id": "ecommerce_shop",
+  "market_code": "DE",
+  "shop_brief": {
+    "company_name": "Alpen Outdoors GmbH",
+    "store_name": "Nordlicht Boots",
+    "business_description": "",
+    "what_is_sold": "Hiking boots and outdoor gear for Alpine trails",
+    "category": "clothing",
+    "product_categories": [],
+    "catalog_size": "100",
+    "languages": [
+      "de",
+      "en"
+    ],
+    "currency": "EUR",
+    "payments": [
+      "stripe",
+      "paypal"
+    ],
+    "shipping": [
+      "dhl",
+      "hermes"
+    ],
+    "pages": [
+      "home",
+      "catalog",
+      "pdp",
+      "about",
+      "contact",
+      "faq",
+      "legal",
+      "returns"
+    ],
+    "wishes": "",
+    "logo_url": "",
+    "logo_need": "need_new_logo",
+    "photo_urls": [],
+    "color_scheme": "",
+    "style": "modern",
+    "need_variants": false,
+    "need_search": true,
+    "need_reviews": false,
+    "need_promo_codes": false,
+    "need_gift_cards": false,
+    "has_digital_products": false,
+    "integrations": [],
+    "market_code": "DE"
+  },
+  "template_id": "niche_clothing",
+  "version": 1,
+  "status": "ready",
+  "owner_approved": true,
+  "published": false,
+  "quality_gate": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "required_pages",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "name": "title_present",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "store_name_in_html",
+        "ok": true,
+        "detail": "Nordlicht Boots"
+      },
+      {
+        "name": "meta_description",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "navigation",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "colors_applied",
+        "ok": true,
+        "detail": "#c45c26"
+      },
+      {
+        "name": "demo_catalog_cards",
+        "ok": true,
+        "detail": ""
+      }
+    ],
+    "errors": []
+  },
+  "created_at": "2026-08-04T20:52:10.035167+00:00",
+  "updated_at": "2026-08-04T20:52:10.035167+00:00"
+}

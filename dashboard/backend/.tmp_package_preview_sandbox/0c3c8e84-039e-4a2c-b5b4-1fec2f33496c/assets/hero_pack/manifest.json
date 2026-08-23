@@ -1,0 +1,11 @@
+{
+  "package_id": "business",
+  "niche_id": "dental",
+  "hero_1": "assets/hero_pack/hero_1.jpg",
+  "hero_2": "assets/hero_pack/hero_2.jpg",
+  "background_1": "assets/hero_pack/background_1.jpg",
+  "background_2": "assets/hero_pack/background_2.jpg",
+  "cta": "assets/hero_pack/cta.jpg",
+  "services": "assets/hero_pack/services.jpg",
+  "hero": "assets/hero.jpg"
+}

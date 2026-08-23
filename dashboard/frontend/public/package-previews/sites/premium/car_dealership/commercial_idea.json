@@ -1,0 +1,20 @@
+{
+  "niche_id": "car_dealership",
+  "idea": "Das nächste Auto ohne Überraschungen.",
+  "who": "Autohaus in München — Auswahl mit Klarheit statt Druckverkauf.",
+  "character": [],
+  "metaphor": "luxury",
+  "hero_concept": "",
+  "emotion_3s": "",
+  "source": "dream_brief",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Das nächste Auto ohne Überraschungen.",
+    "who": "Autohaus in München — Auswahl mit Klarheit statt Druckverkauf.",
+    "package_id": "premium",
+    "source": "dream_brief",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

@@ -45,7 +45,7 @@ from typing import Any
 from app.integration.lead_pipeline_service import detect_niche_key
 
 # Path A EUR list prices (display / EV math). Local currency applied later in prepare.
-_PACKAGE_EUR = {"basic": 350.0, "business": 650.0, "premium": 1200.0}
+_PACKAGE_EUR = {"basic": 199.0, "business": 399.0, "premium": 699.0}
 _PACKAGE_FIT = {"basic": 0.35, "business": 0.65, "premium": 1.0}
 
 # Soft industry priors — ceiling for niche alone stays below Premium gate (0.78).
@@ -351,7 +351,7 @@ def compute_lead_priority(
 
     win_n = _clamp01(win_probability_pct / 100.0, lo=0.12, hi=1.0)
     priority = bp * wn * pf * win_n
-    price = _PACKAGE_EUR.get(package_id, 350.0)
+    price = _PACKAGE_EUR.get(package_id, 199.0)
     expected_eur = round(price * (win_probability_pct / 100.0), 2)
 
     return {

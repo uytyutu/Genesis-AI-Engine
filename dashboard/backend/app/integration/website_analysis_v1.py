@@ -23,9 +23,9 @@ from app.integration.site_analysis_service import SiteAnalysisService
 ENGINE_ID = "website_analysis_v1"
 
 # Locked Path A website prices
-PRICE_BASIC = 350
-PRICE_BUSINESS = 650
-PRICE_PREMIUM = 1200
+PRICE_BASIC = 199
+PRICE_BUSINESS = 399
+PRICE_PREMIUM = 699
 # Repair MVP packages (operator delivery after Stripe)
 PRICE_REPAIR_LITE = 199
 PRICE_REPAIR_STANDARD = 349
@@ -976,8 +976,9 @@ _WEBSITE_PACKAGES_SPEECH = re.compile(
     r"(?:basic|business|premium).{0,60}(?:пакет|package|выбрать)|"
     r"пакет(?:ы|ах)?.{0,60}(?:basic|business|premium)|"
     r"объясни\s+пакет|"
+    r"199\s*/\s*399\s*/\s*699|"
     r"350\s*/\s*650\s*/\s*1200|"
-    r"(?:basic|business|premium).{0,40}(?:350|650|1200)"
+    r"(?:basic|business|premium).{0,40}(?:199|399|699|350|650|1200)"
     r")",
     re.I,
 )

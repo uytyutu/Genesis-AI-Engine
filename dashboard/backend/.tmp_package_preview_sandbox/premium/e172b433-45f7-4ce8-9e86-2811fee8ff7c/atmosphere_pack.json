@@ -1,0 +1,317 @@
+{
+  "brand_name": "StromWerk Meisterbetrieb",
+  "niche_id": "elektro",
+  "package_id": "premium",
+  "metaphor": "Offenes Licht auf ruhiger Fläche",
+  "core_emotion": "Vertrauen",
+  "atmosphere_mode": "atelier",
+  "scene_language": [
+    "Elektroinstallation",
+    "Sicherungskasten",
+    "Fachkraft mit Messgerät"
+  ],
+  "texture_language": [
+    "Paper",
+    "Light"
+  ],
+  "motion_language": "editorial fade · staggered cards · calm hover",
+  "camera_feeling": "calm eye-level · clear space",
+  "scroll_feeling": "steady soft reveals",
+  "cta_feeling": "clear large buttons · calm spacing · Große Buttons · Ruhiger Abstand",
+  "sound_mood": "quiet professional room tone",
+  "illustration_style": "motion shape ribbons",
+  "glass_level": "medium",
+  "shadow_language": "soft lift · Soft",
+  "icon_language": "filled craft glyphs",
+  "lighting": "even daylight · soft fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "Elektroinstallation · Sicherungskasten · Fachkraft mit Messgerät",
+      "must_include": [
+        "Elektroinstallation",
+        "Sicherungskasten",
+        "Fachkraft mit Messgerät",
+        "Leitungsverlegung",
+        "Smart-Home Panel"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "StromWerk Meisterbetrieb|elektro|premium|88954b586a424a7d87faec5c|hero|230ccd19a8737bdf8388",
+      "size": [
+        1600,
+        900
+      ],
+      "image_prompt": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=motion shape ribbons. Must show: Sicherungskasten, Fachkraft mit Messgerät, Elektroinstallation. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "background",
+      "concept": "scene · Elektroinstallation · Sicherungskasten · Fachkraft mit Messgerät",
+      "must_include": [
+        "Elektroinstallation",
+        "Sicherungskasten",
+        "Fachkraft mit Messgerät",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "StromWerk Meisterbetrieb|elektro|premium|88954b586a424a7d87faec5c|bg|230ccd19a8737bdf8388",
+      "size": [
+        1920,
+        1080
+      ],
+      "image_prompt": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=motion shape ribbons. Must show: Sicherungskasten, Fachkraft mit Messgerät, Elektroinstallation. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Leitungsverlegung",
+      "must_include": [
+        "Leitungsverlegung",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "StromWerk Meisterbetrieb|elektro|premium|88954b586a424a7d87faec5c|gal0|230ccd19a8737bdf8388",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=motion shape ribbons. Must show: Leitungsverlegung, Smart-Home Panel, Messung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Leitungsverlegung."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Smart-Home Panel",
+      "must_include": [
+        "Smart-Home Panel",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "StromWerk Meisterbetrieb|elektro|premium|88954b586a424a7d87faec5c|gal1|230ccd19a8737bdf8388",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=motion shape ribbons. Must show: Leitungsverlegung, Smart-Home Panel, Messung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Smart-Home Panel."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Messung",
+      "must_include": [
+        "Messung",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "StromWerk Meisterbetrieb|elektro|premium|88954b586a424a7d87faec5c|gal2|230ccd19a8737bdf8388",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=motion shape ribbons. Must show: Leitungsverlegung, Smart-Home Panel, Messung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Messung."
+    },
+    {
+      "role": "before_after",
+      "concept": "before / after proof",
+      "must_include": [
+        "Elektroinstallation",
+        "Sicherungskasten"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "StromWerk Meisterbetrieb|elektro|premium|88954b586a424a7d87faec5c|before_after|230ccd19a8737bdf8388",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=motion shape ribbons. Must show: Leitungsverlegung, Smart-Home Panel. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "team",
+      "concept": "team of this company",
+      "must_include": [
+        "Elektriker"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "StromWerk Meisterbetrieb|elektro|premium|88954b586a424a7d87faec5c|team|230ccd19a8737bdf8388",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=team. Medium=glass_3d. Illustration language=motion shape ribbons. Must show: Elektriker. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "equipment",
+      "concept": "tools & equipment of the trade",
+      "must_include": [
+        "Multimeter",
+        "Leitungszieher"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "StromWerk Meisterbetrieb|elektro|premium|88954b586a424a7d87faec5c|equipment|230ccd19a8737bdf8388",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=equipment. Medium=glass_3d. Illustration language=motion shape ribbons. Must show: Multimeter, Leitungszieher. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "illustration",
+      "concept": "motion shape ribbons",
+      "must_include": [
+        "Elektroinstallation",
+        "Sicherungskasten"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "StromWerk Meisterbetrieb|elektro|premium|88954b586a424a7d87faec5c|illustration|230ccd19a8737bdf8388",
+      "size": [
+        1200,
+        1200
+      ],
+      "image_prompt": "Premium German brand visual for «StromWerk Meisterbetrieb» (elektro) in Germany. Role=illustration. Medium=glass_3d. Illustration language=motion shape ribbons. Must show: Sicherungskasten, Fachkraft mit Messgerät. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    }
+  ],
+  "fingerprint": "6413011e0a0432973e80819d",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

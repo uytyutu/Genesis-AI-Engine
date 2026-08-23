@@ -1,0 +1,72 @@
+{
+  "emotion": "calm",
+  "style": "scandinavian_calm",
+  "palette_family": "sand",
+  "typography_pair": "cormorant_source",
+  "motion": "soft",
+  "hero_concept": "soft_split_photo",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "low",
+  "composition": "airy",
+  "package_id": "basic",
+  "niche_id": "cleaning",
+  "fingerprint": "d8627daa889c1d511d034c88ff624b25b7447ccbde17d28cfd1c3079246ef689",
+  "section_treatments": [
+    [
+      "stats",
+      "illustration"
+    ],
+    [
+      "services",
+      "tint"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "process",
+      "photo_band"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "illustration"
+    ],
+    [
+      "about",
+      "tint"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "maps",
+      "glass"
+    ],
+    [
+      "contact",
+      "photo_band"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#2c3330"
+}

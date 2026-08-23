@@ -1,0 +1,487 @@
+﻿diff --git a/dashboard/backend/app/integration/email_provider_pool.py b/dashboard/backend/app/integration/email_provider_pool.py
+index fac3dc4..61af91e 100644
+--- a/dashboard/backend/app/integration/email_provider_pool.py
++++ b/dashboard/backend/app/integration/email_provider_pool.py
+@@ -790,16 +790,66 @@ def _send_ses(
+         }
+ 
+ 
++def _env_first(*names: str) -> str:
++    for name in names:
++        val = os.getenv(name, "").strip()
++        if val:
++            return val
++    return ""
++
++
++def _mailgun_api_keys() -> list[str]:
++    """Primary + optional secondary key (MAILGUN_API_KEY_2 / Mailgun_2KEY aliases)."""
++    keys: list[str] = []
++    for name in (
++        "MAILGUN_API_KEY",
++        "Mailgun_KEY",
++        "MAILGUN_KEY",
++        "MAILGUN_API_KEY_2",
++        "Mailgun_2KEY",
++        "MAILGUN_2KEY",
++    ):
++        val = os.getenv(name, "").strip()
++        if val and val not in keys:
++            keys.append(val)
++    return keys
++
++
++def _mailgun_domain() -> str:
++    return _env_first("MAILGUN_DOMAIN", "Mailgun_Domain", "MAILGUN_DOMAIN_NAME")
++
++
++def _mailgun_from(from_addr: str = "") -> str:
++    return (
++        (from_addr or "").strip()
++        or _env_first("MAILGUN_FROM", "Mailgun_From")
++        or _default_from()
++    ).strip()
++
++
++def _mailgun_api_base() -> str:
++    """Normalize to тАж/v3 (accepts api.mailgun.net or тАж/v3)."""
++    raw = _env_first("MAILGUN_API_BASE", "MAILGUN_URL", "MAilgun_URL", "Mailgun_URL")
++    base = (raw or "https://api.mailgun.net/v3").rstrip("/")
++    if base.endswith("/v3"):
++        return base
++    # https://api.mailgun.net тЖТ https://api.mailgun.net/v3
++    if base.endswith("mailgun.net") or base.endswith("mailgun.net/"):
++        return f"{base.rstrip('/')}/v3"
++    return base
++
++
+ def _probe_mailgun() -> dict[str, Any]:
+-    key = bool(os.getenv("MAILGUN_API_KEY", "").strip())
+-    domain = bool(os.getenv("MAILGUN_DOMAIN", "").strip())
+-    frm = bool(os.getenv("MAILGUN_FROM", "").strip() or _default_from())
++    keys = _mailgun_api_keys()
++    domain = bool(_mailgun_domain())
++    frm = bool(_mailgun_from())
+     return {
+         "id": "mailgun",
+         "label": "Mailgun",
+-        "configured": key and domain and frm,
++        "configured": bool(keys) and domain and frm,
+         "env_required": ["MAILGUN_API_KEY", "MAILGUN_DOMAIN", "MAILGUN_FROM"],
+         "role": "failover",
++        "keys_configured": len(keys),
+     }
+ 
+ 
+@@ -814,11 +864,11 @@ def _send_mailgun(
+     bcc: str,
+     memory_dir: Path | None,
+ ) -> dict[str, Any]:
+-    api_key = os.getenv("MAILGUN_API_KEY", "").strip()
+-    domain = os.getenv("MAILGUN_DOMAIN", "").strip()
+-    frm = (from_addr or os.getenv("MAILGUN_FROM", "").strip() or _default_from()).strip()
+-    base = os.getenv("MAILGUN_API_BASE", "https://api.mailgun.net/v3").rstrip("/")
+-    if not (api_key and domain and frm):
++    api_keys = _mailgun_api_keys()
++    domain = _mailgun_domain()
++    frm = _mailgun_from(from_addr)
++    base = _mailgun_api_base()
++    if not (api_keys and domain and frm):
+         return {
+             "ok": False,
+             "skipped": True,
+@@ -844,48 +894,68 @@ def _send_mailgun(
+         data["bcc"] = bcc.strip()
+     if list_unsubscribe.strip():
+         data["h:List-Unsubscribe"] = list_unsubscribe.strip()
+-    try:
+-        with httpx.Client(timeout=30.0) as client:
+-            res = client.post(
+-                f"{base}/{domain}/messages",
+-                auth=("api", api_key),
+-                data=data,
++
++    last: dict[str, Any] = {
++        "ok": False,
++        "provider": "mailgun",
++        "reason": "mailgun_error",
++    }
++    for idx, api_key in enumerate(api_keys):
++        try:
++            with httpx.Client(timeout=30.0) as client:
++                res = client.post(
++                    f"{base}/{domain}/messages",
++                    auth=("api", api_key),
++                    data=data,
++                )
++        except httpx.HTTPError as exc:
++            record_provider_result(
++                memory_dir,
++                "mailgun",
++                ok=False,
++                reason="network_error",
++                detail=str(exc)[:200],
+             )
+-    except httpx.HTTPError as exc:
+-        record_provider_result(
+-            memory_dir, "mailgun", ok=False, reason="network_error", detail=str(exc)[:200]
+-        )
+-        return {
++            return {
++                "ok": False,
++                "provider": "mailgun",
++                "reason": "network_error",
++                "detail": str(exc)[:160],
++            }
++        if res.status_code < 400:
++            body = res.json() if res.content else {}
++            record_provider_result(
++                memory_dir, "mailgun", ok=True, http_status=res.status_code
++            )
++            return {
++                "ok": True,
++                "provider": "mailgun",
++                "from": frm,
++                "id": body.get("id"),
++                "key_index": idx,
++            }
++        detail = (res.text or "")[:400]
++        last = {
+             "ok": False,
+             "provider": "mailgun",
+-            "reason": "network_error",
+-            "detail": str(exc)[:160],
+-        }
+-    if res.status_code < 400:
+-        body = res.json() if res.content else {}
+-        record_provider_result(memory_dir, "mailgun", ok=True, http_status=res.status_code)
+-        return {
+-            "ok": True,
+-            "provider": "mailgun",
+-            "from": frm,
+-            "id": body.get("id"),
++            "reason": f"mailgun_error:{res.status_code}",
++            "detail": detail[:200],
++            "http_status": res.status_code,
++            "key_index": idx,
+         }
+-    detail = (res.text or "")[:400]
++        # Try secondary key only on auth failures
++        if res.status_code not in (401, 403) or idx + 1 >= len(api_keys):
++            break
++
+     record_provider_result(
+         memory_dir,
+         "mailgun",
+         ok=False,
+-        reason=f"mailgun_error:{res.status_code}",
+-        http_status=res.status_code,
+-        detail=detail,
++        reason=str(last.get("reason") or "mailgun_error"),
++        http_status=last.get("http_status") if isinstance(last.get("http_status"), int) else None,
++        detail=str(last.get("detail") or "")[:400],
+     )
+-    return {
+-        "ok": False,
+-        "provider": "mailgun",
+-        "reason": f"mailgun_error:{res.status_code}",
+-        "detail": detail[:200],
+-        "http_status": res.status_code,
+-    }
++    return last
+ 
+ 
+ _SENDERS: dict[str, Callable[..., dict[str, Any]]] = {
+diff --git a/dashboard/backend/app/integration/engine_ai_service.py b/dashboard/backend/app/integration/engine_ai_service.py
+index 7efb002..fa71842 100644
+--- a/dashboard/backend/app/integration/engine_ai_service.py
++++ b/dashboard/backend/app/integration/engine_ai_service.py
+@@ -11,7 +11,7 @@ from typing import Any, Mapping
+ 
+ from app.config import env_config_file
+ from app.integration.genesis_brain.providers import build_provider_registry
+-from app.integration.genesis_brain.public_brand import BRAND_NAME
++from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME
+ from app.integration.llm_router.router import LLMRouter
+ 
+ _NICHE_LABELS = (
+@@ -292,9 +292,9 @@ class EngineAIService:
+         money = (price_label or "").strip() or f"{price_eur:.0f} EUR"
+ 
+         system = (
+-            f"You write ONE commercial proposal email in {lang_label} as Virtus Core / {BRAND_NAME} "
+-            f"(sender: Ramish Oltiiev, Managing Director тАФ sign off with full name, title, "
+-            f"and ┬лVirtus Core for you┬╗ localized). "
++            f"You write ONE commercial proposal email in {lang_label} as {ASSISTANT_NAME} "
++            f"from {BRAND_NAME} (digital company). "
++            f"Sign off as {ASSISTANT_NAME} ┬╖ {BRAND_NAME}. Never use a personal human founder name. "
+             "Tone: living offer from a digital company тАФ concrete, respectful, not spam. "
+             "Write as WE/OUR team addressing THEIR company by name. "
+             "Mention SPECIFIC website issues as DIAGNOSIS only. "
+diff --git a/dashboard/backend/app/integration/genesis_brain/product_consultant.py b/dashboard/backend/app/integration/genesis_brain/product_consultant.py
+index 6718828..ea255c2 100644
+--- a/dashboard/backend/app/integration/genesis_brain/product_consultant.py
++++ b/dashboard/backend/app/integration/genesis_brain/product_consultant.py
+@@ -537,7 +537,7 @@ def _reply_sales_recommend(state: ConversationState) -> ConsultantReply:
+             f"{desc}.\n\n"
+             f"╨Я╨╛╤З╨╡╨╝╤Г:\n{why}"
+             f"{extra_block}\n\n"
+-            "╨Ь╨╛╨╢╨╜╨╛ ╤Б╤А╨░╨╖╤Г ╨╛╤Д╨╛╤А╨╝╨╕╤В╤М ╨╖╨░╨║╨░╨╖ тАФ ╨▓ ╤Д╨╛╤А╨╝╨╡ ╤Г╨║╨░╨╢╨╡╤В╨╡ ╨║╨╛╨╝╨┐╨░╨╜╨╕╤О ╨╕ ╨║╨╛╨╜╤В╨░╨║╤В╤Л."
++            "╨Ь╨╛╨╢╨╜╨╛ ╤Б╤А╨░╨╖╤Г ╨╛╤В╨║╤А╤Л╤В╤М ╤Д╨╛╤А╨╝╤Г ╨╖╨░╨║╨░╨╖╨░ тАФ ╤Б╨╜╨░╤З╨░╨╗╨░ ╨┤╨░╨╜╨╜╤Л╨╡, ╨┐╨╛╤В╨╛╨╝ ╨╛╨┐╨╗╨░╤В╨░."
+         ),
+         cta_href=f"/order?package={pkg}",
+         cta_label="╨Ю╤Д╨╛╤А╨╝╨╕╤В╤М ╨╖╨░╨║╨░╨╖",
+@@ -664,7 +664,7 @@ def _reply_repair(state: ConversationState) -> ConsultantReply:
+             "тАв ╤А╨░╨▒╨╛╤В╤Г ╨▓╤Л╨┐╨╛╨╗╨╜╤П╨╡╤В ╨║╨╛╨╝╨░╨╜╨┤╨░ Virtus Core, ╤Б╤В╨░╤В╤Г╤Б тАФ ╨▓ ╨║╨░╨▒╨╕╨╜╨╡╤В╨╡\n\n"
+             "╨Ь╨╛╨╢╨╜╨╛ ╤Б╤А╨░╨╖╤Г ╨╛╤Д╨╛╤А╨╝╨╕╤В╤М ╤А╨╡╨╝╨╛╨╜╤В ╨╕╨╗╨╕ ╤Б╨╜╨░╤З╨░╨╗╨░ ╨▒╨╡╤Б╨┐╨╗╨░╤В╨╜╨╛/╨┐╨╗╨░╤В╨╜╨╛ ╨┐╤А╨╛╨░╨╜╨░╨╗╨╕╨╖╨╕╤А╨╛╨▓╨░╤В╤М ╤Б╨░╨╣╤В."
+         ),
+-        cta_href="/order?package=website_repair",
++        cta_href="/order/service/website_repair",
+         cta_label="╨Ю╤Д╨╛╤А╨╝╨╕╤В╤М ╨╖╨░╨║╨░╨╖",
+     )
+ 
+@@ -676,7 +676,7 @@ def _reply_analysis() -> ConsultantReply:
+             "╤Б╨║╨╛╤А╨╛╤Б╤В╨╕ ╨╕ ╨┐╤А╨╕╨╛╤А╨╕╤В╨╡╤В╨░╨╝ ╤Г╨╗╤Г╤З╤И╨╡╨╜╨╕╨╣. ╨а╨╡╨║╨╛╨╝╨╡╨╜╨┤╤Г╨╡╨╝ ╤А╨╡╨╝╨╛╨╜╤В ╨╕╨╗╨╕ ╨╜╨╛╨▓╤Л╨╣ ╤Б╨░╨╣╤В.\n\n"
+             "╨г╤Б╨╗╤Г╨│╨░ ╨┐╤А╨╛╨┤╨░╤С╤В╤Б╤П ╨╛╤В╨┤╨╡╨╗╤М╨╜╨╛ тАФ ╤Б╨░╨╣╤В ╨┐╨╛╨║╤Г╨┐╨░╤В╤М ╨╜╨╡ ╨╛╨▒╤П╨╖╨░╤В╨╡╨╗╤М╨╜╨╛."
+         ),
+-        cta_href="/order?package=ai_website_analysis",
++        cta_href="/order/service/ai_website_analysis",
+         cta_label="╨Ю╤Д╨╛╤А╨╝╨╕╤В╤М ╨╖╨░╨║╨░╨╖",
+     )
+ 
+@@ -817,16 +817,28 @@ def _reply_chatbot(state: ConversationState, text: str) -> ConsultantReply:
+     )
+ 
+ 
++_COMING_SOON_SERVICE_IDS = frozenset(
++    {
++        "seo_audit",
++        "speed_optimization",
++        "security_check",
++        "google_business_setup",
++        "website_migration",
++    }
++)
++
++
+ def _reply_seo() -> ConsultantReply:
+     return ConsultantReply(
+         answer=(
+-            "**SEO Audit** тАФ **249 тВм**, ╨┐╤А╨╛╨┤╨░╤С╤В╤Б╤П ╨╛╤В╨┤╨╡╨╗╤М╨╜╨╛ ╨╛╤В ╤Б╨░╨╣╤В╨░.\n\n"
+-            "╨Т╤Е╨╛╨┤╨╕╤В: ╤В╨╡╤Е╨╜╨╕╤З╨╡╤Б╨║╨╕╨╣ SEO-╤З╨╡╨║, ╨╝╨╡╤В╨░/╨╖╨░╨│╨╛╨╗╨╛╨▓╨║╨╕/╤Б╤В╤А╤Г╨║╤В╤Г╤А╨░, ╨┐╨╗╨░╨╜ ╨┐╤А╨╕╨╛╤А╨╕╤В╨╡╤В╨╜╤Л╤Е ╨┐╤А╨░╨▓╨╛╨║ "
+-            "╨┤╨╗╤П ╨╗╨╛╨║╨░╨╗╤М╨╜╨╛╨│╨╛ ╨▒╨╕╨╖╨╜╨╡╤Б╨░.\n\n"
+-            "╨Ь╨╛╨╢╨╜╨╛ ╨╖╨░╨║╨░╨╖╨░╤В╤М ╨▒╨╡╨╖ ╨┐╨╛╨║╤Г╨┐╨║╨╕ ╨╗╨╡╨╜╨┤╨╕╨╜╨│╨░."
++            "**SEO Audit** тАФ **249 тВм**, ╨╛╤В╨┤╨╡╨╗╤М╨╜╨░╤П ╤Г╤Б╨╗╤Г╨│╨░ (╤Б╨░╨╣╤В ╨┐╨╛╨║╤Г╨┐╨░╤В╤М ╨╜╨╡ ╨╜╤Г╨╢╨╜╨╛).\n\n"
++            "╨б╨╡╨╣╤З╨░╤Б ╨╛╨╜╨╗╨░╨╣╨╜-╨╛╨┐╨╗╨░╤В╨░ ╨╡╤Й╤С ╨▓ ╨┐╨╛╨┤╨│╨╛╤В╨╛╨▓╨║╨╡. "
++            "╨Ю╤В╨║╤А╨╛╨╣╤В╨╡ ╤Д╨╛╤А╨╝╤Г ╨╕╨╜╤В╨╡╤А╨╡╤Б╨░ тАФ ╤Г╨║╨░╨╢╨╕╤В╨╡ ╤Б╨░╨╣╤В ╨╕ ╤Ж╨╡╨╗╤М, ╨╝╤Л ╤Б╨▓╤П╨╢╨╡╨╝╤Б╤П, "
++            "╨║╨╛╨│╨┤╨░ ╨┤╨╛╤Б╤В╨░╨▓╨║╨░ ╨▒╤Г╨┤╨╡╤В ╨│╨╛╤В╨╛╨▓╨░. "
++            "╨г╨╢╨╡ ╨╝╨╛╨╢╨╜╨╛ ╨╖╨░╨║╨░╨╖╨░╤В╤М **AI Website Analysis** ╨╕╨╗╨╕ **Website Repair**."
+         ),
+-        cta_href="/order?package=seo_audit",
+-        cta_label="╨Ю╤Д╨╛╤А╨╝╨╕╤В╤М ╨╖╨░╨║╨░╨╖",
++        cta_href="/order/service/seo_audit",
++        cta_label="╨Ю╤В╨║╤А╤Л╤В╤М ╤Д╨╛╤А╨╝╤Г ╨╕╨╜╤В╨╡╤А╨╡╤Б╨░",
+     )
+ 
+ 
+@@ -839,14 +851,26 @@ def _reply_addon(
+     from_price: bool = False,
+ ) -> ConsultantReply:
+     price_s = f"╨╛╤В {price} тВм" if from_price else f"{price} тВм"
++    soon = package_id in _COMING_SOON_SERVICE_IDS
++    if soon:
++        return ConsultantReply(
++            answer=(
++                f"**{name}** тАФ **{price_s}**. {blurb}.\n\n"
++                "╨Ю╨╜╨╗╨░╨╣╨╜-╨╛╨┐╨╗╨░╤В╨░ ╨┐╨╛╨║╨░ ╨▓ ╨┐╨╛╨┤╨│╨╛╤В╨╛╨▓╨║╨╡ (Coming Soon). "
++                "╨Ю╤В╨║╤А╨╛╨╣╤В╨╡ ╤Д╨╛╤А╨╝╤Г тАФ ╤Г╨║╨░╨╢╨╕╤В╨╡, ╤З╤В╨╛ ╨╜╤Г╨╢╨╜╨╛, ╨╕ ╨╝╤Л ╨▓╨╡╤А╨╜╤С╨╝╤Б╤П, ╨║╨╛╨│╨┤╨░ ╤Г╤Б╨╗╤Г╨│╨░ ╨▒╤Г╨┤╨╡╤В ╨│╨╛╤В╨╛╨▓╨░. "
++                "╨г╨╢╨╡ ╨┤╨╛╤Б╤В╤Г╨┐╨╜╤Л: ╤Б╨░╨╣╤В, AI Bot, ╨░╨╜╨░╨╗╨╕╨╖ ╤Б╨░╨╣╤В╨░, ╤А╨╡╨╝╨╛╨╜╤В ╤Б╨░╨╣╤В╨░."
++            ),
++            cta_href=f"/order/service/{package_id}",
++            cta_label="╨Ю╤В╨║╤А╤Л╤В╤М ╤Д╨╛╤А╨╝╤Г ╨╕╨╜╤В╨╡╤А╨╡╤Б╨░",
++        )
+     return ConsultantReply(
+         answer=(
+             f"**{name}** тАФ **{price_s}**. {blurb}.\n\n"
+             "╨г╤Б╨╗╤Г╨│╨░ ╤Б╨░╨╝╨╛╤Б╤В╨╛╤П╤В╨╡╨╗╤М╨╜╨░╤П: ╤Б╨░╨╣╤В Virtus Core ╨┐╨╛╨║╤Г╨┐╨░╤В╤М ╨╜╨╡ ╨╛╨▒╤П╨╖╨░╤В╨╡╨╗╤М╨╜╨╛.\n"
+-            "╨Ю╤Д╨╛╤А╨╝╨╕╤В╨╡ ╨╖╨░╨║╨░╨╖ тАФ ╤Г╨║╨░╨╢╨╡╤В╨╡ ╤Б╨░╨╣╤В ╨╕ ╨║╨╛╨╜╤В╨░╨║╤В╤Л."
++            "╨б╨╜╨░╤З╨░╨╗╨░ ╤Д╨╛╤А╨╝╨░ ╨╖╨░╨║╨░╨╖╨░ (╤З╤В╨╛ ╨╕╨╝╨╡╨╜╨╜╨╛ ╨╜╤Г╨╢╨╜╨╛) тАФ ╨┐╨╛╤В╨╛╨╝ ╨▒╨╡╨╖╨╛╨┐╨░╤Б╨╜╨░╤П ╨╛╨┐╨╗╨░╤В╨░."
+         ),
+-        cta_href=f"/order?package={package_id}",
+-        cta_label="╨Ю╤Д╨╛╤А╨╝╨╕╤В╤М ╨╖╨░╨║╨░╨╖",
++        cta_href=f"/order/service/{package_id}",
++        cta_label="╨Ю╤В╨║╤А╤Л╤В╤М ╤Д╨╛╤А╨╝╤Г ╨╖╨░╨║╨░╨╖╨░",
+     )
+ 
+ 
+diff --git a/dashboard/backend/app/integration/sales_order_service.py b/dashboard/backend/app/integration/sales_order_service.py
+index 7dc2584..6574f98 100644
+--- a/dashboard/backend/app/integration/sales_order_service.py
++++ b/dashboard/backend/app/integration/sales_order_service.py
+@@ -830,6 +830,9 @@ class SalesOrderService:
+         setup_amount = package.get("setup_amount")
+         customer_id = (payload.get("customer_id") or "").strip()[:80] or None
+         workspace_id = (payload.get("workspace_id") or "").strip()[:80] or None
++        interest_only = bool(payload.get("interest_only")) or str(
++            payload.get("description") or ""
++        ).lstrip().startswith("[interest]")
+         if product_kind == "bot" or str(package_id).startswith("bot_"):
+             product_kind = "bot"
+             if not customer_id:
+@@ -850,11 +853,48 @@ class SalesOrderService:
+                         f"{price_eur:g} {sym} + {package['monthly_amount']} {sym}/mo"
+                     )
+ 
++        if interest_only:
++            listed_price_label = price_label
++            price_eur = 0.0
++            price_label = {
++                "de": "Interesse тАФ keine Zahlung",
++                "en": "Interest тАФ no payment",
++                "ru": "╨Ш╨╜╤В╨╡╤А╨╡╤Б тАФ ╨▒╨╡╨╖ ╨╛╨┐╨╗╨░╤В╤Л",
++                "uk": "╨Ж╨╜╤В╨╡╤А╨╡╤Б тАФ ╨▒╨╡╨╖ ╨╛╨┐╨╗╨░╤В╨╕",
++            }.get(ui_lang) or "Interest тАФ no payment"
++            status = "interest"
++            client_message = {
++                "de": (
++                    f"Interesse f├╝r {package['name']} ist gespeichert "
++                    f"(Richtpreis {listed_price_label}). Keine Zahlung тАФ "
++                    "wir melden uns, wenn die Leistung live ist."
++                ),
++                "en": (
++                    f"Interest in {package['name']} is saved "
++                    f"(guide price {listed_price_label}). No payment тАФ "
++                    "we will contact you when the service goes live."
++                ),
++                "ru": (
++                    f"╨Ш╨╜╤В╨╡╤А╨╡╤Б ╨║ {package['name']} ╤Б╨╛╤Е╤А╨░╨╜╤С╨╜ "
++                    f"(╨╛╤А╨╕╨╡╨╜╤В╨╕╤А {listed_price_label}). ╨Ю╨┐╨╗╨░╤В╤Л ╨╜╨╡╤В тАФ "
++                    "╤Б╨▓╤П╨╢╨╡╨╝╤Б╤П, ╨║╨╛╨│╨┤╨░ ╤Г╤Б╨╗╤Г╨│╨░ ╤Б╤В╨░╨╜╨╡╤В ╨┤╨╛╤Б╤В╤Г╨┐╨╜╨░."
++                ),
++                "uk": (
++                    f"╨Ж╨╜╤В╨╡╤А╨╡╤Б ╨┤╨╛ {package['name']} ╨╖╨▒╨╡╤А╨╡╨╢╨╡╨╜╨╛ "
++                    f"(╨╛╤А╤Ц╤Ф╨╜╤В╨╕╤А {listed_price_label}). ╨Ю╨┐╨╗╨░╤В╨╕ ╨╜╨╡╨╝╨░╤Ф тАФ "
++                    "╨╜╨░╨┐╨╕╤И╨╡╨╝╨╛, ╨║╨╛╨╗╨╕ ╨┐╨╛╤Б╨╗╤Г╨│╨░ ╤Б╤В╨░╨╜╨╡ ╨┤╨╛╤Б╤В╤Г╨┐╨╜╨╛╤О."
++                ),
++            }.get(ui_lang) or (
++                f"Interest in {package['name']} is saved. No payment taken."
++            )
++        else:
++            status = "awaiting_payment"
++
+         order = {
+             "order_id": order_id,
+-            "status": "awaiting_payment",
++            "status": status,
+             "status_label": client_status_label(
+-                "awaiting_payment", market_code, ui_lang=ui_lang
++                status, market_code, ui_lang=ui_lang
+             ),
+             "package_id": package_id,
+             "package_name": package["name"],
+@@ -879,6 +919,7 @@ class SalesOrderService:
+             "locale": locale_ctx["locale"],
+             "factory_context": locale_ctx,
+             "price_label": price_label,
++            "interest_only": interest_only,
+             "motion_level": motion,
+             "brand_style": _normalize_order_brand_style(payload.get("brand_style")),
+             "deliverables": (
+@@ -910,7 +951,7 @@ class SalesOrderService:
+                 "analysis": buyer_insights,
+                 "documents": [],
+                 "invoices": [],
+-                "status": "awaiting_payment",
++                "status": status,
+             },
+             "client_legal": self._client_legal_payload(payload),
+             "visitor_id": (payload.get("visitor_id") or "").strip()[:64] or None,
+diff --git a/dashboard/backend/app/integration/worker_research_lab.py b/dashboard/backend/app/integration/worker_research_lab.py
+index 3a14f6b..5621772 100644
+--- a/dashboard/backend/app/integration/worker_research_lab.py
++++ b/dashboard/backend/app/integration/worker_research_lab.py
+@@ -16,6 +16,7 @@ Scan cadence: every 6 hours (state-driven; also manual POST /scan).
+ from __future__ import annotations
+ 
+ import json
++import os
+ from datetime import datetime, timedelta, timezone
+ from pathlib import Path
+ from typing import Any
+@@ -132,11 +133,61 @@ _PLATFORM_SEED: list[dict[str, Any]] = [
+         "api_receive_payout": True,
+         "automation_pct": 90,
+         "tos_automation": "allowed_as_seller",
++        "env_key": "RAPIDAPI_KEY",
+         "reason_ru": (
+             "╨Э╨╡ ╨▒╨╕╤А╨╢╨░ ╨╖╨░╨┤╨░╤З: ╨║╨╗╨╕╨╡╨╜╤В╤Л ╨▓╤Л╨╖╤Л╨▓╨░╤О╤В ╨▓╨░╤И API тЖТ ╨▓╤Л╨┐╨╗╨░╤В╨░ ╨┐╤А╨╛╨▓╨░╨╣╨┤╨╡╤А╤Г. "
+             "╨С╨╗╨╕╨╖╨║╨╛ ╨║ Commercial API Virtus (Audit), ╨╜╨╡ ╨║ Toloka-worker."
+         ),
+-        "next_ru": "╨г╤Б╨╕╨╗╨╕╤В╤М API Products (seo-report / translate) тАФ ╤Г╨╢╨╡ ╨╜╨░╤И ╨║╨╛╨╜╤В╤Г╤А.",
++        "next_ru": (
++            "╨Ъ╨╗╤О╤З RAPIDAPI_KEY тАФ ╨▓ env. Candidate: ╨╜╨╡ ╤Б╤В╤А╨╛╨╕╤В╤М Worker Adapter ╨┤╨╛ "
++            "╤А╨╡╤И╨╡╨╜╨╕╤П CEO (seller API vs worker). ╨г╤Б╨╕╨╗╨╕╤В╤М API Products ╨┐╤А╨╕ Approve."
++        ),
++    },
++    {
++        "id": "orbofi_experimental",
++        "name": "Orbofi (AI agents / tokens)",
++        "verdict": "candidate",
++        "stars": 2,
++        "api_get_task": False,
++        "api_submit_result": False,
++        "api_receive_payout": False,
++        "automation_pct": 20,
++        "tos_automation": "needs_review",
++        "env_key": "ORBOFI_KEY",
++        "experimental": True,
++        "reason_ru": (
++            "Experimental тАФ ╨╜╨╡ ╤Б╨╝╨╡╤И╨╕╨▓╨░╤В╤М ╤Б ╤П╨┤╤А╨╛╨╝ Virtus Core / Work Farm. "
++            "╨Ф╨╛╤Е╨╛╨┤ ╤В╨╛╨╗╤М╨║╨╛ ╨╡╤Б╨╗╨╕ ╨░╨│╨╡╨╜╤В ╤А╨╡╨░╨╗╤М╨╜╨╛ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П ╨▓ ╤Н╨║╨╛╤Б╨╕╤Б╤В╨╡╨╝╨╡ Orbofi; "
++            "╨║╨╗╤О╤З тЙа ╨░╨▓╤В╨╛╨╖╨░╤А╨░╨▒╨╛╤В╨╛╨║. 100 ╤Б╤В╨░╤А╤В╨╛╨▓╤Л╤Е ╨╝╨╛╨╜╨╡╤В тАФ ╨▒╨╛╨╜╤Г╤Б ╨┐╨╗╨░╤В╤Д╨╛╤А╨╝╤Л, ╨╜╨╡ ╨┐╤А╨╕╨▒╤Л╨╗╤М."
++        ),
++        "next_ru": (
++            "Research Lab тЖТ Orbofi Integration (Experimental). ╨б╨╜╨░╤З╨░╨╗╨░ 3 ╨┐╤А╨╛╨▓╨╡╤А╨║╨╕: "
++            "(1) ╨║╨░╨║╨╕╨╡ ╤Д╤Г╨╜╨║╤Ж╨╕╨╕ ╨┤╨░╤С╤В API; (2) ╨╝╨╛╨╢╨╜╨╛ ╨╗╨╕ ╤Б╨╛╨╖╨┤╨░╨▓╨░╤В╤М/╨┐╤Г╨▒╨╗╨╕╨║╨╛╨▓╨░╤В╤М ╨░╨│╨╡╨╜╤В╨╛╨▓; "
++            "(3) ╨╡╤Б╤В╤М ╨╗╨╕ ╤Б╤В╨░╤В╨╕╤Б╤В╨╕╨║╨░ ╨╕ ╨╜╨░╤З╨╕╤Б╨╗╨╡╨╜╨╕╤П. ╨С╨╡╨╖ PASS тАФ ╨╜╨╡ ╤Б╤В╤А╨╛╨╕╤В╤М ╨▒╨╕╨╖╨╜╨╡╤Б-╨╝╨╛╨┤╨╡╨╗╤М."
++        ),
++    },
++    {
++        "id": "orbofi_experimental",
++        "name": "Orbofi (AI agents / tokens)",
++        "verdict": "candidate",
++        "stars": 2,
++        "api_get_task": False,
++        "api_submit_result": False,
++        "api_receive_payout": False,
++        "automation_pct": 20,
++        "tos_automation": "needs_review",
++        "env_key": "ORBOFI_KEY",
++        "experimental": True,
++        "reason_ru": (
++            "Experimental тАФ ╨╜╨╡ ╤Б╨╝╨╡╤И╨╕╨▓╨░╤В╤М ╤Б ╤П╨┤╤А╨╛╨╝ Virtus Core / Work Farm. "
++            "╨Ф╨╛╤Е╨╛╨┤ ╤В╨╛╨╗╤М╨║╨╛ ╨╡╤Б╨╗╨╕ ╨░╨│╨╡╨╜╤В ╤А╨╡╨░╨╗╤М╨╜╨╛ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П ╨▓ ╤Н╨║╨╛╤Б╨╕╤Б╤В╨╡╨╝╨╡ Orbofi; "
++            "╨║╨╗╤О╤З тЙа ╨░╨▓╤В╨╛╨╖╨░╤А╨░╨▒╨╛╤В╨╛╨║. 100 ╤Б╤В╨░╤А╤В╨╛╨▓╤Л╤Е ╨╝╨╛╨╜╨╡╤В тАФ ╨▒╨╛╨╜╤Г╤Б ╨┐╨╗╨░╤В╤Д╨╛╤А╨╝╤Л, ╨╜╨╡ ╨┐╤А╨╕╨▒╤Л╨╗╤М."
++        ),
++        "next_ru": (
++            "Research Lab тЖТ Orbofi Integration (Experimental). ╨б╨╜╨░╤З╨░╨╗╨░ 3 ╨┐╤А╨╛╨▓╨╡╤А╨║╨╕: "
++            "(1) ╨║╨░╨║╨╕╨╡ ╤Д╤Г╨╜╨║╤Ж╨╕╨╕ ╨┤╨░╤С╤В API; (2) ╨╝╨╛╨╢╨╜╨╛ ╨╗╨╕ ╤Б╨╛╨╖╨┤╨░╨▓╨░╤В╤М/╨┐╤Г╨▒╨╗╨╕╨║╨╛╨▓╨░╤В╤М ╨░╨│╨╡╨╜╤В╨╛╨▓; "
++            "(3) ╨╡╤Б╤В╤М ╨╗╨╕ ╤Б╤В╨░╤В╨╕╤Б╤В╨╕╨║╨░ ╨╕ ╨╜╨░╤З╨╕╤Б╨╗╨╡╨╜╨╕╤П. ╨С╨╡╨╖ PASS тАФ ╨╜╨╡ ╤Б╤В╤А╨╛╨╕╤В╤М ╨▒╨╕╨╖╨╜╨╡╤Б-╨╝╨╛╨┤╨╡╨╗╤М."
++        ),
+     },
+     {
+         "id": "digistore_affiliate",
+@@ -481,6 +532,13 @@ class WorkerResearchLab:
+         state = self._load_state()
+         platforms = list((state.get("platforms") or {}).values())
+         platforms = [p for p in platforms if isinstance(p, dict)]
++        for p in platforms:
++            env_name = str(p.get("env_key") or "").strip()
++            if env_name:
++                p["env_key_present"] = bool(os.getenv(env_name, "").strip())
++            elif str(p.get("id") or "") == "rapidapi_provider":
++                p["env_key"] = "RAPIDAPI_KEY"
++                p["env_key_present"] = bool(os.getenv("RAPIDAPI_KEY", "").strip())
+         platforms.sort(key=lambda p: (-int(p.get("stars") or 0), str(p.get("name"))))
+         working = [p for p in platforms if p.get("verdict") == "working"]
+         candidates = [p for p in platforms if p.get("verdict") in ("candidate", "partial")]

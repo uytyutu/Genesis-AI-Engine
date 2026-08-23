@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "solar_shop",
+  "package_id": "premium",
+  "category": "solar",
+  "store_name": "SunGrid Solar Shop",
+  "generated_at": "2026-08-08T16:20:07.389760+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 43070,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/solar_shop/catalog.html"
+}

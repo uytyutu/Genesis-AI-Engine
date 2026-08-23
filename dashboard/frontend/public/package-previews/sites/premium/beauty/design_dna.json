@@ -1,0 +1,71 @@
+{
+  "emotion": "soft_precision",
+  "style": "luxury_studio",
+  "palette_family": "porcelain_rose",
+  "typography_pair": "cormorant_dm_beauty",
+  "motion": "premium",
+  "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "ember",
+  "package_id": "premium",
+  "niche_id": "beauty",
+  "fingerprint": "f8cbcb49b465d947012ee99d091c6a880e20bc8227a0ac541623b28c5c67c82f",
+  "section_treatments": [
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "benefits",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "gallery",
+      "glass"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "gradient"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#c4787a",
+  "surface_hex": "#e6eaf0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "d81e64e84788665e9de350ed",
+  "border_radius_px": 8
+}

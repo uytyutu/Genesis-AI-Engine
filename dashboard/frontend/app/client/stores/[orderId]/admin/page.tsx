@@ -1,19 +1,21 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import {
-  StoreAdminComingSoon,
-  StoreAdminShell,
-  type StoreAdminSectionId,
-} from "../../../components/StoreAdminShell";
-import { StoreAdminProducts } from "../../../components/StoreAdminProducts";
-import { StoreAdminDesign } from "../../../components/StoreAdminDesign";
-import { StoreAdminCustomers } from "../../../components/StoreAdminCustomers";
-import { StoreAdminCommerce } from "../../../components/StoreAdminCommerce";
-import { clientAuthHeaders, getClientToken } from "../../../lib/clientAuth";
-import { formatApiDetail } from "../../../lib/formatApiError";
-import { publicApiBase } from "../../../lib/publicApiBase";
+import { StoreAdminComingSoon, StoreAdminShell, type StoreAdminSectionId } from "../../../../components/StoreAdminShell";
+import { StoreAdminProducts } from "../../../../components/StoreAdminProducts";
+import { StoreAdminDesign } from "../../../../components/StoreAdminDesign";
+import { StoreAdminCustomers } from "../../../../components/StoreAdminCustomers";
+import { StoreAdminCommerce } from "../../../../components/StoreAdminCommerce";
+import { StoreAdminOrders } from "../../../../components/StoreAdminOrders";
+import { StoreAdminBusinessProfile } from "../../../../components/StoreAdminBusinessProfile";
+import { StoreAdminVectorGuidance } from "../../../../components/StoreAdminVectorGuidance";
+import { VectorCoachingToasts } from "../../../../components/VectorCoachingToasts";
+import { AiHealthPanel } from "../../../../components/AiHealthPanel";
+import { clientAuthHeaders, getClientToken } from "../../../../lib/clientAuth";
+import { formatApiDetail } from "../../../../lib/formatApiError";
+import { publicApiBase } from "../../../../lib/publicApiBase";
+import type { StoreSetupStatus } from "../../../../lib/vectorSurfaceContext";
 
 const API = publicApiBase();
 
@@ -34,11 +36,58 @@ export default function StoreAdminPage() {
   const params = useParams();
   const orderId = String(params?.orderId || "");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [section, setSection] = useState<StoreAdminSectionId>("dashboard");
   const [meta, setMeta] = useState<StoreMeta | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [themeDark, setThemeDark] = useState(true);
   const [productCount, setProductCount] = useState<number | null>(null);
+  const [setup, setSetup] = useState<StoreSetupStatus | null>(null);
+  const [setupLoading, setSetupLoading] = useState(true);
+  const [stripeBanner, setStripeBanner] = useState<string | null>(null);
+
+  useEffect(() => {
+    const q = (searchParams.get("section") || "").trim() as StoreAdminSectionId | "";
+    const allowed: StoreAdminSectionId[] = [
+      "dashboard",
+      "products",
+      "orders",
+      "customers",
+      "commerce",
+      "payments",
+      "shipping",
+      "email",
+      "integrations",
+      "contact",
+      "design",
+      "settings",
+    ];
+    if (q && allowed.includes(q)) setSection(q);
+    if (searchParams.get("stripe") === "connected") {
+      setStripeBanner("Stripe Connected — merchant account saved.");
+      setSection("payments");
+    }
+  }, [searchParams]);
+
+  const loadSetup = useCallback(async () => {
+    if (!getClientToken() || !orderId) return;
+    setSetupLoading(true);
+    try {
+      const res = await fetch(
+        `${API}/api/client/stores/${orderId}/admin/setup-status`,
+        { headers: { ...clientAuthHeaders() }, cache: "no-store" },
+      );
+      if (res.ok) {
+        const body = (await res.json()) as StoreSetupStatus;
+        setSetup(body);
+        setProductCount(Number(body.product_count) || 0);
+      }
+    } catch {
+      /* optional Vector strip */
+    } finally {
+      setSetupLoading(false);
+    }
+  }, [orderId]);
 
   const load = useCallback(async () => {
     if (!getClientToken()) {
@@ -58,26 +107,20 @@ export default function StoreAdminPage() {
       }
       setMeta(body as StoreMeta);
       setError(null);
-      try {
-        const pr = await fetch(
-          `${API}/api/client/stores/${orderId}/admin/products`,
-          { headers: { ...clientAuthHeaders() }, cache: "no-store" },
-        );
-        if (pr.ok) {
-          const pb = await pr.json();
-          setProductCount(Number(pb.count ?? (pb.products || []).length) || 0);
-        }
-      } catch {
-        /* optional metric */
-      }
+      await loadSetup();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
+      setSetupLoading(false);
     }
-  }, [orderId, router]);
+  }, [orderId, router, loadSetup]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (section === "dashboard") void loadSetup();
+  }, [section, loadSetup]);
 
   const storeName = meta?.store_name || "Your online shop";
   const dark = themeDark;
@@ -111,6 +154,18 @@ export default function StoreAdminPage() {
       section={section}
       onSection={setSection}
       onThemeChange={(t) => setThemeDark(t === "dark")}
+      vectorStrip={
+        section !== "dashboard" ? (
+          <StoreAdminVectorGuidance
+            status={setup}
+            loading={setupLoading}
+            dark={dark}
+            compact
+            onNavigate={setSection}
+          />
+        ) : null
+      }
+      vectorDock={<VectorCoachingToasts />}
     >
       {error ? (
         <p
@@ -124,9 +179,29 @@ export default function StoreAdminPage() {
           {error}
         </p>
       ) : null}
+      {stripeBanner ? (
+        <p
+          className={`mb-4 rounded-2xl border px-4 py-3 text-sm ${
+            dark
+              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-100"
+              : "border-emerald-200 bg-emerald-50 text-emerald-900"
+          }`}
+        >
+          {stripeBanner}
+        </p>
+      ) : null}
 
       {section === "dashboard" ? (
         <div className="space-y-6">
+          <StoreAdminVectorGuidance
+            status={setup}
+            loading={setupLoading}
+            dark={dark}
+            onNavigate={setSection}
+          />
+
+          <AiHealthPanel dark={dark} />
+
           <div
             className={`overflow-hidden rounded-3xl border p-6 sm:p-8 ${
               dark
@@ -329,12 +404,46 @@ export default function StoreAdminPage() {
         />
       ) : section === "customers" ? (
         <StoreAdminCustomers orderId={orderId} dark={dark} />
+      ) : section === "orders" ? (
+        <StoreAdminOrders orderId={orderId} dark={dark} />
       ) : section === "commerce" ? (
         <StoreAdminCommerce orderId={orderId} dark={dark} focus="overview" />
       ) : section === "payments" ? (
         <StoreAdminCommerce orderId={orderId} dark={dark} focus="payments" />
       ) : section === "shipping" ? (
         <StoreAdminCommerce orderId={orderId} dark={dark} focus="shipping" />
+      ) : section === "email" ? (
+        <StoreAdminCommerce orderId={orderId} dark={dark} focus="email" />
+      ) : section === "integrations" ? (
+        <StoreAdminCommerce orderId={orderId} dark={dark} focus="integrations" />
+      ) : section === "contact" || section === "settings" ? (
+        <div className="space-y-6">
+          <div
+            className={`rounded-2xl border px-5 py-4 ${
+              dark
+                ? "border-emerald-500/25 bg-emerald-950/20"
+                : "border-emerald-200 bg-emerald-50"
+            }`}
+          >
+            <h2
+              className={`text-lg font-semibold ${dark ? "text-white" : "text-slate-900"}`}
+            >
+              Shop-Einstellungen
+            </h2>
+            <p className={`mt-1 text-sm ${dark ? "text-zinc-300" : "text-slate-600"}`}>
+              Telefon, E-Mail und Adresse für den Online-Shop. Logo und Farben unter
+              Design.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSection("design")}
+              className="mt-3 rounded-xl border border-white/20 px-3 py-1.5 text-sm text-white hover:bg-white/5"
+            >
+              Design / Logo öffnen
+            </button>
+          </div>
+          <StoreAdminBusinessProfile orderId={orderId} dark={dark} />
+        </div>
       ) : (
         <StoreAdminComingSoon
           title={

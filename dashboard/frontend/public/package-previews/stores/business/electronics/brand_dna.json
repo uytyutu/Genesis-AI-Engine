@@ -1,0 +1,29 @@
+{
+  "business_name": "VoltHaus Electronics",
+  "niche_id": "computer",
+  "package_id": "business",
+  "voice": "modern geometric + highly readable body",
+  "feeling": "trust and desire to stay",
+  "why_hero_exists": "The Hero exists to make 'Signal Clarity' felt in 3 seconds: Technology that feels intelligent, not loud.",
+  "color_feeling": "graphite, electric blue breath, pure white",
+  "type_voice": "modern geometric + highly readable body",
+  "scene_arc": "precision grids, object hero, cool depth",
+  "avoid": [
+    "fire_smoke",
+    "mediterranean_evening",
+    "pastel_cute",
+    "gaming_rgb"
+  ],
+  "fingerprint": "b878adcfc5cf4129",
+  "brand_story": "Max built VoltHaus Electronics because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: computer.",
+  "core_emotion": "trust and desire to stay",
+  "core_promise": "Technology that feels intelligent, not loud.",
+  "visual_metaphor": "a product as a signal in the dark",
+  "creative_theme": "Signal Clarity",
+  "creative_theme_id": "signal_clarity",
+  "scene_language": "precision grids, object hero, cool depth",
+  "motion_language": "crisp snaps — engineered, not playful gaming",
+  "interaction_style": "configure / choose with confidence",
+  "photo_world": "product on infinite black, soft rim light",
+  "founder_name": "Max"
+}

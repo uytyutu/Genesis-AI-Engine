@@ -1,0 +1,87 @@
+{
+  "niche_id": "realestate",
+  "subniche_id": "dealership",
+  "subniche_label": "Autohaus",
+  "business_model": "dealership_luxury_small_team",
+  "city": "München",
+  "company_name": "WohnRaum Partner",
+  "who": "Makler mit lokaler Marktkenntnis und klarer Provision.",
+  "trust_why": "Nachweisbare Arbeit · Autohaus · München",
+  "sells": "['Verkauf', 'Vermietung', 'Bewertung', 'Besichtigungen']",
+  "differentiator": "Lokale Kenntnis, transparente Provision, digitale Exposés",
+  "atmosphere": "luxury",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Work, place, people, proof",
+  "media_brief": {
+    "hero": "Professional realestate scene — European studio 2026",
+    "gallery": "Work, place, people, proof",
+    "video": "Niche atmosphere loop if provider available",
+    "before_after": "",
+    "team": "People of the company",
+    "equipment": "",
+    "atmosphere": "luxury",
+    "subniche": "dealership",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "listings",
+      "label": "Listings",
+      "why": "Objekte im Fokus."
+    },
+    {
+      "id": "inquiry",
+      "label": "Inquiry Form",
+      "why": "Besichtigung anfragen."
+    },
+    {
+      "id": "map",
+      "label": "Area Map",
+      "why": "Lage verstehen."
+    },
+    {
+      "id": "team",
+      "label": "Agents",
+      "why": "Makler mit Gesicht."
+    },
+    {
+      "id": "valuation",
+      "label": "Valuation CTA",
+      "why": "Immobilie bewerten."
+    },
+    {
+      "id": "catalog",
+      "label": "Catalog / Offers",
+      "why": "Site job includes selling."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services",
+    "sell"
+  ],
+  "style": "luxury",
+  "clients_who": "Eigentümer und Suchende in München",
+  "fingerprint": "def8c1ad72ba62ab86a0",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "multi_page",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

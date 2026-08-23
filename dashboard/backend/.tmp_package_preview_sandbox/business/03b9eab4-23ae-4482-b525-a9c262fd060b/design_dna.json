@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "C",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "ritual",
+  "package_id": "business",
+  "niche_id": "auto",
+  "fingerprint": "b56c4626794a925b01161548227bfcf1eb284d6a5887447d7b8d0496fa9a153d",
+  "section_treatments": [
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "about",
+      "tint"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "faq",
+      "photo_band"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#1c1917",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "7b6b03f7c157d2669622c386",
+  "border_radius_px": 12
+}

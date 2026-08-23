@@ -1,0 +1,44 @@
+{
+  "hero_src": "assets/hero.jpg",
+  "hero_from_client": false,
+  "hero_ok": true,
+  "gallery": [],
+  "background_src": null,
+  "assessments": [
+    {
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/6ff769cc-0161-41eb-846f-c3ca0388e9a8/assets/hero.jpg",
+      "role": "hero",
+      "ok": true,
+      "width": 1600,
+      "height": 900,
+      "bytes": 249901,
+      "reason": "ok",
+      "source": "niche"
+    }
+  ],
+  "gate_ok": true,
+  "gate_failures": [],
+  "media_gate_ok": true,
+  "media_gate_failures": [],
+  "media_gate": {
+    "engine_id": "media_gate_v1",
+    "passed": true,
+    "failures": [],
+    "checks": [
+      {
+        "section": "hero",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/handwerk/hero_pack/business/hero_2.jpg",
+        "ok": true,
+        "tags": [
+          "craft",
+          "process",
+          "result",
+          "tools",
+          "work",
+          "workshop"
+        ],
+        "detail": "ok"
+      }
+    ]
+  }
+}

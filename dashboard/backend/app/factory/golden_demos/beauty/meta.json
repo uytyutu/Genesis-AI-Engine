@@ -1,5 +1,5 @@
 {
-  "product_id": "889d071f-1275-4c8b-8ba2-2cf7e24bbd08",
+  "product_id": "f6a45210-b5b3-4d13-81e2-123389532d4e",
   "intent_id": null,
   "product_type": "Landing Page",
   "description": "Salon Mira Berlin — Friseursalon, Haarschnitt, Coloration, Balayage, Pflege",
@@ -113,7 +113,7 @@
     "background_src": "assets/background.jpg",
     "assessments": [
       {
-        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/app/factory/golden_demos/_sandbox_build/889d071f-1275-4c8b-8ba2-2cf7e24bbd08/assets/hero.jpg",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/app/factory/golden_demos/_sandbox_build/f6a45210-b5b3-4d13-81e2-123389532d4e/assets/hero.jpg",
         "role": "hero",
         "ok": true,
         "width": 1536,
@@ -293,7 +293,7 @@
       "emotional_tone": "elegant_warm",
       "journey": "booking",
       "primary": "#be185d",
-      "font_display": "Georgia, \"Palatino Linotype\", Palatino, serif",
+      "font_display": "\"Cormorant Garamond\", Georgia, Palatino, serif",
       "radius": "14px",
       "btn_radius": "999px",
       "forbid_platform_aurora": true
@@ -531,7 +531,7 @@
         "id": "css_budget",
         "category": "performance",
         "ok": true,
-        "detail": "24774B"
+        "detail": "24913B"
       },
       {
         "id": "motion_css_budget",
@@ -795,7 +795,7 @@
         "id": "css_budget",
         "domain": "performance",
         "ok": true,
-        "detail": "24774B"
+        "detail": "24913B"
       },
       {
         "id": "motion_css_budget",
@@ -1060,7 +1060,7 @@
           "id": "css_budget",
           "category": "performance",
           "ok": true,
-          "detail": "24774B"
+          "detail": "24913B"
         },
         {
           "id": "motion_css_budget",
@@ -1147,8 +1147,8 @@
   "owner_approved": false,
   "owner_approved_at": null,
   "revision": 0,
-  "created_at": "2026-08-03T19:37:50.457312+00:00",
-  "updated_at": "2026-08-03T19:37:50.457312+00:00",
+  "created_at": "2026-08-06T00:21:51.076364+00:00",
+  "updated_at": "2026-08-06T00:21:51.076364+00:00",
   "style_flags": {
     "modern": false,
     "blue_boost": false,

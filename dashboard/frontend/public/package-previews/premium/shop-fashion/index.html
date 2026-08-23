@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atelier Stein Mode · Premium Cinematic · Hamburg</title>
+  <meta name="description" content="Atelier Stein Mode — ein Piece, eine Geschichte. Premium-Shop-Showcase als scroll-cinematic Sequenz (20 Frames) plus Demo-Warenkorb." />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#070809; --ink:#f4efe6; --muted:#b7aea0; --accent:#b8a48a; --accent2:#6e5a45; --line:rgba(255,255,255,.12); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:Outfit,system-ui,sans-serif; }
+    a { color:inherit; text-decoration:none; }
+    header.top { position:fixed; inset:0 0 auto; z-index:40; display:flex; justify-content:space-between; align-items:center;
+      padding:.85rem 1.1rem; background:linear-gradient(to bottom,rgba(0,0,0,.8),transparent); }
+    header.top strong { font-family:"Cormorant Garamond",serif; font-size:1.15rem; }
+    header.top nav { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; font-size:.8rem; color:var(--muted); }
+    .nav-cta, .cta, button.cta { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:.7rem 1.2rem;
+      border:0; border-radius:999px; background:linear-gradient(135deg,var(--accent),#f0d09a); color:#1a1208; font-weight:600; cursor:pointer; font:inherit; }
+    header.top .nav-cta { min-height:36px; padding:.4rem .95rem; font-size:.78rem; }
+    .pin { position:relative; height:calc(100vh + 20 * 16vh); }
+    .stage { position:sticky; top:0; height:100vh; overflow:hidden; background:#050505; }
+    .seq { position:absolute; inset:0; }
+    .seq img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .1s linear; will-change:opacity; }
+    .seq img.is-on { opacity:1; }
+    .seq img.is-prev { opacity:.28; }
+    .vignette { position:absolute; inset:0; pointer-events:none;
+      background:radial-gradient(ellipse at 50% 40%,transparent 15%,rgba(0,0,0,.55) 75%),linear-gradient(to top,rgba(0,0,0,.85),transparent 45%); }
+    .hud { position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; justify-content:flex-end;
+      padding:clamp(1.2rem,4vw,3rem); pointer-events:none; }
+    .hud > * { pointer-events:auto; }
+    .eyebrow { letter-spacing:.28em; text-transform:uppercase; font-size:.7rem; color:var(--accent); margin:0 0 .5rem; }
+    h1 { font-family:"Cormorant Garamond",serif; font-size:clamp(2.3rem,6.5vw,4.6rem); line-height:.95; margin:0 0 .55rem; max-width:14ch; }
+    .beat-line { color:var(--muted); font-size:clamp(1.05rem,2.4vw,1.35rem); max-width:28rem; min-height:2.8em; margin:0 0 1rem; line-height:1.4; }
+    .frame-meter { color:rgba(255,255,255,.45); font-size:.72rem; letter-spacing:.12em; margin:0 0 .8rem; }
+    .progress { position:absolute; top:0; left:0; height:3px; width:0; background:linear-gradient(90deg,var(--accent2),var(--accent)); z-index:8; }
+    .hint { position:absolute; right:1.1rem; bottom:1rem; z-index:6; color:var(--muted); font-size:.72rem; letter-spacing:.1em; }
+    .section { max-width:68rem; margin:0 auto; padding:4.2rem 1.25rem; scroll-margin-top:5rem; }
+    .section h2 { font-family:"Cormorant Garamond",serif; font-size:clamp(2rem,4vw,3rem); margin:.3rem 0 1rem; }
+    .lead { color:var(--muted); font-size:1.05rem; line-height:1.7; max-width:44rem; }
+    .points { margin:1.2rem 0 0; padding:0; list-style:none; display:grid; gap:.65rem; }
+    .points li { padding-left:1.1rem; position:relative; }
+    .points li::before { content:""; position:absolute; left:0; top:.55em; width:.4rem; height:.4rem; border-radius:50%; background:var(--accent); }
+    .grid-cards { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); margin-top:1.4rem; }
+    .card { border:1px solid var(--line); border-radius:1rem; padding:1rem; background:rgba(255,255,255,.03); }
+    .card h3 { margin:0 0 .35rem; font-size:1.02rem; }
+    .card p { margin:0; color:var(--muted); font-size:.9rem; }
+    .product-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); }
+    .product { border:1px solid var(--line); border-radius:1rem; overflow:hidden; background:rgba(255,255,255,.03); }
+    .product img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+    .product h3 { margin:.75rem .85rem .2rem; font-size:1rem; }
+    .product .price { margin:0 .85rem .7rem; color:var(--accent); font-weight:600; }
+    .mini-cta { background:none; border:0; color:var(--accent); cursor:pointer; margin:0 .85rem 1rem; padding:0; font:inherit; }
+    .contact-shell { display:grid; gap:1.2rem; grid-template-columns:1.05fr .95fr; margin-top:1.4rem; }
+    @media (max-width:860px) { .contact-shell { grid-template-columns:1fr; } .hint { display:none; } header.top nav a:not(.nav-cta) { display:none; } .pin { height:calc(100vh + 20 * 12vh); } }
+    .contact-panel { border:1px solid var(--line); border-radius:1.15rem; padding:1.15rem; background:rgba(255,255,255,.03); }
+    .contact-actions { display:grid; gap:.65rem; margin:0 0 1rem; }
+    .action { display:flex; gap:.7rem; align-items:center; padding:.8rem 1rem; border-radius:.85rem; border:1px solid var(--line); }
+    .muted { color:var(--muted); font-size:.85rem; }
+    .icon { width:2rem; height:2rem; border-radius:999px; display:grid; place-items:center; background:rgba(232,165,75,.15); }
+    .socials { display:flex; gap:.55rem; flex-wrap:wrap; }
+    .socials a { width:2.4rem; height:2.4rem; border-radius:999px; border:1px solid var(--line); display:grid; place-items:center; }
+    form.msg { display:grid; gap:.65rem; }
+    form.msg label { font-size:.75rem; color:var(--muted); }
+    form.msg input, form.msg textarea { width:100%; border-radius:.7rem; border:1px solid var(--line); background:#0d0e10; color:var(--ink); padding:.7rem .8rem; font:inherit; }
+    .ok { display:none; color:#9be7b0; font-size:.9rem; } .ok.show { display:block; }
+    footer.site { border-top:1px solid var(--line); padding:1.4rem 1.2rem 2.4rem; color:var(--muted); font-size:.8rem; text-align:center; }
+    footer.site a { color:var(--accent); margin:0 .4rem; }
+    .modal { position:fixed; inset:0; z-index:80; display:none; align-items:flex-end; justify-content:center; padding:1rem; background:rgba(0,0,0,.62); }
+    .modal.open { display:flex; }
+    .modal-card { width:min(540px,100%); max-height:92vh; overflow:auto; border:1px solid var(--line); border-radius:1.2rem; background:#0c0d0f; padding:1.15rem; }
+    .modal-head { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+    .modal-head h2 { margin:0; font-family:"Cormorant Garamond",serif; }
+    .modal-close { width:2.2rem; height:2.2rem; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--ink); cursor:pointer; }
+    .fail { color:#ffb4b4; font-size:.78rem; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <strong>Atelier Stein Mode</strong>
+    <nav>
+      <a href="#about">Über uns</a>
+      <a href="#leistungen">Leistungen</a>
+      <a href="#shop">Shop</a><a href="#cart">Warenkorb</a>
+      <button type="button" class="nav-cta cta js-open-termin">In den Warenkorb</button>
+    </nav>
+  </header>
+
+  <div class="pin" id="pin">
+    <div class="stage" id="stage">
+      <div class="progress" id="progress"></div>
+      <div class="seq" id="seq" aria-hidden="true"></div>
+      <div class="vignette"></div>
+      <div class="hud">
+        <p class="eyebrow">Hamburg · Premium Cinematic</p>
+        <h1>Atelier Stein Mode</h1>
+        <p class="frame-meter" id="frameMeter">FRAME 001 / 020</p>
+        <p class="beat-line" id="beatLine">Der Look betritt den Raum.</p>
+        <button type="button" class="cta js-open-termin" id="cta">In den Warenkorb</button>
+      </div>
+      <p class="hint">SCROLL ↓ VIDEO</p>
+    </div>
+  </div>
+
+  <section id="about" class="section">
+    <p class="eyebrow">Unternehmen</p>
+    <h2>Mode mit Haltung</h2>
+    <p class="lead">Atelier Stein Mode — ein Piece, eine Geschichte. Premium-Shop-Showcase als scroll-cinematic Sequenz (20 Frames) plus Demo-Warenkorb.</p>
+    <ul class="points"><li>Signature Coat</li><li>Klare Schnitte</li><li>Demo-Checkout lokal</li></ul>
+  </section>
+  <section id="leistungen" class="section">
+    <p class="eyebrow">Angebot</p>
+    <h2>Was Sie bekommen</h2>
+    <div class="grid-cards"></div>
+  </section>
+  <section id="shop" class="section"><p class="eyebrow">Shop</p><h2>Atelier Stein Mode</h2><p class="lead">Demo-Warenkorb lokal — kein Live-Checkout.</p><div class="product-grid"><article class="product" data-name="Taupe Wool Coat" data-price="289 €" data-image="assets/seq/f006.jpg"><img src="assets/seq/f006.jpg" alt="Taupe Wool Coat" loading="lazy" /><h3>Taupe Wool Coat</h3><p class="price">289 €</p><button type="button" class="mini-cta js-add-cart">In den Warenkorb</button></article><article class="product" data-name="Studio Scarf" data-price="69 €" data-image="assets/seq/f018.jpg"><img src="assets/seq/f018.jpg" alt="Studio Scarf" loading="lazy" /><h3>Studio Scarf</h3><p class="price">69 €</p><button type="button" class="mini-cta js-add-cart">In den Warenkorb</button></article></div></section>
+  <section id="cart" class="section"><p class="eyebrow">Warenkorb · Demo</p><h2>Warenkorb</h2><ul id="cartList" class="points"></ul><p id="cartEmpty" class="lead">Noch leer.</p><button type="button" class="cta js-open-termin">Bestellung anfragen</button></section>
+  <section id="termin" class="section">
+    <p class="eyebrow">Kontakt</p>
+    <h2>In den Warenkorb</h2>
+    <p class="lead">Anrufen, schreiben oder kurze Nachricht hinterlassen.</p>
+    <div class="contact-shell" id="contactInline">
+      <div class="contact-panel">
+        <div class="contact-actions"><a class="action" href="tel:+4940778899"><span class="icon">☎</span><span><strong>Anrufen</strong><br /><span class="muted">+49 40 778899</span></span></a><a class="action" href="mailto:shop@atelier-stein-demo.example.de"><span class="icon">✉</span><span><strong>E-Mail</strong><br /><span class="muted">shop@atelier-stein-demo.example.de</span></span></a></div>
+        <div class="socials"><a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">IG</a><a href="https://wa.me/4940778899" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a><a href="mailto:shop@atelier-stein-demo.example.de" aria-label="E-Mail">@</a></div>
+      </div>
+      <div class="contact-panel">
+        <form class="msg" id="contactForm">
+          <div><label for="name">Name</label><input id="name" name="name" required /></div>
+          <div><label for="phone">Telefon</label><input id="phone" name="phone" /></div>
+          <div><label for="mail">E-Mail</label><input id="mail" name="mail" type="email" /></div>
+          <div><label for="message">Nachricht</label><textarea id="message" name="message" rows="4" required></textarea></div>
+          <button class="cta" type="submit">Nachricht senden</button>
+          <p class="ok" id="formOk">Bereit zum Versand.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+  <footer class="site">
+    Atelier Stein Mode · Hamburg · Showcase Demo · Premium Creative Engine · 20-frame sequence · 20 frames<br />
+    <a href="impressum.html">Impressum</a> <a href="datenschutz.html">Datenschutz</a>
+    
+  </footer>
+
+  <div class="modal" id="terminModal" hidden>
+    <div class="modal-card">
+      <div class="modal-head"><h2>In den Warenkorb</h2><button type="button" class="modal-close" id="terminClose">×</button></div>
+      <div id="modalContactMount"></div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var FRAMES = [{"src": "assets/seq/f001.jpg", "action": "model_enter", "copy": "Der Look betritt den Raum."}, {"src": "assets/seq/f002.jpg", "action": "fabric", "copy": "Stoff. Struktur. Gefuehl."}, {"src": "assets/seq/f003.jpg", "action": "movement", "copy": "Bewegung. Fall."}, {"src": "assets/seq/f004.jpg", "action": "detail_button", "copy": "Detail entscheidet."}, {"src": "assets/seq/f005.jpg", "action": "outfit", "copy": "Outfit. Klar."}, {"src": "assets/seq/f006.jpg", "action": "product_hero", "copy": "Das Piece."}, {"src": "assets/seq/f007.jpg", "action": "product_close", "copy": "Nah. Premium."}, {"src": "assets/seq/f008.jpg", "action": "texture", "copy": "Textur zum Anfassen."}, {"src": "assets/seq/f009.jpg", "action": "model_turn", "copy": "Drehung. Silhouette."}, {"src": "assets/seq/f010.jpg", "action": "product_reveal", "copy": "Reveal."}, {"src": "assets/seq/f011.jpg", "action": "collar", "copy": "Kragen. Linie."}, {"src": "assets/seq/f012.jpg", "action": "walk", "copy": "Auf dem Weg."}, {"src": "assets/seq/f013.jpg", "action": "sleeve", "copy": "Aermel. Schnitt."}, {"src": "assets/seq/f014.jpg", "action": "back", "copy": "Rueckenpartie."}, {"src": "assets/seq/f015.jpg", "action": "light", "copy": "Licht auf dem Stoff."}, {"src": "assets/seq/f016.jpg", "action": "lifestyle", "copy": "Getragen. Echt."}, {"src": "assets/seq/f017.jpg", "action": "product_flat", "copy": "Produkt. Klar."}, {"src": "assets/seq/f018.jpg", "action": "pair", "copy": "Look komplett."}, {"src": "assets/seq/f019.jpg", "action": "desire", "copy": "Jetzt dein Style."}, {"src": "assets/seq/f020.jpg", "action": "cta", "copy": "In den Warenkorb."}];
+    var N = FRAMES.length;
+    var seq = document.getElementById('seq');
+    var imgs = [];
+    var preloadWindow = 4;
+    function ensureImg(i) {
+      if (!FRAMES[i] || imgs[i]) return imgs[i];
+      var img = document.createElement('img');
+      img.alt = '';
+      img.decoding = 'async';
+      img.src = FRAMES[i].src;
+      seq.appendChild(img);
+      imgs[i] = img;
+      return img;
+    }
+    // preload first frames
+    for (var i=0;i<Math.min(N, 6);i++) ensureImg(i);
+
+    var progressEl = document.getElementById('progress');
+    var beatLine = document.getElementById('beatLine');
+    var frameMeter = document.getElementById('frameMeter');
+    var pin = document.getElementById('pin');
+    var lastIdx = -1;
+
+    function cinemaProgress() {
+      var rect = pin.getBoundingClientRect();
+      var total = Math.max(1, pin.offsetHeight - window.innerHeight);
+      var scrolled = Math.min(total, Math.max(0, -rect.top));
+      return scrolled / total;
+    }
+    function setFrame(p) {
+      var idx = Math.min(N - 1, Math.max(0, Math.round(p * (N - 1))));
+      lastIdx = idx;
+      for (var k = Math.max(0, idx - 1); k <= Math.min(N - 1, idx + preloadWindow); k++) ensureImg(k);
+      for (var i = 0; i < imgs.length; i++) {
+        var img = imgs[i];
+        if (!img) continue;
+        img.classList.toggle('is-on', i === idx);
+        img.classList.toggle('is-prev', i === idx - 1);
+      }
+      var f = FRAMES[idx] || {};
+      beatLine.textContent = f.copy || f.action || '';
+      frameMeter.textContent = 'FRAME ' + String(idx + 1).padStart(3,'0') + ' / ' + String(N).padStart(3,'0');
+      progressEl.style.width = (p * 100).toFixed(2) + '%';
+      document.getElementById('cta').style.opacity = p > 0.82 ? '1' : (p > 0.55 ? '0.85' : '0.55');
+    }
+    function onScroll() { setFrame(cinemaProgress()); }
+    addEventListener('scroll', onScroll, { passive:true });
+    addEventListener('resize', onScroll);
+    onScroll();
+
+    // contact modal
+    var modal = document.getElementById('terminModal');
+    var mount = document.getElementById('modalContactMount');
+    var inline = document.getElementById('contactInline');
+    function openTermin(e) {
+      if (e) e.preventDefault();
+      if (!modal || !mount || !inline) return;
+      if (!mount.dataset.ready) { mount.appendChild(inline.cloneNode(true)); mount.dataset.ready='1'; bindForm(mount.querySelector('form'), mount.querySelector('.ok')); }
+      modal.hidden=false; modal.classList.add('open'); document.body.style.overflow='hidden';
+    }
+    function closeTermin() { modal.classList.remove('open'); modal.hidden=true; document.body.style.overflow=''; }
+    Array.prototype.forEach.call(document.querySelectorAll('.js-open-termin'), function(b){ b.addEventListener('click', openTermin); });
+    document.getElementById('terminClose').addEventListener('click', closeTermin);
+    modal.addEventListener('click', function(e){ if (e.target===modal) closeTermin(); });
+
+    function bindForm(form, ok) {
+      if (!form) return;
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var name = (form.querySelector('[name=name]')||{}).value||'';
+        var phone = (form.querySelector('[name=phone]')||{}).value||'';
+        var mail = (form.querySelector('[name=mail]')||{}).value||'';
+        var message = (form.querySelector('[name=message]')||{}).value||'';
+        var subject = encodeURIComponent('Anfrage · Atelier Stein Mode');
+        var body = encodeURIComponent('Name: '+name+'\nTelefon: '+phone+'\nE-Mail: '+mail+'\n\n'+message);
+        window.location.href='mailto:shop@atelier-stein-demo.example.de?subject='+subject+'&body='+body;
+        if (ok) ok.classList.add('show');
+      });
+    }
+    bindForm(document.getElementById('contactForm'), document.getElementById('formOk'));
+
+    var cart = [];
+    Array.prototype.forEach.call(document.querySelectorAll('.js-add-cart'), function(btn) {
+      btn.addEventListener('click', function() {
+        var card = btn.closest('.product');
+        if (!card) return;
+        cart.push({ name: card.getAttribute('data-name'), price: card.getAttribute('data-price') });
+        var list = document.getElementById('cartList');
+        var empty = document.getElementById('cartEmpty');
+        if (list) {
+          list.innerHTML = '';
+          cart.forEach(function(it) { var li=document.createElement('li'); li.textContent=it.name+' — '+it.price; list.appendChild(li); });
+        }
+        if (empty) empty.style.display = cart.length ? 'none' : 'block';
+        var c = document.getElementById('cart'); if (c) c.scrollIntoView({behavior:'smooth'});
+      });
+    });
+  })();
+  </script>
+</body>
+</html>

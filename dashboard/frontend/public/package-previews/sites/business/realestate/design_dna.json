@@ -1,0 +1,67 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "healthcare",
+  "package_id": "business",
+  "niche_id": "realestate",
+  "fingerprint": "c1d60faf85c2c259d0451ec4e312ee5c11c02b58a15280e33a911c3c6dff1c55",
+  "section_treatments": [
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "services",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "process",
+      "illustration"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "faq",
+      "gradient"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "photo_band"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#1c1917",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "b871ec20c7ea9b16c6b7d198",
+  "border_radius_px": 12
+}

@@ -194,15 +194,16 @@ def pick_niche_hero(
     slots = ("hero_1", "hero_2", "hero_3")
     candidates: list[Path] = []
     seen: set[Path] = set()
+    # Prefer canonical primary still first (reduces polluted-slot roulette)
+    primary = primary_hero_src(niche_id, package_id)
+    if primary is not None and primary.is_file():
+        seen.add(primary)
+        candidates.append(primary)
     for slot in slots:
         p = resolve_slot(niche_id, package_id, slot)
         if p is not None and p.is_file() and p not in seen:
             seen.add(p)
             candidates.append(p)
-    if not candidates:
-        primary = primary_hero_src(niche_id, package_id)
-        if primary is not None and primary.is_file():
-            candidates.append(primary)
     # Prefer assets that pass pixel quality AND section/niche meaning
     good = [
         p
@@ -212,6 +213,10 @@ def pick_niche_hero(
     ]
     if not good:
         return None
+    # Starter: always primary-safe still when available (first visual effect)
+    tier = (package_id or "basic").strip().lower()
+    if tier == "basic" and primary is not None and primary in good:
+        return primary
     seed = f"{business_name}|{package_id}|{niche_id}|{(market_code or 'DE').upper()}|media-hero"
     idx = int(hashlib.sha256(seed.encode("utf-8")).hexdigest()[:8], 16) % len(good)
     return good[idx]
@@ -274,36 +279,114 @@ def finalize_product_media(
         if not a.ok:
             failures.append(f"client_hero:{a.reason}")
 
+    niche_l = (niche_id or "").strip().lower()
+    craft_niches = {
+        "dachreinigung",
+        "zaunbau",
+        "gartenpflege",
+        "handwerk",
+        "cleaning",
+        "green",
+        "maler",
+        "sanitaer",
+        "elektro",
+    }
+    is_craft = niche_l in craft_niches
+
     niche_hero_src: Path | None = None
     hero_ok_force_fail = False
     if not client_hero_ok:
-        niche_hero = pick_niche_hero(
-            niche_id=niche_id,
-            package_id=package_id,
-            market_code=market_code,
-            business_name=business_name,
-        )
-        if niche_hero is not None:
-            niche_hero_src = niche_hero
-            shutil.copy2(niche_hero, hero_path)
-            a = assess_image(hero_path, role="hero", source="niche")
-            assessments.append(a)
-            if not a.ok:
-                failures.append(f"niche_hero:{a.reason}")
-            hero_from_client = False
-        elif not hero_path.is_file():
-            failures.append("hero:missing")
-            a = ImageAssessment(path="assets/hero.jpg", role="hero", ok=False, reason="missing")
-            assessments.append(a)
-        else:
-            # Stale/wrong hero on disk and no Media Gate–passing candidate
-            failures.append("hero:no_media_gate_candidate")
+        # Craft niches: Brand Book Atmosphere Pack scenes — never café/salon stock packs
+        if is_craft:
             try:
-                hero_path.unlink(missing_ok=True)
-            except OSError:
-                pass
-            hero_from_client = False
-            hero_ok_force_fail = True
+                from app.factory.design_dna.brand_book import resolve_brand_book
+                from app.factory.niche_scene_media import write_niche_scene
+
+                book = resolve_brand_book(
+                    business_name=business_name,
+                    niche_id=niche_id,
+                    package_id=package_id,
+                )
+                write_niche_scene(
+                    hero_path,
+                    niche_id=niche_id,
+                    seed=f"{business_name}|{package_id}|media-intel-hero|{book.fingerprint}",
+                    role="hero",
+                    size=(1600, 900),
+                    metaphor=book.visual_metaphor,
+                    accent_hex=book.palette.accent_hex,
+                )
+                a = assess_image(hero_path, role="hero", source="brand_book")
+                assessments.append(a)
+                if not a.ok:
+                    failures.append(f"brand_book_hero:{a.reason}")
+                hero_from_client = False
+            except Exception as exc:  # noqa: BLE001
+                failures.append(f"brand_book_hero:{exc}")
+        else:
+            niche_hero = pick_niche_hero(
+                niche_id=niche_id,
+                package_id=package_id,
+                market_code=market_code,
+                business_name=business_name,
+            )
+            if niche_hero is not None:
+                niche_hero_src = niche_hero
+                shutil.copy2(niche_hero, hero_path)
+                a = assess_image(hero_path, role="hero", source="niche")
+                assessments.append(a)
+                if not a.ok:
+                    failures.append(f"niche_hero:{a.reason}")
+                hero_from_client = False
+            elif not hero_path.is_file():
+                # Form-like niche still — same character for basic/business/premium
+                try:
+                    from app.factory.niche_scene_media import ensure_niche_hero
+
+                    ensure_niche_hero(
+                        hero_path,
+                        niche_id=niche_id,
+                        business_name=business_name,
+                        package_id=package_id,
+                    )
+                    a = assess_image(hero_path, role="hero", source="niche")
+                    assessments.append(a)
+                    if not a.ok:
+                        failures.append(f"generated_hero:{a.reason}")
+                    else:
+                        hero_from_client = False
+                except Exception as exc:  # noqa: BLE001 — media must not abort factory
+                    failures.append(f"hero:missing:{exc}")
+                    a = ImageAssessment(path="assets/hero.jpg", role="hero", ok=False, reason="missing")
+                    assessments.append(a)
+            else:
+                # Factory / hero_pack already wrote a still — keep if quality gate passes
+                a = assess_image(hero_path, role="hero", source="niche")
+                assessments.append(a)
+                if a.ok:
+                    hero_from_client = False
+                else:
+                    failures.append(f"hero:not_ok:{a.reason}")
+                    try:
+                        hero_path.unlink(missing_ok=True)
+                    except OSError:
+                        pass
+                    try:
+                        from app.factory.niche_scene_media import ensure_niche_hero
+
+                        ensure_niche_hero(
+                            hero_path,
+                            niche_id=niche_id,
+                            business_name=business_name,
+                            package_id=package_id,
+                        )
+                        a2 = assess_image(hero_path, role="hero", source="niche")
+                        assessments.append(a2)
+                        hero_from_client = False
+                        hero_ok_force_fail = not a2.ok
+                    except Exception:
+                        hero_from_client = False
+                        hero_ok_force_fail = True
 
     hero_final = assess_image(hero_path, role="hero", source="client" if hero_from_client else "niche")
     if hero_path.is_file() and hero_final.ok:
@@ -336,38 +419,78 @@ def finalize_product_media(
         else:
             failures.append(f"gallery:{rel}:{a.reason}")
 
-    # Background from pack (optional visual consistency)
+    # Background — craft niches: Brand Book scene; else pack stock
     bg_rel: str | None = None
-    bg_src = pick_niche_background(
-        niche_id=niche_id,
-        package_id=package_id,
-        market_code=market_code,
-        business_name=business_name,
-    )
-    if bg_src is not None:
-        dest = assets / "background.jpg"
-        shutil.copy2(bg_src, dest)
-        ba = assess_image(dest, role="background", source="pack")
-        assessments.append(
-            ImageAssessment(
-                path="assets/background.jpg",
-                role="background",
-                ok=ba.ok,
-                width=ba.width,
-                height=ba.height,
-                bytes=ba.bytes,
-                reason=ba.reason,
-                source="pack",
+    if is_craft:
+        try:
+            from app.factory.design_dna.brand_book import resolve_brand_book
+            from app.factory.niche_scene_media import write_niche_scene
+
+            book = resolve_brand_book(
+                business_name=business_name,
+                niche_id=niche_id,
+                package_id=package_id,
             )
+            dest = assets / "background.jpg"
+            write_niche_scene(
+                dest,
+                niche_id=niche_id,
+                seed=f"{business_name}|{package_id}|media-intel-bg|{book.fingerprint}",
+                role="banner",
+                size=(1920, 1080),
+                metaphor=book.visual_metaphor,
+                accent_hex=book.palette.accent_hex,
+            )
+            ba = assess_image(dest, role="background", source="brand_book")
+            assessments.append(
+                ImageAssessment(
+                    path="assets/background.jpg",
+                    role="background",
+                    ok=ba.ok,
+                    width=ba.width,
+                    height=ba.height,
+                    bytes=ba.bytes,
+                    reason=ba.reason,
+                    source="brand_book",
+                )
+            )
+            if ba.ok:
+                bg_rel = "assets/background.jpg"
+            else:
+                failures.append(f"background:{ba.reason}")
+        except Exception as exc:  # noqa: BLE001
+            failures.append(f"background:{exc}")
+    else:
+        bg_src = pick_niche_background(
+            niche_id=niche_id,
+            package_id=package_id,
+            market_code=market_code,
+            business_name=business_name,
         )
-        if ba.ok:
-            bg_rel = "assets/background.jpg"
-        else:
-            failures.append(f"background:{ba.reason}")
-            try:
-                dest.unlink(missing_ok=True)
-            except OSError:
-                pass
+        if bg_src is not None:
+            dest = assets / "background.jpg"
+            shutil.copy2(bg_src, dest)
+            ba = assess_image(dest, role="background", source="pack")
+            assessments.append(
+                ImageAssessment(
+                    path="assets/background.jpg",
+                    role="background",
+                    ok=ba.ok,
+                    width=ba.width,
+                    height=ba.height,
+                    bytes=ba.bytes,
+                    reason=ba.reason,
+                    source="pack",
+                )
+            )
+            if ba.ok:
+                bg_rel = "assets/background.jpg"
+            else:
+                failures.append(f"background:{ba.reason}")
+                try:
+                    dest.unlink(missing_ok=True)
+                except OSError:
+                    pass
 
     # Logo soft check (does not fail gate alone if missing)
     for logo_name in ("logo.png", "logo.svg"):
@@ -400,10 +523,12 @@ def finalize_product_media(
     elif niche_hero_src is not None:
         assignments.append(("hero", niche_hero_src, "niche"))
     elif hero_path.is_file():
-        assignments.append(("hero", hero_path, "niche"))
+        assignments.append(("hero", hero_path, "brand_book" if is_craft else "niche"))
 
-    if bg_src is not None and bg_rel:
-        assignments.append(("about", bg_src, "pack"))
+    if bg_rel:
+        bg_path = assets / "background.jpg"
+        if bg_path.is_file():
+            assignments.append(("about", bg_path, "brand_book" if is_craft else "pack"))
 
     for rel in kept_gallery:
         p = product_dir / rel.replace("\\", "/")

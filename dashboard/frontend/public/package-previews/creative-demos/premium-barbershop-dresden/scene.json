@@ -1,0 +1,259 @@
+{
+  "business": {
+    "engine": "business_analyzer_v1",
+    "business_name": "Atelier Nord Fade",
+    "business_type": "barbershop",
+    "niche": "barbershop",
+    "target_audience": "",
+    "city": "Dresden",
+    "market": "DE",
+    "style": "Premium",
+    "brand_tone": "",
+    "products_or_services": [
+      {
+        "name": "Signature Fade",
+        "blurb": "Saubere Contour, weiche Übergänge, langanhaltende Form."
+      },
+      {
+        "name": "Bart & Kontur",
+        "blurb": "Symmetrie, Dichte und Linie — abgestimmt auf Ihren Stil."
+      },
+      {
+        "name": "Hot Towel Ritual",
+        "blurb": "Ruhe vor dem Schnitt — Haut und Haar vorbereitet."
+      },
+      {
+        "name": "Styling Finish",
+        "blurb": "Produktwahl und Finish für Alltag und Abend."
+      }
+    ],
+    "cta": "Termin buchen",
+    "preferred_colors": [],
+    "logo_url": "",
+    "existing_images": [],
+    "description": "männliche Premium-Barbershop",
+    "product_kind": "website",
+    "invented_facts": false,
+    "notes": "Only fields supplied by the client were used.",
+    "phone": "+49 351 1234567",
+    "email": "termin@nordfade-demo.example.de",
+    "instagram": "https://www.instagram.com/",
+    "telegram": "https://t.me/",
+    "street": "Königstraße 12",
+    "zip": "01097",
+    "tagline": "Präzision, Ruhe, Charakter — Premium Barbering in Dresden.",
+    "about_title": "Mehr als ein Haarschnitt",
+    "about_body": "Atelier Nord Fade ist ein Premium-Barbershop in Dresden für Männer, die Klarheit und Handwerk suchen — nicht laut, nicht eilig. Jeder Termin beginnt mit einem kurzen Gespräch: Form, Haarlinie, Alltag. Dann folgt präzise Arbeit mit Contour, Fade und Bart — in einem dunklen, ruhigen Salon mit Fokus auf Details.",
+    "about_points": [
+      "Feste Meister — kein Fließband",
+      "Transparente Preise vor dem Schnitt",
+      "Termin ohne Wartechaos",
+      "Premium-Produkte für zu Hause"
+    ],
+    "marketing_lines": [
+      "Willkommen bei Atelier Nord Fade — Premium Barbering in Dresden.",
+      "Präzise mit der Maschine — Contour und Fade mit ruhiger Hand.",
+      "Saubere Arbeit. Faire Preise. Kein Wartestress.",
+      "Schere und Detail — Handwerk, das man sieht.",
+      "Ein Meister. Ein Look. Ihr Charakter.",
+      "Jetzt Termin buchen — wir freuen uns auf Sie."
+    ],
+    "gallery": [
+      {
+        "src": "assets/01_salon.jpg",
+        "alt": "Salon",
+        "caption": "Der Salon — ruhig, dunkel, premium."
+      },
+      {
+        "src": "assets/02_clippers.jpg",
+        "alt": "Maschine",
+        "caption": "Maschine — Contour beginnt."
+      },
+      {
+        "src": "assets/03_hairfly.jpg",
+        "alt": "Haare",
+        "caption": "Haare in Bewegung — der Schnitt arbeitet."
+      },
+      {
+        "src": "assets/04_scissors.jpg",
+        "alt": "Schere",
+        "caption": "Schere — Feinarbeit der Form."
+      },
+      {
+        "src": "assets/05_fade.jpg",
+        "alt": "Fade",
+        "caption": "Fade — Übergang wird präzise."
+      },
+      {
+        "src": "assets/06_result.jpg",
+        "alt": "Ergebnis",
+        "caption": "Ergebnis — klarer Look."
+      }
+    ],
+    "gallery_title": "Die Verwandlung",
+    "gallery_lead": "Salon → Maschine → Haare → Schere → Fade → Ergebnis — wie ein kurzes Handwerks-Video."
+  },
+  "creative": {
+    "engine": "creative_director_v1",
+    "business": "Atelier Nord Fade",
+    "city": "Dresden",
+    "niche": "barbershop",
+    "niche_key": "barbershop",
+    "concept": "cinematic transformation — client enters, haircut evolves, reveal + booking",
+    "visual_style": "realistic premium",
+    "art_direction": {
+      "lighting": "dark premium shop · amber accents · leather chair",
+      "environment": "dark premium shop · amber accents · leather chair",
+      "subject": "Atelier Nord Fade",
+      "camera_language": "slow push-in then orbit",
+      "motion": "clippers, hair fall, scissors, fade, mirror reveal",
+      "transition": "scroll-bound beats",
+      "cta_moment": "final beat / 100% scroll"
+    },
+    "scene_type": "image_to_video",
+    "hero_motion": "slow cinematic camera movement",
+    "cta": "Termin buchen",
+    "strategy": {
+      "preferred_scene": "cinematic_transformation",
+      "camera": "slow push-in then orbit",
+      "motion": "clippers, hair fall, scissors, fade, mirror reveal",
+      "environment": "dark premium shop · amber accents · leather chair",
+      "cta": "Termin buchen",
+      "fallback": [
+        "WEBGL_PROCEDURAL",
+        "IMAGE_SCROLL",
+        "STATIC_HERO"
+      ],
+      "aspect": "16:9",
+      "duration_target_sec": 10,
+      "craft_cinema": {
+        "character_lock": true,
+        "prefer_process_over_portraits": true,
+        "story_beats": [
+          "salon_enter",
+          "clippers_close",
+          "hair_flies",
+          "scissors_detail",
+          "fade_process",
+          "result_reveal"
+        ]
+      },
+      "niche_key": "barbershop"
+    },
+    "commerce_path": null
+  },
+  "scene": {
+    "engine": "scene_director_v1",
+    "scene_type": "barbershop",
+    "scene_title": "Premium barber shop — Atelier Nord Fade (Dresden)",
+    "business_name": "Atelier Nord Fade",
+    "city": "Dresden",
+    "niche": "barbershop",
+    "style": "premium",
+    "product_kind": "website",
+    "preferred_capability": "IMAGE_TO_VIDEO",
+    "fallback": [
+      "TEXT_TO_VIDEO",
+      "WEBGL_PROCEDURAL"
+    ],
+    "beats": [
+      {
+        "scroll": 0.0,
+        "action": "camera_enters_shop"
+      },
+      {
+        "scroll": 0.12,
+        "action": "barber_prepares_clippers"
+      },
+      {
+        "scroll": 0.25,
+        "action": "haircut_begins"
+      },
+      {
+        "scroll": 0.4,
+        "action": "hair_moves_falls"
+      },
+      {
+        "scroll": 0.55,
+        "action": "camera_orbits_client"
+      },
+      {
+        "scroll": 0.7,
+        "action": "finished_haircut"
+      },
+      {
+        "scroll": 0.85,
+        "action": "products_appear"
+      },
+      {
+        "scroll": 1.0,
+        "action": "shop_cta"
+      }
+    ],
+    "shots": [
+      {
+        "shot": 1,
+        "scroll": 0.0,
+        "action": "camera_enters_shop",
+        "title": "Camera Enters Shop"
+      },
+      {
+        "shot": 2,
+        "scroll": 0.12,
+        "action": "barber_prepares_clippers",
+        "title": "Barber Prepares Clippers"
+      },
+      {
+        "shot": 3,
+        "scroll": 0.25,
+        "action": "haircut_begins",
+        "title": "Haircut Begins"
+      },
+      {
+        "shot": 4,
+        "scroll": 0.4,
+        "action": "hair_moves_falls",
+        "title": "Hair Moves Falls"
+      },
+      {
+        "shot": 5,
+        "scroll": 0.55,
+        "action": "camera_orbits_client",
+        "title": "Camera Orbits Client"
+      },
+      {
+        "shot": 6,
+        "scroll": 0.7,
+        "action": "finished_haircut",
+        "title": "Finished Haircut"
+      },
+      {
+        "shot": 7,
+        "scroll": 0.85,
+        "action": "products_appear",
+        "title": "Products Appear"
+      },
+      {
+        "shot": 8,
+        "scroll": 1.0,
+        "action": "shop_cta",
+        "title": "Shop Cta"
+      }
+    ],
+    "scroll_binding": "video_progress = scroll_percent",
+    "note": "Specification only — no media generated"
+  },
+  "scroll": {
+    "binding": "scroll"
+  },
+  "posters": [
+    "assets/01_salon.jpg",
+    "assets/02_clippers.jpg",
+    "assets/03_hairfly.jpg",
+    "assets/04_scissors.jpg",
+    "assets/05_fade.jpg",
+    "assets/06_result.jpg"
+  ],
+  "kind": "website",
+  "craft_cinema": true
+}

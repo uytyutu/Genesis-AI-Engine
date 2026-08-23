@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { ApiFarmPanel } from "./ApiFarmPanel";
+import { FarmQueuesPanel } from "./FarmQueuesPanel";
+import { MoneyHunterPanel } from "./MoneyHunterPanel";
 import { MoneyMonitorPanel, type MoneyMonitorData } from "./MoneyMonitorPanel";
 import { FarmMaturityBoard } from "./FarmMaturityBoard";
 import { PayoutManagerPanel, type PayoutManagerData } from "./PayoutManagerPanel";
@@ -67,6 +70,29 @@ type Platform = {
   signup_url?: string | null;
   steps?: string[];
   connected?: boolean;
+  category?: string;
+  client_visible?: boolean;
+};
+
+type ApifyOwnerStatus = {
+  ok?: boolean;
+  apify?: {
+    connected?: boolean;
+    configured?: boolean;
+    message?: string;
+    username?: string | null;
+    credentials?: {
+      has_token?: boolean;
+      has_user_id?: boolean;
+      token_masked?: string | null;
+      user_id_masked?: string | null;
+    };
+    product_line?: {
+      note?: string;
+      actors?: { id: string; name: string; status: string; blurb: string }[];
+      client_visible?: boolean;
+    };
+  };
 };
 type ChecklistItem = { step: string; title: string; detail: string };
 type TaskEvent = FarmTaskEvent;
@@ -177,6 +203,8 @@ type FarmDash = {
     min_task_price?: number;
     polling_interval_sec?: number;
     hunter_mode?: boolean;
+    idle?: boolean;
+    idle_status?: string;
     note?: string;
   };
   dry_run?: {
@@ -506,6 +534,43 @@ export function FarmDashboard() {
   const [proposalPreview, setProposalPreview] = useState<string>("");
   const [lostReasonCode, setLostReasonCode] = useState("expensive");
   const [lostTargetId, setLostTargetId] = useState<string | null>(null);
+  const [apifyStatus, setApifyStatus] = useState<ApifyOwnerStatus | null>(null);
+  const [apifyBusy, setApifyBusy] = useState(false);
+
+  useEffect(() => {
+    // Apify status is owner-only — load after idle, never on critical Farm paint.
+    let cancelled = false;
+    const t = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const res = await fetchApi(`${API}/api/owner/apify/status`, {
+            timeoutMs: 10_000,
+          });
+          if (!res.ok || cancelled) return;
+          const body = (await res.json()) as ApifyOwnerStatus;
+          if (!cancelled) setApifyStatus(body);
+        } catch {
+          /* owner-only optional */
+        }
+      })();
+    }, 8_000);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, []);
+
+  const refreshApify = useCallback(async () => {
+    setApifyBusy(true);
+    try {
+      const res = await fetchApi(`${API}/api/owner/apify/status`, { timeoutMs: 10_000 });
+      if (res.ok) setApifyStatus((await res.json()) as ApifyOwnerStatus);
+    } catch {
+      /* ignore */
+    } finally {
+      setApifyBusy(false);
+    }
+  }, []);
 
   // Once VRE reached VERIFIED, keep the banner on across warm/reconnect/F5 —
   // cold polls must not flash rose NOT VERIFIED / LEVEL 0 (looks like disconnect).
@@ -527,7 +592,7 @@ export function FarmDashboard() {
     return () => window.clearTimeout(t);
   }, []);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (mode: "lite" | "full" = "full") => {
     let liteOk = false;
     try {
       const liteRes = await fetchApi(`${API}/api/farm/dashboard/lite`, { timeoutMs: 8_000 });
@@ -537,6 +602,10 @@ export function FarmDashboard() {
         setLoadError("");
         setPollBackoffMs(3_000);
         liteOk = true;
+      }
+      if (mode === "lite") {
+        if (!liteOk) throw new Error("dashboard");
+        return;
       }
       const fullRes = await fetchApi(`${API}/api/farm/dashboard`, { timeoutMs: 20_000 });
       if (fullRes.ok) {
@@ -564,25 +633,32 @@ export function FarmDashboard() {
   }, []);
 
   useEffect(() => {
-    void refresh();
+    void refresh("lite");
   }, [refresh]);
 
   // Interval only — do NOT depend on dash.farm_program object identity (new object
   // every poll was restarting the effect → refresh storm → Mission Control freeze).
   const farmWarming =
     dash != null && !loadError && !isFarmSectionReady(dash.farm_program);
+  const fullPollTick = useRef(0);
 
   useEffect(() => {
-    const intervalMs = loadError ? pollBackoffMs : farmWarming ? 5_000 : 20_000;
+    // Quiet Farm: warm lite 45s · steady lite 90s · full at most every ~7.5 min.
+    const intervalMs = loadError ? pollBackoffMs : farmWarming ? 45_000 : 90_000;
     const poll = window.setInterval(() => {
-      void refresh();
+      fullPollTick.current += 1;
+      if (!farmWarming && fullPollTick.current % 5 === 0) {
+        void refresh("full");
+      } else {
+        void refresh("lite");
+      }
     }, intervalMs);
     return () => window.clearInterval(poll);
   }, [refresh, loadError, pollBackoffMs, farmWarming]);
 
   useEffect(() => {
     const kick = () => {
-      void refresh();
+      void refresh("lite");
     };
     const onVis = () => {
       if (document.visibilityState === "visible") kick();
@@ -602,11 +678,11 @@ export function FarmDashboard() {
     const tick = window.setInterval(async () => {
       try {
         await fetchApi(`${API}/api/farm/tick`, { method: "POST", timeoutMs: 8_000 });
-        refresh();
+        void refresh("lite");
       } catch {
         /* background */
       }
-    }, 45_000);
+    }, 60_000);
     return () => window.clearInterval(tick);
   }, [dash?.running, refresh]);
 
@@ -917,6 +993,9 @@ export function FarmDashboard() {
             <Link href="/finance" className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40">
               Деньги
             </Link>
+            <Link href="/global-analytics" className="rounded-lg border border-sky-500/40 px-3 py-1.5 text-sky-100 hover:bg-sky-950/30">
+              Global Analytics
+            </Link>
             <Link href="/payout" className="rounded-lg border border-emerald-500/40 px-3 py-1.5 text-emerald-100 hover:bg-emerald-950/30">
               Вывод
             </Link>
@@ -966,6 +1045,12 @@ export function FarmDashboard() {
         <FarmMaturityBoard autoFetch compact />
 
         {dash?.money_monitor ? <MoneyMonitorPanel data={dash.money_monitor} /> : null}
+
+        <FarmQueuesPanel compact />
+
+        <MoneyHunterPanel compact />
+
+        <ApiFarmPanel compact />
 
         {(dash?.money_monitor?.payout_manager || dash?.payout_manager) ? (
           <PayoutManagerPanel
@@ -1767,9 +1852,18 @@ export function FarmDashboard() {
               {dash.global_spider.places_configured ? " · Google Places 🟢" : " · Places ⚪ (нужен ключ)"}
             </p>
             <p className="mt-2 text-xs text-cyan-100/90">
-              Фильтр ≥ <strong>{dash.global_spider.min_task_price?.toFixed(2) ?? "0.02"} €</strong> · Охота каждые{" "}
-              <strong>{dash.global_spider.polling_interval_sec ?? 8} сек</strong>
-              {dash.global_spider.hunter_mode ? " · режим охотника ON" : ""}
+              Фильтр ≥ <strong>{dash.global_spider.min_task_price?.toFixed(2) ?? "0.02"} €</strong> ·{" "}
+              {dash.global_spider.idle ? (
+                <>
+                  IDLE / {dash.global_spider.idle_status ?? "WAITING_FOR_INPUT"} · backoff{" "}
+                  <strong>{dash.global_spider.polling_interval_sec ?? 8} сек</strong>
+                </>
+              ) : (
+                <>
+                  Охота каждые <strong>{dash.global_spider.polling_interval_sec ?? 8} сек</strong>
+                </>
+              )}
+              {dash.global_spider.hunter_mode ? " · режим охотника ON" : " · охотник OFF"}
             </p>
             {dash.global_spider.toloka_task_categories?.length ? (
               <ul className="mt-3 flex flex-wrap gap-2 text-[11px]">
@@ -2110,13 +2204,94 @@ export function FarmDashboard() {
         )}
 
         {dash && (
+          <section className="genesis-card border border-sky-500/25 p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300/80">
+                  Owner only · не для клиентов
+                </p>
+                <h2 className="mt-1 text-sm font-semibold text-white">
+                  Apify · Virtus Core Actor line
+                </h2>
+                <p className="mt-1 max-w-2xl text-xs text-genesis-muted">
+                  {apifyStatus?.apify?.product_line?.note ||
+                    "Не парсер Maps — Website Auditor → Tech Scanner → Lead Finder. Ключи только в .env.local."}
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={apifyBusy}
+                onClick={() => void refreshApify()}
+                className="rounded-xl border border-sky-500/40 bg-sky-950/40 px-3 py-2 text-xs font-semibold text-sky-100 hover:bg-sky-900/50 disabled:opacity-50"
+              >
+                {apifyBusy ? "Проверка…" : "Проверить ключ"}
+              </button>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2 text-xs">
+              <span
+                className={`rounded-full px-2.5 py-1 ${
+                  apifyStatus?.apify?.connected
+                    ? "bg-emerald-500/20 text-emerald-200"
+                    : apifyStatus?.apify?.configured
+                      ? "bg-amber-500/20 text-amber-100"
+                      : "bg-white/5 text-zinc-400"
+                }`}
+              >
+                {apifyStatus?.apify?.message ||
+                  (farmList(dash.platforms).some((p) => p.id === "apify" && p.connected)
+                    ? "Ключ в .env.local"
+                    : "APIFY_KEY / APIFY_ID ещё не видны backend")}
+              </span>
+              {apifyStatus?.apify?.username ? (
+                <span className="rounded-full bg-white/5 px-2.5 py-1 text-zinc-300">
+                  @{apifyStatus.apify.username}
+                </span>
+              ) : null}
+              {apifyStatus?.apify?.credentials?.token_masked ? (
+                <span className="rounded-full bg-white/5 px-2.5 py-1 font-mono text-[10px] text-zinc-400">
+                  token {apifyStatus.apify.credentials.token_masked}
+                </span>
+              ) : null}
+              {apifyStatus?.apify?.credentials?.user_id_masked ? (
+                <span className="rounded-full bg-white/5 px-2.5 py-1 font-mono text-[10px] text-zinc-400">
+                  id {apifyStatus.apify.credentials.user_id_masked}
+                </span>
+              ) : null}
+            </div>
+            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+              {farmList(apifyStatus?.apify?.product_line?.actors).map((actor) => (
+                <li
+                  key={actor.id}
+                  className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium text-white">{actor.name}</span>
+                    <span className="text-[10px] uppercase tracking-wide text-zinc-500">
+                      {actor.status === "credentials_ready" ? "keys ready" : "planned"}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-genesis-muted">{actor.blurb}</p>
+                </li>
+              ))}
+              {!apifyStatus?.apify?.product_line?.actors?.length ? (
+                <li className="text-xs text-zinc-500 sm:col-span-2">
+                  Нажми «Проверить ключ» — появится линейка VC Website Auditor / Lead / Tech Scanner.
+                </li>
+              ) : null}
+            </ul>
+          </section>
+        )}
+
+        {dash && (
           <section className="genesis-card p-5">
-            <h2 className="text-sm font-semibold text-white">Биржи разметки (8 площадок)</h2>
+            <h2 className="text-sm font-semibold text-white">Биржи разметки</h2>
             <p className="mt-1 text-xs text-genesis-muted">
-              Genesis видит список. Подключение — только после твоей регистрации и ключа в .env.local.
+              Owner-only. Клиенты этот блок не видят. Apify вынесен отдельной карточкой выше.
             </p>
             <ul className="mt-4 space-y-4">
-              {farmList(dash.platforms).map((p) => (
+              {farmList(dash.platforms)
+                .filter((p) => p.id !== "apify" && p.category !== "actors")
+                .map((p) => (
                 <li
                   key={p.id}
                   className={`rounded-xl border px-4 py-3 ${

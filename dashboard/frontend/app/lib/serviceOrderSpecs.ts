@@ -96,17 +96,21 @@ const urlGoal = (
 export const SERVICE_SPECS: ServiceSpec[] = [
   {
     id: "landing_website",
-    name: "Business Website That Brings Leads",
-    price_label: "350–1200 €",
+    name: "Business Website",
+    price_label: "199–699 €",
     blurb:
-      "Get more customers with a professional website — Basic, Business, Premium packages.",
+      "Start with a professional website — Basic 299 € · Business 599 € · Premium 999 €.",
     mark: "W",
     accent: "border-emerald-400/35 bg-emerald-500/[0.08]",
     availability: "available",
     href: "/order?form=1",
     fields: [],
     deliveryNote: "Full order form with packages and materials.",
-    includes: ["Mobile landing", "Legal notice / Privacy ready", "Files you own"],
+    includes: [
+      "Modern responsive website",
+      "Impressum & Datenschutz",
+      "Admin Dashboard from Business",
+    ],
     stages: ["Brief", "Build", "Review", "Handover"],
     timeline: "typically 3–10 days after brief",
     afterPay: ["Project opens in cabinet", "Vector follows progress"],
@@ -127,7 +131,7 @@ export const SERVICE_SPECS: ServiceSpec[] = [
     highlights: [
       "Answers customers 24/7 on Telegram",
       "Captures leads automatically",
-      "Website Chat / WhatsApp / Instagram — coming soon",
+      "Telegram live after pay · Website Chat live · WhatsApp / Instagram — coming soon",
     ],
     includes: [
       "One AI employee for your brand",
@@ -428,10 +432,10 @@ export const SERVICE_SPECS: ServiceSpec[] = [
   },
   {
     id: "ecommerce_shop",
-    name: "AI Store by Virtus Core",
-    price_label: "from 799 €",
+    name: "AI Store Basic / Start",
+    price_label: "799 €",
     blurb:
-      "Online shop for your business — questionnaire, cabinet, then Factory build.",
+      "Own shop after purchase — catalog, cart, Shop Admin, German legal pages. Stripe, SMTP and shipping = owner connect.",
     mark: "🛒",
     accent: "border-emerald-400/35 bg-emerald-500/[0.08]",
     availability: "available",
@@ -453,15 +457,16 @@ export const SERVICE_SPECS: ServiceSpec[] = [
       },
     ] as ServiceField[],
     deliveryNote:
-      "After payment we automatically build a professional online store for your business. The finished project appears in your client cabinet.",
+      "After payment you receive a professional online shop in your client cabinet — open it and continue setup.",
     includes: [
-      "Detailed shop brief",
-      "Niche storefront published to cabinet",
-      "Open Store + regenerate / rollback",
+      "Modern design for your niche",
+      "Catalog, cart, wishlist & search",
+      "German legal pages",
+      "Client cabinet access",
     ],
-    stages: ["Questionnaire", "Register", "Payment", "Published"],
-    timeline: "Same day after payment",
-    afterPay: ["AI Store in cabinet", "Open Store", "Versions"],
+    stages: ["Questionnaire", "Register", "Payment", "Shop ready"],
+    timeline: "After payment — shop in your cabinet",
+    afterPay: ["Online shop in cabinet", "Open Store", "Continue setup"],
     support: "Cabinet + Vector",
   },
   {

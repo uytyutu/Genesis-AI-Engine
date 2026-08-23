@@ -26,6 +26,43 @@ class AnalysisResult:
 
 _NICHE_KEYWORDS = {
     # Specific niches first — dict order = match order.
+    # Roof / fence / garden BEFORE generic "reinigung" (cleaning)
+    "dachreinigung": (
+        "dachreinigung",
+        "dachreinigen",
+        "dachwäsche",
+        "dachwasche",
+        "moosentfernung",
+        "dachrinne",
+        "dach klar",
+        "roof cleaning",
+        "roof clean",
+        "чистка крыш",
+        "очистка крыш",
+    ),
+    "zaunbau": (
+        "zaunbau",
+        "zaunbau",
+        "sichtschutz",
+        "doppelstab",
+        "gartentor",
+        "zaunmontage",
+        "fence",
+        "fencing",
+        "заборы",
+        "забор",
+    ),
+    "gartenpflege": (
+        "gartenpflege",
+        "rasenschnitt",
+        "heckenschnitt",
+        "laubentsorgung",
+        "gärtner",
+        "gartner",
+        "landscape maintenance",
+        "уход за садом",
+        "сад и участок",
+    ),
     "cleaning": (
         "reinigung",
         "reinigungsfirma",
@@ -57,20 +94,37 @@ _NICHE_KEYWORDS = {
         "выкуп авто",
         "сдать авто",
     ),
+    # Before dental — "Praxis" alone must not steal psychologist practices
+    "psychology": (
+        "psycholog",
+        "psychotherapie",
+        "psychotherapeut",
+        "therapeutische praxis",
+        "counseling",
+        "counsellor",
+        "burnout",
+        "achtsamkeit",
+        "meditation",
+        "paartherapie",
+        "traumatherapie",
+        "психолог",
+        "психотерап",
+    ),
     "dental": (
         "стоматолог",
         "dental",
         "зуб",
-        "клиник",
         "имплант",
         "ортодонт",
         "zahnarzt",
+        "zahnmedizin",
+        "zahnheilkunde",
         "zahn",
         "arztpraxis",
         "hausarzt",
-        "praxis",
         "врач",
         "поликлин",
+        # "praxis" alone is too broad (Psychology Praxis) — require dental context via other words
     ),
     "computer": (
         "pc-reparatur",
@@ -105,6 +159,44 @@ _NICHE_KEYWORDS = {
         "бытовой техник",
         "холодильник",
         "стиральн",
+    ),
+    "elektro": (
+        "elektroinstallation",
+        "elektriker",
+        "sicherungskasten",
+        "e-check",
+        "stromwerk",
+        "smart home",
+    ),
+    "sanitaer": (
+        "sanitär",
+        "sanitaer",
+        "badsanierung",
+        "klempner",
+        "heizungswartung",
+        "wasserklar",
+    ),
+    "maler": (
+        "malermeister",
+        "maler ",
+        "innenanstrich",
+        "fassadenanstrich",
+        "tapezier",
+        "farbraum",
+    ),
+    "family_psychology": (
+        "familienpraxis",
+        "familientherapie",
+        "paarberatung",
+        "elterncoaching",
+        "nestklar",
+    ),
+    "car_dealership": (
+        "autohaus",
+        "neuwagen",
+        "gebrauchtwagen",
+        "probefahrt",
+        "nordlicht",
     ),
     "handwerk": (
         "elektriker",
@@ -276,16 +368,50 @@ def analyze(description: str, *, niche_hint: str | None = None) -> AnalysisResul
     text = description.strip()
     lower = text.lower()
 
+    hint = (niche_hint or "").strip().lower()
     niche = "generic"
     for name, words in _NICHE_KEYWORDS.items():
         if any(w in lower for w in words):
             niche = name
             break
 
-    hint = (niche_hint or "").strip().lower()
-    # Questionnaire niche wins only when description did not resolve a craft niche.
-    if niche == "generic" and hint and hint != "generic":
+    # Explicit order / Commercial Gallery niche wins when it is a known profile
+    known = set(_NICHE_KEYWORDS) | {
+        "psychology",
+        "family_psychology",
+        "generic",
+        "fashion",
+        "beauty",
+        "energy",
+        "green",
+        "restaurant",
+        "law",
+        "accounting",
+        "photography",
+        "fitness",
+        "realestate",
+        "dachreinigung",
+        "zaunbau",
+        "gartenpflege",
+        "handwerk",
+        "cleaning",
+        "dental",
+        "auto",
+        "elektro",
+        "sanitaer",
+        "maler",
+        "car_dealership",
+        "orthodontics",
+        "auto_detailing",
+        "it_support",
+        "computer",
+    }
+    if hint and hint in known and hint != "generic":
         niche = hint
+    else:
+        # Media Gate / DE gallery SSOT: garden-care auto-detect collapses to "green".
+        # Explicit niche_hint="gartenpflege" stays specific for Handwerk demos.
+        niche = {"gartenpflege": "green"}.get(niche, niche)
 
     business_name = _extract_business_name(text, niche)
     template_id = f"landing-{niche}-v1"
@@ -294,6 +420,7 @@ def analyze(description: str, *, niche_hint: str | None = None) -> AnalysisResul
     presets = {
         "cleaning": _preset_cleaning(business_name, template_id, cta_label, text),
         "auto_ankauf": _preset_auto_ankauf(business_name, template_id, cta_label, text),
+        "psychology": _preset_psychology(business_name, template_id, cta_label, text),
         "dental": _preset_dental(business_name, template_id, cta_label, text),
         "computer": _preset_computer(business_name, template_id, cta_label, text),
         "appliance": _preset_appliance(business_name, template_id, cta_label, text),
@@ -309,12 +436,25 @@ def analyze(description: str, *, niche_hint: str | None = None) -> AnalysisResul
         "energy": _preset_energy(business_name, template_id, cta_label, text),
         "green": _preset_green(business_name, template_id, cta_label, text),
         "restaurant": _preset_restaurant(business_name, template_id, cta_label, text),
+        "dachreinigung": _preset_dachreinigung(business_name, template_id, cta_label, text),
+        "zaunbau": _preset_zaunbau(business_name, template_id, cta_label, text),
+        "gartenpflege": _preset_gartenpflege(business_name, template_id, cta_label, text),
     }
 
     if niche in presets:
         return presets[niche]
 
-    return _preset_generic(business_name, cta_label, text)
+    result = _preset_generic(business_name, cta_label, text)
+    # Keep explicit / keyword niche when no dedicated preset exists
+    if niche and niche != "generic" and result.niche == "generic":
+        from dataclasses import replace
+
+        result = replace(
+            result,
+            niche=niche,
+            template_id=template_id,
+        )
+    return result
 
 
 def _preset_cleaning(
@@ -348,6 +488,111 @@ def _preset_cleaning(
         ),
         benefits=("Kostenloses Angebot in 24h", "Festpreis nach Begehung", "Ersatz bei Ausfall"),
         hours="Mo–Fr 7:00–18:00 · Sa nach Vereinbarung",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_dachreinigung(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "dach")
+    cta = "Kostenloses Angebot" if cta_label == "Kontakt aufnehmen" else cta_label
+    return AnalysisResult(
+        niche="dachreinigung",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Dachreinigung & Fassade",
+        subtitle=(
+            "Moosentfernung, Dachwäsche, Dachrinne und Imprägnierung — "
+            "Festpreis vor Ort, versichert, mit Vorher/Nachher."
+        ),
+        services=[
+            "Dachreinigung",
+            "Moosentfernung",
+            "Fassadenwäsche",
+            "Dachrinne reinigen",
+            "Imprägnierung",
+        ],
+        service_descriptions=(
+            "Schonende Hochdruck-/Niederdruckreinigung der Dachfläche.",
+            "Moos und Algen entfernen ohne die Ziegel zu beschädigen.",
+            "Fassade und Sockel von Schmutz und Bewuchs befreien.",
+            "Laub und Ablagerungen aus der Rinne, Ablauf prüfen.",
+            "Schutzanstrich gegen schnellen Wiederbewuchs.",
+        ),
+        cta_label=cta,
+        trust_points=("Versichert & zertifiziert", "Festpreis vor Ort", "Vorher/Nachher Fotos"),
+        about_text=(
+            f"{business_name} reinigt Dächer und Fassaden für Einfamilienhäuser — "
+            "klar kalkuliert, sauber hinterlassen, mit fester Ansprechperson."
+        ),
+        benefits=("Festpreisangebot", "Versichert auf dem Dach", "Termine mit Bestätigung"),
+        hours="Mo–Fr 08:00–17:00 · Sa nach Vereinbarung",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_zaunbau(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "zaun")
+    cta = "Kostenloses Angebot" if cta_label == "Kontakt aufnehmen" else cta_label
+    return AnalysisResult(
+        niche="zaunbau",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Zaunbau & Tore",
+        subtitle="Doppelstab, Sichtschutz, Gartentore — Aufmaß kostenlos, Montage und Reparatur.",
+        services=["Zaunbau", "Sichtschutz", "Gartentore", "Reparatur", "Beratung vor Ort"],
+        service_descriptions=(
+            "Planung und Montage von Zaunsystemen für Grundstück und Garten.",
+            "Sichtschutzstreifen und Paneele für mehr Privatsphäre.",
+            "Gartentore und Einfahrten passend zum Zaun.",
+            "Reparatur und Nachrüstung bestehender Anlagen.",
+            "Kostenloses Aufmaß und Materialberatung vor Ort.",
+        ),
+        cta_label=cta,
+        trust_points=("Aufmaß kostenlos", "Deutsche Qualität", "Saubere Montage"),
+        about_text=(
+            f"{business_name} baut Zäune und Tore mit klaren Angeboten — "
+            "vom Aufmaß bis zur fertigen Montage."
+        ),
+        benefits=("Festpreis nach Aufmaß", "Pünktliche Montage", "Saubere Baustelle"),
+        hours="Mo–Fr 08:00–17:00",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_gartenpflege(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "garten")
+    cta = "Kostenloses Angebot" if cta_label == "Kontakt aufnehmen" else cta_label
+    return AnalysisResult(
+        niche="gartenpflege",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Gartenpflege",
+        subtitle="Rasenschnitt, Hecke, Beete und Laub — zuverlässige Termine, ökologische Pflege.",
+        services=["Rasenschnitt", "Heckenschnitt", "Beetpflege", "Laubentsorgung", "Jahresvertrag"],
+        service_descriptions=(
+            "Regelmäßiger Rasenschnitt mit sauberem Abschluss.",
+            "Form- und Pflegeschnitt für Hecken und Gehölze.",
+            "Beete jäten, mulchen und saisonal nachsetzen.",
+            "Laubentsorgung im Herbst mit klaren Terminen.",
+            "Jahresvertrag mit festem Pflegeplan für Privathäuser.",
+        ),
+        cta_label=cta,
+        trust_points=("Zuverlässige Termine", "Ökologische Pflege", "Klarer Jahresplan"),
+        about_text=(
+            f"{business_name} pflegt Gärten mit ruhigem Rhythmus — "
+            "damit der Garten gepflegt bleibt, ohne dass Sie jeden Termin selbst organisieren."
+        ),
+        benefits=("Feste Ansprechpartner", "Transparente Preise", "Jahresvertrag möglich"),
+        hours="Mo–Fr 07:30–16:30 · Sa nach Vereinbarung",
         phone=phone,
         email=email,
     )
@@ -540,6 +785,55 @@ def _preset_handwerk(
             "Saubere Baustelle und termintreue Übergabe",
         ),
         hours="Mo–Fr 7:30–17:00 · Sa nach Vereinbarung",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_psychology(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "praxis")
+    cta = "Erstgespräch buchen" if cta_label == "Kontakt aufnehmen" else cta_label
+    return AnalysisResult(
+        niche="psychology",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Raum für Klarheit und Vertrauen",
+        subtitle=(
+            "Ruhige Gespräche, transparente Honorare — online und vor Ort. "
+            "Der erste Schritt darf leicht sein."
+        ),
+        services=[
+            "Einzeltherapie",
+            "Erstgespräch",
+            "Online-Beratung",
+            "Paartherapie",
+            "Burnout-Prävention",
+            "Achtsamkeit",
+        ],
+        service_descriptions=(
+            "Geschützter Raum für Ihre Themen — in Ihrem Tempo.",
+            "Kennenlernen ohne Druck: Anliegen, Rahmen und nächste Schritte.",
+            "Sichere Video-Termine, wenn Sie von zu Hause aus starten möchten.",
+            "Begleitung für Paare mit klaren Gesprächsstrukturen.",
+            "Prävention und Erholung bei Erschöpfung und Überlastung.",
+            "Praktische Übungen für Alltag und innere Ruhe.",
+        ),
+        cta_label=cta,
+        trust_points=("Schweigepflicht", "Online & vor Ort", "Transparente Honorare"),
+        about_text=(
+            f"In der {business_name} steht der Mensch im Mittelpunkt — nicht Effekte. "
+            "Wir schaffen einen geschützten Rahmen für Einzeltherapie, Erstgespräch und "
+            "Online-Beratung: Sicherheit, Klarheit und professionelle Begleitung in Ihrem Tempo. "
+            "Honorare und Ablauf besprechen wir transparent, bevor Sie sich entscheiden."
+        ),
+        benefits=(
+            "Erstgespräch mit klarem Rahmen",
+            "Flexible Termine — auch online",
+            "Vertraulichkeit und ruhige Atmosphäre",
+        ),
+        hours="Mo–Fr 9:00–19:00 · Sa nach Vereinbarung",
         phone=phone,
         email=email,
     )

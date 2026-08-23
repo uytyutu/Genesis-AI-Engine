@@ -66,8 +66,8 @@ def test_heal_stale_strict_brief(tmp_path: Path):
     assert panel["director"]["min_expected_profit_eur"] == pytest.approx(50.0)
     assert panel["director"]["search_mode"] == "newbie"
     assert panel["director"]["last_brief"] is None
-    assert panel["next_step"] == "paper"
-    assert "Paper day" in panel["next_action_ru"]
+    assert panel["next_step"] == "adapters"
+    assert "адаптер" in panel["next_action_ru"].lower() or "Adapter" in panel["next_action_ru"] or "адаптеры" in panel["next_action_ru"].lower()
 
 
 def test_search_modes_and_honest_empty_conservative(tmp_path: Path):
@@ -119,19 +119,25 @@ def test_heal_stuck_active_experiments(tmp_path: Path):
     assert lab._load_lab()["active_experiments"] == 0
 
 
-def test_propose_after_paper(tmp_path: Path):
+def test_propose_after_adapter_cycle(tmp_path: Path):
     lab = AlphaHunterLab(_Mem(tmp_path))
-    lab.run_paper_day(bank_eur=20.0, opportunities_target=100)
-    # Force a positive strategy for propose path
-    strategies = lab._load_strategies()
-    if strategies.get("items"):
-        strategies["items"][0]["modeled_roi"] = 0.32
-        lab._save_strategies(strategies)
+    out = lab.run_adapter_execution_cycle(bank_eur=20.0)
+    assert out["hits_count"] >= 1
     prop = lab.propose_top(bank_eur=20.0, n=3)
     assert prop["ok"] is True
-    if prop.get("found"):
-        assert prop["proposals"][0]["test_cost_eur"] <= 0.40 + 1e-9
-        assert lab._load_lab()["stage"] == STAGE_PROPOSE
+    assert prop.get("found") is True
+    assert prop["proposals"][0]["executable_action"]["id"]
+    assert prop["proposals"][0]["test_cost_eur"] == 0.0
+    assert lab._load_lab()["stage"] == STAGE_PROPOSE
+
+
+def test_propose_rejects_synthetic_paper(tmp_path: Path):
+    lab = AlphaHunterLab(_Mem(tmp_path))
+    lab.run_paper_day(bank_eur=20.0, opportunities_target=40)
+    prop = lab.propose_top(bank_eur=20.0, n=3)
+    assert prop["ok"] is True
+    assert prop.get("found") is False
+    assert "NO_OPPORTUNITY" in prop["message_ru"] or "адаптер" in prop["message_ru"].lower()
 
 
 def test_approve_blocked_in_paper_stage(tmp_path: Path):
@@ -199,19 +205,13 @@ def test_propose_requires_analysis_then_waiting_approval(tmp_path: Path):
     lab = AlphaHunterLab(_Mem(tmp_path))
     bad = lab.propose_top(bank_eur=20.0)
     assert bad.get("ok") is False
-    lab.run_paper_day(bank_eur=20.0, opportunities_target=80)
-    strategies = lab._load_strategies()
-    for s in strategies.get("items") or []:
-        s["modeled_roi"] = 0.4
-        s["expected_profit_eur"] = 800
-    lab._save_strategies(strategies)
+    lab.run_adapter_execution_cycle(bank_eur=20.0)
     prop = lab.propose_top(bank_eur=20.0, n=3)
     assert prop.get("ok") is True
-    if prop.get("found"):
-        p0 = prop["proposals"][0]
-        assert p0.get("expected_profit", {}).get("display_ru")
-        assert "expected_profit_eur" not in p0 or True  # range preferred
-        assert p0.get("lifecycle") == LC_WAITING_APPROVAL
+    assert prop.get("found") is True
+    p0 = prop["proposals"][0]
+    assert p0.get("executable_action", {}).get("id")
+    assert p0.get("lifecycle") == LC_WAITING_APPROVAL
 
 
 def test_director_hides_penny_deals():
@@ -236,11 +236,11 @@ def test_director_hides_penny_deals():
 
 
 def test_propose_filters_below_threshold(tmp_path: Path):
+    """Paper-only strategies never enter Approve — regardless of forced ROI."""
     lab = AlphaHunterLab(_Mem(tmp_path))
     lab.set_director_thresholds(min_expected_profit_eur=500.0, min_roi_pct=30.0)
     lab.run_paper_day(bank_eur=20.0, opportunities_target=80)
     strategies = lab._load_strategies()
-    # Force a penny deal as the only positive
     for s in strategies.get("items") or []:
         s["modeled_roi"] = 0.05
         s["expected_profit_eur"] = 2.0
@@ -266,15 +266,10 @@ def test_payout_desk_no_invented_balance(tmp_path: Path):
 
 def test_approve_micro_test_dry_run_no_invented_profit(tmp_path: Path):
     lab = AlphaHunterLab(_Mem(tmp_path))
-    lab.run_paper_day(bank_eur=20.0, opportunities_target=100)
-    strategies = lab._load_strategies()
-    assert strategies.get("items")
-    strategies["items"][0]["modeled_roi"] = 0.32
-    strategies["items"][0]["family"] = "affiliate"
-    strategies["items"][0]["venue_id"] = "affiliate_official"
-    lab._save_strategies(strategies)
-    sid = strategies["items"][0]["id"]
-    lab.set_stage(STAGE_PROPOSE)
+    lab.run_adapter_execution_cycle(bank_eur=20.0)
+    prop = lab.propose_top(bank_eur=20.0, n=1)
+    assert prop.get("found") is True
+    sid = prop["proposals"][0]["strategy_id"]
     blocked = lab.approve_micro_test(sid, bank_eur=20.0)
     assert blocked["ok"] is False
     assert blocked["error"] == "not_live"
@@ -284,9 +279,11 @@ def test_approve_micro_test_dry_run_no_invented_profit(tmp_path: Path):
     assert out["ok"] is True
     assert out["experiment"]["search_spend_eur"] == 0.0
     assert out["experiment"]["profit_recorded_eur"] == 0.0
-    assert out["experiment"]["test_cost_eur"] <= 0.40 + 1e-9
-    assert out["experiment"]["mode"] == "prepare_dry_run"
+    assert out["experiment"]["test_cost_eur"] == 0.0
+    assert out["experiment"]["executable_action"]["id"]
     assert out["lab"]["lab"]["active_experiments"] >= 1
+    arts = out["experiment"].get("artifacts") or {}
+    assert arts.get("draft_md") or arts.get("draft_json")
 
 
 def test_scan_intervals_and_go_live_gate(tmp_path: Path):

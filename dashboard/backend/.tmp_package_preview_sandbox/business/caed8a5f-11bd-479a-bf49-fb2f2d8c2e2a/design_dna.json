@@ -1,0 +1,67 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "healthcare",
+  "package_id": "business",
+  "niche_id": "dental",
+  "fingerprint": "8cb91d3ee8c4b2a7e09cde1d1eb3f4fd87bec1a49ebda60396ff518161af5983",
+  "section_treatments": [
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "services",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "process",
+      "illustration"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "faq",
+      "gradient"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "photo_band"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#1c1917",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "d34ce3db0d3defb0761f223b",
+  "border_radius_px": 12
+}

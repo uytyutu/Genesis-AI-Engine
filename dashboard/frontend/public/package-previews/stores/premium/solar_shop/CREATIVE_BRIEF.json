@@ -1,0 +1,15 @@
+{
+  "brand_name": "SunGrid Solar Shop",
+  "niche_id": "energy",
+  "package_id": "premium",
+  "media_mode": "tech_energy",
+  "visual_metaphor": "Panels catching sky",
+  "hero_concept": "Panels catching sky | SunGrid Solar Shop",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": true,
+  "experience_tier": "cinematic",
+  "fingerprint": "998478352d9ae1465903",
+  "image_prompt": "SunGrid Solar Shop energy brand hero, Panels catching sky, European studio, media_mode=tech_energy, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

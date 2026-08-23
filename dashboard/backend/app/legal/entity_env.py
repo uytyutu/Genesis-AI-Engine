@@ -7,7 +7,7 @@ import os
 from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.legal.entity_schema import LegalEntityConfig
 
-_PUBLIC_CONTACT_EMAIL = "hello@genesis-ai-engine.com"
+_PUBLIC_CONTACT_EMAIL = "hello@virtuscore.com"
 
 # First env key wins per attribute; only fills empty JSON fields.
 _OPERATOR_ENV_KEYS: tuple[tuple[str, ...], str] = (

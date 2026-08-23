@@ -1,0 +1,117 @@
+{
+  "niche_id": "psychology",
+  "era": "2026+",
+  "study_sources": [
+    "European private therapy practices",
+    "Nordic wellness editorials",
+    "Quiet luxury hospitality brands",
+    "Premium mental-health SaaS landing craft"
+  ],
+  "first_screen": [
+    "Full-bleed calm photography or cinematic still",
+    "Serif display voice — hush, not clinic",
+    "One clear next step (Erstgespräch) without urgency theater",
+    "Negative space that feels intentional, not empty"
+  ],
+  "page_rhythm": [
+    "Story before service grid",
+    "Trust as intimacy, not badge strip first",
+    "Gallery / atmosphere mid-page as emotional reset",
+    "Late conversion after understanding"
+  ],
+  "composition_depth": [
+    "Layered atmosphere (air, soft mesh) in niche sage/sand — not purple clone",
+    "Glass only where it earns emotion",
+    "Asymmetry over equal cards"
+  ],
+  "typography": [
+    "Display serif for brand voice",
+    "Humanist sans for body calm",
+    "Generous line-height; short measure on hero"
+  ],
+  "micro_interactions": [
+    "Soft reveal on scroll",
+    "Hover that breathes — no neon bounce",
+    "Sticky nav that gains weight, not noise"
+  ],
+  "trust": [
+    "Schweigepflicht / confidentiality as craft, not legal dump",
+    "Process as reassurance scenes",
+    "Real location / hours without template chrome"
+  ],
+  "cta_craft": [
+    "Erstgespräch as invitation",
+    "Secondary WhatsApp only if it fits calm brand",
+    "No countdown or scarcity theater"
+  ],
+  "brand_feel": [
+    "calm",
+    "expensive quiet",
+    "natural",
+    "confident",
+    "alive"
+  ],
+  "invent": "Original Brand DNA for THIS practice: unique emotion, type voice, scene sequence, and why the Hero exists — never a recycled prior site.",
+  "never": [
+    "Salon glam stock",
+    "Clinic fluorescent white",
+    "Constructor card ladder",
+    "Identical Business/Premium clones",
+    "Purple Virtus App Store atmosphere"
+  ],
+  "lenses": [
+    {
+      "id": "first_screen",
+      "question": "Why does the first screen exist?",
+      "principles": [
+        "One emotional job in 3 seconds",
+        "Visual center owns the fold",
+        "Brand voice before feature list"
+      ],
+      "anti_patterns": [
+        "Hero as feature dump",
+        "equal card grid first",
+        "logo wall as hero"
+      ]
+    },
+    {
+      "id": "rhythm",
+      "question": "How does the page breathe?",
+      "principles": [
+        "Scenes with distinct moods",
+        "Alternating density — never identical section padding",
+        "Story → emotion → interaction → conversion"
+      ],
+      "anti_patterns": [
+        "Hero→Text→Cards→Text→Cards",
+        "uniform white slabs"
+      ]
+    },
+    {
+      "id": "trust",
+      "question": "How is confidence earned?",
+      "principles": [
+        "Proof woven into scenes, not bolted as a strip",
+        "Specific over generic claims",
+        "Quiet credentials beat badge spam"
+      ],
+      "anti_patterns": [
+        "fake counters",
+        "stock handshake photos as trust"
+      ]
+    },
+    {
+      "id": "cta",
+      "question": "How does desire become action?",
+      "principles": [
+        "CTA matches emotional temperature of the scene",
+        "Secondary path without visual noise",
+        "One primary ask per scene"
+      ],
+      "anti_patterns": [
+        "identical pill buttons everywhere",
+        "three equal CTAs"
+      ]
+    }
+  ]
+}

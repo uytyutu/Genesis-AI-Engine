@@ -1,0 +1,62 @@
+{
+  "brand_name": "NestKlar Familienpraxis",
+  "niche_id": "family_psychology",
+  "fingerprint": "1f8cc3675eae0a62f5dd",
+  "color": {
+    "primary": "#2e2820",
+    "accent": "#896b63",
+    "secondary": "#cfa7b3",
+    "surface": "#f6f0e8",
+    "cards": "#f0ece6",
+    "background": "#f6f0e8",
+    "gradient": "linear-gradient(145deg,#2e2820 0%,#443531 48%,#896b63 100%)",
+    "glow": "rgba(137,107,99,0.35)",
+    "ink": "#0b0d10",
+    "muted": "#64748b"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "isometric_illustration",
+    "glass_3d",
+    "abstract_gradient"
+  ],
+  "illustration_pack": "soft 3D product icons",
+  "motion_language": "kinetic micro-motion · glow pulse · scroll scenes",
+  "icon_style": "minimal stroke set",
+  "scene_library": {
+    "hero": [
+      "zwei Sessel und Kinderecke dezent",
+      "weiches Licht",
+      "Familienraum warm"
+    ],
+    "gallery": [
+      "Paargespräch",
+      "Elternberatung",
+      "Ruheecke"
+    ],
+    "team": [
+      "Systemische Therapeutin"
+    ],
+    "equipment": [
+      "runde Gesprächsrunde"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «NestKlar Familienpraxis» (family_psychology) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: zwei Sessel und Kinderecke dezent, weiches Licht, Familienraum warm. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «NestKlar Familienpraxis» (family_psychology) in Germany. Role=hero_background. Medium=glass_3d. Illustration language=soft 3D product icons. Must show: zwei Sessel und Kinderecke dezent, weiches Licht, Familienraum warm. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «NestKlar Familienpraxis» (family_psychology) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Paargespräch, Elternberatung, Ruheecke. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «NestKlar Familienpraxis» (family_psychology) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Paargespräch, Elternberatung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «NestKlar Familienpraxis» (family_psychology) in Germany. Role=team. Medium=isometric_illustration. Illustration language=soft 3D product icons. Must show: Systemische Therapeutin. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «NestKlar Familienpraxis» (family_psychology) in Germany. Role=equipment. Medium=isometric_illustration. Illustration language=soft 3D product icons. Must show: runde Gesprächsrunde. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «NestKlar Familienpraxis» (family_psychology) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Ruheecke. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «NestKlar Familienpraxis» (family_psychology) in Germany. Role=illustration. Medium=isometric_illustration. Illustration language=soft 3D product icons. Must show: zwei Sessel und Kinderecke dezent, weiches Licht. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «NestKlar Familienpraxis» (family_psychology) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=soft 3D product icons. Must show: minimal stroke set. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «NestKlar Familienpraxis» (family_psychology) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: zwei Sessel und Kinderecke dezent, weiches Licht, Familienraum warm. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

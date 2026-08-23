@@ -134,7 +134,13 @@ class FinanceLedger:
         return list(reversed(rows[-limit:]))
 
     def export_csv(self, *, real_only: bool = True) -> str:
-        rows = self.list_entries(limit=10_000, real_only=real_only)
+        from swarm.finance_reality_law import tax_export_allowed
+
+        rows = self.list_entries(limit=10_000, real_only=bool(real_only))
+        if real_only:
+            rows = [
+                r for r in rows if tax_export_allowed(str(r.get("confidence") or ""))
+            ]
         buf = io.StringIO()
         writer = csv.DictWriter(buf, fieldnames=list(REQUIRED_FIELDS), extrasaction="ignore")
         writer.writeheader()
@@ -143,24 +149,45 @@ class FinanceLedger:
         return buf.getvalue()
 
     def summary(self) -> dict[str, Any]:
+        from swarm.finance_reality_law import (
+            TAX_ALLOWED_CONFIDENCE,
+            financial_truth_manifest,
+        )
+
         rows = self.list_entries(limit=10_000, real_only=False)
         by_conf: dict[str, float] = {}
         real_total = 0.0
+        tax_total = 0.0
+        sim_total = 0.0
         for row in rows:
-            conf = str(row.get("confidence") or "")
+            conf = str(row.get("confidence") or "").upper()
             amt = float(row.get("amount") or 0)
             by_conf[conf] = round(by_conf.get(conf, 0.0) + amt, 4)
-            if row.get("withdrawable"):
+            if row.get("withdrawable") or conf in TAX_ALLOWED_CONFIDENCE:
                 real_total += amt
+            if conf in TAX_ALLOWED_CONFIDENCE:
+                tax_total += amt
+            if conf in {"SIMULATED", "ESTIMATED"}:
+                sim_total += amt
+        tax_total = round(tax_total, 4)
         return {
             "entries": len(rows),
             "by_confidence_eur": by_conf,
             "real_withdrawable_eur": round(real_total, 4),
+            "tax_report_confirmed_eur": tax_total,
+            "simulation_estimate_eur": round(sim_total, 4),
+            "money_layers": {
+                "REAL": tax_total,
+                "SIMULATION": round(sim_total, 4),
+            },
             "path": str(self._path),
-            "export": {"csv": True, "pdf": False},
+            "export": {"csv": True, "pdf": False, "tax_real_only": True},
+            "financial_truth": financial_truth_manifest(),
             "note_ru": (
-                "Ledger пригоден как база для бухгалтера (DE). "
-                "Первичные документы Stripe/банка всё равно нужны. PDF — следующий цикл."
+                "Подтверждённый доход (Ledger / налоги): "
+                f"{tax_total:.2f} €. "
+                "DATEV/EÜR/CSV для Steuerberater — только CONFIRMED|BOOKED|WITHDRAWN. "
+                "Demo/Replay/Estimate в налоговый экспорт не попадают."
             ),
             "pending_states": [CONFIDENCE_PENDING, CONFIDENCE_ESTIMATED],
         }

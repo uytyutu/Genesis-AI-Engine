@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Datenschutz | Silberlinie Jewelry</title>
+  <meta name="description" content="Silberlinie Jewelry — Schmuck, Ringe und zeitlose Accessoires Made for DE" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="assets/store.css" />
+<style id="digital-creative-studio">
+
+/* Typography Studio · personality=luxury · pair=dm_serif_jakarta_lux · ssot */
+:root {
+  --font-display: "DM Serif Display", Georgia, serif;
+  --font-body: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --type-body-lh: 1.75;
+  --type-headline-lh: 1.12;
+  --type-track-display: -0.03em;
+  --type-track-body: 0.015em;
+  --type-btn-weight: 500;
+}
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: var(--type-body-lh);
+  letter-spacing: var(--type-track-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+body .hero h1,
+body .hero .hero-title,
+body h1,
+body .page-title,
+body .section h2,
+body h2,
+body h3 {
+  font-family: var(--font-display);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  white-space: normal;
+}
+body .hero h1,
+body .hero .hero-title,
+body h1,
+body .page-title {
+  font-weight: 500;
+  font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+  line-height: var(--type-headline-lh);
+  letter-spacing: var(--type-track-display);
+}
+body .section h2,
+body h2 {
+  font-weight: 500;
+  font-size: clamp(1.45rem, 2.3vw, 2rem);
+  line-height: 1.22;
+  letter-spacing: var(--type-track-display);
+}
+body .btn,
+body button.btn,
+body a.btn {
+  font-family: var(--font-body);
+  font-weight: var(--type-btn-weight);
+  letter-spacing: 0.02em;
+  white-space: normal;
+  max-width: 100%;
+}
+@media (max-width: 720px) {
+  body { line-height: 1.6; }
+  body .hero h1,
+  body .hero .hero-title,
+  body h1 {
+    font-size: clamp(1.75rem, 6.2vw, 2.3rem);
+    letter-spacing: -0.015em;
+    max-width: 100%;
+  }
+}
+
+
+/* Luxury Director — Luxury Mode (ships in HTML) */
+body[data-luxury="1"] {
+  --lux-space: 1.35;
+  --lux-display-tracking: -0.035em;
+  --lux-hero-min: min(90vh, 920px);
+}
+body[data-luxury="1"] .hero {
+  min-height: var(--lux-hero-min);
+  padding-top: calc(4.5rem * var(--lux-space));
+  padding-bottom: calc(4.5rem * var(--lux-space));
+}
+body[data-luxury="1"] .hero.has-photo,
+body[data-luxury="1"] .hero.has-hero-image {
+  position: relative;
+}
+body[data-luxury="1"] .hero.has-photo::before,
+body[data-luxury="1"] .hero.has-hero-image::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(105deg, rgba(8,6,4,0.58) 0%, rgba(8,6,4,0.32) 45%, rgba(8,6,4,0.16) 100%);
+}
+body[data-luxury="1"] .hero.has-photo > *,
+body[data-luxury="1"] .hero.has-hero-image > * {
+  position: relative;
+  z-index: 1;
+}
+body[data-luxury="1"] .hero.has-hero-image {
+  min-height: min(92vh, 960px);
+}
+body[data-luxury="1"] .hero h1,
+body[data-luxury="1"] .hero .hero-title {
+  font-size: clamp(2.4rem, 5.5vw, 4.1rem);
+  letter-spacing: var(--lux-display-tracking);
+  line-height: 1.05;
+  font-weight: 650;
+}
+body[data-luxury="1"] .hero p,
+body[data-luxury="1"] .hero .hero-sub {
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  line-height: 1.55;
+  max-width: 36rem;
+  opacity: 0.92;
+}
+body[data-luxury="1"] .section {
+  padding-top: calc(4.75rem * var(--lux-space));
+  padding-bottom: calc(4.75rem * var(--lux-space));
+}
+body[data-luxury="1"] .section h2 {
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  letter-spacing: -0.03em;
+}
+body[data-luxury="1"] .service-card,
+body[data-luxury="1"] .benefit-card,
+body[data-luxury="1"] [class*="card"] {
+  border-radius: 1.15rem;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+body[data-luxury="1"] .btn,
+body[data-luxury="1"] .topbar-cta,
+body[data-luxury="1"] a.btn {
+  letter-spacing: 0.045em;
+  text-transform: none;
+  padding: 0.95rem 1.65rem;
+  border-radius: 999px;
+  color: #1a1410;
+  background: linear-gradient(145deg, #f0e0c4 0%, #d4b07a 48%, #b8894f 100%);
+  border: 1px solid rgba(240, 224, 196, 0.75);
+  box-shadow: 0 12px 32px rgba(168, 132, 74, 0.32), inset 0 1px 0 rgba(255,255,255,0.35);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease;
+}
+body[data-luxury="1"] .btn:hover,
+body[data-luxury="1"] .topbar-cta:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+  box-shadow: 0 18px 40px rgba(168, 132, 74, 0.4), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+body[data-luxury="1"].vie-motion-premium .hero::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(0,0,0,0.42), rgba(0,0,0,0.12) 55%, transparent 78%);
+  mix-blend-mode: soft-light;
+}
+@media (max-width: 720px) {
+  body[data-luxury="1"] .hero { min-height: auto; padding-top: 3.25rem; }
+  body[data-luxury="1"] .hero h1 { font-size: clamp(1.85rem, 8vw, 2.4rem); }
+}
+
+
+/* Conversion Director */
+.conversion-mid-cta,
+[data-conversion-mid-cta="1"] {
+  text-align: center;
+  padding: 2.75rem 1.25rem;
+  margin: 0;
+  background: linear-gradient(180deg, rgba(15,23,42,0.04), rgba(15,23,42,0.02));
+}
+.conversion-mid-cta .btn { font-weight: 600; }
+body[data-conversion="1"] .topbar-cta { box-shadow: 0 6px 18px rgba(15,23,42,0.12); }
+
+
+/* Trust Director — density=rich */
+body[data-trust-density="rich"] #trust,
+body[data-trust-density="rich"] .trust {
+  scroll-margin-top: 4rem;
+}
+body[data-trust-density="high"] .hero-certs,
+body[data-trust-density="high"] .trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-top: 1rem;
+}
+body[data-trust-density="high"] .hero-certs span,
+body[data-trust-density="high"] .trust-badges span {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(15,23,42,0.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+}
+body[data-trust-density="high"] #maps,
+body[data-trust-density="high"] #contact {
+  background: #f8fafc;
+}
+
+
+/* Performance Director */
+body[data-perf-hero="static"] .hero-still,
+body[data-perf-hero="static"] video.hero-media {
+  display: none !important;
+}
+img { max-width: 100%; height: auto; }
+
+
+/* Accessibility Director */
+:root { --a11y-min-size: 1rem; }
+body { font-size: max(16px, var(--a11y-min-size)); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  z-index: 10000;
+}
+.skip-link:focus { left: 0.5rem; top: 0.5rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Localization Director — DE / strict */
+body[data-locale-style="strict"] {
+  --locale-cta-weight: 600;
+}
+body[data-locale-style="strict"] .section h2 { letter-spacing: -0.02em; }
+body[data-locale-style="editorial"] #gallery,
+body[data-locale-portfolio="high"] #gallery {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+body[data-locale-social="high"] #trust,
+body[data-locale-social="high"] #testimonials {
+  padding-top: 3.5rem;
+}
+body[data-locale-style="direct"] .btn,
+body[data-locale-style="direct"] .topbar-cta {
+  font-weight: var(--locale-cta-weight);
+  text-transform: none;
+}
+body[data-locale-portfolio="medium"] { --portfolio-emphasis: medium; }
+body[data-locale-social="medium"] { --social-emphasis: medium; }
+
+</style>
+<!-- studio-fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap">
+<style id="store-director-css">
+/* Store Director — premium cards */
+[data-product-card][data-card-tier="premium"],
+.product-card--premium {
+  border-radius: 1.1rem;
+  box-shadow: 0 16px 40px rgba(15,23,42,.10);
+  transition: transform .35s ease, box-shadow .35s ease;
+}
+.product-card--premium:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 48px rgba(15,23,42,.14);
+}
+</style>
+<!-- conversion-director-note: Усилить видимость контактов / формы. -->
+</head>
+<body data-tier="premium" data-niche="fashion" data-canvas="dark" data-hero-layout="editorial" data-catalog="large" data-card="fashion" data-certs="0" data-vie-engine="visual_intelligence_v1" data-vie-surface="store" data-vie-niche="fashion" data-vie-motion="premium" class="vie-motion-premium" data-dna-style="modern_clinical" data-dna-emotion="clarity" data-dna-palette="sage_mist" data-dna-hero="professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene" data-dna-depth="high" data-dna-glass="medium" data-dna-composition="product_first" data-dna-fp="2ca19835ad395bef" data-dna-atm="atelier" data-brand-book="d0e9e895b45b1e97" data-luxury="1" data-studio="digital_creative_studio_v2" data-density="cinematic" data-industry="modern_default" data-card-style="premium" data-hero-banner="premium_cinematic" data-first-screen-products="8" data-trust-density="rich" data-trust-map="1" data-perf-hero="static" data-a11y="1" data-locale-style="strict" data-locale-portfolio="medium" data-locale-social="medium" data-locale-market="DE" data-locale-legal="impressum,datenschutz">
+
+  <div class="dna-atm" aria-hidden="true" data-dna-atmosphere="1" data-atm-mode="atelier" data-atm-tier="premium">
+    <div class="dna-atm__base"></div>
+    <div class="dna-atm__mesh"></div>
+    <div class="dna-atm__aurora dna-atm__aurora--a"></div>
+    <div class="dna-atm__aurora dna-atm__aurora--b"></div>
+    
+    <div class="dna-atm__aurora dna-atm__aurora--c"></div>
+    <div class="dna-atm__grid"></div>
+    <div class="dna-atm__orb dna-atm__orb--d"></div>
+    <div class="dna-atm__illu" aria-hidden="true"></div>
+
+    <div class="dna-atm__orb dna-atm__orb--a"></div>
+    <div class="dna-atm__orb dna-atm__orb--b"></div>
+    <div class="dna-atm__orb dna-atm__orb--c"></div>
+    <div class="dna-atm__particles">
+        <span class="dna-atm__particle" style="--sx:3%;--sy:4%;--dur:10.0s;--delay:-0.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:20%;--sy:27%;--dur:11.4s;--delay:-1.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:37%;--sy:50%;--dur:12.8s;--delay:-2.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:54%;--sy:73%;--dur:14.2s;--delay:-3.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:71%;--sy:8%;--dur:15.6s;--delay:-4.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:88%;--sy:31%;--dur:17.0s;--delay:-5.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:13%;--sy:54%;--dur:18.4s;--delay:-6.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:30%;--sy:77%;--dur:19.799999999999997s;--delay:-7.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:47%;--sy:12%;--dur:21.2s;--delay:-8.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:64%;--sy:35%;--dur:10.0s;--delay:-9.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:81%;--sy:58%;--dur:11.4s;--delay:-10.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:6%;--sy:81%;--dur:12.8s;--delay:-0.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:23%;--sy:16%;--dur:14.2s;--delay:-1.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:40%;--sy:39%;--dur:15.6s;--delay:-2.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:57%;--sy:62%;--dur:17.0s;--delay:-3.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:74%;--sy:85%;--dur:18.4s;--delay:-4.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:91%;--sy:20%;--dur:19.799999999999997s;--delay:-5.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:16%;--sy:43%;--dur:21.2s;--delay:-6.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:33%;--sy:66%;--dur:10.0s;--delay:-7.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:50%;--sy:89%;--dur:11.4s;--delay:-8.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:67%;--sy:24%;--dur:12.8s;--delay:-9.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:84%;--sy:47%;--dur:14.2s;--delay:-10.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:9%;--sy:70%;--dur:15.6s;--delay:-0.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:26%;--sy:5%;--dur:17.0s;--delay:-1.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:43%;--sy:28%;--dur:18.4s;--delay:-2.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:60%;--sy:51%;--dur:19.799999999999997s;--delay:-3.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:77%;--sy:74%;--dur:21.2s;--delay:-4.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:94%;--sy:9%;--dur:10.0s;--delay:-5.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:19%;--sy:32%;--dur:11.4s;--delay:-6.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:36%;--sy:55%;--dur:12.8s;--delay:-7.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:53%;--sy:78%;--dur:14.2s;--delay:-8.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:70%;--sy:13%;--dur:15.6s;--delay:-9.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:87%;--sy:36%;--dur:17.0s;--delay:-10.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:12%;--sy:59%;--dur:18.4s;--delay:-0.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:29%;--sy:82%;--dur:19.799999999999997s;--delay:-1.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:46%;--sy:17%;--dur:21.2s;--delay:-2.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:63%;--sy:40%;--dur:10.0s;--delay:-3.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:80%;--sy:63%;--dur:11.4s;--delay:-4.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:5%;--sy:86%;--dur:12.8s;--delay:-5.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:22%;--sy:21%;--dur:14.2s;--delay:-6.0s;--size:5px"></span>
+    </div>
+    <div class="dna-atm__vignette"></div>
+  </div>
+
+  <div class="drawer-overlay" id="drawer-overlay" data-action="drawer-close"></div>
+  <aside class="nav-drawer" id="nav-drawer" aria-label="Main">
+    <button type="button" class="icon-btn drawer-close" data-action="drawer-close" aria-label="Menü schließen">✕</button>
+    <h2>Silberlinie Jewelry</h2>
+    <nav class="nav">
+      <p class="nav-group">Shop</p>
+      <a href="index.html">Startseite</a>
+      <a href="catalog.html">Katalog</a>
+      <a href="catalog.html#deals">Angebote</a>
+      <a href="index.html#featured">Empfohlen</a>
+      <a href="cart.html">Warenkorb</a>
+      <p class="nav-group">Konto</p>
+      <a href="account.html#login">Anmelden</a>
+      <a href="account.html#register">Registrieren</a>
+      <a href="account.html">Kundenkonto</a>
+      <a href="cart.html#wishlist">Merkliste</a>
+      <p class="nav-group">Info</p>
+      <a href="about.html">Über uns</a>
+      <a href="contact.html">Kontakt</a>
+      <p class="nav-group">Rechtliches</p>
+      <a href="returns.html">Rückgabe</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+    </nav>
+  </aside>
+
+  <header class="site-header">
+    <div class="wrap site-header-inner">
+      <button type="button" class="icon-btn" data-action="drawer-open" aria-label="Menü öffnen">☰</button>
+      <a class="brand brand-lockup" href="index.html" title="Silberlinie Jewelry"><span class="brand-mark-wrap"><svg class="brand-mark" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="32" height="32" rx="4" fill="#d4a574"/><rect x="8" y="8" width="20" height="20" rx="2" fill="rgba(255,255,255,0.18)"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" fill="#fafaf9" font-family="Georgia,serif" font-size="15.0" font-weight="700">SJ</text></svg></span><strong class="brand-word">Silberlinie</strong></a>
+      <div class="header-search">
+        <input id="header-search" type="search" placeholder="Produkte suchen…" aria-label="Produkte suchen…" />
+      </div>
+      <div class="header-actions">
+        <div class="header-auth">
+          <a class="auth-login" href="account.html#login"><span class="auth-login-label">Anmelden</span></a>
+          <a class="auth-register" href="account.html#register">Registrieren</a>
+        </div>
+        <a class="icon-btn" href="account.html" aria-label="Kundenkonto" title="Kundenkonto">👤</a>
+        <a class="icon-btn" href="cart.html#wishlist" aria-label="Merkliste" title="Merkliste">♡</a>
+        <a class="icon-btn" href="cart.html" aria-label="Warenkorb" title="Warenkorb">
+          🛒
+          <span class="cart-badge" data-cart-badge data-count="0">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+  <div class="wrap section">
+    <h1 class="page-title">Datenschutz</h1>
+    <p>Silberlinie Jewelry / Silberlinie Jewelry</p>
+  </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <h3>Shop</h3>
+        <ul>
+          <li><a href="index.html">Startseite</a></li>
+          <li><a href="catalog.html">Katalog</a></li>
+          <li><a href="cart.html">Warenkorb</a></li>
+          <li><a href="account.html#login">Anmelden</a></li>
+          <li><a href="account.html#register">Registrieren</a></li>
+          <li><a href="account.html">Kundenkonto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Service</h3>
+        <ul>
+          <li><a href="impressum.html">Impressum</a></li>
+            <li><a href="datenschutz.html">Datenschutz</a></li>
+            <li><a href="returns.html">Rückgabe</a></li>
+            <li><a href="contact.html">Kontakt</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Zahlung &amp; Versand</h3>
+        <ul>
+          <li>stripe</li>
+          <li>dhl</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Silberlinie Jewelry</h3>
+        <ul>
+          <li>Premium-Shop von Virtus Core</li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap footer-note">
+      <p>Silberlinie Jewelry — Virtus Core AI Store</p>
+    </div>
+  </footer>
+  <nav class="mobile-bar" aria-label="Mobile">
+    <a href="index.html"><span class="mb-ico">⌂</span>Startseite</a>
+    <a href="catalog.html"><span class="mb-ico">▦</span>Katalog</a>
+    <a href="cart.html#wishlist"><span class="mb-ico">♡</span>Merkliste</a>
+    <a href="account.html"><span class="mb-ico">👤</span>Kundenkonto</a>
+    <a href="cart.html"><span class="mb-ico">🛒</span>Warenkorb<span class="cart-badge" data-cart-badge data-count="0">0</span></a>
+  </nav>
+  <div class="toast" id="store-toast" role="status"></div>
+  <script src="assets/store.js"></script>
+</body>
+</html>

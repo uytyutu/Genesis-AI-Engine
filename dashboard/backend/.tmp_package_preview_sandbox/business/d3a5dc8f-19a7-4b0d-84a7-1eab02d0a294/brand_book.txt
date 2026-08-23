@@ -1,0 +1,128 @@
+BRAND BOOK
+Brand Name
+Meisterbau Hoffmann
+
+Positioning
+Solides Handwerk mit klarer Haltung
+
+Brand Archetype
+The Craftsman
++
+The Expert
+
+Brand Promise
+Arbeit, die hält — und sich sehen lassen kann.
+
+Core Emotion
+Vertrauen
+
+Secondary Emotion
+Handwerklicher Stolz
+
+Tone of Voice
+  Direkt
+  Ehrlich
+  Kompetent
+  Bodenständig
+
+Visual Style
+Craft Modern
+
+Visual Metaphor
+Werkstattlicht auf sauberem Werkzeug
+
+Photography
+  Werkstatt
+  Material
+  Hände bei der Arbeit
+  Baustelle
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+
+Motion
+Ruhig · Präzise
+
+Palette
+Charcoal, Steel, Ochre, Warm White
+Accent #b45309
+Surface #fafaf9
+Ink #1c1917
+
+Typography
+Oswald
++
+Figtree
+(oswald_figtree_craft)
+
+Icon Style
+Outline Industrial
+
+Border Radius
+10 px
+
+Shadow Style
+Soft Deep
+
+Glass Level
+low
+
+Texture
+  Holz
+  Metall
+  Beton
+
+Scene Language
+  Workshop
+  Material
+  Light
+
+CTA Style
+Klare Buttons · Keine Hektik
+
+Trust Strategy
+  Meister
+  Referenzen
+  Garantie
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Workshop
+✔ Tools
+✔ Material
+✔ Hands at work
+
+Preferred
+✔ Work light
+✔ Bench
+✔ Craft detail
+
+Forbidden
+✖ Café
+✖ Office
+✖ Beauty
+✖ Laptop
+✖ Coworking
+
+Hero Proof
+Craftsperson at the bench or on site with tools — daily work, not décor.
+
+Fingerprint
+7350933bc43e42d1bb282ee2
+

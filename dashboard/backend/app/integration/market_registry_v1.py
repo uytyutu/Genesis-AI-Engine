@@ -79,18 +79,18 @@ def _scale_rng(r: MarketPriceRange, factor: float, *, round_to: int = 10) -> Mar
 
 
 def _de_website_projects() -> WebsiteProjectPricing:
-    """Germany canonical bands (CEO reference)."""
+    """Germany canonical bands — checkout anchors match Path A SSOT (199/399/699)."""
     return WebsiteProjectPricing(
-        landing_page=_rng(350, 490, 420),
-        business_website=_rng(490, 590, 540),
+        landing_page=_rng(199, 699, 399),
+        business_website=_rng(399, 699, 549),
         corporate_website=_rng(1190, 1890, 1540),
-        online_store=_rng(890, 1190, 1040),
-        restaurant_website=_rng(520, 720, 620),
-        medical_website=_rng(680, 980, 830),
-        real_estate_website=_rng(590, 890, 740),
-        hotel_website=_rng(640, 940, 790),
-        law_firm_website=_rng(720, 1020, 870),
-        portfolio_website=_rng(380, 520, 450),
+        online_store=_rng(799, 1499, 1040),
+        restaurant_website=_rng(399, 699, 549),
+        medical_website=_rng(399, 699, 549),
+        real_estate_website=_rng(399, 699, 549),
+        hotel_website=_rng(399, 699, 549),
+        law_firm_website=_rng(399, 699, 549),
+        portfolio_website=_rng(199, 399, 299),
     )
 
 

@@ -1,0 +1,9 @@
+{
+  "package_id": "business",
+  "niche_id": "energy",
+  "hero_1": "assets/hero_pack/hero_1.jpg",
+  "hero_2": "assets/hero_pack/hero_2.jpg",
+  "cta": "assets/hero_pack/cta.jpg",
+  "services": "assets/hero_pack/services.jpg",
+  "hero": "assets/hero.jpg"
+}

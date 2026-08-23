@@ -42,6 +42,8 @@ export const metadata: Metadata = {
       "local",
     // Meta Business domain verification (beta.genesis-ai-engine.com)
     "facebook-domain-verification": "ca153v2cn5616g7usu96lb5iyzcmmr",
+    // TikTok Developer Portal domain verification
+    "tiktok-developers-site-verification": "cD9pDa0L0SZRkEAM07yqaGtLXU6zSLCl",
   },
 };
 
@@ -60,8 +62,13 @@ export default async function RootLayout({
   const initialLocale = readInitialLocale(raw);
 
   return (
-    <html lang={initialLocale}>
-      <body className="genesis-os-shell overflow-x-hidden antialiased">
+    <html
+      lang={initialLocale}
+      translate="no"
+      className="notranslate"
+      suppressHydrationWarning
+    >
+      <body className="genesis-os-shell overflow-x-hidden antialiased" suppressHydrationWarning>
         <LocaleProvider
           initialLocale={initialLocale}
           localeFromCookie={localeFromCookie}

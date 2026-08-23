@@ -1,0 +1,142 @@
+{
+  "brand_name": "Grünzeit Garten",
+  "niche_id": "gartenpflege",
+  "package_id": "premium",
+  "metaphor": "Morgentau auf frisch geschnittenem Grün",
+  "core_emotion": "Ruhe",
+  "atmosphere_mode": "mist",
+  "scene_language": [
+    "Garden",
+    "Dew",
+    "Light",
+    "Air"
+  ],
+  "texture_language": [
+    "Laub",
+    "Holz",
+    "Erde"
+  ],
+  "motion_language": "Weich · Atmend · Langsam",
+  "camera_feeling": "garden path · morning dew · soft leaf canopy",
+  "scroll_feeling": "organic float · gentle breathe",
+  "cta_feeling": "inviting soft buttons · open white space · Einladende Buttons · Viel Weißraum",
+  "sound_mood": "birds · soft breeze · clippers distant",
+  "illustration_style": "leaf · hedge · organic line",
+  "glass_level": "medium",
+  "shadow_language": "dappled soft · lift cards lightly · Soft Lift",
+  "icon_language": "Soft Outline",
+  "lighting": "soft dawn through foliage · moss fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "garden_morning_dew",
+      "must_include": [
+        "Hecken",
+        "Rasenflächen",
+        "Beete",
+        "Werkzeug",
+        "Tageslicht im Garten"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "tropical resort",
+        "spa stones"
+      ],
+      "seed": "Grünzeit Garten|gartenpflege|premium|00d3f0d9f14c88bdc55c29e0|hero",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "role": "background",
+      "concept": "scene · Garden · Dew · Light",
+      "must_include": [
+        "Garden",
+        "Dew",
+        "Light",
+        "Air",
+        "Laub",
+        "Holz"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "tropical resort",
+        "spa stones"
+      ],
+      "seed": "Grünzeit Garten|gartenpflege|premium|00d3f0d9f14c88bdc55c29e0|bg",
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "role": "gallery",
+      "concept": "proof texture · craft detail",
+      "must_include": [
+        "Beete",
+        "Werkzeug",
+        "Tageslicht im Garten"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "tropical resort",
+        "spa stones"
+      ],
+      "seed": "Grünzeit Garten|gartenpflege|premium|00d3f0d9f14c88bdc55c29e0|gal",
+      "size": [
+        1400,
+        1000
+      ]
+    }
+  ],
+  "fingerprint": "a88b5eae4803a7433e918880",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

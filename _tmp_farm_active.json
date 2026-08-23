@@ -1,0 +1,602 @@
+[
+  {
+    "id": "opire:01J42C08V4J78ZAWH8JH2RQS8G",
+    "title": "research implementation for Windows",
+    "url": "https://github.com/radumarias/rencfs/issues/3",
+    "platform": "opire",
+    "repository": "radumarias/rencfs",
+    "issue_id": "3",
+    "issue_url": "https://github.com/radumarias/rencfs/issues/3",
+    "languages": [
+      "rust"
+    ],
+    "supported_languages": [
+      "rust"
+    ],
+    "task_type": "research",
+    "capability_auto": "✅",
+    "reward_usd": 42.0,
+    "reward_currency": "USD",
+    "estimated_reward_usd": 42.0,
+    "bot_installed": false,
+    "competitors": 0,
+    "team_available": false,
+    "confidence_pct": 95.0,
+    "acceptance_pct": 77.0,
+    "overall_confidence_pct": 86.9,
+    "estimated_hours": 0.5,
+    "roi_stars": 5,
+    "roi_label": "⭐⭐⭐⭐⭐",
+    "roi_usd_per_hour": 84.0,
+    "roi_effective_usd_per_hour": 73.0,
+    "roi_rank_score": 73.0,
+    "estimated_minutes": 30.0,
+    "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+    "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+    "difficulty": "low",
+    "required_capabilities": [
+      "rust"
+    ],
+    "tests_available": "unknown",
+    "risk": "low",
+    "recommendation": "TAKE",
+    "blockers": [],
+    "success_probability_pct": 86.9,
+    "acceptance_probability_pct": 77.0,
+    "issue_analysis": {
+      "signals": [
+        "bugfix",
+        "tests_mentioned",
+        "has_acceptance_criteria",
+        "detailed_description"
+      ],
+      "blockers": [],
+      "checklist_items": 11,
+      "bullet_requirements": 21,
+      "body_chars": 2130,
+      "summary_ru": "Есть критерии приёмки в описании."
+    },
+    "issue_body_preview": "## Description\n\nAdds a detailed Windows support research note for the native implementation path.\n\nThis is intentionally framed as research, not a claim that rencfs mounts on Windows today. It documents:\n\n- recommended WinFsp backend and alternatives considered;\n- WinFsp licensing/attribution checkpoint for an `MIT OR Apache-2.0` project;\n- Windows-only dependency and delay-load build shape;\n- proposed `src/mount/windows.rs` architecture around the existing `EncryptedFs` layer;\n- operation mapping from WinFsp callbacks to rencfs methods;\n- Windows metadata decisions and unsupported NTFS features for the first milestone;\n- build/CI plan and a manual smoke test for a Windows host with WinFsp installed;\n- acceptance criteria for a truthful first implementation PR.\n\nRelated to the Windows support bounty/research request (`research implementation for Windows`, Opire listing for #3).\n\n---\n\n## Type of change\n\n- [ ] Bug fix (non-breaking change which fixes an issue)\n- [ ] New feature (non-breaking change which adds functionality)\n- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)\n- [x] Documentation update\n\n---\n\n## Checklist:\n\n- [x] I have performed a self-review of my code\n- [ ] I have tested my code on different platforms (if applicable)\n- [x] I have commented my code, particularly in hard-to-understand areas\n- [x] I have added necessary documentation (if appropriate)\n- [x] My changes generate no new warnings\n- [ ] I have added tests that prove my fix is effective or that my feature works\n- [x] New and existing unit tests pass locally with my changes\n\n---\n\n## Verification\n\n- `cargo check` passes locally on macOS/aarch64.\n- I did not install Windows or claim Windows runtime validation. The PR adds a Windows smoke-test checklist for the next implementation step.\n\n---\n\n## AI disclosure\n\nAI-assisted contribution by QuarkAssistant using GPT/Codex tooling. Human-authored repository context and public documentation were reviewe",
+    "ceo_action_links": {
+      "issue": "https://github.com/radumarias/rencfs/issues/3",
+      "repository": "https://github.com/radumarias/rencfs",
+      "opire_dashboard": "https://app.opire.dev",
+      "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+      "try_comment_text": "/try",
+      "claim_pr_text": "/claim #3",
+      "new_pr_hint": "https://github.com/radumarias/rencfs/compare"
+    },
+    "official_next_steps_ru": [
+      "CEO Approve в Mission Control",
+      "Официальный /try комментарием на Issue (GitHub)",
+      "Execution Engine: clone → plan → code → tests → Draft PR",
+      "CEO Submit PR с /claim #<issue>",
+      "Monitor review → payout → REAL только после confirmation"
+    ],
+    "native_id": "01J42C08V4J78ZAWH8JH2RQS8G",
+    "tier": "A",
+    "connector_id": "opire",
+    "official_flow": "/try → PR /claim → merge → Opire payout",
+    "repo_probe": {
+      "ok": true,
+      "status": 200,
+      "error_code": null,
+      "auth_used": true,
+      "repo_status": "ok",
+      "verified_via": "api",
+      "rate_limited": null
+    },
+    "repo_status": "ok",
+    "success_checklist": [
+      {
+        "id": "repo_alive",
+        "label": "Repository alive",
+        "ok": true
+      },
+      {
+        "id": "language",
+        "label": "Language supported",
+        "ok": true
+      },
+      {
+        "id": "tests",
+        "label": "Tests available",
+        "ok": true
+      },
+      {
+        "id": "small_scope",
+        "label": "Small scope",
+        "ok": true
+      },
+      {
+        "id": "low_competition",
+        "label": "Low competition",
+        "ok": true
+      },
+      {
+        "id": "capability",
+        "label": "High capability match",
+        "ok": true
+      },
+      {
+        "id": "roi",
+        "label": "Good ROI",
+        "ok": true
+      }
+    ],
+    "money_mode_eligible": true,
+    "preflight": {
+      "ok": true,
+      "verdict": "REVIEW",
+      "go": false,
+      "approve_allowed": true,
+      "auto_execute_allowed": false,
+      "action": "REVIEW — no_conflicting_pr",
+      "checks": [
+        {
+          "id": "repo_alive",
+          "label": "Repository доступен",
+          "ok": true,
+          "critical": true,
+          "detail": "",
+          "mark": "✅"
+        },
+        {
+          "id": "issue_open",
+          "label": "Issue открыта / URL есть",
+          "ok": true,
+          "critical": true,
+          "detail": "",
+          "mark": "✅"
+        },
+        {
+          "id": "no_forbidden",
+          "label": "Нет forbidden / ToS evasion",
+          "ok": true,
+          "critical": true,
+          "detail": "",
+          "mark": "✅"
+        },
+        {
+          "id": "language",
+          "label": "Language / capability supported",
+          "ok": true,
+          "critical": true,
+          "detail": "rust",
+          "mark": "✅"
+        },
+        {
+          "id": "task_type",
+          "label": "Task type: research",
+          "ok": true,
+          "critical": false,
+          "detail": "Автоматически",
+          "mark": "✅"
+        },
+        {
+          "id": "small_patch",
+          "label": "Estimated patch small",
+          "ok": true,
+          "critical": false,
+          "detail": "~0.5h",
+          "mark": "✅"
+        },
+        {
+          "id": "low_competition",
+          "label": "Нет высокой конкуренции",
+          "ok": true,
+          "critical": false,
+          "detail": "competitors=0",
+          "mark": "✅"
+        },
+        {
+          "id": "confidence",
+          "label": "Confidence ≥ 80%",
+          "ok": true,
+          "critical": false,
+          "detail": "87%",
+          "mark": "✅"
+        },
+        {
+          "id": "no_conflicting_pr",
+          "label": "Нет конкурирующего PR",
+          "ok": false,
+          "critical": false,
+          "detail": "open PR refs issue: https://github.com/radumarias/rencfs/pull/27",
+          "mark": "⚠"
+        }
+      ],
+      "task_type": "research",
+      "capability": {
+        "ok": true,
+        "severity": "✅",
+        "task_type": "research",
+        "label": "Research",
+        "note_ru": "Автоматически"
+      },
+      "min_confidence": 80.0,
+      "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+    },
+    "status": "executing",
+    "pipeline_state": "CLONING",
+    "ceo_note": "auto_advance_factory",
+    "approved_at": "2026-08-08T17:33:11.370380+00:00",
+    "updated_at": "2026-08-08T17:33:12.047967+00:00",
+    "pr_id": null,
+    "pr_url": null,
+    "merge_status": "not_started",
+    "reward_status": "estimated",
+    "withdrawal_status": "not_started",
+    "payment_confirmation_id": null,
+    "real_income": false,
+    "payout_confirmed_usd": 0,
+    "execution": {
+      "ok": true,
+      "stage": "repo_intelligence",
+      "message_ru": "Clone репозитория…",
+      "heartbeat_at": "2026-08-08T17:33:12.047967+00:00"
+    },
+    "execution_checklist": [
+      {
+        "id": "approve",
+        "title": "Approve (auto GO / CEO REVIEW)",
+        "done": true
+      },
+      {
+        "id": "repo_intel",
+        "title": "Stage 1 — Repository Intelligence",
+        "done": false
+      },
+      {
+        "id": "planning",
+        "title": "Stage 2 — Planning",
+        "done": false
+      },
+      {
+        "id": "research",
+        "title": "Research Agent (needs_external fork)",
+        "done": false
+      },
+      {
+        "id": "implementation",
+        "title": "Stage 3 — Implementation",
+        "done": false
+      },
+      {
+        "id": "validation",
+        "title": "Stage 4 — Validation",
+        "done": false
+      },
+      {
+        "id": "pr_intelligence",
+        "title": "Stage 5 — Draft PR package",
+        "done": false
+      },
+      {
+        "id": "ceo_submit",
+        "title": "Submit PR (/claim) — auto when policy allows",
+        "done": false
+      },
+      {
+        "id": "review_loop",
+        "title": "Stage 6 — Review Loop",
+        "done": false
+      }
+    ],
+    "opire_commands": {
+      "try": "/try",
+      "claim": "/claim #3"
+    },
+    "execution_error": null,
+    "pending_execution": false,
+    "auto_retry_execution": false,
+    "execution_attempts": 2,
+    "try_post": {
+      "ok": false,
+      "error": "http_403",
+      "detail": "{\"message\":\"Resource not accessible by personal access token\",\"documentation_url\":\"https://docs.github.com/rest/issues/comments#create-an-issue-comment\",\"status\":\"403\"}"
+    },
+    "skip_reason": "execution_failed",
+    "pipeline_started": true,
+    "pipeline_label": "Cloning"
+  },
+  {
+    "id": "opire:01JARC75G44M6EQCJCR1DTBHD6",
+    "title": "[BUG] Internal Server Errors still shows success toast",
+    "url": "https://github.com/formbricks/formbricks/issues/3302",
+    "platform": "opire",
+    "repository": "formbricks/formbricks",
+    "issue_id": "3302",
+    "issue_url": "https://github.com/formbricks/formbricks/issues/3302",
+    "languages": [
+      "typescript"
+    ],
+    "supported_languages": [
+      "typescript"
+    ],
+    "task_type": "bug_fix",
+    "capability_auto": "✅",
+    "reward_usd": 60.0,
+    "reward_currency": "USD",
+    "estimated_reward_usd": 60.0,
+    "bot_installed": false,
+    "competitors": 3,
+    "team_available": false,
+    "confidence_pct": 91.0,
+    "acceptance_pct": 63.0,
+    "overall_confidence_pct": 78.4,
+    "estimated_hours": 0.6,
+    "roi_stars": 5,
+    "roi_label": "⭐⭐⭐⭐⭐",
+    "roi_usd_per_hour": 100.0,
+    "roi_effective_usd_per_hour": 78.4,
+    "roi_rank_score": 78.4,
+    "estimated_minutes": 36.0,
+    "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+    "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+    "difficulty": "medium",
+    "required_capabilities": [
+      "typescript"
+    ],
+    "tests_available": "unknown",
+    "risk": "medium",
+    "recommendation": "TAKE",
+    "blockers": [],
+    "success_probability_pct": 78.4,
+    "acceptance_probability_pct": 63.0,
+    "issue_analysis": {
+      "signals": [
+        "bugfix",
+        "has_acceptance_criteria",
+        "detailed_description"
+      ],
+      "blockers": [],
+      "checklist_items": 2,
+      "bullet_requirements": 3,
+      "body_chars": 1186,
+      "summary_ru": "Есть критерии приёмки в описании."
+    },
+    "issue_body_preview": "### Issue Summary\r\n\r\nSometimes internal server errors occur and the next server will respond with a `serverError: \"Something went wrong while executing the operation.\"` (but still status code 200). Because of status 200 the frontend will not recognize it as an error and will still show a success toast (although something went wrong).\r\nFormbricks should check the responses for a serverError when accessing backend functions:\r\n\r\n```\r\nif (result?.serverError) {\r\n    throw new Error(\"Something went wrong\");\r\n}\r\n```\r\n\r\n\r\n### Steps to Reproduce\r\n\r\n1. Use eg #3301 to trigger an unsuccessful server only action\r\n2. success toast will pop up although the operation actually failed\r\n\r\nThis happens in many places where the toast will pop up when there is no error during a server side action.\r\n\r\n### Expected behavior\r\n\r\nAn error toast indicating the issue pops up (instead of falsely suggesting a successful operation)\r\n\r\n### Other information\r\n\r\n_No response_\r\n\r\n### Screenshots\r\n\r\n_No response_\r\n\r\n### Environment\r\n\r\n- [X] Formbricks Cloud (app.formbricks.com)\r\n- [ ] Self-hosted Formbricks\r\n\r\n### Desktop (please complete the following information)\r\n\r\n```markdown\r\n- all Browsers\r\n```\r\n",
+    "ceo_action_links": {
+      "issue": "https://github.com/formbricks/formbricks/issues/3302",
+      "repository": "https://github.com/formbricks/formbricks",
+      "opire_dashboard": "https://app.opire.dev",
+      "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+      "try_comment_text": "/try",
+      "claim_pr_text": "/claim #3302",
+      "new_pr_hint": "https://github.com/formbricks/formbricks/compare"
+    },
+    "official_next_steps_ru": [
+      "CEO Approve в Mission Control",
+      "Официальный /try комментарием на Issue (GitHub)",
+      "Execution Engine: clone → plan → code → tests → Draft PR",
+      "CEO Submit PR с /claim #<issue>",
+      "Monitor review → payout → REAL только после confirmation"
+    ],
+    "native_id": "01JARC75G44M6EQCJCR1DTBHD6",
+    "tier": "A",
+    "connector_id": "opire",
+    "official_flow": "/try → PR /claim → merge → Opire payout",
+    "repo_probe": {
+      "ok": true,
+      "status": 200,
+      "error_code": null,
+      "auth_used": true,
+      "repo_status": "ok",
+      "verified_via": "api",
+      "rate_limited": null
+    },
+    "repo_status": "ok",
+    "success_checklist": [
+      {
+        "id": "repo_alive",
+        "label": "Repository alive",
+        "ok": true
+      },
+      {
+        "id": "language",
+        "label": "Language supported",
+        "ok": true
+      },
+      {
+        "id": "tests",
+        "label": "Tests available",
+        "ok": false
+      },
+      {
+        "id": "small_scope",
+        "label": "Small scope",
+        "ok": true
+      },
+      {
+        "id": "low_competition",
+        "label": "Low competition",
+        "ok": false
+      },
+      {
+        "id": "capability",
+        "label": "High capability match",
+        "ok": false
+      },
+      {
+        "id": "roi",
+        "label": "Good ROI",
+        "ok": true
+      }
+    ],
+    "money_mode_eligible": false,
+    "preflight": {
+      "ok": true,
+      "verdict": "REVIEW",
+      "go": false,
+      "approve_allowed": true,
+      "auto_execute_allowed": false,
+      "action": "REVIEW — soft checks failed",
+      "checks": [
+        {
+          "id": "repo_alive",
+          "label": "Repository доступен",
+          "ok": true,
+          "critical": true,
+          "detail": "",
+          "mark": "✅"
+        },
+        {
+          "id": "issue_open",
+          "label": "Issue открыта / URL есть",
+          "ok": true,
+          "critical": true,
+          "detail": "",
+          "mark": "✅"
+        },
+        {
+          "id": "no_forbidden",
+          "label": "Нет forbidden / ToS evasion",
+          "ok": true,
+          "critical": true,
+          "detail": "",
+          "mark": "✅"
+        },
+        {
+          "id": "language",
+          "label": "Language / capability supported",
+          "ok": true,
+          "critical": true,
+          "detail": "typescript",
+          "mark": "✅"
+        },
+        {
+          "id": "task_type",
+          "label": "Task type: bug_fix",
+          "ok": true,
+          "critical": false,
+          "detail": "Автоматически",
+          "mark": "✅"
+        },
+        {
+          "id": "small_patch",
+          "label": "Estimated patch small",
+          "ok": true,
+          "critical": false,
+          "detail": "~0.6h",
+          "mark": "✅"
+        },
+        {
+          "id": "low_competition",
+          "label": "Нет высокой конкуренции",
+          "ok": false,
+          "critical": false,
+          "detail": "competitors=3",
+          "mark": "⚠"
+        },
+        {
+          "id": "confidence",
+          "label": "Confidence ≥ 80%",
+          "ok": false,
+          "critical": false,
+          "detail": "78%",
+          "mark": "⚠"
+        },
+        {
+          "id": "no_conflicting_pr",
+          "label": "Нет конкурирующего PR",
+          "ok": true,
+          "critical": false,
+          "detail": "no open PR refs #3302",
+          "mark": "✅"
+        }
+      ],
+      "task_type": "bug_fix",
+      "capability": {
+        "ok": true,
+        "severity": "✅",
+        "task_type": "bug_fix",
+        "label": "Bug Fix",
+        "note_ru": "Автоматически"
+      },
+      "min_confidence": 80.0,
+      "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+    },
+    "status": "ceo_approved",
+    "pipeline_state": "QUEUED",
+    "ceo_note": "auto_advance_factory",
+    "approved_at": "2026-08-08T17:26:12.041086+00:00",
+    "updated_at": "2026-08-08T17:26:12.431839+00:00",
+    "pr_id": null,
+    "pr_url": null,
+    "merge_status": "not_started",
+    "reward_status": "estimated",
+    "withdrawal_status": "not_started",
+    "payment_confirmation_id": null,
+    "real_income": false,
+    "payout_confirmed_usd": 0,
+    "execution": {
+      "ok": false,
+      "stage": "queued",
+      "message_ru": "В очереди AUTO-RUN — Clone стартует без кнопки «Запустить Execution», когда линия свободна."
+    },
+    "execution_checklist": [
+      {
+        "id": "approve",
+        "title": "Approve (auto GO / CEO REVIEW)",
+        "done": true
+      },
+      {
+        "id": "repo_intel",
+        "title": "Stage 1 — Repository Intelligence",
+        "done": false
+      },
+      {
+        "id": "planning",
+        "title": "Stage 2 — Planning",
+        "done": false
+      },
+      {
+        "id": "research",
+        "title": "Research Agent (needs_external fork)",
+        "done": false
+      },
+      {
+        "id": "implementation",
+        "title": "Stage 3 — Implementation",
+        "done": false
+      },
+      {
+        "id": "validation",
+        "title": "Stage 4 — Validation",
+        "done": false
+      },
+      {
+        "id": "pr_intelligence",
+        "title": "Stage 5 — Draft PR package",
+        "done": false
+      },
+      {
+        "id": "ceo_submit",
+        "title": "Submit PR (/claim) — auto when policy allows",
+        "done": false
+      },
+      {
+        "id": "review_loop",
+        "title": "Stage 6 — Review Loop",
+        "done": false
+      }
+    ],
+    "opire_commands": {
+      "try": "/try",
+      "claim": "/claim #3302"
+    },
+    "execution_error": null,
+    "try_post": {
+      "ok": false,
+      "error": "http_403",
+      "detail": "{\"message\":\"Resource not accessible by personal access token\",\"documentation_url\":\"https://docs.github.com/rest/issues/comments#create-an-issue-comment\",\"status\":\"403\"}"
+    },
+    "pending_execution": true,
+    "skip_reason": "execution_failed",
+    "auto_retry_execution": true,
+    "execution_heal": "factory_busy",
+    "pipeline_started": true,
+    "pipeline_label": "Queued"
+  }
+]

@@ -46,7 +46,7 @@ export function LiveActivityCanvas() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className="storefront-toast absolute max-w-[13rem] rounded-2xl border border-genesis-purple/35 bg-black/55 px-3 py-2 text-left text-[11px] text-white/90 shadow-glow backdrop-blur-md max-sm:max-w-[11rem] max-sm:opacity-90 sm:max-w-[14rem]"
+          className="storefront-toast absolute max-w-[13rem] rounded-2xl border border-genesis-purple/35 bg-black/55 px-3 py-2 text-left text-[11px] text-white/90 shadow-glow backdrop-blur-md max-sm:hidden sm:max-w-[14rem]"
           style={{ left: `${toast.x}%`, top: `${toast.y}%` }}
         >
           {t(toast.key, { defaultValue: "…" })}

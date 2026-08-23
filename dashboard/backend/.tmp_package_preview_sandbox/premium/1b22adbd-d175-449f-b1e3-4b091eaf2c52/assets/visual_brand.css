@@ -1,0 +1,13 @@
+
+:root {
+  --vb-primary: #242c32;
+  --vb-accent: #3693cb;
+  --vb-secondary: #7ccf53;
+  --vb-surface: #ecf4fa;
+  --vb-cards: #e6f0f8;
+  --vb-bg: #ecf4fa;
+  --vb-gradient: linear-gradient(145deg,#242c32 0%,#1b4965 48%,#3693cb 100%);
+  --vb-glow: rgba(54,147,203,0.35);
+  --vb-ink: #0b0d10;
+  --vb-muted: #64748b;
+}

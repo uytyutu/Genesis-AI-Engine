@@ -1,0 +1,75 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "A",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "narrative",
+  "package_id": "business",
+  "niche_id": "energy",
+  "fingerprint": "c2178dda2d33d2e94a1c728417b29ba31edda995c2ee30991b67d2cf302c1929",
+  "section_treatments": [
+    [
+      "about",
+      "gradient"
+    ],
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "services",
+      "photo_band"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "trust",
+      "photo_band"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "tint"
+    ],
+    [
+      "late_cta",
+      "gradient"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#1c1917",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "a17824b15190aea63d77c259",
+  "border_radius_px": 12
+}

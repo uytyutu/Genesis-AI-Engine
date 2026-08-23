@@ -257,40 +257,12 @@ class HuntRotationCursor:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    def next_slot(
+    def _advance_one(
         self,
-        *,
-        paused_markets: dict[str, Any] | None = None,
-        effective_cap_fn=None,
-        market_override: str | None = None,
-        city_override: str | None = None,
-        query_override: str | None = None,
-    ) -> dict[str, Any] | None:
-        markets = active_markets(
-            paused_markets=paused_markets,
-            effective_cap_fn=effective_cap_fn,
-            business_hours_only=False,
-        )
-        if not markets:
-            # No enabled markets with remaining quota
-            return None
-
-        if market_override:
-            code = market_override.strip().upper()
-            m = next((x for x in markets if str(x.get("code") or "").upper() == code), None)
-            if not m:
-                return None
-            lang = str(m.get("language") or "en-us")
-            niches = niches_for_language(lang)
-            hubs = [str(h).strip() for h in (m.get("hubs") or []) if str(h).strip()] or [code]
-            city = (city_override or hubs[0]).strip()
-            query = (query_override or niches[0]).strip()
-            slot = _slot_for_market(m, hub_i=0, niche_i=0)
-            slot["city"] = city
-            slot["query"] = query
-            return slot
-
-        state = self._load()
+        markets: list[dict[str, Any]],
+        state: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Pick current slot and advance cursor (one step). Does not check efficiency."""
         n = len(markets)
         mi = int(state.get("market_index") or 0) % n
         m = markets[mi]
@@ -315,7 +287,66 @@ class HuntRotationCursor:
             "city": slot["city"],
             "query": slot["query"],
         }
-        self._save(state)
         slot["slot_index"] = mi
         slot["slots_total"] = n
         return slot
+
+    def next_slot(
+        self,
+        *,
+        paused_markets: dict[str, Any] | None = None,
+        effective_cap_fn=None,
+        market_override: str | None = None,
+        city_override: str | None = None,
+        query_override: str | None = None,
+    ) -> dict[str, Any] | None:
+        from app.integration.outreach_hunt_slot_memory import is_slot_exhausted
+
+        markets = active_markets(
+            paused_markets=paused_markets,
+            effective_cap_fn=effective_cap_fn,
+            business_hours_only=False,
+        )
+        if not markets:
+            # No enabled markets with remaining quota
+            return None
+
+        if market_override:
+            # CEO/manual override — always hunt (bypass slot cool-down).
+            code = market_override.strip().upper()
+            m = next((x for x in markets if str(x.get("code") or "").upper() == code), None)
+            if not m:
+                return None
+            lang = str(m.get("language") or "en-us")
+            niches = niches_for_language(lang)
+            hubs = [str(h).strip() for h in (m.get("hubs") or []) if str(h).strip()] or [code]
+            city = (city_override or hubs[0]).strip()
+            query = (query_override or niches[0]).strip()
+            slot = _slot_for_market(m, hub_i=0, niche_i=0)
+            slot["city"] = city
+            slot["query"] = query
+            return slot
+
+        state = self._load()
+        # Walk rotation until a non-exhausted city×niche, or one full pass bound.
+        max_attempts = max(64, len(markets) * 80)
+        skipped = 0
+        chosen: dict[str, Any] | None = None
+        for _ in range(max_attempts):
+            slot = self._advance_one(markets, state)
+            if is_slot_exhausted(
+                self._memory,
+                market=str(slot.get("market") or ""),
+                city=str(slot.get("city") or ""),
+                query=str(slot.get("query") or ""),
+            ):
+                skipped += 1
+                continue
+            chosen = slot
+            break
+
+        self._save(state)
+        if not chosen:
+            return None
+        chosen["skipped_exhausted"] = skipped
+        return chosen

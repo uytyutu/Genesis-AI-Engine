@@ -1,0 +1,75 @@
+{
+  "emotion": "authority",
+  "style": "modern_clinical",
+  "palette_family": "ink_brass",
+  "typography_pair": "baskerville_plex_legal",
+  "motion": "business",
+  "hero_concept": "quiet_authority",
+  "hero_layout": "B",
+  "depth": "medium",
+  "glass": "low",
+  "composition": "editorial",
+  "package_id": "business",
+  "niche_id": "law",
+  "fingerprint": "ea2d2e3d1ff4a1bf6c11fd456e0eaf425de5997a222b6b05006da96b58cdb199",
+  "section_treatments": [
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "gallery",
+      "glass"
+    ],
+    [
+      "services",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "process",
+      "illustration"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "faq",
+      "gradient"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "calculator",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#b4975a",
+  "surface_hex": "#f4f1ea",
+  "ink_hex": "#14161c",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "51fb24c829ddd0e7dc17aeaa",
+  "border_radius_px": 12
+}

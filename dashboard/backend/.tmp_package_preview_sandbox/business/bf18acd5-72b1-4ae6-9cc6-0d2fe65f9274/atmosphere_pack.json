@@ -1,0 +1,145 @@
+{
+  "brand_name": "Salon Mira",
+  "niche_id": "beauty",
+  "package_id": "business",
+  "metaphor": "Helles Atelierlicht — ruhige Hände, kein Neon-Salon",
+  "core_emotion": "Ruhe",
+  "atmosphere_mode": "atelier",
+  "scene_language": [
+    "Ritual",
+    "Light",
+    "Hands",
+    "Quiet"
+  ],
+  "texture_language": [
+    "Porcelain",
+    "Linen",
+    "Soft metal"
+  ],
+  "motion_language": "Weich · Ritual · Langsam",
+  "camera_feeling": "atelier mirror · soft hands · ritual pace",
+  "scroll_feeling": "soft float · ritual reveal",
+  "cta_feeling": "termin · calm · clear · Termin · Ruhig · Klar",
+  "sound_mood": "quiet tools · soft music hint",
+  "illustration_style": "mirror arc · product bottle · soft line",
+  "glass_level": "medium",
+  "shadow_language": "soft lift · no neon glare · Soft Lift",
+  "icon_language": "Soft Outline",
+  "lighting": "porcelain daylight · soft rose fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "beauty_ritual",
+      "must_include": [
+        "Atelierlicht",
+        "Hände bei der Arbeit",
+        "Produkt detail",
+        "Spiegel ohne Chaos",
+        "Ruhe vor dem Termin"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "neon salon",
+        "pink glitter stock",
+        "waiting room chairs row"
+      ],
+      "seed": "Salon Mira|beauty|business|e496482b509680ce0f60aa6f|hero",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "role": "background",
+      "concept": "scene · Ritual · Light · Hands",
+      "must_include": [
+        "Ritual",
+        "Light",
+        "Hands",
+        "Quiet",
+        "Porcelain",
+        "Linen"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "neon salon",
+        "pink glitter stock",
+        "waiting room chairs row"
+      ],
+      "seed": "Salon Mira|beauty|business|e496482b509680ce0f60aa6f|bg",
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "role": "gallery",
+      "concept": "proof texture · craft detail",
+      "must_include": [
+        "Produkt detail",
+        "Spiegel ohne Chaos",
+        "Ruhe vor dem Termin"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "neon salon",
+        "pink glitter stock",
+        "waiting room chairs row"
+      ],
+      "seed": "Salon Mira|beauty|business|e496482b509680ce0f60aa6f|gal",
+      "size": [
+        1400,
+        1000
+      ]
+    }
+  ],
+  "fingerprint": "403167f247e97a9351d6b0bf",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

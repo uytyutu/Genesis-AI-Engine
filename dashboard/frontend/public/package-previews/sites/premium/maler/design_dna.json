@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "product_first",
+  "package_id": "premium",
+  "niche_id": "maler",
+  "fingerprint": "c6cd0972c226b633276ec69d23889e3a6cd2ecd35cc3c7e74d3977fc482afbec",
+  "section_treatments": [
+    [
+      "catalog",
+      "tint"
+    ],
+    [
+      "showcase",
+      "illustration"
+    ],
+    [
+      "services",
+      "tint"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "gallery",
+      "gradient"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "trust",
+      "photo_band"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "faq",
+      "illustration"
+    ],
+    [
+      "reviews",
+      "tint"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#e6eaf0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "09f4459aa92104ca972bed95",
+  "border_radius_px": 12
+}

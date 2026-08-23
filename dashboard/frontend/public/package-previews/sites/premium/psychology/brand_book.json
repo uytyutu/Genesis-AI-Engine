@@ -1,0 +1,121 @@
+{
+  "brand_name": "Praxis Klarheit",
+  "niche_id": "psychology",
+  "package_id": "premium",
+  "positioning": "Ruhiger Schutzraum",
+  "archetype_primary": "The Guide",
+  "archetype_secondary": "The Listener",
+  "brand_promise": "Ein Ort, an dem es ruhiger wird.",
+  "core_emotion": "Ruhe",
+  "secondary_emotion": "Sicherheit",
+  "tone": [
+    "Leise",
+    "Klar",
+    "Warm",
+    "Ohne Floskeln"
+  ],
+  "visual_style": "Editorial Calm",
+  "visual_metaphor": "Weiches Morgenlicht in einem stillen Raum",
+  "photography": [
+    "Stillleben Raum",
+    "Tageslicht",
+    "Leere Stühle mit Abstand",
+    "Papier und Stift",
+    "Fensterlicht"
+  ],
+  "forbidden": [
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting",
+    "neon spa",
+    "stock yoga beach",
+    "purple wellness",
+    "crystal cliché"
+  ],
+  "motion_language": "Sehr langsam · Atmung · Wenig Bewegung",
+  "motion_token": "soft",
+  "palette": {
+    "names": [
+      "Warm Paper",
+      "Sage",
+      "Stone",
+      "Ink"
+    ],
+    "accent_hex": "#5b7c6e",
+    "surface_hex": "#f7f4ef",
+    "ink_hex": "#1c1916",
+    "secondary_hex": "#8a9a90",
+    "highlight_hex": "#c9b8a6"
+  },
+  "typography_display": "Cormorant Garamond",
+  "typography_body": "Source Serif 4",
+  "typography_pair_id": "editorial_calm",
+  "typography_emotion": "clarity",
+  "icon_style": "Outline Soft",
+  "border_radius_px": 4,
+  "shadow_style": "Barely",
+  "glass_level": "medium",
+  "texture": [
+    "Paper",
+    "Linen",
+    "Wood grain soft"
+  ],
+  "scene_language": [
+    "Light",
+    "Space",
+    "Silence",
+    "Breath"
+  ],
+  "cta_style": "Ein ruhiger Link · Kein Druck",
+  "trust_strategy": [
+    "Transparente Honorare",
+    "Ablauf",
+    "Vertraulichkeit"
+  ],
+  "atmosphere_mode": "atelier",
+  "dna_style": "modern_clinical",
+  "dna_palette_family": "sage_mist",
+  "hero_concept": "quiet_chamber",
+  "fingerprint": "2c2cabafd10e7597d6ca50b8",
+  "media_dna": {
+    "required": [
+      "Quiet room",
+      "Daylight",
+      "Soft space",
+      "Human pace"
+    ],
+    "preferred": [
+      "Empty chair with air",
+      "Window light",
+      "Paper",
+      "Calm hands"
+    ],
+    "forbidden": [
+      "Neon spa",
+      "Yoga beach stock",
+      "Purple wellness",
+      "Crystal cliché"
+    ],
+    "hero_proof": "A quiet chamber where the first breath feels slower — not a spa brochure.",
+    "profession_keywords": [
+      "therapy",
+      "praxis",
+      "ruhe",
+      "gespräch",
+      "raum"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "city_hint": ""
+}

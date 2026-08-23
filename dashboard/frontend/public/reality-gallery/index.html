@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Virtus Core — Reality Gallery</title>
+<style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #12151a;
+      --line: #232833;
+      --text: #e8eaed;
+      --muted: #9aa3af;
+      --accent: #7dd3c0;
+      --accent-dim: rgba(125, 211, 192, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #1a2433 0%, transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, #15201c 0%, transparent 50%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 1.5rem;
+    }
+    header p.kicker {
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      margin: 0 0 0.75rem;
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 600;
+      font-size: clamp(1.75rem, 3vw, 2.4rem);
+      letter-spacing: -0.02em;
+    }
+    header .sub {
+      margin: 0.75rem 0 0;
+      color: var(--muted);
+      max-width: 42rem;
+      line-height: 1.5;
+    }
+    .kpi {
+      margin-top: 1.25rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--accent-dim);
+      max-width: 42rem;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .kpi strong { color: var(--accent); }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+    }
+    section { margin-top: 2.5rem; }
+    section h2 {
+      margin: 0 0 1rem;
+      font-size: 1.15rem;
+      font-weight: 600;
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+    section h2 span.count {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 0.9rem;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem 1.05rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .card:hover {
+      border-color: #3a4558;
+      transform: translateY(-2px);
+    }
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.25rem;
+    }
+    .num {
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .badge {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 0.2rem 0.45rem;
+      border-radius: 999px;
+    }
+    .badge.fill {
+      color: #c4b5fd;
+      background: rgba(196, 181, 253, 0.12);
+    }
+    .niche {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .company {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.3;
+      flex: 1;
+    }
+    .open {
+      margin-top: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: #0b0d10;
+      background: var(--accent);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.55rem 0.9rem;
+      border-radius: 8px;
+      width: fit-content;
+    }
+    .open:hover { filter: brightness(1.08); }
+    .note {
+      margin-top: 1rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+<header>
+<p class="kicker">Virtus Core · Studio Portfolio</p>
+<h1>Reality Gallery</h1>
+<p class="sub">23 Websites · 25 Shops · Creative Brief + Experience + WebGL where it sells.</p>
+</header>
+<main>
+<section class="neu-experience">
+  <h2>Neu — Digital Experience <span class="count">10 premium</span></h2>
+  <p class="note" style="margin-top:0;margin-bottom:1rem;">Frische Premium-Sites und Stores — direkt öffnen.</p>
+  <div class="grid">
+    <article class="card">
+      <div class="meta"><span class="num">S1</span><span class="badge">site</span></div>
+      <p class="niche">elektro</p>
+      <h3 class="company">Premium Elektro</h3>
+      <a class="open" href="/package-previews/sites/premium/elektro/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+    </article>
+    <article class="card">
+      <div class="meta"><span class="num">S2</span><span class="badge">site</span></div>
+      <p class="niche">sanitaer</p>
+      <h3 class="company">Premium Sanitär</h3>
+      <a class="open" href="/package-previews/sites/premium/sanitaer/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+    </article>
+    <article class="card">
+      <div class="meta"><span class="num">S3</span><span class="badge">site</span></div>
+      <p class="niche">maler</p>
+      <h3 class="company">Premium Maler</h3>
+      <a class="open" href="/package-previews/sites/premium/maler/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+    </article>
+    <article class="card">
+      <div class="meta"><span class="num">S4</span><span class="badge">site</span></div>
+      <p class="niche">family_psychology</p>
+      <h3 class="company">Premium Familienpsychologie</h3>
+      <a class="open" href="/package-previews/sites/premium/family_psychology/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+    </article>
+    <article class="card">
+      <div class="meta"><span class="num">S5</span><span class="badge">site</span></div>
+      <p class="niche">car_dealership</p>
+      <h3 class="company">Premium Autohaus</h3>
+      <a class="open" href="/package-previews/sites/premium/car_dealership/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+    </article>
+    <article class="card">
+      <div class="meta"><span class="num">T1</span><span class="badge fill">store</span></div>
+      <p class="niche">solar_shop</p>
+      <h3 class="company">Premium Solar Shop</h3>
+      <a class="open" href="/package-previews/stores/premium/solar_shop/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+    </article>
+    <article class="card">
+      <div class="meta"><span class="num">T2</span><span class="badge fill">store</span></div>
+      <p class="niche">auto_parts</p>
+      <h3 class="company">Premium Auto Parts</h3>
+      <a class="open" href="/package-previews/stores/premium/auto_parts/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+    </article>
+    <article class="card">
+      <div class="meta"><span class="num">T3</span><span class="badge fill">store</span></div>
+      <p class="niche">paint_shop</p>
+      <h3 class="company">Premium Paint Shop</h3>
+      <a class="open" href="/package-previews/stores/premium/paint_shop/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+    </article>
+    <article class="card">
+      <div class="meta"><span class="num">T4</span><span class="badge fill">store</span></div>
+      <p class="niche">wine_shop</p>
+      <h3 class="company">Premium Wine Shop</h3>
+      <a class="open" href="/package-previews/stores/premium/wine_shop/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+    </article>
+    <article class="card">
+      <div class="meta"><span class="num">T5</span><span class="badge fill">store</span></div>
+      <p class="niche">optics_shop</p>
+      <h3 class="company">Premium Optics Shop</h3>
+      <a class="open" href="/package-previews/stores/premium/optics_shop/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+    </article>
+  </div>
+</section>
+<section><h2>23 Websites <span class="count">live</span></h2><div class="grid">
+      <article class="card">
+        <div class="meta"><span class="num">01</span><span class="badge">premium</span></div>
+        <p class="niche">auto</p>
+        <h3 class="company">Autowerkstatt Nord — Klarheit statt Werkstatt-Theater. Inspektion, Reifen, Repara</h3>
+        <a class="open" href="/package-previews/sites/premium/auto/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">02</span><span class="badge">premium</span></div>
+        <p class="niche">auto_detailing</p>
+        <h3 class="company">GlanzWerk Detailing — luxury Mehrstufige Politur, Keramik, dokumentiertes Ergebnis</h3>
+        <a class="open" href="/package-previews/sites/premium/auto_detailing/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">03</span><span class="badge">premium</span></div>
+        <p class="niche">beauty</p>
+        <h3 class="company">Salon Mira — Ruhe vor dem Spiegel. Ein Atelier-Ritual — kein Salon-Durchl</h3>
+        <a class="open" href="/package-previews/sites/premium/beauty/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">04</span><span class="badge">premium</span></div>
+        <p class="niche">Autohaus</p>
+        <h3 class="company">NordLicht Autohaus — showroom Ehrliche Beratung, saubere Historie, Servicenetz</h3>
+        <a class="open" href="/package-previews/sites/premium/car_dealership/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">05</span><span class="badge">premium</span></div>
+        <p class="niche">cleaning</p>
+        <h3 class="company">KlarRaum Facility — modern Feste Ansprechpartner, transparente Touren, Qualitäts</h3>
+        <a class="open" href="/package-previews/sites/premium/cleaning/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">06</span><span class="badge">premium</span></div>
+        <p class="niche">dachreinigung</p>
+        <h3 class="company">DachKlar Service — Erleichterung statt Panik vor der Rechnung. Wir kommen, rein</h3>
+        <a class="open" href="/package-previews/sites/premium/dachreinigung/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">07</span><span class="badge">premium</span></div>
+        <p class="niche">dental</p>
+        <h3 class="company">SmileCare Praxis — Ruhe im Behandlungsstuhl. Prophylaxe bis Implantat — klar er</h3>
+        <a class="open" href="/package-previews/sites/premium/dental/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">08</span><span class="badge">premium</span></div>
+        <p class="niche">Elektriker</p>
+        <h3 class="company">StromWerk Meisterbetrieb — industrial Meisterqualität, Festpreis-Klarheit, Notdienst</h3>
+        <a class="open" href="/package-previews/sites/premium/elektro/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">09</span><span class="badge">premium</span></div>
+        <p class="niche">energy</p>
+        <h3 class="company">SolarNord Energie — Kunden in Hannover spürbar besser bedienen als gestern.</h3>
+        <a class="open" href="/package-previews/sites/premium/energy/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">10</span><span class="badge">premium</span></div>
+        <p class="niche">Familienpsychologie</p>
+        <h3 class="company">NestKlar Familienpraxis — editorial Empathie, Struktur, alltagsnahe Schritte</h3>
+        <a class="open" href="/package-previews/sites/premium/family_psychology/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">11</span><span class="badge">premium</span></div>
+        <p class="niche">fitness</p>
+        <h3 class="company">FitBase Studio — Energie ohne Druck. Probetraining ohne Vertragsfalle.</h3>
+        <a class="open" href="/package-previews/sites/premium/fitness/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">12</span><span class="badge">premium</span></div>
+        <p class="niche">gartenpflege</p>
+        <h3 class="company">Grünzeit Pflege — Grün ohne Stress. Rasen, Hecke, Beete — saisonal betreut.</h3>
+        <a class="open" href="/package-previews/sites/premium/gartenpflege/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">13</span><span class="badge">premium</span></div>
+        <p class="niche">handwerk</p>
+        <h3 class="company">Meisterbau Hoffmann — Entlastung: jemand übernimmt den Haushalt-Job. Montage, Repa</h3>
+        <a class="open" href="/package-previews/sites/premium/handwerk/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">14</span><span class="badge">premium</span></div>
+        <p class="niche">it_support</p>
+        <h3 class="company">NetzKlar IT — modern SLA, verständliche Sprache, dokumentierte Fixes</h3>
+        <a class="open" href="/package-previews/sites/premium/it_support/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">15</span><span class="badge">premium</span></div>
+        <p class="niche">law</p>
+        <h3 class="company">Kanzlei Bergmann — Kontrolle kehrt zurück. Erste Orientierung in der Erstberatu</h3>
+        <a class="open" href="/package-previews/sites/premium/law/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">16</span><span class="badge">premium</span></div>
+        <p class="niche">Maler</p>
+        <h3 class="company">FarbRaum Malermeister — atelier Meisterfinish, Farbkonzept, termingerechte Übergabe</h3>
+        <a class="open" href="/package-previews/sites/premium/maler/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">17</span><span class="badge">premium</span></div>
+        <p class="niche">orthodontics</p>
+        <h3 class="company">Alignum Kieferorthopädie — clinic 3D-Scan, transparente Meilensteine, moderne Praxis</h3>
+        <a class="open" href="/package-previews/sites/premium/orthodontics/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">18</span><span class="badge">premium</span></div>
+        <p class="niche">photography</p>
+        <h3 class="company">Lichtspur Studio — editorial Konzept vor Auslösen, klare Nutzungsrechte, schnel</h3>
+        <a class="open" href="/package-previews/sites/premium/photography/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">19</span><span class="badge">premium</span></div>
+        <p class="niche">psychology</p>
+        <h3 class="company">Praxis Klarheit — Wieder Boden unter den Füßen. Ein geschützter Raum für das e</h3>
+        <a class="open" href="/package-previews/sites/premium/psychology/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">20</span><span class="badge">premium</span></div>
+        <p class="niche">realestate</p>
+        <h3 class="company">WohnRaum Partner — Überblick statt Marktdruck. Bewertung, Exposé, Begleitung bi</h3>
+        <a class="open" href="/package-previews/sites/premium/realestate/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">21</span><span class="badge">premium</span></div>
+        <p class="niche">restaurant</p>
+        <h3 class="company">Trattoria Luna — Ankommen — wie im Hof. Ein Tisch, der sich anfühlt wie bei F</h3>
+        <a class="open" href="/package-previews/sites/premium/restaurant/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">22</span><span class="badge">premium</span></div>
+        <p class="niche">Sanitaer</p>
+        <h3 class="company">WasserKlar Sanitär — modern Klare Abläufe, Meisterhandwerk, ehrliche Preise</h3>
+        <a class="open" href="/package-previews/sites/premium/sanitaer/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">23</span><span class="badge">premium</span></div>
+        <p class="niche">zaunbau</p>
+        <h3 class="company">ZaunWerk Süd — Grenze mit Ruhe. Sichtschutz, Doppelstab, Tor — montiert und</h3>
+        <a class="open" href="/package-previews/sites/premium/zaunbau/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+</div></section>
+<section><h2>25 Shops <span class="count">live</span></h2><div class="grid">
+      <article class="card">
+        <div class="meta"><span class="num">01</span><span class="badge">premium</span></div>
+        <p class="niche">accessories</p>
+        <h3 class="company">Zeitstück Accessoires | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/accessories/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">02</span><span class="badge">premium</span></div>
+        <p class="niche">Autoteile</p>
+        <h3 class="company">TeilWerk Parts | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/auto_parts/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">03</span><span class="badge">premium</span></div>
+        <p class="niche">beauty</p>
+        <h3 class="company">Glow Lab Beauty | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/beauty/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">04</span><span class="badge">premium</span></div>
+        <p class="niche">bookstore</p>
+        <h3 class="company">Seitenwerk Books | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/bookstore/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">05</span><span class="badge">premium</span></div>
+        <p class="niche">cleaning_shop</p>
+        <h3 class="company">FrischMittel Profi | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/cleaning_shop/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">06</span><span class="badge">premium</span></div>
+        <p class="niche">coffee</p>
+        <h3 class="company">Röstwerk Coffee | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/coffee/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">07</span><span class="badge">premium</span></div>
+        <p class="niche">dachreinigung</p>
+        <h3 class="company">DachKlar Shop | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/dachreinigung/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">08</span><span class="badge">premium</span></div>
+        <p class="niche">detailing_shop</p>
+        <h3 class="company">MirrorCoat Care | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/detailing_shop/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">09</span><span class="badge">premium</span></div>
+        <p class="niche">electronics</p>
+        <h3 class="company">VoltHaus Electronics | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/electronics/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">10</span><span class="badge">premium</span></div>
+        <p class="niche">fashion</p>
+        <h3 class="company">Nordlicht Fashion | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/fashion/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">11</span><span class="badge">premium</span></div>
+        <p class="niche">food</p>
+        <h3 class="company">FeinKost Food | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/food/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">12</span><span class="badge">premium</span></div>
+        <p class="niche">furniture</p>
+        <h3 class="company">Wohnraum Furniture | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/furniture/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">13</span><span class="badge">premium</span></div>
+        <p class="niche">gartenpflege</p>
+        <h3 class="company">Grünzeit Garten | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/gartenpflege/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">14</span><span class="badge">premium</span></div>
+        <p class="niche">handwerk</p>
+        <h3 class="company">Werkstatt Direkt | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/handwerk/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">15</span><span class="badge">premium</span></div>
+        <p class="niche">it_parts</p>
+        <h3 class="company">ByteErsatz Parts | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/it_parts/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">16</span><span class="badge">premium</span></div>
+        <p class="niche">jewelry</p>
+        <h3 class="company">Silberlinie Jewelry | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/jewelry/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">17</span><span class="badge">premium</span></div>
+        <p class="niche">Optik</p>
+        <h3 class="company">KlarBlick Optics | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/optics_shop/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">18</span><span class="badge">premium</span></div>
+        <p class="niche">ortho_care</p>
+        <h3 class="company">SmileTray Care | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/ortho_care/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">19</span><span class="badge">premium</span></div>
+        <p class="niche">Farbe</p>
+        <h3 class="company">PigmentPro Shop | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/paint_shop/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">20</span><span class="badge">premium</span></div>
+        <p class="niche">pets</p>
+        <h3 class="company">PfotenGlück Pets | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/pets/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">21</span><span class="badge">premium</span></div>
+        <p class="niche">psychology</p>
+        <h3 class="company">Klarheit Digital | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/psychology/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">22</span><span class="badge">premium</span></div>
+        <p class="niche">Solar</p>
+        <h3 class="company">SunGrid Solar Shop | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/solar_shop/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">23</span><span class="badge">premium</span></div>
+        <p class="niche">sports</p>
+        <h3 class="company">FitTrail Sports | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/sports/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">24</span><span class="badge">premium</span></div>
+        <p class="niche">Wein</p>
+        <h3 class="company">RebenKlar Vinothek | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/wine_shop/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="num">25</span><span class="badge">premium</span></div>
+        <p class="niche">zaunbau</p>
+        <h3 class="company">ZaunWerk Material | Startseite</h3>
+        <a class="open" href="/package-previews/stores/premium/zaunbau/index.html" target="_blank" rel="noopener noreferrer">Oeffnen</a>
+      </article>
+</div></section>
+</main>
+</body>
+</html>

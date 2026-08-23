@@ -1,0 +1,142 @@
+{
+  "brand_name": "ZaunWerk Süd",
+  "niche_id": "zaunbau",
+  "package_id": "premium",
+  "metaphor": "Linie im Abendlicht entlang der Grundstückskante",
+  "core_emotion": "Stabilität",
+  "atmosphere_mode": "dusk",
+  "scene_language": [
+    "Edge",
+    "Line",
+    "Ground",
+    "Light"
+  ],
+  "texture_language": [
+    "Holz",
+    "Metall",
+    "Erde"
+  ],
+  "motion_language": "Fest · Kontrolliert · Klar",
+  "camera_feeling": "ground-level line along fence · dusk edge light",
+  "scroll_feeling": "horizontal clarity · measured step reveals",
+  "cta_feeling": "solid clear buttons · craft spacing · Klare Buttons · Ruhiger Abstand",
+  "sound_mood": "metal click · evening air · workshop hush",
+  "illustration_style": "posts · rails · iron geometry",
+  "glass_level": "medium",
+  "shadow_language": "hard post shadows · soft ground · Soft Deep",
+  "icon_language": "Outline Industrial",
+  "lighting": "amber dusk on iron · warm umber fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "fence_line_dusk",
+      "must_include": [
+        "Metallzäune",
+        "Holzlatten",
+        "Fundament",
+        "Werkstatt",
+        "Saubere Kanten"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "garden party stock",
+        "luxury villa only"
+      ],
+      "seed": "ZaunWerk Süd|zaunbau|premium|7c5e1f91978f80868600872c|hero",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "role": "background",
+      "concept": "scene · Edge · Line · Ground",
+      "must_include": [
+        "Edge",
+        "Line",
+        "Ground",
+        "Light",
+        "Holz",
+        "Metall"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "garden party stock",
+        "luxury villa only"
+      ],
+      "seed": "ZaunWerk Süd|zaunbau|premium|7c5e1f91978f80868600872c|bg",
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "role": "gallery",
+      "concept": "proof texture · craft detail",
+      "must_include": [
+        "Fundament",
+        "Werkstatt",
+        "Saubere Kanten"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "garden party stock",
+        "luxury villa only"
+      ],
+      "seed": "ZaunWerk Süd|zaunbau|premium|7c5e1f91978f80868600872c|gal",
+      "size": [
+        1400,
+        1000
+      ]
+    }
+  ],
+  "fingerprint": "9282f5133d0bfd7d11ff811a",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

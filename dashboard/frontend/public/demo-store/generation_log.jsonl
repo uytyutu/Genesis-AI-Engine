@@ -1,0 +1,3 @@
+{"ts": "2026-08-05T09:10:57.137629+00:00", "event": "generating", "version": 1, "template_id": "niche_clothing"}
+{"ts": "2026-08-05T09:10:57.159315+00:00", "event": "quality_check", "passed": true, "errors": []}
+{"ts": "2026-08-05T09:10:57.194864+00:00", "event": "version_saved", "version": 1, "pages": ["index.html", "catalog.html", "product.html", "cart.html", "about.html", "contact.html", "faq.html", "returns.html", "impressum.html", "datenschutz.html"]}

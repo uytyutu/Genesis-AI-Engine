@@ -9,7 +9,10 @@
   <link rel="alternate" hreflang="de-DE" href="./">
   <link rel="alternate" hreflang="x-default" href="./">
   
-  
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+
   <style>
 
     :root {
@@ -215,7 +218,7 @@
     body[data-tier="basic"] .topbar a { color: var(--pd); }
 
 
-    /* Niche Design System: beauty */
+    /* Design Engine · Niche Design System: beauty */
     body[data-niche="beauty"] {
       --p: #be185d;
       --pd: #9d174d;
@@ -227,12 +230,15 @@
       --radius: 14px;
       --btn-radius: 999px;
       --card-radius: 16px;
-      font-family: "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+      --font-body: "DM Sans", "Helvetica Neue", system-ui, sans-serif;
+      --font-display: "Cormorant Garamond", Georgia, Palatino, serif;
+      font-family: var(--font-body);
       color: var(--ink);
     }
     body[data-niche="beauty"] .hero h1,
-    body[data-niche="beauty"] .section h2 {
-      font-family: Georgia, "Palatino Linotype", Palatino, serif;
+    body[data-niche="beauty"] .section h2,
+    body[data-niche="beauty"] .mid-cta h2 {
+      font-family: var(--font-display);
       letter-spacing: 0.02em;
     }
     body[data-niche="beauty"] .btn {

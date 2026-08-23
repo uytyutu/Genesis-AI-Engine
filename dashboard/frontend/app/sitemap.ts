@@ -13,6 +13,7 @@ const PATHS = [
   "/datenschutz",
   "/agb",
   "/trust",
+  "/why",
   "/widerruf",
   "/cookies",
   "/ai-disclaimer",

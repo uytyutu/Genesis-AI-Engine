@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ClientWorkspaceShell } from "../../components/ClientWorkspaceShell";
 import { clientAuthHeaders, getClientToken } from "../../lib/clientAuth";
 import { formatApiDetail } from "../../lib/formatApiError";
+import { resolveOrderHonestStatus, resolvePortalProductHonestStatus } from "../../lib/clientProductStatus";
 import { PortalApiError, portalFetch } from "../../lib/portalApi";
 import { publicApiBase } from "../../lib/publicApiBase";
 
@@ -65,9 +66,14 @@ export default function ClientProductsPage() {
         const body = await res.json().catch(() => ({}));
         if (res.ok && Array.isArray(body.orders)) {
           setOrders(
-            body.orders.filter((o: ClientOrder) => {
+            body.orders.filter((o: ClientOrder & { superseded?: boolean; quality_state?: string }) => {
               const kind = String(o.product_kind || "");
-              return !kind.startsWith("bot");
+              if (kind.startsWith("bot")) return false;
+              const st = String(o.status || "").toLowerCase();
+              if (st === "superseded") return false;
+              if (o.superseded === true) return false;
+              if (String(o.quality_state || "").toUpperCase() === "ARCHIVED") return false;
+              return true;
             }),
           );
         }
@@ -135,11 +141,8 @@ export default function ClientProductsPage() {
                   ? o.service_name || o.package_name || "Мой интернет-магазин"
                   : o.service_name || o.package_name || o.business_name || "Заказ"}
               </p>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-emerald-300">
-                {o.shop_pipeline_label ||
-                  o.status_label ||
-                  o.status ||
-                  "Active"}
+              <p className={`mt-1 text-xs font-medium uppercase tracking-wide ${resolveOrderHonestStatus(o).toneClass}`}>
+                {resolveOrderHonestStatus(o).label}
               </p>
               <p className="mt-2 flex-1 text-sm text-zinc-500">
                 {o.business_name ? `${o.business_name} · ` : ""}
@@ -156,12 +159,20 @@ export default function ClientProductsPage() {
                     Открыть магазин
                   </Link>
                 ) : (
-                  <Link
-                    href={`/order/status/${o.order_id}`}
-                    className="rounded-xl border border-white/15 px-3 py-2 text-sm text-white hover:bg-white/5"
-                  >
-                    Открыть
-                  </Link>
+                  <>
+                    <Link
+                      href={`/client/websites/${o.order_id}/admin`}
+                      className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-black"
+                    >
+                      Website Admin
+                    </Link>
+                    <Link
+                      href={`/order/status/${o.order_id}`}
+                      className="rounded-xl border border-white/15 px-3 py-2 text-sm text-white hover:bg-white/5"
+                    >
+                      Статус
+                    </Link>
+                  </>
                 )}
                 {o.product_id ? (
                   <a
@@ -193,14 +204,15 @@ export default function ClientProductsPage() {
               </div>
             </li>
           ))}
-          {products.map((p) => (
+          {/* Portal stubs only when there are no real website/shop orders */}
+          {(orders.length === 0 ? products : []).map((p) => (
             <li
               key={p.product_id}
               className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"
             >
               <p className="text-lg font-semibold text-white">{p.display_name}</p>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-emerald-300">
-                {p.status || "Active"}
+              <p className={`mt-1 text-xs font-medium uppercase tracking-wide ${resolvePortalProductHonestStatus(p).toneClass}`}>
+                {resolvePortalProductHonestStatus(p).label}
               </p>
               <p className="mt-2 flex-1 text-sm text-zinc-500">via {p.source}</p>
               <Link

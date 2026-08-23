@@ -1,0 +1,15 @@
+{
+  "brand_name": "SolarNord Energie",
+  "niche_id": "energy",
+  "package_id": "premium",
+  "media_mode": "tech_energy",
+  "visual_metaphor": "Panels catching sky",
+  "hero_concept": "Panels catching sky | SolarNord Energie",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": true,
+  "experience_tier": "cinematic",
+  "fingerprint": "28988ef21729c7647a53",
+  "image_prompt": "SolarNord Energie energy brand hero, Panels catching sky, European studio, media_mode=tech_energy, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

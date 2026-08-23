@@ -1,0 +1,68 @@
+{
+  "emotion": "trust",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "cormorant_source",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "E",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "hearth",
+  "package_id": "business",
+  "niche_id": "beauty",
+  "fingerprint": "3f81f95139ce48cfaed375303a5d8ce3c89ce596da571168439a35996a208aa9",
+  "section_treatments": [
+    [
+      "about",
+      "tint"
+    ],
+    [
+      "gallery",
+      "glass"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "services",
+      "illustration"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "gradient"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f3f6f4",
+  "ink_hex": "#243029"
+}

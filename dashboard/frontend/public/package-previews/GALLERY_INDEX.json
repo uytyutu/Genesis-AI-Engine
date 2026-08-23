@@ -1,0 +1,1157 @@
+{
+  "name": "Virtus Core Commercial Gallery",
+  "generated_at": "2026-08-08T16:21:52.137859+00:00",
+  "gallery_schema": "tier_v2",
+  "tier_policy": {
+    "basic": "Starter €199 — clean modern, light motion, no heavy 3D/Lottie",
+    "business": "Business €399 — Hero assets, trust+KPI, richer motion",
+    "premium": "Premium €699 — premium_design, stats/showcase, cinematic heroes"
+  },
+  "websites_goal": 8,
+  "stores_goal": 6,
+  "websites_pass": 15,
+  "stores_pass": 22,
+  "tiers_synced": [
+    "basic",
+    "business",
+    "premium"
+  ],
+  "items": [
+    {
+      "kind": "website",
+      "id": "auto",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 82415,
+      "url": "/package-previews/sites/basic/auto/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "beauty",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 80714,
+      "url": "/package-previews/sites/basic/beauty/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "dachreinigung",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 80706,
+      "url": "/package-previews/sites/basic/dachreinigung/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "dental",
+      "package_id": "basic",
+      "status": "THIN",
+      "bytes": 4039,
+      "url": "/package-previews/sites/basic/dental/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "gartenpflege",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 80692,
+      "url": "/package-previews/sites/basic/gartenpflege/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "handwerk",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 80354,
+      "url": "/package-previews/sites/basic/handwerk/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "law",
+      "package_id": "basic",
+      "status": "THIN",
+      "bytes": 4074,
+      "url": "/package-previews/sites/basic/law/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "psychology",
+      "package_id": "basic",
+      "status": "THIN",
+      "bytes": 4079,
+      "url": "/package-previews/sites/basic/psychology/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "restaurant",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 80449,
+      "url": "/package-previews/sites/basic/restaurant/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "zaunbau",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 80772,
+      "url": "/package-previews/sites/basic/zaunbau/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "auto",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 101982,
+      "url": "/package-previews/sites/business/auto/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "beauty",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 99205,
+      "url": "/package-previews/sites/business/beauty/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "dachreinigung",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 106727,
+      "url": "/package-previews/sites/business/dachreinigung/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "dental",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 99703,
+      "url": "/package-previews/sites/business/dental/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "energy",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 98314,
+      "url": "/package-previews/sites/business/energy/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "fitness",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 100516,
+      "url": "/package-previews/sites/business/fitness/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "gartenpflege",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 101750,
+      "url": "/package-previews/sites/business/gartenpflege/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "handwerk",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 102430,
+      "url": "/package-previews/sites/business/handwerk/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "it",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 90519,
+      "url": "/package-previews/sites/business/it/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "law",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 99585,
+      "url": "/package-previews/sites/business/law/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "praxis",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 21164,
+      "url": "/package-previews/sites/business/praxis/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "psychology",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 100686,
+      "url": "/package-previews/sites/business/psychology/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "realestate",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 100755,
+      "url": "/package-previews/sites/business/realestate/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "restaurant",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 100483,
+      "url": "/package-previews/sites/business/restaurant/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "zaunbau",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 100930,
+      "url": "/package-previews/sites/business/zaunbau/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "auto",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 152583,
+      "url": "/package-previews/sites/premium/auto/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "auto_detailing",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 144557,
+      "url": "/package-previews/sites/premium/auto_detailing/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "beauty",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 139602,
+      "url": "/package-previews/sites/premium/beauty/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "car_dealership",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 146184,
+      "url": "/package-previews/sites/premium/car_dealership/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "cleaning",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 151675,
+      "url": "/package-previews/sites/premium/cleaning/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "dachreinigung",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 149418,
+      "url": "/package-previews/sites/premium/dachreinigung/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "dental",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 143666,
+      "url": "/package-previews/sites/premium/dental/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "elektro",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 151702,
+      "url": "/package-previews/sites/premium/elektro/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "energy",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 132524,
+      "url": "/package-previews/sites/premium/energy/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "family_psychology",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 142852,
+      "url": "/package-previews/sites/premium/family_psychology/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "fitness",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 141932,
+      "url": "/package-previews/sites/premium/fitness/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "gartenpflege",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 141986,
+      "url": "/package-previews/sites/premium/gartenpflege/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "handwerk",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 158190,
+      "url": "/package-previews/sites/premium/handwerk/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "it_support",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 132452,
+      "url": "/package-previews/sites/premium/it_support/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "law",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 141846,
+      "url": "/package-previews/sites/premium/law/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "maler",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 132160,
+      "url": "/package-previews/sites/premium/maler/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "orthodontics",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 132238,
+      "url": "/package-previews/sites/premium/orthodontics/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "photography",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 141324,
+      "url": "/package-previews/sites/premium/photography/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "psychology",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 133296,
+      "url": "/package-previews/sites/premium/psychology/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "realestate",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 142958,
+      "url": "/package-previews/sites/premium/realestate/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "restaurant",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 142474,
+      "url": "/package-previews/sites/premium/restaurant/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "sanitaer",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 139799,
+      "url": "/package-previews/sites/premium/sanitaer/index.html"
+    },
+    {
+      "kind": "website",
+      "id": "zaunbau",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 142927,
+      "url": "/package-previews/sites/premium/zaunbau/index.html"
+    },
+    {
+      "kind": "store",
+      "id": "accessories",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/accessories/index.html",
+      "bytes": 30321
+    },
+    {
+      "kind": "store",
+      "id": "beauty",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/beauty/index.html",
+      "bytes": 30128
+    },
+    {
+      "kind": "store",
+      "id": "dachreinigung",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/dachreinigung/index.html",
+      "bytes": 30317
+    },
+    {
+      "kind": "store",
+      "id": "electronics",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/electronics/index.html",
+      "bytes": 30499
+    },
+    {
+      "kind": "store",
+      "id": "fashion",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/fashion/index.html",
+      "bytes": 30102
+    },
+    {
+      "kind": "store",
+      "id": "food",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/food/index.html",
+      "bytes": 30014
+    },
+    {
+      "kind": "store",
+      "id": "furniture",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/furniture/index.html",
+      "bytes": 30132
+    },
+    {
+      "kind": "store",
+      "id": "gartenpflege",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/gartenpflege/index.html",
+      "bytes": 30170
+    },
+    {
+      "kind": "store",
+      "id": "handwerk",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/handwerk/index.html",
+      "bytes": 30216
+    },
+    {
+      "kind": "store",
+      "id": "psychology",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/psychology/index.html",
+      "bytes": 31135
+    },
+    {
+      "kind": "store",
+      "id": "zaunbau",
+      "package_id": "basic",
+      "status": "PASS",
+      "url": "/package-previews/stores/basic/zaunbau/index.html",
+      "bytes": 30248
+    },
+    {
+      "kind": "store",
+      "id": "accessories",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41331,
+      "url": "/package-previews/stores/accessories/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "beauty",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41339,
+      "url": "/package-previews/stores/beauty/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "dachreinigung",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41407,
+      "url": "/package-previews/stores/dachreinigung/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "electronics",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 42181,
+      "url": "/package-previews/stores/electronics/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "fashion",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41206,
+      "url": "/package-previews/stores/fashion/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "food",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41366,
+      "url": "/package-previews/stores/food/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "furniture",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41224,
+      "url": "/package-previews/stores/furniture/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "gartenpflege",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41250,
+      "url": "/package-previews/stores/gartenpflege/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "handwerk",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41527,
+      "url": "/package-previews/stores/handwerk/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "psychology",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 42704,
+      "url": "/package-previews/stores/psychology/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "zaunbau",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41360,
+      "url": "/package-previews/stores/zaunbau/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "accessories",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/accessories/index.html",
+      "bytes": 43639
+    },
+    {
+      "kind": "store",
+      "id": "auto_parts",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/auto_parts/index.html",
+      "bytes": 42958
+    },
+    {
+      "kind": "store",
+      "id": "beauty",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/beauty/index.html",
+      "bytes": 43393
+    },
+    {
+      "kind": "store",
+      "id": "bookstore",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/bookstore/index.html",
+      "bytes": 43028
+    },
+    {
+      "kind": "store",
+      "id": "cleaning_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/cleaning_shop/index.html",
+      "bytes": 43142
+    },
+    {
+      "kind": "store",
+      "id": "coffee",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/coffee/index.html",
+      "bytes": 43585
+    },
+    {
+      "kind": "store",
+      "id": "dachreinigung",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/dachreinigung/index.html",
+      "bytes": 44574
+    },
+    {
+      "kind": "store",
+      "id": "detailing_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/detailing_shop/index.html",
+      "bytes": 43075
+    },
+    {
+      "kind": "store",
+      "id": "electronics",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/electronics/index.html",
+      "bytes": 43938
+    },
+    {
+      "kind": "store",
+      "id": "fashion",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/fashion/index.html",
+      "bytes": 43434
+    },
+    {
+      "kind": "store",
+      "id": "food",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/food/index.html",
+      "bytes": 43285
+    },
+    {
+      "kind": "store",
+      "id": "furniture",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/furniture/index.html",
+      "bytes": 43420
+    },
+    {
+      "kind": "store",
+      "id": "gartenpflege",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/gartenpflege/index.html",
+      "bytes": 43932
+    },
+    {
+      "kind": "store",
+      "id": "handwerk",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/handwerk/index.html",
+      "bytes": 43601
+    },
+    {
+      "kind": "store",
+      "id": "it_parts",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/it_parts/index.html",
+      "bytes": 43030
+    },
+    {
+      "kind": "store",
+      "id": "jewelry",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/jewelry/index.html",
+      "bytes": 43517
+    },
+    {
+      "kind": "store",
+      "id": "optics_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/optics_shop/index.html",
+      "bytes": 43377
+    },
+    {
+      "kind": "store",
+      "id": "ortho_care",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/ortho_care/index.html",
+      "bytes": 42977
+    },
+    {
+      "kind": "store",
+      "id": "paint_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/paint_shop/index.html",
+      "bytes": 42997
+    },
+    {
+      "kind": "store",
+      "id": "pets",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/pets/index.html",
+      "bytes": 43474
+    },
+    {
+      "kind": "store",
+      "id": "psychology",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/psychology/index.html",
+      "bytes": 44689
+    },
+    {
+      "kind": "store",
+      "id": "solar_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/solar_shop/index.html",
+      "bytes": 43070
+    },
+    {
+      "kind": "store",
+      "id": "sports",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/sports/index.html",
+      "bytes": 43566
+    },
+    {
+      "kind": "store",
+      "id": "wine_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/wine_shop/index.html",
+      "bytes": 42980
+    },
+    {
+      "kind": "store",
+      "id": "zaunbau",
+      "package_id": "premium",
+      "status": "PASS",
+      "url": "/package-previews/stores/premium/zaunbau/index.html",
+      "bytes": 44283
+    },
+    {
+      "kind": "store",
+      "id": "premium/fashion",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53661,
+      "url": "/package-previews/stores/premium/fashion/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/beauty",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 54058,
+      "url": "/package-previews/stores/premium/beauty/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/electronics",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 54766,
+      "url": "/package-previews/stores/premium/electronics/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/furniture",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53634,
+      "url": "/package-previews/stores/premium/furniture/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/food",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53723,
+      "url": "/package-previews/stores/premium/food/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/handwerk",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 54037,
+      "url": "/package-previews/stores/premium/handwerk/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/psychology",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 55221,
+      "url": "/package-previews/stores/premium/psychology/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/coffee",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53778,
+      "url": "/package-previews/stores/premium/coffee/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/jewelry",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53769,
+      "url": "/package-previews/stores/premium/jewelry/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/cleaning_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53757,
+      "url": "/package-previews/stores/premium/cleaning_shop/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/detailing_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53741,
+      "url": "/package-previews/stores/premium/detailing_shop/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/bookstore",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53696,
+      "url": "/package-previews/stores/premium/bookstore/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/solar_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53764,
+      "url": "/package-previews/stores/premium/solar_shop/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/auto_parts",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53652,
+      "url": "/package-previews/stores/premium/auto_parts/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/wine_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53862,
+      "url": "/package-previews/stores/premium/wine_shop/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/accessories",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 40015,
+      "url": "/package-previews/stores/basic/accessories/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/beauty",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 40036,
+      "url": "/package-previews/stores/basic/beauty/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/dachreinigung",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 40118,
+      "url": "/package-previews/stores/basic/dachreinigung/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/electronics",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 40899,
+      "url": "/package-previews/stores/basic/electronics/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/fashion",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 39907,
+      "url": "/package-previews/stores/basic/fashion/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/food",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 40070,
+      "url": "/package-previews/stores/basic/food/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/furniture",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 39935,
+      "url": "/package-previews/stores/basic/furniture/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/gartenpflege",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 39993,
+      "url": "/package-previews/stores/basic/gartenpflege/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/handwerk",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 40212,
+      "url": "/package-previews/stores/basic/handwerk/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/psychology",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 41321,
+      "url": "/package-previews/stores/basic/psychology/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "basic/zaunbau",
+      "package_id": "basic",
+      "status": "PASS",
+      "bytes": 40066,
+      "url": "/package-previews/stores/basic/zaunbau/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/accessories",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41331,
+      "url": "/package-previews/stores/business/accessories/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/beauty",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41339,
+      "url": "/package-previews/stores/business/beauty/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/dachreinigung",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41407,
+      "url": "/package-previews/stores/business/dachreinigung/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/electronics",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 42181,
+      "url": "/package-previews/stores/business/electronics/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/fashion",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41206,
+      "url": "/package-previews/stores/business/fashion/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/food",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41366,
+      "url": "/package-previews/stores/business/food/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/furniture",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41224,
+      "url": "/package-previews/stores/business/furniture/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/gartenpflege",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41250,
+      "url": "/package-previews/stores/business/gartenpflege/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/handwerk",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41527,
+      "url": "/package-previews/stores/business/handwerk/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/psychology",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 42704,
+      "url": "/package-previews/stores/business/psychology/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "business/zaunbau",
+      "package_id": "business",
+      "status": "PASS",
+      "bytes": 41360,
+      "url": "/package-previews/stores/business/zaunbau/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/accessories",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53597,
+      "url": "/package-previews/stores/premium/accessories/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/dachreinigung",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 55397,
+      "url": "/package-previews/stores/premium/dachreinigung/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/gartenpflege",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 54259,
+      "url": "/package-previews/stores/premium/gartenpflege/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/it_parts",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53719,
+      "url": "/package-previews/stores/premium/it_parts/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/optics_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 54699,
+      "url": "/package-previews/stores/premium/optics_shop/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/ortho_care",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53658,
+      "url": "/package-previews/stores/premium/ortho_care/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/paint_shop",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53705,
+      "url": "/package-previews/stores/premium/paint_shop/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/pets",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53642,
+      "url": "/package-previews/stores/premium/pets/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/sports",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 53696,
+      "url": "/package-previews/stores/premium/sports/catalog.html"
+    },
+    {
+      "kind": "store",
+      "id": "premium/zaunbau",
+      "package_id": "premium",
+      "status": "PASS",
+      "bytes": 55166,
+      "url": "/package-previews/stores/premium/zaunbau/catalog.html"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+/package-previews/sites/business/dental/index.html
+/package-previews/sites/business/law/index.html
+/package-previews/sites/business/restaurant/index.html
+/package-previews/sites/business/beauty/index.html
+/package-previews/sites/business/auto/index.html
+/package-previews/sites/business/fitness/index.html
+/package-previews/sites/business/handwerk/index.html
+/package-previews/sites/business/it/index.html
+/package-previews/stores/fashion/index.html
+/package-previews/stores/electronics/index.html

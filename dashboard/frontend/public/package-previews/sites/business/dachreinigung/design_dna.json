@@ -1,0 +1,75 @@
+{
+  "emotion": "confidence",
+  "style": "tech_precision",
+  "palette_family": "slate_steel",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "premium",
+  "hero_concept": "roof_after_rain",
+  "hero_layout": "C",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "editorial",
+  "package_id": "business",
+  "niche_id": "dachreinigung",
+  "fingerprint": "93a9af5f97c22e3e7a7fbbb693a96271f5b8844097b91053cc90091cd4f772fe",
+  "section_treatments": [
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "gallery",
+      "gradient"
+    ],
+    [
+      "services",
+      "illustration"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "calculator",
+      "illustration"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#3b82c4",
+  "surface_hex": "#f8fafc",
+  "ink_hex": "#0f172a",
+  "atmosphere_mode": "cinematic",
+  "brand_book_fp": "6e28c9061198371726de8dc2",
+  "border_radius_px": 12
+}

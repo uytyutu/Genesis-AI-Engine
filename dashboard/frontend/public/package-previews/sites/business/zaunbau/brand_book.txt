@@ -1,0 +1,138 @@
+BRAND BOOK
+Brand Name
+ZaunWerk Süd
+
+Positioning
+Präziser Zaunbau & Grundstücksschutz
+
+Brand Archetype
+The Builder
++
+The Guardian
+
+Brand Promise
+Grenzen, die Halt und Haltung geben.
+
+Core Emotion
+Stabilität
+
+Secondary Emotion
+Ordentliche Klarheit
+
+Tone of Voice
+  Klar
+  Bodenständig
+  Präzise
+  Zuverlässig
+
+Visual Style
+Industrial Craft
+
+Visual Metaphor
+Linie im Abendlicht entlang der Grundstückskante
+
+Photography
+  Metallzäune
+  Holzlatten
+  Fundament
+  Werkstatt
+  Saubere Kanten
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+  garden party stock
+  luxury villa only
+
+Motion
+Fest · Kontrolliert · Klar
+
+Palette
+Umber, Iron, Amber, Warm White, Forest Edge
+Accent #d97706
+Surface #faf7f2
+Ink #1c1917
+
+Typography
+Barlow Condensed
++
+Source Sans 3
+(barlow_source_craft)
+
+Icon Style
+Outline Industrial
+
+Border Radius
+10 px
+
+Shadow Style
+Soft Deep
+
+Glass Level
+low
+
+Texture
+  Holz
+  Metall
+  Erde
+
+Scene Language
+  Edge
+  Line
+  Ground
+  Light
+
+CTA Style
+Klare Buttons · Ruhiger Abstand
+
+Trust Strategy
+  Referenzen
+  Material
+  Team
+  Garantie
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Fence
+✔ Posts
+✔ Ground
+✔ Material
+✔ Edge
+✔ Craft
+
+Preferred
+✔ Dusk light
+✔ Metal
+✔ Wood grain
+✔ Gate
+✔ Workshop
+
+Forbidden
+✖ Café
+✖ Restaurant
+✖ Office
+✖ Beauty
+✖ Laptop
+✖ Coworking
+
+Hero Proof
+Fence line being set or finished at property edge — craft in progress.
+
+Fingerprint
+971eed1f3273cfa6ad086f2b
+

@@ -1,0 +1,68 @@
+{
+  "brand_name": "KlarRaum Facility",
+  "niche_id": "cleaning",
+  "fingerprint": "b11a86b3051230847c58",
+  "color": {
+    "primary": "#242c32",
+    "accent": "#3693cb",
+    "secondary": "#7ccf53",
+    "surface": "#ecf4fa",
+    "cards": "#e6f0f8",
+    "background": "#ecf4fa",
+    "gradient": "linear-gradient(145deg,#242c32 0%,#1b4965 48%,#3693cb 100%)",
+    "glow": "rgba(54,147,203,0.35)",
+    "ink": "#0b0d10",
+    "muted": "#64748b"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "premium_business_graphic",
+    "abstract_gradient",
+    "isometric_illustration"
+  ],
+  "illustration_pack": "glassmorphism panels",
+  "motion_language": "kinetic micro-motion · glow pulse · scroll scenes",
+  "icon_style": "filled craft glyphs",
+  "scene_library": {
+    "hero": [
+      "Fensterputz an Glasfassade",
+      "Wohnung nach Pflege",
+      "Professionelles Reinigungsteam"
+    ],
+    "gallery": [
+      "Büroreinigung",
+      "Fensterfront",
+      "Bodenpflege",
+      "Desinfektion"
+    ],
+    "before_after": [
+      "Büro vor Reinigung",
+      "Büro nach Reinigung"
+    ],
+    "team": [
+      "Team in einheitlicher Kleidung"
+    ],
+    "equipment": [
+      "Poliermaschine",
+      "Teleskopstange"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «KlarRaum Facility» (cleaning) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=glassmorphism panels. Must show: Fensterputz an Glasfassade, Wohnung nach Pflege, Professionelles Reinigungsteam. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «KlarRaum Facility» (cleaning) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=glassmorphism panels. Must show: Fensterputz an Glasfassade, Wohnung nach Pflege, Professionelles Reinigungsteam. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «KlarRaum Facility» (cleaning) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=glassmorphism panels. Must show: Büroreinigung, Fensterfront, Bodenpflege, Desinfektion. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «KlarRaum Facility» (cleaning) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=glassmorphism panels. Must show: Büro vor Reinigung, Büro nach Reinigung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «KlarRaum Facility» (cleaning) in Germany. Role=team. Medium=premium_business_graphic. Illustration language=glassmorphism panels. Must show: Team in einheitlicher Kleidung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «KlarRaum Facility» (cleaning) in Germany. Role=equipment. Medium=premium_business_graphic. Illustration language=glassmorphism panels. Must show: Poliermaschine, Teleskopstange. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «KlarRaum Facility» (cleaning) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=glassmorphism panels. Must show: Bodenpflege, Desinfektion. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «KlarRaum Facility» (cleaning) in Germany. Role=illustration. Medium=premium_business_graphic. Illustration language=glassmorphism panels. Must show: Fensterputz an Glasfassade, Wohnung nach Pflege. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «KlarRaum Facility» (cleaning) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=glassmorphism panels. Must show: filled craft glyphs. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «KlarRaum Facility» (cleaning) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=glassmorphism panels. Must show: Fensterputz an Glasfassade, Wohnung nach Pflege, Professionelles Reinigungsteam. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

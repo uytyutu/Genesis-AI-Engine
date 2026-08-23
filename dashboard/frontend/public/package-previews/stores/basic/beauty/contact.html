@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kontakt | Glow Lab Beauty</title>
+  <meta name="description" content="Glow Lab Beauty — Hautpflege und Kosmetik Made for DE" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="assets/store.css" />
+<style id="digital-creative-studio">
+
+/* Typography Director */
+body {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body .hero h1,
+body .hero .hero-title,
+body h1 {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+}
+body .section h2 {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-size: 1.55rem;
+}
+@media (max-width: 720px) {
+  body { line-height: 1.5; }
+  body .hero h1 { letter-spacing: -0.02em; }
+}
+
+
+/* Luxury Director — off */
+body[data-luxury="0"] .hero { --lux-space: 1; }
+
+
+/* Conversion Director */
+.conversion-mid-cta,
+[data-conversion-mid-cta="1"] {
+  text-align: center;
+  padding: 2.75rem 1.25rem;
+  margin: 0;
+  background: linear-gradient(180deg, rgba(15,23,42,0.04), rgba(15,23,42,0.02));
+}
+.conversion-mid-cta .btn { font-weight: 600; }
+body[data-conversion="1"] .topbar-cta { box-shadow: 0 6px 18px rgba(15,23,42,0.12); }
+
+
+/* Trust Director — density=light */
+body[data-trust-density="light"] #trust,
+body[data-trust-density="light"] .trust {
+  scroll-margin-top: 4rem;
+}
+body[data-trust-density="high"] .hero-certs,
+body[data-trust-density="high"] .trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-top: 1rem;
+}
+body[data-trust-density="high"] .hero-certs span,
+body[data-trust-density="high"] .trust-badges span {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(15,23,42,0.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+}
+body[data-trust-density="high"] #maps,
+body[data-trust-density="high"] #contact {
+  background: #f8fafc;
+}
+
+
+/* Performance Director */
+body[data-perf-hero="static"] .hero-still,
+body[data-perf-hero="static"] video.hero-media {
+  display: none !important;
+}
+img { max-width: 100%; height: auto; }
+
+
+/* Accessibility Director */
+:root { --a11y-min-size: 1rem; }
+body { font-size: max(16px, var(--a11y-min-size)); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  z-index: 10000;
+}
+.skip-link:focus { left: 0.5rem; top: 0.5rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Localization Director — DE / strict */
+body[data-locale-style="strict"] {
+  --locale-cta-weight: 600;
+}
+body[data-locale-style="strict"] .section h2 { letter-spacing: -0.02em; }
+body[data-locale-style="editorial"] #gallery,
+body[data-locale-portfolio="high"] #gallery {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+body[data-locale-social="high"] #trust,
+body[data-locale-social="high"] #testimonials {
+  padding-top: 3.5rem;
+}
+body[data-locale-style="direct"] .btn,
+body[data-locale-style="direct"] .topbar-cta {
+  font-weight: var(--locale-cta-weight);
+  text-transform: none;
+}
+body[data-locale-portfolio="medium"] { --portfolio-emphasis: medium; }
+body[data-locale-social="medium"] { --social-emphasis: medium; }
+
+</style>
+<!-- studio-fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<!-- conversion-director-note: Усилить видимость контактов / формы. -->
+</head>
+<body data-tier="basic" data-niche="beauty" data-canvas="dark" data-hero-layout="soft" data-catalog="brand" data-card="beauty" data-certs="0" data-vie-engine="visual_intelligence_v1" data-vie-surface="store" data-vie-niche="beauty" data-vie-motion="basic" class="vie-motion-basic" data-dna-style="organic_premium" data-dna-emotion="warmth" data-dna-palette="warm_clay" data-dna-hero="soft_orb_photo" data-dna-depth="medium" data-dna-glass="medium" data-dna-composition="soft" data-dna-fp="58cdb5561363659a" data-luxury="0" data-studio="digital_creative_studio_v2" data-industry="Beauty Studio" data-card-style="clean" data-hero-banner="simple_image" data-first-screen-products="8" data-trust-density="light" data-trust-map="1" data-perf-hero="static" data-a11y="1" data-locale-style="strict" data-locale-portfolio="medium" data-locale-social="medium" data-locale-market="DE" data-locale-legal="impressum,datenschutz">
+
+  <div class="dna-atm" aria-hidden="true" data-dna-atmosphere="1" data-atm-mode="mist" data-atm-tier="basic">
+    <div class="dna-atm__base"></div>
+    <div class="dna-atm__mesh"></div>
+    <div class="dna-atm__aurora dna-atm__aurora--a"></div>
+    <div class="dna-atm__aurora dna-atm__aurora--b"></div>
+    
+    <div class="dna-atm__orb dna-atm__orb--a"></div>
+    <div class="dna-atm__orb dna-atm__orb--b"></div>
+    <div class="dna-atm__orb dna-atm__orb--c"></div>
+    <div class="dna-atm__particles">
+        <span class="dna-atm__particle" style="--sx:3%;--sy:4%;--dur:10.0s;--delay:-0.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:20%;--sy:27%;--dur:11.4s;--delay:-1.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:37%;--sy:50%;--dur:12.8s;--delay:-2.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:54%;--sy:73%;--dur:14.2s;--delay:-3.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:71%;--sy:8%;--dur:15.6s;--delay:-4.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:88%;--sy:31%;--dur:17.0s;--delay:-5.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:13%;--sy:54%;--dur:18.4s;--delay:-6.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:30%;--sy:77%;--dur:19.799999999999997s;--delay:-7.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:47%;--sy:12%;--dur:21.2s;--delay:-8.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:64%;--sy:35%;--dur:10.0s;--delay:-9.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:81%;--sy:58%;--dur:11.4s;--delay:-10.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:6%;--sy:81%;--dur:12.8s;--delay:-0.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:23%;--sy:16%;--dur:14.2s;--delay:-1.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:40%;--sy:39%;--dur:15.6s;--delay:-2.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:57%;--sy:62%;--dur:17.0s;--delay:-3.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:74%;--sy:85%;--dur:18.4s;--delay:-4.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:91%;--sy:20%;--dur:19.799999999999997s;--delay:-5.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:16%;--sy:43%;--dur:21.2s;--delay:-6.0s;--size:3px"></span>
+    </div>
+    <div class="dna-atm__vignette"></div>
+  </div>
+
+  <div class="drawer-overlay" id="drawer-overlay" data-action="drawer-close"></div>
+  <aside class="nav-drawer" id="nav-drawer" aria-label="Main">
+    <button type="button" class="icon-btn drawer-close" data-action="drawer-close" aria-label="Menü schließen">✕</button>
+    <h2>Glow Lab Beauty</h2>
+    <nav class="nav">
+      <p class="nav-group">Shop</p>
+      <a href="index.html">Startseite</a>
+      <a href="catalog.html">Katalog</a>
+      <a href="catalog.html#deals">Angebote</a>
+      <a href="index.html#featured">Empfohlen</a>
+      <a href="cart.html">Warenkorb</a>
+      <p class="nav-group">Konto</p>
+      <a href="account.html#login">Anmelden</a>
+      <a href="account.html#register">Registrieren</a>
+      <a href="account.html">Kundenkonto</a>
+      <a href="cart.html#wishlist">Merkliste</a>
+      <p class="nav-group">Info</p>
+      <a href="about.html">Über uns</a>
+      <a href="contact.html">Kontakt</a>
+      <p class="nav-group">Rechtliches</p>
+      <a href="returns.html">Rückgabe</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+    </nav>
+  </aside>
+
+  <header class="site-header">
+    <div class="wrap site-header-inner">
+      <button type="button" class="icon-btn" data-action="drawer-open" aria-label="Menü öffnen">☰</button>
+      <a class="brand brand-lockup" href="index.html" title="Glow Lab Beauty"><span class="brand-mark-wrap"><svg class="brand-mark" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="32" height="32" rx="10" fill="#ec4899"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" fill="#fafaf9" font-family="Georgia,serif" font-size="15.0" font-weight="700">GL</text></svg></span><strong class="brand-word">Glow Lab</strong></a>
+      <div class="header-search">
+        <input id="header-search" type="search" placeholder="Produkte suchen…" aria-label="Produkte suchen…" />
+      </div>
+      <div class="header-actions">
+        <div class="header-auth">
+          <a class="auth-login" href="account.html#login"><span class="auth-login-label">Anmelden</span></a>
+          <a class="auth-register" href="account.html#register">Registrieren</a>
+        </div>
+        <a class="icon-btn" href="account.html" aria-label="Kundenkonto" title="Kundenkonto">👤</a>
+        <a class="icon-btn" href="cart.html#wishlist" aria-label="Merkliste" title="Merkliste">♡</a>
+        <a class="icon-btn" href="cart.html" aria-label="Warenkorb" title="Warenkorb">
+          🛒
+          <span class="cart-badge" data-cart-badge data-count="0">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+  <div class="wrap section">
+    <h1 class="page-title">Kontakt</h1>
+    <p>Glow Lab Beauty / Glow Lab Beauty</p>
+<form>
+  <label>Name</label><input type="text" name="name" />
+  <label>Email</label><input type="email" name="email" />
+  <label>Message</label><textarea name="message" rows="4"></textarea>
+  <p style="margin-top:1rem"><button class="btn" type="button">Send</button></p>
+</form>
+  </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <h3>Shop</h3>
+        <ul>
+          <li><a href="index.html">Startseite</a></li>
+          <li><a href="catalog.html">Katalog</a></li>
+          <li><a href="cart.html">Warenkorb</a></li>
+          <li><a href="account.html#login">Anmelden</a></li>
+          <li><a href="account.html#register">Registrieren</a></li>
+          <li><a href="account.html">Kundenkonto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Service</h3>
+        <ul>
+          <li><a href="impressum.html">Impressum</a></li>
+            <li><a href="datenschutz.html">Datenschutz</a></li>
+            <li><a href="returns.html">Rückgabe</a></li>
+            <li><a href="contact.html">Kontakt</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Zahlung &amp; Versand</h3>
+        <ul>
+          <li>stripe</li>
+          <li>dhl</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Glow Lab Beauty</h3>
+        <ul>
+          <li>Premium-Shop von Virtus Core</li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap footer-note">
+      <p>Glow Lab Beauty — Virtus Core AI Store</p>
+    </div>
+  </footer>
+  <nav class="mobile-bar" aria-label="Mobile">
+    <a href="index.html"><span class="mb-ico">⌂</span>Startseite</a>
+    <a href="catalog.html"><span class="mb-ico">▦</span>Katalog</a>
+    <a href="cart.html#wishlist"><span class="mb-ico">♡</span>Merkliste</a>
+    <a href="account.html"><span class="mb-ico">👤</span>Kundenkonto</a>
+    <a href="cart.html"><span class="mb-ico">🛒</span>Warenkorb<span class="cart-badge" data-cart-badge data-count="0">0</span></a>
+  </nav>
+  <div class="toast" id="store-toast" role="status"></div>
+  <script src="assets/store.js"></script>
+</body>
+</html>

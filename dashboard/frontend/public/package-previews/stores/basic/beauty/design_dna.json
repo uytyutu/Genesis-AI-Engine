@@ -1,0 +1,72 @@
+{
+  "emotion": "warmth",
+  "style": "organic_premium",
+  "palette_family": "warm_clay",
+  "typography_pair": "fraunces_dm",
+  "motion": "soft",
+  "hero_concept": "soft_orb_photo",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "soft",
+  "package_id": "basic",
+  "niche_id": "beauty",
+  "fingerprint": "58cdb5561363659af67d21d59ad45cbdf48e5f4882e9a2e31f1359cd0214e062",
+  "section_treatments": [
+    [
+      "stats",
+      "ink"
+    ],
+    [
+      "services",
+      "illustration"
+    ],
+    [
+      "mid_cta",
+      "tint"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "about",
+      "illustration"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "gradient"
+    ],
+    [
+      "contact",
+      "glass"
+    ]
+  ],
+  "accent_hex": "#a68a6d",
+  "surface_hex": "#faf6f1",
+  "ink_hex": "#292524"
+}

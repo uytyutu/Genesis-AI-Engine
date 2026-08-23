@@ -1,0 +1,75 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "Fotostudio Softbox · Porträtsession · Kamera und Lichtsetup",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "solstice",
+  "package_id": "premium",
+  "niche_id": "photography",
+  "fingerprint": "d68fae53e7bb9ad259b601465c7b0b411a82c156f610f01b7cf61538e641f20e",
+  "section_treatments": [
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "process",
+      "gradient"
+    ],
+    [
+      "services",
+      "illustration"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "gradient"
+    ],
+    [
+      "late_cta",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#e2e2e6",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "902e4d70c5ac08cc285de78b",
+  "border_radius_px": 12
+}

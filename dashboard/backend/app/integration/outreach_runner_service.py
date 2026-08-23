@@ -46,6 +46,7 @@ class OutreachRunnerService:
             "session_drafts": 0,
             "session_sends": 0,
             "session_skipped": 0,
+            "session_places_requests": 0,
             "last_action": None,
             "last_message_ru": None,
             "last_tick_at": None,
@@ -108,6 +109,7 @@ class OutreachRunnerService:
                 "session_drafts": 0,
                 "session_sends": 0,
                 "session_skipped": 0,
+                "session_places_requests": 0,
                 "last_tick_at": None,
                 "next_tick_at": now.isoformat(),
             }
@@ -137,16 +139,29 @@ class OutreachRunnerService:
             outreach_on = outreach_send_allowed(self._memory)
         except Exception:
             outreach_on = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        leads = int(state.get("session_leads") or 0)
+        places_req = int(state.get("session_places_requests") or 0)
+        efficiency_pct = round((leads / places_req) * 100.0, 1) if places_req > 0 else None
+        slot_stats: dict[str, Any] = {}
+        try:
+            from app.integration.outreach_hunt_slot_memory import slot_memory_stats
+
+            slot_stats = slot_memory_stats(self._memory)
+        except Exception:
+            slot_stats = {}
         return {
             "ok": True,
             "running": bool(state.get("running")),
             "started_at": state.get("started_at"),
             "stopped_at": state.get("stopped_at"),
             "ticks": int(state.get("ticks") or 0),
-            "session_leads": int(state.get("session_leads") or 0),
+            "session_leads": leads,
             "session_drafts": int(state.get("session_drafts") or 0),
             "session_sends": int(state.get("session_sends") or 0),
             "session_skipped": int(state.get("session_skipped") or 0),
+            "session_places_requests": places_req,
+            "search_efficiency_pct": efficiency_pct,
+            "hunt_slot_memory": slot_stats,
             "last_action": state.get("last_action"),
             "last_message_ru": state.get("last_message_ru"),
             "last_tick_at": state.get("last_tick_at"),
@@ -155,8 +170,8 @@ class OutreachRunnerService:
             "outreach_send_enabled": outreach_on,
             "log": list(state.get("log") or [])[-15:],
             "note_ru": (
-                "РџСѓСЃРє / Р°РІС‚РѕРѕР±РЅРѕРІР»РµРЅРёРµ = hunt/draft round-robin РїРѕ СЃС‚СЂР°РЅР°Рј РґРѕ Р»РёРјРёС‚РѕРІ Г—3. "
-                "РђРІС‚РѕРѕС‚РїСЂР°РІРєР°: С‚СѓРјР±Р»РµСЂ CEO РёР»Рё GENESIS_OUTREACH_ENABLED + Approve/high-win."
+                "Hunt: SearchText только для свежих city×niche · "
+                "исчерпанные слоты пропускаются без Places."
             ),
         }
 
@@ -240,26 +255,96 @@ class OutreachRunnerService:
         # Always try to refresh/draft a small batch so the queue fills.
         if self._refresh_fn:
             try:
-                refresh = self._refresh_fn(limit=3, auto_confirm=True)
-                detail["refresh"] = {
-                    "ok": refresh.get("ok"),
-                    "message_ru": refresh.get("message_ru"),
-                }
-                drafts = refresh.get("drafts") or {}
-                created = int(drafts.get("created") or 0)
-                drafted = int(drafts.get("drafted") or 0)
-                state["session_leads"] = int(state.get("session_leads") or 0) + created
-                state["session_drafts"] = int(state.get("session_drafts") or 0) + drafted
-                actions.append("hunt_draft")
-                self._log(
-                    state,
-                    "hunt_draft",
-                    refresh.get("message_ru")
-                    or f"Hunt/draft: created={created} drafted={drafted}",
+                from app.integration.places_quota_cooldown import (
+                    is_places_quota_blocked,
+                    places_quota_status,
                 )
+
+                if is_places_quota_blocked(self._memory):
+                    st = places_quota_status(self._memory)
+                    actions.append("hunt_paused_quota")
+                    self._log(
+                        state,
+                        "hunt_paused_quota",
+                        str(
+                            st.get("blocker_ru")
+                            or "Google Places: квота SearchText исчерпана — Hunt на паузе"
+                        ),
+                    )
+                    detail["hunt_paused"] = st
+                else:
+                    refresh = self._refresh_fn(limit=3, auto_confirm=True)
+                    detail["refresh"] = {
+                        "ok": refresh.get("ok"),
+                        "message_ru": refresh.get("message_ru"),
+                    }
+                    drafts = refresh.get("drafts") or {}
+                    created = int(drafts.get("created") or 0)
+                    drafted = int(drafts.get("drafted") or 0)
+                    city = str(refresh.get("city") or "").strip()
+                    query = str(refresh.get("query") or "").strip()
+                    market = str(refresh.get("market_code") or "").strip()
+                    # SearchText only runs when refresh picked a huntable slot
+                    # (city+query present). Exhausted rotation → no Places spend.
+                    places_called = bool(city and query)
+                    if places_called:
+                        state["session_places_requests"] = (
+                            int(state.get("session_places_requests") or 0) + 1
+                        )
+                        try:
+                            from app.integration.outreach_hunt_slot_memory import (
+                                record_slot_hunt,
+                            )
+
+                            record_slot_hunt(
+                                self._memory,
+                                market=market,
+                                city=city,
+                                query=query,
+                                created=created,
+                            )
+                        except Exception:
+                            pass
+                        state["session_leads"] = int(state.get("session_leads") or 0) + created
+                        state["session_drafts"] = int(state.get("session_drafts") or 0) + drafted
+                        places_req = int(state.get("session_places_requests") or 0)
+                        eff = (
+                            round((int(state["session_leads"]) / places_req) * 100.0, 1)
+                            if places_req
+                            else 0.0
+                        )
+                        actions.append("hunt_draft")
+                        self._log(
+                            state,
+                            "hunt_draft",
+                            refresh.get("message_ru")
+                            or (
+                                f"Hunt/draft: created={created} drafted={drafted} · "
+                                f"Search Efficiency {eff}% "
+                                f"({state['session_leads']}/{places_req})"
+                            ),
+                        )
+                    else:
+                        actions.append("hunt_skip_slots")
+                        self._log(
+                            state,
+                            "hunt_skip_slots",
+                            refresh.get("message_ru")
+                            or "Hunt: нет свежих city×niche — SearchText не вызван",
+                        )
             except Exception as exc:
                 actions.append("hunt_error")
-                self._log(state, "hunt_error", f"РћС€РёР±РєР° hunt: {exc}")
+                self._log(state, "hunt_error", f"Ошибка hunt: {exc}")
+                try:
+                    from app.integration.places_quota_cooldown import (
+                        is_quota_exceeded_message,
+                        mark_places_quota_exceeded,
+                    )
+
+                    if is_quota_exceeded_message(str(exc)):
+                        mark_places_quota_exceeded(self._memory, detail=str(exc))
+                except Exception:
+                    pass
 
         state["ticks"] = int(state.get("ticks") or 0) + 1
         state["last_tick_at"] = now.isoformat()

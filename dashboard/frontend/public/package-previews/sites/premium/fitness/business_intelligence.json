@@ -1,0 +1,81 @@
+{
+  "niche_id": "fitness",
+  "subniche_id": "studio",
+  "subniche_label": "Fitness",
+  "business_model": "studio_minimal_small_team",
+  "city": "Stuttgart",
+  "company_name": "FitBase Studio",
+  "who": "Studio mit Coaches — Alltagstauglich, ohne Abo-Falle.",
+  "trust_why": "Nachweisbare Arbeit · Fitness · Stuttgart",
+  "sells": "['Personal Training', 'Gruppenkurse', 'Probetraining', 'Ernährung']",
+  "differentiator": "Flexible Zeiten, Coaches, Probetraining ohne Falle",
+  "atmosphere": "minimal",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Work, place, people, proof",
+  "media_brief": {
+    "hero": "Professional fitness scene — European studio 2026",
+    "gallery": "Work, place, people, proof",
+    "video": "Niche atmosphere loop if provider available",
+    "before_after": "",
+    "team": "People of the company",
+    "equipment": "",
+    "atmosphere": "minimal",
+    "subniche": "studio",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "membership",
+      "label": "Membership / Plans",
+      "why": "Klarer Einstieg."
+    },
+    {
+      "id": "booking",
+      "label": "Session Booking",
+      "why": "PT & Kurse."
+    },
+    {
+      "id": "coaches",
+      "label": "Coaches",
+      "why": "Gesichter."
+    },
+    {
+      "id": "gallery",
+      "label": "Studio Gallery",
+      "why": "Raum & Energie."
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "why": "Probe & Preise."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services"
+  ],
+  "style": "minimal",
+  "clients_who": "Berufstätige in Stuttgart",
+  "fingerprint": "a52da927858bb89bd417",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

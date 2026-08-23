@@ -1,0 +1,20 @@
+{
+  "niche_id": "computer",
+  "idea": "Technik, die wieder unsichtbar wird.",
+  "who": "IT-Partner für KMU — Störungen lösen, bevor der Tag kippt.",
+  "character": [],
+  "metaphor": "modern",
+  "hero_concept": "",
+  "emotion_3s": "",
+  "source": "dream_brief",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Technik, die wieder unsichtbar wird.",
+    "who": "IT-Partner für KMU — Störungen lösen, bevor der Tag kippt.",
+    "package_id": "premium",
+    "source": "dream_brief",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

@@ -1,11 +1,11 @@
 {
   "niche": "dental",
   "business_name": "SmileCare Praxis",
-  "product_id": "21c5173b-3f98-4489-a2f4-ae78edbccd97",
+  "product_id": "090f4d03-f6a0-44ff-a646-a4565b15efa7",
   "headline": "SmileCare Praxis",
   "preview_note": "Open local index.html in browser for visual review",
   "local_index": "dashboard/backend/app/factory/golden_demos/dental/index.html",
-  "zip_bytes": 674318,
+  "zip_bytes": 674439,
   "zip_name": "smilecare-praxis.zip",
   "hard_passed": true,
   "score_passed": true,

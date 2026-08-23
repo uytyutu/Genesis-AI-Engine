@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Haus Elster · Premium Website · Leipzig</title>
+  <meta name="description" content="Haus Elster ist ein Restaurant in Leipzig für Gäste, die Ruhe und klare Küche wollen — saisonal, präzise, ohne Show. Vom ersten Gang bis zum letzten Schluck ble" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #070809; --ink: #f4efe6; --muted: #b7aea0;
+      --accent: #d4a373; --accent-2: #8a4b2a; --line: rgba(255,255,255,.12);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: Outfit, system-ui, sans-serif; }
+    a { color: inherit; }
+    .stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #050505; z-index: 1; }
+    #cinemacanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: .55; }
+    .poster-layer {
+      position: absolute; inset: -4%; background-size: cover; background-position: center;
+      opacity: 0; transform: scale(1.08); transition: opacity .45s ease, transform 1.2s ease;
+      will-change: opacity, transform;
+    }
+    .poster-layer.is-on { opacity: .72; transform: scale(1); }
+    .vignette { position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at 50% 40%, transparent 18%, rgba(0,0,0,.58) 75%),
+                  linear-gradient(to top, rgba(0,0,0,.82), transparent 45%); }
+    .hud { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end;
+      padding: clamp(1.2rem, 4vw, 3rem); z-index: 5; pointer-events: none; }
+    .hud > * { pointer-events: auto; }
+    .eyebrow { letter-spacing: .28em; text-transform: uppercase; font-size: .72rem; color: var(--accent); margin: 0 0 .55rem; }
+    h1 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600;
+      font-size: clamp(2.4rem, 7vw, 5rem); line-height: .95; margin: 0 0 .7rem; max-width: 14ch; }
+    .beat-line { color: var(--muted); font-size: clamp(1rem, 2.3vw, 1.25rem); max-width: 34rem; min-height: 2.8em; margin: 0 0 1.1rem; line-height: 1.45; }
+    .cta, button.cta { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: .9rem 1.5rem;
+      border-radius: 999px; background: linear-gradient(135deg, var(--accent), #e8d3a8); color: #1a1208;
+      font-weight: 600; text-decoration: none; border: 0; cursor: pointer; font: inherit;
+      box-shadow: 0 10px 40px rgba(0,0,0,.35); }
+    .cta.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
+    .progress { position: absolute; top: 0; left: 0; height: 3px; width: 0; background: linear-gradient(90deg, var(--accent-2), var(--accent)); z-index: 8; }
+    .scroll-spacer { height: 320vh; }
+    header.top { position: fixed; inset: 0 0 auto; z-index: 40; display: flex; justify-content: space-between; align-items: center;
+      gap: 1rem; padding: .85rem 1.1rem; background: linear-gradient(to bottom, rgba(0,0,0,.78), transparent); }
+    header.top strong { font-family: "Cormorant Garamond", serif; font-size: 1.15rem; }
+    header.top nav { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; font-size: .8rem; color: var(--muted); }
+    header.top nav a { text-decoration: none; }
+    header.top nav a:hover { color: var(--ink); }
+    header.top .nav-cta { min-height: 38px; padding: .45rem 1rem; font-size: .8rem; }
+    .hint { position: absolute; right: 1.2rem; bottom: 1rem; z-index: 6; color: var(--muted); font-size: .72rem; letter-spacing: .08em; }
+    .section { max-width: 68rem; margin: 0 auto; padding: 4.5rem 1.25rem; scroll-margin-top: 5rem; }
+    .section h2 { font-family: "Cormorant Garamond", serif; font-size: clamp(2rem, 4vw, 3rem); margin: .35rem 0 1rem; }
+    .lead { color: var(--muted); font-size: 1.05rem; line-height: 1.7; max-width: 44rem; }
+    .points { margin: 1.4rem 0 0; padding: 0; list-style: none; display: grid; gap: .7rem; }
+    .points li { padding-left: 1.2rem; position: relative; color: var(--ink); }
+    .points li::before { content: ""; position: absolute; left: 0; top: .55em; width: .45rem; height: .45rem; border-radius: 50%; background: var(--accent); }
+    .grid-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-top: 1.5rem; }
+    .card { border: 1px solid var(--line); border-radius: 1.1rem; padding: 1.1rem 1.15rem; background: rgba(255,255,255,.03); }
+    .card h3 { margin: 0 0 .4rem; font-size: 1.05rem; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .gallery { display: grid; gap: .85rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 1.5rem; }
+    .gal-item { margin: 0; border-radius: 1rem; overflow: hidden; border: 1px solid var(--line); background: #111; }
+    .gal-item img { display: block; width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+    .gal-item figcaption { padding: .7rem .85rem; color: var(--muted); font-size: .85rem; }
+    .product-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-top: 1.4rem; }
+    .product { border: 1px solid var(--line); border-radius: 1rem; overflow: hidden; background: rgba(255,255,255,.03); }
+    .product img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+    .product h3 { margin: .8rem .9rem .2rem; font-size: 1rem; }
+    .product .price { margin: 0 .9rem .8rem; color: var(--accent); font-weight: 600; }
+    .mini-cta { display: inline-flex; margin: 0 .9rem 1rem; font-size: .85rem; color: var(--accent); background: none; border: 0; cursor: pointer; padding: 0; }
+    .contact-shell { display: grid; gap: 1.25rem; grid-template-columns: 1.05fr .95fr; }
+    @media (max-width: 860px) {
+      .contact-shell { grid-template-columns: 1fr; }
+      .hint { display: none; }
+      .scroll-spacer { height: 260vh; }
+      header.top nav a:not(.nav-cta) { display: none; }
+    }
+    .contact-panel { border: 1px solid var(--line); border-radius: 1.25rem; padding: 1.25rem; background: rgba(255,255,255,.03); }
+    .contact-actions { display: grid; gap: .7rem; margin: 1rem 0 1.2rem; }
+    .action { display: flex; align-items: center; gap: .75rem; padding: .85rem 1rem; border-radius: .9rem;
+      border: 1px solid var(--line); text-decoration: none; background: rgba(0,0,0,.25); }
+    .action:hover { border-color: var(--accent); }
+    .icon { width: 2rem; height: 2rem; border-radius: 999px; display: grid; place-items: center; background: rgba(196,165,116,.15); }
+    .socials { display: flex; gap: .65rem; flex-wrap: wrap; }
+    .socials a { width: 2.5rem; height: 2.5rem; border-radius: 999px; display: grid; place-items: center;
+      border: 1px solid var(--line); text-decoration: none; color: var(--ink); }
+    form.msg { display: grid; gap: .7rem; }
+    form.msg label { font-size: .78rem; color: var(--muted); }
+    form.msg input, form.msg textarea { width: 100%; border-radius: .75rem; border: 1px solid var(--line);
+      background: #0d0e10; color: var(--ink); padding: .75rem .85rem; font: inherit; }
+    form.msg button { border: 0; cursor: pointer; }
+    .ok { display: none; color: #9be7b0; font-size: .9rem; }
+    .ok.show { display: block; }
+    footer.site { border-top: 1px solid var(--line); padding: 1.5rem 1.25rem 2.5rem; color: var(--muted); font-size: .82rem; text-align: center; }
+    footer.site a { color: var(--accent); margin: 0 .45rem; text-decoration: none; }
+    .modal { position: fixed; inset: 0; z-index: 80; display: none; align-items: flex-end; justify-content: center;
+      padding: 1rem; background: rgba(0,0,0,.62); backdrop-filter: blur(6px); }
+    .modal.open { display: flex; }
+    .modal-card { width: min(560px, 100%); max-height: min(92vh, 820px); overflow: auto; border: 1px solid var(--line);
+      border-radius: 1.25rem 1.25rem .9rem .9rem; background: #0c0d0f; padding: 1.2rem 1.2rem 1.4rem; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: .6rem; }
+    .modal-head h2 { margin: 0; font-family: "Cormorant Garamond", serif; font-size: 1.8rem; }
+    .modal-close { background: transparent; border: 1px solid var(--line); color: var(--ink); border-radius: 999px;
+      width: 2.2rem; height: 2.2rem; cursor: pointer; }
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-spacer { height: 100vh; } #cinemacanvas { display: none; }
+      .poster-layer { transform: none; } .poster-layer.is-on { opacity: .78; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <strong>Haus Elster</strong>
+    <nav>
+      <a href="#about">Über uns</a>
+      <a href="#leistungen">Leistungen</a>
+      <a href="#galerie">Galerie</a>
+      
+      <button type="button" class="cta nav-cta js-open-termin">Tisch reservieren</button>
+    </nav>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="progress" id="progress"></div>
+    <canvas id="cinemacanvas" aria-hidden="true"></canvas>
+    <div class="poster-layer" data-frame="0" style="background-image:url('assets/01_room.jpg')"></div><div class="poster-layer" data-frame="1" style="background-image:url('assets/02_kitchen.jpg')"></div><div class="poster-layer" data-frame="2" style="background-image:url('assets/03_detail.jpg')"></div><div class="poster-layer" data-frame="3" style="background-image:url('assets/04_steam.jpg')"></div><div class="poster-layer" data-frame="4" style="background-image:url('assets/05_plate.jpg')"></div><div class="poster-layer" data-frame="5" style="background-image:url('assets/06_result.jpg')"></div>
+    <div class="vignette"></div>
+    <div class="hud">
+      <p class="eyebrow">Leipzig · Premium</p>
+      <h1>Haus Elster</h1>
+      <p class="beat-line" id="beatLine">Haus Elster in Leipzig — Küche mit Haltung.</p>
+      <button type="button" class="cta js-open-termin" id="cta">Tisch reservieren</button>
+    </div>
+    <p class="hint">SCROLL ↓</p>
+  </div>
+  <div class="scroll-spacer" aria-hidden="true"></div>
+
+  <section id="about" class="section">
+    <p class="eyebrow">Unternehmen</p>
+    <h2>Abendküche mit Haltung</h2>
+    <p class="lead">Haus Elster ist ein Restaurant in Leipzig für Gäste, die Ruhe und klare Küche wollen — saisonal, präzise, ohne Show. Vom ersten Gang bis zum letzten Schluck bleibt der Fokus auf Produkt, Handwerk und Atmosphäre. Reservieren Sie einen Tisch — wir kochen für den Abend, nicht für die Menge.</p>
+    <ul class="points"><li>Saisonale Speisekarte</li><li>Offene Küche — sichtbares Handwerk</li><li>Weinliste mit Fokus auf Deutschland &amp; Europa</li><li>Reservierung ohne Warteschlange an der Tür</li></ul>
+    <p style="margin-top:1.5rem;"><button type="button" class="cta js-open-termin">Tisch reservieren</button></p>
+  </section>
+
+  <section id="leistungen" class="section">
+    <p class="eyebrow">Leistungen</p>
+    <h2>Was Sie erwarten dürfen</h2>
+    <div class="grid-cards"><article class="card"><h3>Abendmenü</h3><p>Drei bis fünf Gänge — abgestimmt auf die Saison.</p></article><article class="card"><h3>Mittagstisch</h3><p>Klar, schnell, hochwertig — für den Arbeitstag.</p></article><article class="card"><h3>Weinbegleitung</h3><p>Passende Gläser zu jedem Gang.</p></article><article class="card"><h3>Private Dining</h3><p>Geschlossener Tisch für kleine Runden.</p></article></div>
+  </section>
+
+  <section id="galerie" class="section">
+    <p class="eyebrow">Story</p>
+    <h2>Vom Herd zum Teller</h2>
+    <p class="lead">Raum → Küche → Detail → Dampf → Anrichtung → Gericht.</p>
+    <div class="gallery"><figure class="gal-item"><img src="assets/01_room.jpg" alt="Raum" loading="lazy" /><figcaption>Raum — der erste Eindruck.</figcaption></figure><figure class="gal-item"><img src="assets/02_kitchen.jpg" alt="Küche" loading="lazy" /><figcaption>Küche — Handwerk beginnt.</figcaption></figure><figure class="gal-item"><img src="assets/03_detail.jpg" alt="Detail" loading="lazy" /><figcaption>Detail — Präzision.</figcaption></figure><figure class="gal-item"><img src="assets/04_steam.jpg" alt="Dampf" loading="lazy" /><figcaption>Dampf und Licht.</figcaption></figure><figure class="gal-item"><img src="assets/05_plate.jpg" alt="Anrichtung" loading="lazy" /><figcaption>Anrichtung.</figcaption></figure><figure class="gal-item"><img src="assets/06_result.jpg" alt="Gericht" loading="lazy" /><figcaption>Das fertige Gericht.</figcaption></figure></div>
+  </section>
+
+  
+
+  <section id="termin" class="section">
+    <p class="eyebrow">Kontakt</p>
+    <h2>Tisch reservieren</h2>
+    <p class="lead">Rufen Sie an, schreiben Sie eine E-Mail / WhatsApp, öffnen Sie Instagram oder Telegram — oder hinterlassen Sie eine kurze Nachricht.</p>
+    <div class="contact-shell" style="margin-top:1.5rem;" id="contactInline">
+      <div class="contact-panel">
+        <div class="contact-actions">
+          <a class="action" href="tel:+49341987654"><span class="icon">☎</span><span><strong>Anrufen</strong><br /><span style="color:var(--muted);font-size:.85rem">+49 341 987654</span></span></a>
+          <a class="action" href="mailto:reservierung@haus-elster-demo.example.de"><span class="icon">✉</span><span><strong>E-Mail</strong><br /><span style="color:var(--muted);font-size:.85rem">reservierung@haus-elster-demo.example.de</span></span></a>
+          <a class="action" href="https://wa.me/49341987654" target="_blank" rel="noopener noreferrer"><span class="icon">W</span><span><strong>WhatsApp</strong><br /><span style="color:var(--muted);font-size:.85rem">Nachricht senden</span></span></a>
+        </div>
+        <p class="eyebrow" style="margin-bottom:.6rem;">Social</p>
+        <div class="socials">
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor"/></svg>
+          </a>
+          <a href="https://t.me/" target="_blank" rel="noopener noreferrer" aria-label="Telegram" title="Telegram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 5L3.5 12.2l5.2 1.7 1.9 5.4 3.1-3.4 4.6 3.3L21 5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="mailto:reservierung@haus-elster-demo.example.de" aria-label="E-Mail" title="E-Mail">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.6"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="contact-panel">
+        <form class="msg" id="contactForm">
+          <div>
+            <label for="name">Name</label>
+            <input id="name" name="name" required autocomplete="name" placeholder="Ihr Name" />
+          </div>
+          <div>
+            <label for="phone">Telefon</label>
+            <input id="phone" name="phone" autocomplete="tel" placeholder="+49 …" />
+          </div>
+          <div>
+            <label for="mail">E-Mail</label>
+            <input id="mail" name="mail" type="email" autocomplete="email" placeholder="name@email.de" />
+          </div>
+          <div>
+            <label for="message">Kurze Nachricht</label>
+            <textarea id="message" name="message" rows="4" required placeholder="Wunschtermin, Anliegen…"></textarea>
+          </div>
+          <button class="cta" type="submit">Nachricht senden</button>
+          <p class="ok" id="formOk">Danke — Ihre Nachricht öffnet die E-Mail an reservierung@haus-elster-demo.example.de.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site">
+    Haus Elster · Leipzig · Virtus Core Premium Demo<br />
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+    <button type="button" class="mini-cta js-open-termin" style="margin:0 .45rem;vertical-align:baseline;">Tisch reservieren</button>
+  </footer>
+
+  <div class="modal" id="terminModal" role="dialog" aria-modal="true" aria-labelledby="terminModalTitle" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="terminModalTitle">Tisch reservieren</h2>
+        <button type="button" class="modal-close" id="terminClose" aria-label="Schließen">×</button>
+      </div>
+      <p class="lead" style="margin-top:0;">Anrufen, schreiben oder kurze Nachricht hinterlassen — wir melden uns.</p>
+      <div id="modalContactMount"></div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var LINES = ["Haus Elster in Leipzig — Küche mit Haltung.", "Messer, Feuer, Timing — Handwerk in der Küche.", "Saisonal und klar — ohne Show.", "Dampf, Licht, Anrichtung — der Moment auf dem Teller.", "Ruhige Atmosphäre. Faire Preise. Gute Weine.", "Tisch reservieren — wir kochen für Ihren Abend."];
+    var FRAMES = ["assets/01_room.jpg", "assets/02_kitchen.jpg", "assets/03_detail.jpg", "assets/04_steam.jpg", "assets/05_plate.jpg", "assets/06_result.jpg"];
+    var progressEl = document.getElementById('progress');
+    var beatLine = document.getElementById('beatLine');
+    var layers = Array.prototype.slice.call(document.querySelectorAll('.poster-layer'));
+    var modal = document.getElementById('terminModal');
+    var mount = document.getElementById('modalContactMount');
+    var inline = document.getElementById('contactInline');
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function openTermin(e) {
+      if (e) e.preventDefault();
+      if (!modal || !mount || !inline) {
+        var el = document.getElementById('termin');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (!mount.dataset.ready) {
+        mount.appendChild(inline.cloneNode(true));
+        mount.dataset.ready = '1';
+        var form = mount.querySelector('form');
+        if (form) bindForm(form, mount.querySelector('.ok'));
+      }
+      modal.hidden = false;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeTermin() {
+      if (!modal) return;
+      modal.classList.remove('open');
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.js-open-termin'), function(btn) {
+      btn.addEventListener('click', openTermin);
+    });
+    var closeBtn = document.getElementById('terminClose');
+    if (closeBtn) closeBtn.addEventListener('click', closeTermin);
+    if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) closeTermin(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeTermin(); });
+    if (location.hash === '#termin') setTimeout(openTermin, 80);
+
+    function cinemaProgress() {
+      var stage = document.getElementById('stage');
+      var spacer = stage && stage.nextElementSibling;
+      if (!stage || !spacer) return 0;
+      var start = stage.offsetTop;
+      var end = start + spacer.offsetHeight;
+      var y = window.scrollY;
+      if (y <= start) return 0;
+      if (y >= end) return 1;
+      return (y - start) / Math.max(1, end - start);
+    }
+    function setFrame(p) {
+      if (!layers.length) return;
+      var idx = Math.min(layers.length - 1, Math.floor(p * layers.length));
+      layers.forEach(function(el, i) { el.classList.toggle('is-on', i === idx); });
+      var lineIdx = Math.min(LINES.length - 1, Math.floor(p * LINES.length));
+      beatLine.textContent = LINES[lineIdx] || LINES[0];
+    }
+
+    var canvas = document.getElementById('cinemacanvas');
+    var world = null;
+    function ensureThree(cb) {
+      if (window.THREE) { cb(); return; }
+      var s = document.createElement('script');
+      s.src = 'https://unpkg.com/three@0.160.0/build/three.min.js';
+      s.async = true; s.onload = function(){ cb(); };
+      document.head.appendChild(s);
+    }
+    function buildWorld() {
+      if (!window.THREE || !canvas || reduced) return;
+      var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+      camera.position.set(0, 1.4, 4.2);
+      scene.add(new THREE.AmbientLight(0x3a2a1a, 0.55));
+      var key = new THREE.PointLight(0xffd09a, 2.2, 20); key.position.set(2.2, 3.2, 2.5); scene.add(key);
+      var rim = new THREE.PointLight(0x6a8cff, 0.55, 18); rim.position.set(-3, 2, -1); scene.add(rim);
+      var floor = new THREE.Mesh(new THREE.CircleGeometry(6, 64), new THREE.MeshStandardMaterial({ color: 0x161210, metalness: 0.2, roughness: 0.85 }));
+      floor.rotation.x = -Math.PI/2; scene.add(floor);
+      var chair = new THREE.Group();
+      var seat = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.22, 1.1), new THREE.MeshStandardMaterial({ color: 0x2a1a14, roughness: 0.55, metalness: 0.15 }));
+      seat.position.y = 0.85; chair.add(seat);
+      var back = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.15, 0.18), new THREE.MeshStandardMaterial({ color: 0x241611, roughness: 0.5, metalness: 0.12 }));
+      back.position.set(0, 1.5, -0.45); chair.add(back);
+      var pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.85, 24), new THREE.MeshStandardMaterial({ color: 0xb08a4f, metalness: 0.85, roughness: 0.25 }));
+      pole.position.y = 0.42; chair.add(pole); scene.add(chair);
+      var clippers = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.42), new THREE.MeshStandardMaterial({ color: 0xd0d6de, metalness: 0.9, roughness: 0.2 }));
+      clippers.position.set(0.55, 1.55, 0.35); scene.add(clippers);
+      var hairCount = 320, hairGeo = new THREE.BufferGeometry(), positions = new Float32Array(hairCount * 3);
+      for (var i = 0; i < hairCount; i++) { positions[i*3]=(Math.random()-0.5)*1.2; positions[i*3+1]=1.2+Math.random()*1.2; positions[i*3+2]=(Math.random()-0.5)*1.2; }
+      hairGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      var hair = new THREE.Points(hairGeo, new THREE.PointsMaterial({ color: 0xc4a574, size: 0.025, transparent: true, opacity: 0.85 }));
+      scene.add(hair);
+      function resize() {
+        var w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+        renderer.setSize(w, h, false); camera.aspect = w / Math.max(1,h); camera.updateProjectionMatrix();
+      }
+      resize(); addEventListener('resize', resize);
+      world = { renderer: renderer, scene: scene, camera: camera, chair: chair, clippers: clippers, hair: hair, hairPos: positions, progress: 0 };
+    }
+    function renderWorld(p) {
+      if (!world) return;
+      var ang = -0.35 + p * 1.55, dist = 4.4 - p * 1.35, elev = 1.55 + Math.sin(p * Math.PI) * 0.35;
+      world.camera.position.set(Math.sin(ang)*dist, elev, Math.cos(ang)*dist);
+      world.camera.lookAt(0, 1.2, 0);
+      world.clippers.position.y = 1.45 + Math.sin(p * 10) * 0.08 * Math.min(1, p * 2);
+      world.clippers.rotation.z = -0.4 + p * 0.8;
+      world.chair.rotation.y = p * 0.45;
+      var pos = world.hairPos;
+      for (var i = 0; i < pos.length; i += 3) {
+        if (p > 0.2 && p < 0.78) { pos[i+1] -= 0.014 + ((i % 7) * 0.001); if (pos[i+1] < 0.2) pos[i+1] = 1.6 + Math.random() * 0.6; }
+      }
+      world.hair.geometry.attributes.position.needsUpdate = true;
+      world.hair.material.opacity = p < 0.15 ? 0.12 : (p > 0.82 ? 0.2 : 0.92);
+      world.renderer.render(world.scene, world.camera);
+    }
+    function onScroll() {
+      var p = cinemaProgress();
+      progressEl.style.width = (p * 100).toFixed(2) + '%';
+      setFrame(p);
+      if (world) world.progress = p;
+      renderWorld(p);
+    }
+    ensureThree(function(){ buildWorld(); onScroll();
+      requestAnimationFrame(function tick(){ if (world) renderWorld(world.progress || cinemaProgress()); requestAnimationFrame(tick); });
+    });
+    addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    function bindForm(form, ok) {
+      if (!form) return;
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var name = (form.querySelector('#name') || form.querySelector('[name=name]')).value.trim();
+        var phone = (form.querySelector('#phone') || form.querySelector('[name=phone]')).value.trim();
+        var mail = (form.querySelector('#mail') || form.querySelector('[name=mail]')).value.trim();
+        var message = (form.querySelector('#message') || form.querySelector('[name=message]')).value.trim();
+        var subject = encodeURIComponent('Anfrage · Haus Elster · Leipzig');
+        var body = encodeURIComponent('Name: ' + name + '\nTelefon: ' + phone + '\nE-Mail: ' + mail + '\n\n' + message);
+        window.location.href = 'mailto:reservierung@haus-elster-demo.example.de?subject=' + subject + '&body=' + body;
+        if (ok) ok.classList.add('show');
+      });
+    }
+    bindForm(document.getElementById('contactForm'), document.getElementById('formOk'));
+  })();
+  </script>
+</body>
+</html>

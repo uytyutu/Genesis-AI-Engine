@@ -37,6 +37,11 @@ _ERROR_MARKERS: tuple[tuple[str, str, bool], ...] = (
         "Ошибка в коде Backend (битый import в app/) — не pip. См. backend.log; обычно правка schemas/main.",
         False,
     ),
+    (
+        "nameerror",
+        "Ошибка в коде Backend (NameError при импорте app.main) — Repair Loop не поможет. См. backend.log.",
+        False,
+    ),
     ("modulenotfounderror", "Не установлены Python-зависимости Backend.", True),
     ("importerror", "Ошибка импорта Backend — проверьте код приложения или requirements.txt.", False),
     ("traceback", "Backend завершился с ошибкой Python.", True),
@@ -195,6 +200,21 @@ def diagnose_backend(
             excerpt,
         )
 
+    # Prefer live import preflight over guessing from logs
+    try:
+        from launcher.backend_preflight import format_preflight_failure, run_backend_import_preflight
+
+        pf = run_backend_import_preflight(root)
+        if not pf.ok and pf.issue == "import_error":
+            return BackendDiagnosis(
+                "import_error",
+                format_preflight_failure(pf),
+                pf.can_auto_fix,
+                pf.detail or excerpt,
+            )
+    except Exception:
+        pass
+
     for marker, human, can_fix in _ERROR_MARKERS:
         if marker in lowered:
             return BackendDiagnosis(marker.replace(" ", "_"), f"Backend: {human}", can_fix, excerpt)
@@ -253,6 +273,9 @@ def repair_backend(
 
     diag = diagnose_backend(root, backend_exited=True)
     steps: list[str] = []
+
+    if diag.issue == "import_error" and not diag.can_auto_fix:
+        return False, diag.message
 
     _kill_tree(managed.backend)
     managed.backend = None

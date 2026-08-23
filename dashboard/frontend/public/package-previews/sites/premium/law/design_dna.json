@@ -1,0 +1,75 @@
+{
+  "emotion": "authority",
+  "style": "modern_clinical",
+  "palette_family": "ink_brass",
+  "typography_pair": "baskerville_plex_legal",
+  "motion": "business",
+  "hero_concept": "ruhiges Anwaltsbüro · Akten und Stadtblick · Verhandlungstisch",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "editorial",
+  "package_id": "premium",
+  "niche_id": "law",
+  "fingerprint": "1a3ff714e60fc394d8b4e5ac119aef0e736bc210a40bc022d311a0a4bc1fbd68",
+  "section_treatments": [
+    [
+      "about",
+      "photo_band"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "gallery",
+      "illustration"
+    ],
+    [
+      "services",
+      "tint"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "process",
+      "gradient"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "illustration"
+    ],
+    [
+      "calculator",
+      "tint"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#b4975a",
+  "surface_hex": "#f8f6f0",
+  "ink_hex": "#0b0d10",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "d10941b80d261fd50d1f85c2",
+  "border_radius_px": 12
+}

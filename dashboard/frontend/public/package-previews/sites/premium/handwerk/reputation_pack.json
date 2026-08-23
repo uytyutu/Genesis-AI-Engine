@@ -1,0 +1,254 @@
+{
+  "brand_name": "Meisterbau Hoffmann",
+  "niche_id": "handwerk",
+  "package_id": "premium",
+  "portfolio": [
+    {
+      "title": "Badrenovierung Berlin-Mitte",
+      "city": "Berlin",
+      "task": "Fliesen, Armaturen, Silikon — bewohnte Wohnung",
+      "duration": "4 Arbeitstage",
+      "works": [
+        "Demontage",
+        "Fliesen",
+        "Armaturen",
+        "Fotodoku"
+      ],
+      "before_label": "Abgenutztes Bad",
+      "after_label": "Frisch verfugt & dicht",
+      "demo_label": "Demonstrationsbeispiel"
+    },
+    {
+      "title": "IKEA-Küche Montage Prenzlauer Berg",
+      "city": "Berlin",
+      "task": "Komplette Küche inkl. Geräte-Anschluss-Check",
+      "duration": "2 Arbeitstage",
+      "works": [
+        "Aufbau",
+        "Ausrichten",
+        "Griffe",
+        "Übergabe"
+      ],
+      "before_label": "Kartons & Platten",
+      "after_label": "Fertige Küche",
+      "demo_label": "Demonstrationsbeispiel"
+    },
+    {
+      "title": "Wohnung streichen 78 m²",
+      "city": "Berlin",
+      "task": "Wände + Decke, Abdeckung, Endreinigung",
+      "duration": "3 Arbeitstage",
+      "works": [
+        "Abkleben",
+        "Grundierung",
+        "Anstrich",
+        "Reinigung"
+      ],
+      "before_label": "Vergilbte Wände",
+      "after_label": "Gleichmäßiger Anstrich",
+      "demo_label": "Demonstrationsbeispiel"
+    },
+    {
+      "title": "Vinylboden Kreuzberg",
+      "city": "Berlin",
+      "task": "Altboden raus, neuer Vinyl inkl. Sockelleisten",
+      "duration": "2 Arbeitstage",
+      "works": [
+        "Demontage",
+        "Untergrund",
+        "Verlegen",
+        "Leisten"
+      ],
+      "before_label": "Abgenutzter Belag",
+      "after_label": "Neuer Boden",
+      "demo_label": "Demonstrationsbeispiel"
+    },
+    {
+      "title": "Büro-Auffrischung Friedrichshain",
+      "city": "Berlin",
+      "task": "Streichen, Regale, Beleuchtung",
+      "duration": "3 Arbeitstage",
+      "works": [
+        "Malerarbeiten",
+        "Montage",
+        "Lampen",
+        "Übergabe"
+      ],
+      "before_label": "Abgenutztes Büro",
+      "after_label": "Frischer Arbeitsraum",
+      "demo_label": "Demonstrationsbeispiel"
+    }
+  ],
+  "team": [
+    {
+      "name": "Tom Berger",
+      "role": "Meister",
+      "focus": "Leitung & Qualitätskontrolle",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Mira Schulz",
+      "role": "Monteurin",
+      "focus": "Küche & Möbel",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Jonas Krämer",
+      "role": "Maler",
+      "focus": "Anstrich & Tapezieren",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Lea Vogt",
+      "role": "Disposition",
+      "focus": "Termine & WhatsApp",
+      "demo_label": "Beispielprofil"
+    }
+  ],
+  "equipment": [
+    "VW Caddy mit Firmenlogo (Demo)",
+    "Bosch / Makita Akkuschrauber",
+    "Milwaukee Bohrhammer",
+    "Laser-Wasserwaage",
+    "Professionelle Abdecksysteme"
+  ],
+  "process": [
+    "Anfrage",
+    "Kurz-Check / Fotos",
+    "Festpreis",
+    "Termin",
+    "Durchführung",
+    "Fotodoku",
+    "Übergabe"
+  ],
+  "before_after": [
+    {
+      "before": "Altes Bad",
+      "after": "Frisch saniert"
+    },
+    {
+      "before": "Kartons Küche",
+      "after": "Montierte Küche"
+    },
+    {
+      "before": "Vergilbte Wand",
+      "after": "Neuer Anstrich"
+    }
+  ],
+  "knowledge": [
+    {
+      "title": "Was kostet ein Meister pro Stunde?",
+      "teaser": "Transparent nach Aufwand — oft Festpreis nach Aufmaß statt offener Stundenrechnung.",
+      "demo_label": "Demo-Artikel"
+    },
+    {
+      "title": "IKEA-Montage selbst oder Profi?",
+      "teaser": "Bei großen Küchen spart der Profi Zeit und Nacharbeit — wir dokumentieren die Übergabe.",
+      "demo_label": "Demo-Artikel"
+    },
+    {
+      "title": "Wie schnell kommen Sie?",
+      "teaser": "Viele Einsätze in Berlin innerhalb von 24–48 Stunden — je nach Auftragslage.",
+      "demo_label": "Demo-Artikel"
+    }
+  ],
+  "trust": [
+    {
+      "title": "Haftpflicht",
+      "detail": "Betriebshaftpflicht — Demo-Hinweis",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Festpreis",
+      "detail": "Schriftlich vor Start",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Fotodoku",
+      "detail": "Vorher/Nachher zu jedem Auftrag",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Sauberkeit",
+      "detail": "Abdeckung & Endreinigung",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "WhatsApp",
+      "detail": "Koordination ohne Warteschleife",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Lokal",
+      "detail": "Berlin und Umland",
+      "demo_label": "Demo-Beispiel"
+    }
+  ],
+  "timeline": [
+    {
+      "year": "2019",
+      "title": "Gründung",
+      "detail": "Start als Meister-Service auf Abruf",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2021",
+      "title": "Team wächst",
+      "detail": "Montage + Maler (Demo)",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2024",
+      "title": "Fokus Berlin",
+      "detail": "Stundenweise + Festpreis-Projekte",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2026",
+      "title": "Digitaler Auftritt",
+      "detail": "Website mit Projektreferenzen",
+      "demo_label": "Demo"
+    }
+  ],
+  "gallery_roles": [
+    "Badrenovierung",
+    "Küchenmontage",
+    "Anstrich",
+    "Boden & Übergabe"
+  ],
+  "media_truth_rule": "No media ships without profession + brand + story proof. Beauty alone is REBUILD.",
+  "disclaimer": "Demo-Inhalt · Virtus Core Preview — Projekte, Personen, Ausrüstung und Nachweise sind demonstrativ erzeugt und keine echten Referenzen.",
+  "fingerprint": "fa91f265ea4665d4f38dd814",
+  "blocks": [
+    "portfolio",
+    "team",
+    "equipment",
+    "process",
+    "before_after",
+    "knowledge",
+    "trust",
+    "timeline"
+  ],
+  "media": {
+    "case_0_before": "assets/reputation/case_0_before.jpg",
+    "case_0_after": "assets/reputation/case_0_after.jpg",
+    "case_1_before": "assets/reputation/case_1_before.jpg",
+    "case_1_after": "assets/reputation/case_1_after.jpg",
+    "case_2_before": "assets/reputation/case_2_before.jpg",
+    "case_2_after": "assets/reputation/case_2_after.jpg",
+    "case_3_before": "assets/reputation/case_3_before.jpg",
+    "case_3_after": "assets/reputation/case_3_after.jpg",
+    "case_4_before": "assets/reputation/case_4_before.jpg",
+    "case_4_after": "assets/reputation/case_4_after.jpg",
+    "ba_0_before": "assets/reputation/case_0_before.jpg",
+    "ba_0_after": "assets/reputation/case_0_after.jpg",
+    "ba_1_before": "assets/reputation/case_1_before.jpg",
+    "ba_1_after": "assets/reputation/case_1_after.jpg",
+    "ba_2_before": "assets/reputation/case_2_before.jpg",
+    "ba_2_after": "assets/reputation/case_2_after.jpg",
+    "team_0": "assets/reputation/team_0.jpg",
+    "team_1": "assets/reputation/team_1.jpg",
+    "team_2": "assets/reputation/team_2.jpg",
+    "team_3": "assets/reputation/team_3.jpg"
+  }
+}

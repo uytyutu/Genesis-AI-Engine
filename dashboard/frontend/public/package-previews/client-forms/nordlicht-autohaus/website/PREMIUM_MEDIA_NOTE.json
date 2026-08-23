@@ -1,0 +1,13 @@
+{
+  "status": "studio_offline_media",
+  "message": "Studio Offline Media — media chain auto-selected (3D/experience still on)",
+  "provider": "studio_offline",
+  "provider_label": "Studio Offline Media",
+  "provider_connected": false,
+  "studio_offline_media": true,
+  "chain": [
+    "studio_offline"
+  ],
+  "webgl_3d": true,
+  "experience_on": true
+}

@@ -1,0 +1,126 @@
+BRAND BOOK
+Brand Name
+KlarBlick Optics
+
+Positioning
+Klare lokale Marke
+
+Brand Archetype
+The Expert
++
+The Guide
+
+Brand Promise
+Klar. Vertrauenswürdig. Vor Ort.
+
+Core Emotion
+Vertrauen
+
+Secondary Emotion
+Klarheit
+
+Tone of Voice
+  Klar
+  Freundlich
+  Kompetent
+
+Visual Style
+Modern Clear · neon line diagrams
+
+Visual Metaphor
+Offenes Licht auf ruhiger Fläche
+
+Photography
+  IT-Werkbank
+  geöffneter Laptop
+  Diagnose-Monitor
+  Mainboard-Reparatur
+  Datenrettung
+  Kundenübergabe Notebook
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+
+Motion
+editorial fade · staggered cards · calm hover
+
+Palette
+Slate, Sage, Warm White
+Accent #5b7c6e
+Surface #dce0ee
+Ink #f4f6f8
+
+Typography
+Manrope
++
+IBM Plex Sans
+(manrope_ibm_plex_industrial)
+
+Icon Style
+technical blueprint icons
+
+Border Radius
+12 px
+
+Shadow Style
+Soft
+
+Glass Level
+medium
+
+Texture
+  Paper
+  Light
+
+Scene Language
+  IT-Werkbank
+  geöffneter Laptop
+  Diagnose-Monitor
+
+CTA Style
+Große Buttons · Ruhiger Abstand
+
+Trust Strategy
+  Transparenz
+  Kontakt
+  Prozess
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Real workplace
+✔ People at craft
+✔ Daylight
+
+Preferred
+✔ Local place
+✔ Honest detail
+
+Forbidden
+✖ Café
+✖ Coworking
+✖ Abstract business
+✖ Laptop stock
+✖ Beauty salon
+
+Hero Proof
+A frame that answers: what does this company live every day?
+
+Fingerprint
+ca8c0db8901e431a168c61f1
+

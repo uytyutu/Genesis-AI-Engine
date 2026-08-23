@@ -1,0 +1,20 @@
+{
+  "niche_id": "zaunbau",
+  "idea": "Grenze, die hält.",
+  "who": "Sichtschutz, Doppelstab, Tor — montiert und dokumentiert.",
+  "character": [],
+  "metaphor": "auto",
+  "hero_concept": "",
+  "emotion_3s": "",
+  "source": "dream_brief",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Grenze, die hält.",
+    "who": "Sichtschutz, Doppelstab, Tor — montiert und dokumentiert.",
+    "package_id": "premium",
+    "source": "dream_brief",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

@@ -1,23 +1,15 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
-import { createPortal } from "react-dom";
+import type { CSSProperties } from "react";
 
-/** Full-viewport animated wash for /site — portal so max-width shell cannot clip it. */
+/**
+ * Full-viewport storefront wash.
+ * Must be SSR-identical to the first client paint — never gate on `mounted`
+ * (that caused mobile whole-page flicker: plain shell → GPU layers appear).
+ * Rendered as a fixed sibling outside `.storefront` isolate (see PublicPageShell).
+ */
 export function StorefrontAtmosphere() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    document.documentElement.classList.add("has-storefront-atmosphere");
-    return () => {
-      document.documentElement.classList.remove("has-storefront-atmosphere");
-    };
-  }, []);
-
-  if (!mounted) return null;
-
-  return createPortal(
+  return (
     <div className="storefront-page-bg" aria-hidden>
       <div className="storefront-page-bg__base" />
       <div className="storefront-page-bg__mesh" />
@@ -47,7 +39,6 @@ export function StorefrontAtmosphere() {
         ))}
       </div>
       <div className="storefront-page-bg__vignette" />
-    </div>,
-    document.body,
+    </div>
   );
 }

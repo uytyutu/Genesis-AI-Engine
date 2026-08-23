@@ -1,0 +1,235 @@
+{
+  "business": {
+    "engine": "business_analyzer_v1",
+    "business_name": "Haus Elster",
+    "business_type": "restaurant",
+    "niche": "restaurant",
+    "target_audience": "",
+    "city": "Leipzig",
+    "market": "DE",
+    "style": "Premium",
+    "brand_tone": "",
+    "products_or_services": [
+      {
+        "name": "Abendmenü",
+        "blurb": "Drei bis fünf Gänge — abgestimmt auf die Saison."
+      },
+      {
+        "name": "Mittagstisch",
+        "blurb": "Klar, schnell, hochwertig — für den Arbeitstag."
+      },
+      {
+        "name": "Weinbegleitung",
+        "blurb": "Passende Gläser zu jedem Gang."
+      },
+      {
+        "name": "Private Dining",
+        "blurb": "Geschlossener Tisch für kleine Runden."
+      }
+    ],
+    "cta": "Tisch reservieren",
+    "preferred_colors": [],
+    "logo_url": "",
+    "existing_images": [],
+    "description": "Restaurant, Küche, Abendessen",
+    "product_kind": "website",
+    "invented_facts": false,
+    "notes": "Only fields supplied by the client were used.",
+    "phone": "+49 341 987654",
+    "email": "reservierung@haus-elster-demo.example.de",
+    "instagram": "https://www.instagram.com/",
+    "telegram": "https://t.me/",
+    "street": "Elsterstraße 8",
+    "zip": "04177",
+    "accent": "#d4a373",
+    "accent2": "#8a4b2a",
+    "about_title": "Abendküche mit Haltung",
+    "about_body": "Haus Elster ist ein Restaurant in Leipzig für Gäste, die Ruhe und klare Küche wollen — saisonal, präzise, ohne Show. Vom ersten Gang bis zum letzten Schluck bleibt der Fokus auf Produkt, Handwerk und Atmosphäre. Reservieren Sie einen Tisch — wir kochen für den Abend, nicht für die Menge.",
+    "about_points": [
+      "Saisonale Speisekarte",
+      "Offene Küche — sichtbares Handwerk",
+      "Weinliste mit Fokus auf Deutschland & Europa",
+      "Reservierung ohne Warteschlange an der Tür"
+    ],
+    "marketing_lines": [
+      "Haus Elster in Leipzig — Küche mit Haltung.",
+      "Messer, Feuer, Timing — Handwerk in der Küche.",
+      "Saisonal und klar — ohne Show.",
+      "Dampf, Licht, Anrichtung — der Moment auf dem Teller.",
+      "Ruhige Atmosphäre. Faire Preise. Gute Weine.",
+      "Tisch reservieren — wir kochen für Ihren Abend."
+    ],
+    "gallery": [
+      {
+        "src": "assets/01_room.jpg",
+        "alt": "Raum",
+        "caption": "Raum — der erste Eindruck."
+      },
+      {
+        "src": "assets/02_kitchen.jpg",
+        "alt": "Küche",
+        "caption": "Küche — Handwerk beginnt."
+      },
+      {
+        "src": "assets/03_detail.jpg",
+        "alt": "Detail",
+        "caption": "Detail — Präzision."
+      },
+      {
+        "src": "assets/04_steam.jpg",
+        "alt": "Dampf",
+        "caption": "Dampf und Licht."
+      },
+      {
+        "src": "assets/05_plate.jpg",
+        "alt": "Anrichtung",
+        "caption": "Anrichtung."
+      },
+      {
+        "src": "assets/06_result.jpg",
+        "alt": "Gericht",
+        "caption": "Das fertige Gericht."
+      }
+    ],
+    "gallery_title": "Vom Herd zum Teller",
+    "gallery_lead": "Raum → Küche → Detail → Dampf → Anrichtung → Gericht."
+  },
+  "creative": {
+    "engine": "creative_director_v1",
+    "business": "Haus Elster",
+    "city": "Leipzig",
+    "niche": "restaurant",
+    "niche_key": "restaurant",
+    "concept": "kitchen craft to plated dish",
+    "visual_style": "realistic premium",
+    "art_direction": {
+      "lighting": "warm evening kitchen · brass · dark wood",
+      "environment": "warm evening kitchen · brass · dark wood",
+      "subject": "Haus Elster",
+      "camera_language": "kitchen entry → plating → steam close-up",
+      "motion": "knife, flame, steam, plating",
+      "transition": "scroll-bound beats",
+      "cta_moment": "final beat / 100% scroll"
+    },
+    "scene_type": "image_to_video",
+    "hero_motion": "slow cinematic camera movement",
+    "cta": "Tisch reservieren",
+    "strategy": {
+      "preferred_scene": "kitchen_to_plate",
+      "camera": "kitchen entry → plating → steam close-up",
+      "motion": "knife, flame, steam, plating",
+      "environment": "warm evening kitchen · brass · dark wood",
+      "cta": "Speisekarte",
+      "fallback": [
+        "IMAGE_SCROLL",
+        "STATIC_HERO"
+      ],
+      "aspect": "16:9",
+      "duration_target_sec": 10,
+      "craft_cinema": {
+        "character_lock": true,
+        "prefer_process_over_portraits": true,
+        "story_beats": [
+          "room_enter",
+          "knife_work",
+          "steam_plate",
+          "dish_reveal"
+        ]
+      },
+      "niche_key": "restaurant"
+    },
+    "commerce_path": null
+  },
+  "scene": {
+    "engine": "scene_director_v1",
+    "scene_type": "restaurant",
+    "scene_title": "Cinematic restaurant — Haus Elster",
+    "business_name": "Haus Elster",
+    "city": "Leipzig",
+    "niche": "restaurant",
+    "style": "premium",
+    "product_kind": "website",
+    "preferred_capability": "IMAGE_TO_VIDEO",
+    "fallback": [
+      "TEXT_TO_VIDEO",
+      "WEBGL_PROCEDURAL"
+    ],
+    "beats": [
+      {
+        "scroll": 0.0,
+        "action": "camera_enters_restaurant"
+      },
+      {
+        "scroll": 0.2,
+        "action": "chef_prepares"
+      },
+      {
+        "scroll": 0.4,
+        "action": "plating_steam"
+      },
+      {
+        "scroll": 0.6,
+        "action": "knife_and_sauce"
+      },
+      {
+        "scroll": 0.8,
+        "action": "dish_closeup"
+      },
+      {
+        "scroll": 1.0,
+        "action": "menu_booking_cta"
+      }
+    ],
+    "shots": [
+      {
+        "shot": 1,
+        "scroll": 0.0,
+        "action": "camera_enters_restaurant",
+        "title": "Camera Enters Restaurant"
+      },
+      {
+        "shot": 2,
+        "scroll": 0.2,
+        "action": "chef_prepares",
+        "title": "Chef Prepares"
+      },
+      {
+        "shot": 3,
+        "scroll": 0.4,
+        "action": "plating_steam",
+        "title": "Plating Steam"
+      },
+      {
+        "shot": 4,
+        "scroll": 0.6,
+        "action": "knife_and_sauce",
+        "title": "Knife And Sauce"
+      },
+      {
+        "shot": 5,
+        "scroll": 0.8,
+        "action": "dish_closeup",
+        "title": "Dish Closeup"
+      },
+      {
+        "shot": 6,
+        "scroll": 1.0,
+        "action": "menu_booking_cta",
+        "title": "Menu Booking Cta"
+      }
+    ],
+    "scroll_binding": "video_progress = scroll_percent",
+    "note": "Specification only — no media generated"
+  },
+  "scroll": {},
+  "posters": [
+    "assets/01_room.jpg",
+    "assets/02_kitchen.jpg",
+    "assets/03_detail.jpg",
+    "assets/04_steam.jpg",
+    "assets/05_plate.jpg",
+    "assets/06_result.jpg"
+  ],
+  "kind": "website",
+  "craft_cinema": true
+}

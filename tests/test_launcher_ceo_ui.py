@@ -4,7 +4,7 @@
 def test_start_button_at_top_with_play_glyph():
     src = open("launcher/app.py", encoding="utf-8").read()
     status_idx = src.index("self.status_label.pack")
-    start_idx = src.index('text="▶ Запустить Genesis"')
+    start_idx = src.index('text="▶ Открыть Mission Control"')
     scroll_idx = src.index("self.scroll = ctk.CTkScrollableFrame")
     assert start_idx < scroll_idx, "▶ button must appear before metrics scroll"
     assert status_idx < start_idx, "▶ button must follow status label"

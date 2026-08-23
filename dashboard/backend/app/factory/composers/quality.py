@@ -166,9 +166,13 @@ def run_hard_gate(
     hero_voice = next((c for c in cg.checks if c.id == "hero_niche_voice"), None)
     if hero_voice and not hero_voice.ok:
         hero_ok = False
-    checks.append(
-        HardCheck("hero_matches_niche", hero_ok, hero_voice.detail if hero_voice else "ok")
-    )
+    if hero_ok:
+        hero_detail = "ok"
+    elif hero_voice and not hero_voice.ok:
+        hero_detail = hero_voice.detail
+    else:
+        hero_detail = "missing_niche_signal_in_headline"
+    checks.append(HardCheck("hero_matches_niche", hero_ok, hero_detail))
 
     if ctx.services and len(ctx.services) >= 2:
         qset = {s.lower() for s in ctx.services}
@@ -211,11 +215,25 @@ def run_hard_gate(
     checks.append(HardCheck("no_empty_core_sections", not empty_bits, "empty_core" if empty_bits else "ok"))
 
     if html is not None:
-        # Linked legal / contact anchors — soft hard-check when HTML available
-        linked = ("#contact" in html or "mailto:" in html or "tel:" in html)
+        linked = _html_has_contact_path(html)
         checks.append(HardCheck("pages_linked", linked, "ok" if linked else "no_contact_path"))
 
     return checks
+
+
+def _html_has_contact_path(html: str) -> bool:
+    patterns = (
+        r"#(?:contact|cc-contact|ed-contact|kontakt|termin)",
+        r'id="(?:contact|cc-contact|ed-contact|kontakt|termin)"',
+        r"mailto:",
+        r"tel:",
+        r'href="[^"]*kontakt',
+        r'class="[^"]*contact',
+        r"\bkontakt\b",
+        r"\btermin\b",
+        r'data-section="contact"',
+    )
+    return any(re.search(p, html, re.I) for p in patterns)
 
 
 def compute_ai_score(

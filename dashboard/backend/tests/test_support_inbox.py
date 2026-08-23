@@ -78,7 +78,7 @@ def test_parse_resend_payload():
             "type": "email.received",
             "data": {
                 "from": "Ada <ada@example.com>",
-                "to": [{"address": "hello@genesis-ai-engine.com"}],
+                "to": [{"address": "hello@virtuscore.com"}],
                 "subject": "Hi",
                 "text": "Body",
                 "email_id": "abc",
@@ -86,7 +86,7 @@ def test_parse_resend_payload():
         }
     )
     assert parsed["from_email"] == "ada@example.com"
-    assert parsed["to_email"] == "hello@genesis-ai-engine.com"
+    assert parsed["to_email"] == "hello@virtuscore.com"
     assert parsed["subject"] == "Hi"
     assert parsed["external_id"] == "abc"
 
@@ -97,14 +97,14 @@ def test_parse_resend_payload_list_to():
             "type": "email.received",
             "data": {
                 "from": "ada@example.com",
-                "to": ["hello@genesis-ai-engine.com"],
+                "to": ["hello@virtuscore.com"],
                 "subject": "Hi",
                 "email_id": "abc",
             },
         }
     )
     assert parsed["from_email"] == "ada@example.com"
-    assert parsed["to_email"] == "hello@genesis-ai-engine.com"
+    assert parsed["to_email"] == "hello@virtuscore.com"
     assert parsed["text"] == ""
     assert parsed["external_id"] == "abc"
 

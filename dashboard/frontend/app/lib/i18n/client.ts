@@ -24,7 +24,7 @@ export function ensureI18n(uiLocale: UiLocale): typeof i18n {
     void i18n.use(initReactI18next).init({
       resources: localeResources,
       lng: uiLocale,
-      fallbackLng: "en",
+      fallbackLng: "de",
       supportedLngs: Object.keys(localeResources),
       nonExplicitSupportedLngs: true,
       defaultNS: "common",

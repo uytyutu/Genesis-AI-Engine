@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "niche_id": "fitness",
+  "brand_name": "FitBase Studio",
+  "package_id": "premium",
+  "html_bytes": 138545,
+  "signals": {
+    "has_hero": true,
+    "has_tier": true,
+    "has_3d": false,
+    "has_experience_css": true,
+    "has_unique_brief": true,
+    "concept_only": false,
+    "offline_only": true,
+    "has_visual_brand": true
+  },
+  "score": {
+    "story": 100,
+    "motion": 85,
+    "atmosphere": 66,
+    "interaction": 85,
+    "media": 85,
+    "trust": 80,
+    "conversion": 90,
+    "overall": 84,
+    "portfolio_ready": true,
+    "template_like": false,
+    "euro_studio_feel": true,
+    "rebuild": false,
+    "critiques": [
+      "No virtus-3d / WebGL accent on premium",
+      "Premium on Studio Offline Media only"
+    ],
+    "strengths": [
+      "Creative brief present",
+      "Substantial HTML body",
+      "Experience / motion language in CSS",
+      "VISUAL_BRAND.json present",
+      "Contact / CTA paths present",
+      "Studio Offline Media noted honestly",
+      "Trust / legal signals",
+      "Conversion language present",
+      "Euro studio feel signals present"
+    ]
+  }
+}

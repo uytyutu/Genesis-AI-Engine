@@ -132,6 +132,10 @@ function OrderStatusContent() {
   const [publishBusy, setPublishBusy] = useState(false);
   const [publishError, setPublishError] = useState("");
   const [interestBusy, setInterestBusy] = useState("");
+  const [rebuildBusy, setRebuildBusy] = useState(false);
+  const [rebuildError, setRebuildError] = useState("");
+  const [downloadBusy, setDownloadBusy] = useState(false);
+  const [downloadError, setDownloadError] = useState("");
   const downloadReadyRef = useRef(false);
 
   useEffect(() => {
@@ -309,9 +313,63 @@ function OrderStatusContent() {
     }
   }
 
+  async function rebuildProduction() {
+    setRebuildBusy(true);
+    setRebuildError("");
+    try {
+      const res = await fetch(`${API}/api/sales/orders/${orderId}/start-production`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(
+          typeof err.detail === "string" ? err.detail : "Produktion konnte nicht neu gestartet werden",
+        );
+      }
+      const statusRes = await fetch(`${API}/api/sales/orders/${orderId}/status`, {
+        cache: "no-store",
+      });
+      if (statusRes.ok) setData(await statusRes.json());
+    } catch (e) {
+      setRebuildError(e instanceof Error ? e.message : "Rebuild fehlgeschlagen");
+    } finally {
+      setRebuildBusy(false);
+    }
+  }
+
   async function onDownloadClick() {
     if (data?.publish?.state === "not_downloaded") {
       void savePublish("downloaded");
+    }
+    setDownloadError("");
+    setDownloadBusy(true);
+    try {
+      const url = `${API}${data?.download_url || `/api/sales/orders/${orderId}/download`}`;
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const detail =
+          typeof (err as { detail?: unknown }).detail === "string"
+            ? (err as { detail: string }).detail
+            : `Download fehlgeschlagen (${res.status})`;
+        throw new Error(detail);
+      }
+      const blob = await res.blob();
+      const cd = res.headers.get("content-disposition") || "";
+      const match = /filename="?([^";]+)"?/i.exec(cd);
+      const filename = match?.[1] || `virtus-site-${orderId}.zip`;
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (e) {
+      setDownloadError(e instanceof Error ? e.message : "Download fehlgeschlagen");
+    } finally {
+      setDownloadBusy(false);
     }
   }
 
@@ -523,21 +581,46 @@ function OrderStatusContent() {
           {data.paid && isWebsiteBuild && (
             <div className="mt-5 space-y-3">
               {data.download_ready ? (
-                <a
-                  href={`${API}${data.download_url || `/api/sales/orders/${orderId}/download`}`}
-                  onClick={onDownloadClick}
-                  className="flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:brightness-110"
-                >
-                  {t("order.status.downloadZip")}
-                </a>
+                <>
+                  <button
+                    type="button"
+                    disabled={downloadBusy}
+                    onClick={() => void onDownloadClick()}
+                    className="flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60"
+                  >
+                    {downloadBusy ? "Wird geladen…" : t("order.status.downloadZip")}
+                  </button>
+                  {downloadError ? (
+                    <p className="text-center text-xs text-rose-300">{downloadError}</p>
+                  ) : null}
+                </>
               ) : (
-                <button
-                  type="button"
-                  disabled
-                  className="flex w-full cursor-not-allowed items-center justify-center rounded-xl border border-genesis-border-subtle bg-genesis-bg/40 px-4 py-3 text-sm font-semibold text-genesis-muted opacity-70"
-                >
-                  {t("order.status.downloadZip")}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    disabled
+                    className="flex w-full cursor-not-allowed items-center justify-center rounded-xl border border-genesis-border-subtle bg-genesis-bg/40 px-4 py-3 text-sm font-semibold text-genesis-muted opacity-70"
+                  >
+                    {t("order.status.downloadZip")}
+                  </button>
+                  <p className="text-center text-[11px] text-amber-200/90">
+                    Жёлтый статус = ещё не готово к ZIP. Зелёный кружок = можно скачать.
+                    Сейчас сайт в проверке / сборке — кнопка станет активной, когда файл готов.
+                  </p>
+                  {data.product_id ? (
+                    <button
+                      type="button"
+                      disabled={rebuildBusy}
+                      onClick={() => void rebuildProduction()}
+                      className="flex w-full items-center justify-center rounded-xl border border-amber-400/40 bg-amber-950/40 px-4 py-3 text-sm font-semibold text-amber-50 hover:brightness-110 disabled:opacity-60"
+                    >
+                      {rebuildBusy ? "Erneut erzeugen…" : "Erneut erzeugen / Retry production"}
+                    </button>
+                  ) : null}
+                  {rebuildError ? (
+                    <p className="text-center text-xs text-rose-300">{rebuildError}</p>
+                  ) : null}
+                </>
               )}
               {!data.download_ready && (
                 <p className="mt-2 text-center text-[11px] text-genesis-muted">

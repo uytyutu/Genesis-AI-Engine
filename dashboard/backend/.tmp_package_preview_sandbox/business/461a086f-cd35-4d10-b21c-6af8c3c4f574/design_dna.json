@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "tech_stack",
+  "package_id": "business",
+  "niche_id": "computer",
+  "fingerprint": "6cf4ea858b33faf0800a8d1fe7b34b47221d8d145e56695c6a8a0930f1c88421",
+  "section_treatments": [
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "stats",
+      "ink"
+    ],
+    [
+      "services",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "process",
+      "photo_band"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "trust",
+      "illustration"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "maps",
+      "glass"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#1c1917",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "372f6613a61e04e069998598",
+  "border_radius_px": 12
+}

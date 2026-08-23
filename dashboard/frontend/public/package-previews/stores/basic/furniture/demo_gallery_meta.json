@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "furniture",
+  "package_id": "basic",
+  "category": "furniture",
+  "store_name": "Wohnraum Furniture",
+  "generated_at": "2026-08-07T06:57:25.628368+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 30132,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/basic/furniture/index.html"
+}

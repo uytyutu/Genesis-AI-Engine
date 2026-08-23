@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "moderne Badbaustelle · Rohrleitung · Sanitär-Meister",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "ritual",
+  "package_id": "premium",
+  "niche_id": "sanitaer",
+  "fingerprint": "67921a65f9f51219c4b26fa04afaa7d68d14fa2a48b664746100e8f25b588d25",
+  "section_treatments": [
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "services",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#e0f0fa",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "09fb694c7e3d15c656d946dd",
+  "border_radius_px": 12
+}

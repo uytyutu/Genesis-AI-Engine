@@ -1,0 +1,67 @@
+{
+  "emotion": "confidence",
+  "style": "modern_clinical",
+  "palette_family": "charcoal_ochre",
+  "typography_pair": "oswald_figtree_craft",
+  "motion": "business",
+  "hero_concept": "Baustelle innen · Fliesenverlegung · Handwerker in Arbeitskleidung",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "chamber",
+  "package_id": "premium",
+  "niche_id": "handwerk",
+  "fingerprint": "0d3587f3871f348d6ac721e4a09ad68c5680f85523754db0942d7a9bca7f34ab",
+  "section_treatments": [
+    [
+      "about",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "services",
+      "tint"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "process",
+      "gradient"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "faq",
+      "photo_band"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#b45309",
+  "surface_hex": "#eee4dc",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "dusk",
+  "brand_book_fp": "0d7088f6e3ae02825242e95e",
+  "border_radius_px": 10
+}

@@ -1,0 +1,15 @@
+{
+  "brand_name": "Silberlinie Jewelry",
+  "niche_id": "fashion",
+  "package_id": "premium",
+  "media_mode": "cinematic_photo",
+  "visual_metaphor": "Brand character in space",
+  "hero_concept": "Brand character in space | Silberlinie Jewelry",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "adc95955265efd17c6ec",
+  "image_prompt": "Silberlinie Jewelry fashion brand hero, Brand character in space, European studio, media_mode=cinematic_photo, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

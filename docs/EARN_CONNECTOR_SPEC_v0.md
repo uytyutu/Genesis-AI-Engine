@@ -8,9 +8,23 @@
 
 ## Purpose
 
-Define a **platform-agnostic** contract for Farm Earn (second income stream), so Virtus Core can later plug in any **officially supported** earn channel without redesigning CEO money truth (REAL / SPENT / ROI).
+Define a **platform-agnostic** contract for Farm **Earn** channels (money in), so Virtus Core can plug in any officially supported payment surface without redesigning CEO money truth.
 
-This document is **not** a promise that such a channel exists today. Discovery of the first candidate is a **prerequisite** to coding.
+**Farm roles** (canonical in `docs/MISSION_BOARD.md`):
+
+| Role | This spec? |
+|------|------------|
+| **Earn** | Yes — this document |
+| **Execution** | No — separate adapters; cost feeds Execution Cost |
+| **Spend** | Ledger view of tool cost (often same vendor as Execution) |
+| **Acquisition** | Places / outreach — not this spec |
+| **Payout** | No — `swarm/payout_manager.py` · CEO `/payout` (withdraw lifecycle only) |
+
+Earn Connector is **not** “any platform that participates in a job.” Tools like Toloka are Execution: they need not pay Virtus; they must improve `Revenue − Execution Cost − Infrastructure Cost`.
+
+**Payout Manager** records where REAL sits and lists **official** withdraw methods per Earn source. Farm never invents a payout path.
+
+This document is **not** a promise that a second Earn channel beyond Path A Stripe exists today. Discovery of the next Earn candidate is a **prerequisite** to coding.
 
 ---
 
@@ -32,11 +46,10 @@ Research
 
 ## Out of scope
 
-- Spend Connectors (Toloka/Scale requester)
-- Path A / B2B Stripe (company revenue)
-- Client-facing UI
+- Execution Connectors as Earn (Toloka/Scale/LLM — cost attribution only)
+- Toloka Performer “make the exchange pay us”
 - Circumventing platform ToS / botting human-judgment markets
-
+- Full Path A product UX (Path A Stripe is already an Earn channel; this spec is for **additional** Earn adapters)
 ---
 
 ## 1. Earn Connector Interface (logical)

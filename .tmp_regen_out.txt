@@ -1,0 +1,3 @@
+[PASS] premium/dachreinigung 109053B -> D:\Games\Genesis-AI-Engine\dashboard\frontend\public\package-previews\sites\premium\dachreinigung
+Catalog -> D:\Games\Genesis-AI-Engine\dashboard\frontend\public\package-previews\GALLERY_INDEX.json websites 9/8 stores 17/6 tiers=['basic', 'business', 'premium']
+DONE

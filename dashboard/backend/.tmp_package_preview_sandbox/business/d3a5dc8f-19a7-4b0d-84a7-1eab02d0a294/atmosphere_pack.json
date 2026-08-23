@@ -1,0 +1,132 @@
+{
+  "brand_name": "Meisterbau Hoffmann",
+  "niche_id": "handwerk",
+  "package_id": "business",
+  "metaphor": "Werkstattlicht auf sauberem Werkzeug",
+  "core_emotion": "Vertrauen",
+  "atmosphere_mode": "atelier",
+  "scene_language": [
+    "Workshop",
+    "Material",
+    "Light"
+  ],
+  "texture_language": [
+    "Holz",
+    "Metall",
+    "Beton"
+  ],
+  "motion_language": "Ruhig · Präzise",
+  "camera_feeling": "workshop bench · tool edge · practical light",
+  "scroll_feeling": "steady craft pace",
+  "cta_feeling": "direct buttons · no drama · Klare Buttons · Keine Hektik",
+  "sound_mood": "workshop · tool set down · focus",
+  "illustration_style": "tool · material · ochre mark",
+  "glass_level": "low",
+  "shadow_language": "soft deep under tools · Soft Deep",
+  "icon_language": "Outline Industrial",
+  "lighting": "warm work lamp · charcoal depth",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "workshop_precision",
+      "must_include": [
+        "Werkstatt",
+        "Material",
+        "Hände bei der Arbeit",
+        "Baustelle"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Meisterbau Hoffmann|handwerk|business|7350933bc43e42d1bb282ee2|hero",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "role": "background",
+      "concept": "scene · Workshop · Material · Light",
+      "must_include": [
+        "Workshop",
+        "Material",
+        "Light",
+        "Holz",
+        "Metall"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Meisterbau Hoffmann|handwerk|business|7350933bc43e42d1bb282ee2|bg",
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "role": "gallery",
+      "concept": "proof texture · craft detail",
+      "must_include": [
+        "Hände bei der Arbeit",
+        "Baustelle"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Meisterbau Hoffmann|handwerk|business|7350933bc43e42d1bb282ee2|gal",
+      "size": [
+        1400,
+        1000
+      ]
+    }
+  ],
+  "fingerprint": "8808b6f151438e1204a1b446",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

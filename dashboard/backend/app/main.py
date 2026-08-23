@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import io
 import os
@@ -1226,6 +1226,14 @@ def owner_income_engine() -> dict:
     return _ctx().micro_farm.income_engine_v1()
 
 
+@app.get("/api/owner/apify/status")
+def owner_apify_status() -> dict:
+    """Owner-only Apify credentials + Actor product line (never exposed to clients)."""
+    from app.integration.apify_service import owner_apify_panel
+
+    return owner_apify_panel()
+
+
 @app.post("/api/owner/income-engine/start")
 def owner_income_engine_start(body: dict) -> dict:
     """START INCOME ENGINE — swarm mission (expected ROI, not guaranteed profit)."""
@@ -1571,6 +1579,14 @@ def _horizon_http_error(exc: Exception) -> HTTPException:
 @app.get("/api/owner/tiktok-horizon")
 def owner_tiktok_horizon_dashboard() -> dict:
     return _tiktok_horizon().dashboard()
+
+
+@app.get("/api/owner/horizon")
+def owner_horizon_media_engine() -> dict:
+    """Horizon Media Engine — Internal-only studio shell (no live video gen)."""
+    from app.integration.horizon_studio import build_horizon_manifest
+
+    return build_horizon_manifest()
 
 
 @app.get("/api/owner/tiktok-horizon/trends")
@@ -2014,11 +2030,12 @@ def farm_engine_v1_market_monitor_run() -> dict:
 
 
 @app.get("/api/farm/opire")
-def farm_opire_panel(force_scan: bool = True, enrich_top: int = 0) -> dict:
+def farm_opire_panel(force_scan: bool = False, enrich_top: int = 0) -> dict:
     """Opire Semi-Auto Farm — scan + confidence + Approve (Reward Protection).
 
-    enrich_top=0 by default so Mission Control buttons stay responsive.
-    Pass enrich_top=5 for deeper Issue body analysis when CEO asks.
+    Default force_scan=False so opening /farm-engine stays fast and does not
+    trigger Windows Git Credential Manager (Select an account / x-access-token).
+    Pass force_scan=true only from «Обновить Scanner».
     """
     return _ctx().micro_farm.opire_farm_panel(
         force_scan=force_scan, enrich_top=max(0, min(12, enrich_top))
@@ -2070,6 +2087,209 @@ def farm_opire_submit(
         pr_url=pr_url or None,
         note=note,
     )
+
+
+@app.post("/api/farm/opire/tick")
+def farm_opire_autonomous_tick(max_actions: int = 3) -> dict:
+    """Durable AUTO-RUN pulse — bounty queue only (+ parallel API Farm step)."""
+    opire = _ctx().micro_farm.opire_farm_autonomous_tick(
+        max_actions=max(1, min(10, max_actions))
+    )
+    # Separate worker: never routed through bounty Execution Engine
+    api_farm = _api_farm().autonomous_tick(max_steps=2)
+    from swarm.farm_queues import build_farm_queues_status
+
+    queues = build_farm_queues_status(_opire_engine())
+    return {
+        "ok": True,
+        "opire": {**(opire if isinstance(opire, dict) else {"result": opire}), "queue_id": "BOUNTY_EXECUTION_QUEUE"},
+        "api_farm": {**(api_farm if isinstance(api_farm, dict) else {}), "queue_id": "API_FARM_QUEUE"},
+        "queues": queues,
+    }
+
+
+def _opire_engine():
+    try:
+        from pathlib import Path
+
+        from swarm.opire_farm import OpireFarmEngine
+
+        mem = getattr(_ctx().micro_farm, "_memory", None)
+        if mem is None:
+            return None
+        return OpireFarmEngine(Path(mem))
+    except Exception:
+        return None
+
+
+@app.get("/api/farm/queues")
+def farm_queues_status() -> dict:
+    """BOUNTY_EXECUTION_QUEUE · API_FARM_QUEUE · REVENUE_FARM_QUEUE (separated)."""
+    from swarm.farm_queues import build_farm_queues_status
+
+    return build_farm_queues_status(_opire_engine())
+
+
+@app.get("/api/farm/money-hunter")
+def farm_money_hunter_panel() -> dict:
+    load_local_env()
+    return _ctx().micro_farm.money_hunter()
+
+
+@app.get("/api/farm/reality")
+def farm_reality() -> dict:
+    """REAL vs pipeline vs Toloka — never mixed."""
+    load_local_env()
+    return _ctx().micro_farm.money_hunter_reality()
+
+
+@app.get("/api/farm/opportunities/top")
+def farm_opportunities_top(limit: int = 20) -> dict:
+    load_local_env()
+    return _ctx().micro_farm.money_hunter_top(limit=max(1, min(100, limit)))
+
+
+@app.post("/api/farm/opportunities/import")
+def farm_opportunities_import(body: dict) -> dict:
+    """Manual marketplace job import → analyze → profit → score."""
+    load_local_env()
+    return _ctx().micro_farm.money_hunter_import(body or {})
+
+
+@app.post("/api/farm/opportunities/{opportunity_id}/approve")
+def farm_opportunity_approve(
+    opportunity_id: str, confirm: bool = False, note: str = ""
+) -> dict:
+    load_local_env()
+    return _ctx().micro_farm.money_hunter_approve(
+        opportunity_id, confirm=confirm, note=note
+    )
+
+
+@app.post("/api/farm/opportunities/{opportunity_id}/reject")
+def farm_opportunity_reject(opportunity_id: str, note: str = "") -> dict:
+    load_local_env()
+    return _ctx().micro_farm.money_hunter_reject(opportunity_id, note=note)
+
+
+@app.post("/api/farm/opportunities/{opportunity_id}/start")
+def farm_opportunity_start(opportunity_id: str) -> dict:
+    load_local_env()
+    return _ctx().micro_farm.money_hunter_start(opportunity_id)
+
+
+@app.post("/api/farm/opportunities/{opportunity_id}/delivery")
+def farm_opportunity_delivery(opportunity_id: str) -> dict:
+    load_local_env()
+    return _ctx().micro_farm.money_hunter_delivery(opportunity_id)
+
+
+def _api_farm():
+    from app.integration.api_farm_service import ApiFarmService
+
+    mem = getattr(_ctx().micro_farm, "_memory", None)
+    return ApiFarmService(mem)
+
+
+@app.get("/api/farm/rapidapi/status")
+def farm_rapidapi_status() -> dict:
+    return _api_farm().status()
+
+
+@app.get("/api/farm/rapidapi/candidates")
+def farm_rapidapi_candidates(top: int = 50) -> dict:
+    return _api_farm().candidates(top=max(1, min(200, top)))
+
+
+@app.get("/api/farm/rapidapi/jobs")
+def farm_rapidapi_jobs(limit: int = 100) -> dict:
+    return _api_farm().jobs(limit=max(1, min(500, limit)))
+
+
+@app.get("/api/farm/rapidapi/revenue")
+def farm_rapidapi_revenue() -> dict:
+    return _api_farm().revenue()
+
+
+@app.get("/api/farm/rapidapi/markets")
+def farm_rapidapi_markets(wave_only: bool = False) -> dict:
+    """Global Market Registry — ISO map; LIVE only with verified datasets."""
+    from swarm.farm_channels.rapidapi.markets import (
+        coverage_summary,
+        list_markets,
+        market_capabilities_matrix,
+        products_catalog,
+    )
+    from swarm.farm_channels.rapidapi.markets.quality import wave_quality_table
+
+    return {
+        "ok": True,
+        "coverage": coverage_summary(),
+        "matrix": market_capabilities_matrix(wave_only=True),
+        "quality": wave_quality_table(),
+        "products": products_catalog(),
+        "markets": list_markets(wave_only=wave_only) if wave_only else list_markets(),
+        "honesty_rule": (
+            "No fake LIVE. Postal endpoints only for LIVE markets with commercial-ok datasets."
+        ),
+        "money_rule": "REAL REVENUE = RapidAPI/payment settlement only",
+    }
+
+
+@app.post("/api/farm/rapidapi/run")
+def farm_rapidapi_run(
+    action: str = "discover",
+    candidate_id: str = "",
+    max_steps: int = 8,
+) -> dict:
+    return _api_farm().run(
+        action=action,
+        candidate_id=candidate_id,
+        max_steps=max(1, min(20, max_steps)),
+    )
+
+
+@app.post("/api/farm/rapidapi/approve/{candidate_id}")
+def farm_rapidapi_approve(candidate_id: str, note: str = "") -> dict:
+    return _api_farm().approve(candidate_id, note=note)
+
+
+@app.post("/api/farm/rapidapi/publish/{candidate_id}")
+def farm_rapidapi_publish(candidate_id: str) -> dict:
+    return _api_farm().publish(candidate_id)
+
+
+@app.post("/api/farm/rapidapi/revenue/ingest")
+def farm_rapidapi_revenue_ingest(body: dict) -> dict:
+    """Ingest RapidAPI financial event. PAID_OUT + Hard REAL → Ledger only."""
+    return _api_farm().ingest_revenue(body or {})
+
+
+@app.get("/api/farm/runtime")
+def farm_runtime_index() -> dict:
+    from app.integration.api_farm_runtime_service import runtime_index
+
+    return runtime_index()
+
+
+@app.api_route(
+    "/api/farm/runtime/{slug}",
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+)
+async def farm_runtime_root(slug: str, request: Request):
+    from app.integration.api_farm_runtime_service import dispatch_runtime
+
+    return await dispatch_runtime(slug, request, "")
+
+
+@app.api_route(
+    "/api/farm/runtime/{slug}/{subpath:path}",
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+)
+async def farm_runtime_sub(slug: str, subpath: str, request: Request):
+    from app.integration.api_farm_runtime_service import dispatch_runtime
+
+    return await dispatch_runtime(slug, request, subpath)
 
 
 @app.post("/api/farm/opire/sync")
@@ -2178,7 +2398,24 @@ def farm_battle_test() -> dict:
 
 @app.post("/api/farm/tick")
 def farm_tick(workers: int = 10) -> dict:
-    return _ctx().micro_farm.run_tick(workers=max(1, min(100, workers)))
+    out = _ctx().micro_farm.run_tick(workers=max(1, min(100, workers)))
+    try:
+        api_farm = _api_farm().autonomous_tick(max_steps=1)
+    except Exception as exc:
+        api_farm = {"ok": False, "error": str(exc), "queue_id": "API_FARM_QUEUE"}
+    try:
+        from swarm.farm_queues import build_farm_queues_status
+
+        queues = build_farm_queues_status(_opire_engine())
+    except Exception as exc:
+        queues = {"ok": False, "error": str(exc)}
+    if isinstance(out, dict):
+        out = {
+            **out,
+            "api_farm": {**(api_farm if isinstance(api_farm, dict) else {}), "queue_id": "API_FARM_QUEUE"},
+            "queues": queues,
+        }
+    return out
 
 
 @app.get("/api/farm/toloka/status")
@@ -4089,8 +4326,20 @@ def public_niches() -> dict:
     from app.factory.niche_profiles import known_niche_ids, resolve_niche_profile
     from app.factory.research_3d.visual_experience_registry import load_specialization_map
 
+    # Family Care / Familienpsychologie — removed from public order UI (not a sellable demo).
+    _PUBLIC_NICHE_BLOCKLIST = frozenset(
+        {
+            "family_psychology",
+            "family_care",
+            "familienpsychologie",
+            "psychology",
+        }
+    )
+
     niches = []
     for nid in known_niche_ids():
+        if nid in _PUBLIC_NICHE_BLOCKLIST or "family" in nid:
+            continue
         profile = resolve_niche_profile(nid)
         niches.append({"id": nid, "label_de": profile.label_de})
     specs = []
@@ -4106,6 +4355,64 @@ def public_niches() -> dict:
             }
         )
     return {"niches": niches, "specializations": specs}
+
+
+@app.get("/api/public/solution-catalog")
+def public_solution_catalog(locale: str = "de") -> dict:
+    """Digital Business Creator catalog — solutions by business, not templates."""
+    from app.factory.commerce_model import public_commerce_packages
+    from app.factory.solution_catalog import catalog_payload
+
+    payload = catalog_payload(locale=locale)
+    payload["commerce_packages"] = public_commerce_packages()
+    return payload
+
+
+@app.post("/api/public/business-interview/parse")
+def public_business_interview_parse(body: dict) -> dict:
+    """Parse dialogue/form → Interview + clarifying questions + Intelligence preview."""
+    from app.factory.business_intelligence import resolve_business_intelligence
+    from app.factory.business_interview import interview_from_payload, interview_to_contacts
+    from app.factory.interview_clarify import (
+        DREAM_PROMPT,
+        DREAM_PROMPT_DE,
+        build_clarify_session,
+    )
+
+    payload = body if isinstance(body, dict) else {}
+    iv = interview_from_payload(payload)
+    contacts = interview_to_contacts(iv, {})
+    niche = str(iv.niche_hint or payload.get("niche") or "")
+    session = build_clarify_session(
+        niche_id=niche,
+        answered=iv.clarify_answers,
+        free_text=iv.free_text or iv.about,
+        team=iv.team,
+        dream=iv.dream_vision or str(payload.get("dream_vision") or ""),
+        site_jobs=iv.site_jobs,
+    )
+    bi = resolve_business_intelligence(
+        niche_id=niche,
+        company_name=iv.company_name,
+        city=iv.city,
+        interview=iv.as_dict(),
+        contacts=contacts,
+    )
+    return {
+        "interview": iv.as_dict(),
+        "intelligence": bi.as_dict(),
+        "recommended_components": [c.as_dict() for c in bi.components],
+        "clarifying_questions": [q.as_dict() for q in session.questions],
+        "clarify_session": session.as_dict(),
+        "dream_prompt": DREAM_PROMPT,
+        "dream_prompt_de": DREAM_PROMPT_DE,
+        "technical_decisions": bi.technical_decisions or session.technical,
+        "law": (
+            "Factory does not ask technical questions. "
+            "It asks about the business — then designs the digital solution."
+        ),
+        "canon": "Digital Business Creator",
+    }
 
 
 # --- M2 Universal Identity (client API — human-facing responses, plain language) ---
@@ -4150,6 +4457,22 @@ def client_me(request: Request) -> dict:
 
     payload = require_client(request)
     return _customer_identity().me(str(payload["sub"]))
+
+
+@app.get("/api/client/vector-coaching")
+def client_vector_coaching(request: Request) -> dict:
+    """Ephemeral Vector coaching notifications — not a chat."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration.vector.coaching_notifications import coaching_payload_for_me
+
+    payload = require_client(request)
+    customer_id = str(payload["sub"])
+    me = _customer_identity().me(customer_id)
+    email = str(payload.get("email") or me.get("email") or "").strip()
+    orders = _ctx().sales.list_orders_for_customer(
+        customer_id=customer_id, email=email or None, limit=50
+    )
+    return {"ok": True, **coaching_payload_for_me(me, orders)}
 
 
 @app.get("/api/client/orders")
@@ -4218,12 +4541,15 @@ def client_bots_list(request: Request) -> dict:
     payload = require_client(request)
     cid = str(payload["sub"])
     mem = _memory_dir()
+    from app.integration.channel_engine.whatsapp_cloud import whatsapp_foundation_status
+
     return {
         "ok": True,
         "entitlements": wab.get_entitlements(mem, cid),
         "bots": wab.list_bots(mem, cid),
         "connections": wcc.list_connections(mem, cid),
         "meta_oauth_configured": meta_oauth_configured(),
+        "whatsapp_foundation": whatsapp_foundation_status(),
     }
 
 
@@ -4278,8 +4604,8 @@ def client_bots_order_draft_put(request: Request, body: ClientBotOrderDraftReque
 
 @app.post("/api/webhooks/telegram/{bot_id}")
 async def telegram_bot_webhook(bot_id: str, request: Request) -> dict:
-    """Inbound Telegram updates for paid AI Business Bots."""
-    from app.integration.workspace_bot_runtime import handle_telegram_update
+    """Inbound Telegram updates for paid AI Business Bots (Channel Engine → TelegramProvider)."""
+    from app.integration.channel_engine import get_provider
 
     try:
         update = await request.json()
@@ -4287,11 +4613,75 @@ async def telegram_bot_webhook(bot_id: str, request: Request) -> dict:
         raise HTTPException(status_code=400, detail="invalid_json") from None
     if not isinstance(update, dict):
         raise HTTPException(status_code=400, detail="invalid_update")
-    result = handle_telegram_update(_memory_dir(), bot_id, update)
+    provider = get_provider("telegram")
+    if provider is None:
+        raise HTTPException(status_code=503, detail="telegram_provider_unavailable")
+    result = provider.receive(_memory_dir(), bot_id, update)
     if result.get("reason") == "bot_not_found":
         raise HTTPException(status_code=404, detail="bot_not_found")
     # Always 200 to Telegram when bot exists but message ignored
-    return {"ok": True, **{k: v for k, v in result.items() if k != "reply_text"}}
+    safe = {
+        k: v
+        for k, v in result.items()
+        if k not in ("reply_text", "normalized")
+    }
+    return {"ok": True, **safe}
+
+
+@app.get("/api/webhooks/whatsapp")
+async def whatsapp_webhook_verify(
+    hub_mode: str | None = Query(None, alias="hub.mode"),
+    hub_verify_token: str | None = Query(None, alias="hub.verify_token"),
+    hub_challenge: str | None = Query(None, alias="hub.challenge"),
+) -> PlainTextResponse:
+    """Meta WhatsApp Cloud API subscription handshake (GET hub.verify_token)."""
+    from app.integration.channel_engine import whatsapp_cloud as wa
+
+    challenge = wa.verify_webhook_subscribe(
+        mode=hub_mode,
+        token=hub_verify_token,
+        challenge=hub_challenge,
+    )
+    if challenge is None:
+        raise HTTPException(status_code=403, detail="whatsapp_verify_failed")
+    return PlainTextResponse(content=challenge)
+
+
+@app.post("/api/webhooks/whatsapp")
+async def whatsapp_webhook_receive(request: Request) -> dict:
+    """WhatsApp Cloud API inbound — foundation ack only (no AI Employee Live)."""
+    import json
+
+    from app.integration.channel_engine import get_provider
+    from app.integration.channel_engine import whatsapp_cloud as wa
+
+    secret = wa.meta_app_secret()
+    if not secret:
+        raise HTTPException(status_code=503, detail="whatsapp_setup_required")
+    raw = await request.body()
+    signature = request.headers.get("X-Hub-Signature-256")
+    if not wa.verify_meta_signature(
+        app_secret=secret, raw_body=raw, header_value=signature
+    ):
+        raise HTTPException(status_code=403, detail="invalid_signature")
+    try:
+        payload = json.loads(raw.decode("utf-8") or "{}")
+    except Exception:
+        raise HTTPException(status_code=400, detail="invalid_json") from None
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="invalid_json")
+    provider = get_provider("whatsapp")
+    if provider is None:
+        raise HTTPException(status_code=503, detail="whatsapp_provider_unavailable")
+    result = provider.receive(_memory_dir(), "", payload)
+    return {
+        "ok": True,
+        "channel_type": "whatsapp",
+        "live": False,
+        "delivery": result.get("delivery") or "foundation_ack_only",
+        "status": result.get("status"),
+        "events": result.get("events"),
+    }
 
 
 @app.post("/api/client/bots/{bot_id}/chat")
@@ -4310,8 +4700,20 @@ def client_bot_chat_preview(request: Request, bot_id: str, body: dict | None = N
     message = str(data.get("message") or data.get("text") or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="message_required")
-    reply = generate_bot_reply(bot, message)
-    return {"ok": True, "bot_id": bot_id, "reply": reply.get("text"), "source": reply.get("source")}
+    reply = generate_bot_reply(
+        bot,
+        message,
+        memory_dir=_memory_dir(),
+        customer_id=cid,
+        session_key=f"cabinet:{cid}:{bot_id}",
+    )
+    return {
+        "ok": True,
+        "bot_id": bot_id,
+        "reply": reply.get("text"),
+        "source": reply.get("source"),
+        "intent": reply.get("intent"),
+    }
 
 
 @app.post("/api/client/bots/telegram/connect")
@@ -4338,6 +4740,168 @@ def client_bots_telegram_connect(
     return result
 
 
+@app.get("/api/client/bots/website-chat/status")
+def client_website_chat_status(request: Request) -> dict:
+    """Website Chat channel status — commercial Live when COMMERCIAL_LIVE=True."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+
+    require_client(request)
+    return wch.commercial_status()
+
+
+@app.post("/api/client/bots/{bot_id}/website-chat/connect")
+def client_website_chat_connect(request: Request, bot_id: str, body: dict | None = None) -> dict:
+    """Create Website Chat connection for owned bot (Live channel)."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+    from app.integration.workspace_bot_runtime import public_api_base
+
+    payload = require_client(request)
+    data = body if isinstance(body, dict) else {}
+    result = wch.create_website_channel(
+        _memory_dir(),
+        str(payload["sub"]),
+        bot_id=bot_id,
+        site_ref=str(data.get("site_ref") or "") or None,
+        site_label=str(data.get("site_label") or "") or None,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "connect_failed")
+    embed = result.get("embed") or {}
+    result["embed"] = wch.generate_embed_snippet(
+        str((result.get("connection") or {}).get("public_key") or ""),
+        api_base=public_api_base(),
+    ) or embed
+    return result
+
+
+@app.get("/api/client/bots/website-chat/connections")
+def client_website_chat_list(request: Request) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+
+    payload = require_client(request)
+    return {
+        "ok": True,
+        "commercial": wch.commercial_status(),
+        "connections": wch.list_connections(_memory_dir(), str(payload["sub"])),
+    }
+
+
+@app.post("/api/client/bots/website-chat/{connection_id}/disconnect")
+def client_website_chat_disconnect(request: Request, connection_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+
+    payload = require_client(request)
+    result = wch.disconnect_website_channel(
+        _memory_dir(), str(payload["sub"]), connection_id
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "disconnect_failed")
+    return result
+
+
+@app.post("/api/client/bots/website-chat/{connection_id}/reconnect")
+def client_website_chat_reconnect(request: Request, connection_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+    from app.integration.workspace_bot_runtime import public_api_base
+
+    payload = require_client(request)
+    result = wch.reconnect_website_channel(
+        _memory_dir(), str(payload["sub"]), connection_id
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "reconnect_failed")
+    key = str((result.get("connection") or {}).get("public_key") or "")
+    result["embed"] = wch.generate_embed_snippet(key, api_base=public_api_base())
+    return result
+
+
+@app.post("/api/public/website-chat/{public_key}/message")
+def public_website_chat_message(public_key: str, body: dict | None = None) -> dict:
+    """Public Website Chat widget inbound — Live when COMMERCIAL_LIVE=True."""
+    from app.integration import website_chat_connector as wch
+
+    data = body if isinstance(body, dict) else {}
+    result = wch.handle_website_chat_message(
+        _memory_dir(),
+        public_key,
+        str(data.get("message") or data.get("text") or ""),
+        visitor_id=str(data.get("visitor_id") or "") or None,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "chat_failed")
+    return {
+        "ok": True,
+        "reply": result.get("reply"),
+        "source": result.get("source"),
+        "commercial_live": result.get("commercial_live"),
+    }
+
+
+@app.get("/api/public/website-chat/widget.js")
+def public_website_chat_widget_js():
+    """Serve spike widget JS from frontend public (or embedded fallback)."""
+    from fastapi.responses import FileResponse, Response
+
+    candidates = [
+        _Path(__file__).resolve().parents[2] / "frontend" / "public" / "widget" / "website-chat.js",
+        _Path(__file__).resolve().parents[3] / "dashboard" / "frontend" / "public" / "widget" / "website-chat.js",
+    ]
+    for path in candidates:
+        if path.is_file():
+            return FileResponse(path, media_type="application/javascript; charset=utf-8")
+    return Response(
+        content="console.error('website-chat widget missing');",
+        media_type="application/javascript",
+        status_code=404,
+    )
+
+
+@app.get("/api/public/website-chat/harness")
+def public_website_chat_harness(key: str = "", label: str = "Demo website", tenant: str = ""):
+    """Browser E2E harness — not commercial Live."""
+    from fastapi.responses import HTMLResponse
+    from html import escape
+
+    key_safe = escape(str(key or "").strip())
+    label_safe = escape(str(label or "Demo website"))
+    tenant_safe = escape(str(tenant or ""))
+    html = f"""<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Website Chat Live · {label_safe}</title>
+  <style>
+    body{{margin:0;font-family:system-ui,Segoe UI,sans-serif;background:#071018;color:#e2e8f0}}
+    main{{max-width:720px;margin:0 auto;padding:48px 24px}}
+    .card{{border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:24px;background:rgba(255,255,255,.03)}}
+    .muted{{color:#94a3b8;font-size:14px}}
+    .ok{{color:#a7f3d0;font-size:12px}}
+    code{{font-size:12px;color:#64748b}}
+  </style>
+</head>
+<body>
+  <main>
+    <p class="muted">Virtus Website Chat · Live preview</p>
+    <h1>{label_safe}</h1>
+    <p class="muted">Open Chat and send a message. Telegram + Website Chat are Live.</p>
+    {"<p class='muted' data-testid='tenant-label'>Tenant: " + tenant_safe + "</p>" if tenant_safe else ""}
+    <div class="card">
+      <p class="ok">Commercial status: Live — WhatsApp / Instagram / Messenger remain Coming Soon.</p>
+      <p><code data-testid="public-key">{key_safe or "(missing key)"}</code></p>
+    </div>
+  </main>
+  {"<script src='/api/public/website-chat/widget.js' data-virtus-key='" + key_safe + "' data-endpoint='/api/public/website-chat/" + key_safe + "/message' async></script>" if key_safe else ""}
+</body>
+</html>"""
+    return HTMLResponse(html)
+
+
 @app.post("/api/client/bots/connections/{connection_id}/test")
 def client_bots_connection_test(request: Request, connection_id: str) -> dict:
     from app.integration.customer_identity.auth import require_client
@@ -4358,6 +4922,86 @@ def client_bots_connection_disconnect(
     result = wcc.disconnect(_memory_dir(), str(payload["sub"]), body.connection_id)
     if not result.get("ok"):
         raise HTTPException(status_code=400, detail=result.get("reason") or "disconnect_failed")
+    return result
+
+
+@app.get("/api/client/inbox/threads")
+def client_inbox_threads(
+    request: Request,
+    channel: str | None = None,
+    unread: str | None = None,
+    q: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict:
+    """Unified Inbox list — Telegram + Website Chat sessions for this workspace."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    return inbox.list_threads(
+        _memory_dir(),
+        str(payload["sub"]),
+        channel=channel,
+        unread_only=str(unread or "").strip().lower() in ("1", "true", "yes"),
+        q=q,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@app.get("/api/client/inbox/threads/{thread_id}")
+def client_inbox_thread_get(request: Request, thread_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    result = inbox.get_thread(_memory_dir(), str(payload["sub"]), thread_id)
+    if not result.get("ok"):
+        reason = str(result.get("reason") or "not_found")
+        status = 403 if reason == "forbidden" else 404
+        raise HTTPException(status_code=status, detail=reason)
+    return result
+
+
+@app.post("/api/client/inbox/threads/{thread_id}/read")
+def client_inbox_thread_read(request: Request, thread_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    result = inbox.mark_read(_memory_dir(), str(payload["sub"]), thread_id)
+    if not result.get("ok"):
+        reason = str(result.get("reason") or "not_found")
+        status = 403 if reason == "forbidden" else 404
+        raise HTTPException(status_code=status, detail=reason)
+    return result
+
+
+@app.post("/api/client/inbox/threads/{thread_id}/messages")
+async def client_inbox_thread_send(request: Request, thread_id: str) -> dict:
+    """Human reply via Channel Engine (Telegram). Website Chat push not supported yet."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    text = str(body.get("text") or body.get("message") or "")
+    result = inbox.send_reply(_memory_dir(), str(payload["sub"]), thread_id, text)
+    if not result.get("ok"):
+        reason = str(result.get("reason") or "send_failed")
+        if reason in ("forbidden",):
+            raise HTTPException(status_code=403, detail=reason)
+        if reason in ("not_found", "invalid_thread"):
+            raise HTTPException(status_code=404, detail=reason)
+        if reason == "CHANNEL_SEND_UNSUPPORTED":
+            raise HTTPException(status_code=409, detail=reason)
+        raise HTTPException(status_code=400, detail=reason)
     return result
 
 
@@ -4437,11 +5081,90 @@ def create_sales_order(request: Request, body: SalesOrderCreateRequest) -> Sales
         msg = str(exc)
         if msg in ("customer_id_required_for_bot", "customer_id_required_for_shop"):
             raise HTTPException(status_code=401, detail=msg) from exc
+        if msg == "demo_payment_disabled":
+            raise HTTPException(
+                status_code=403,
+                detail="Demo Payment Bridge отключён в Production",
+            ) from exc
+        if msg in ("cinematic_product_unavailable", "cinematic_product_misconfigured"):
+            raise HTTPException(status_code=400, detail=msg) from exc
         raise HTTPException(status_code=400, detail=msg) from exc
     order = _ctx().sales.get_order(result["order_id"])
     if order and order.get("email"):
         ReceiptEmailService().send_order_received(order=order)
     return SalesOrderCreatedResponse(**result)
+
+
+@app.get("/api/commerce/cinematic-experience")
+def commerce_cinematic_experience(lang: str = "de") -> dict:
+    """Client-facing Cinematic AI Experience card — no internal budget / provider costs."""
+    from app.integration.cinematic_media import public_catalog
+
+    return public_catalog(lang=lang)
+
+
+@app.get("/api/sales/orders/{order_id}/media-budget")
+def sales_order_media_budget(order_id: str, dry_run: bool = False) -> dict:
+    """Owner/admin view of cinematic media budget (internal numbers OK here)."""
+    from app.integration.cinematic_media import admin_media_view, dry_run_scene_budget, provider_board
+
+    order = _ctx().sales.get_order(order_id)
+    view = admin_media_view(order)
+    view["providers"] = provider_board()
+    if dry_run and order:
+        view["dry_run"] = dry_run_scene_budget(
+            {
+                "niche": order.get("niche"),
+                "business_name": order.get("business_name"),
+                "city": order.get("city"),
+                "description": order.get("description"),
+                "product_kind": order.get("product_kind"),
+                "brand_style": order.get("brand_style"),
+                "cinematic_enabled": order.get("cinematic_enabled"),
+                "style": order.get("brand_style") or "cinematic_realistic",
+            },
+            order=order,
+        )
+    return view
+
+
+@app.post("/api/commerce/cinematic-dry-run")
+def commerce_cinematic_dry_run(body: dict | None = None) -> dict:
+    """Form → Scene Director → cost estimate → ALLOW/BLOCK. Never submits live jobs."""
+    from app.integration.cinematic_media import dry_run_scene_budget
+
+    payload = body or {}
+    order = None
+    order_id = str(payload.get("order_id") or "").strip()
+    if order_id:
+        order = _ctx().sales.get_order(order_id)
+    return dry_run_scene_budget(payload, order=order, provider_id=payload.get("provider_id"))
+
+
+@app.post("/api/sales/orders/{order_id}/media-generation/request")
+def sales_order_media_generation_request(order_id: str, body: dict | None = None) -> dict:
+    """Future generation entry — budget gate + disabled providers (no live network)."""
+    from app.integration.cinematic_media import request_generation
+
+    order = _ctx().sales.get_order(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="order_not_found")
+    payload = body or {}
+    mem = _memory_dir()
+    result = request_generation(
+        order,
+        mem,
+        provider_id=str(payload.get("provider_id") or "kie"),
+        capability=str(payload.get("capability") or "IMAGE_TO_VIDEO"),
+        estimated_cost_eur=(
+            float(payload["estimated_cost_eur"])
+            if payload.get("estimated_cost_eur") is not None
+            else None
+        ),
+        prompt=str(payload.get("prompt") or ""),
+    )
+    _ctx().sales._save_order(order)
+    return result
 
 
 def _client_store_identity(request: Request) -> tuple[str, str | None]:
@@ -4461,7 +5184,7 @@ def _client_store_identity(request: Request) -> tuple[str, str | None]:
 
 def _client_store_http_error(exc: ValueError) -> HTTPException:
     msg = str(exc)
-    if msg == "forbidden":
+    if msg in ("forbidden", "not_a_website_order"):
         return HTTPException(status_code=403, detail=msg)
     if msg in (
         "order_not_found",
@@ -4593,8 +5316,18 @@ def client_store_live(order_id: str, asset_path: str = "index.html"):
                 path.read_text(encoding="utf-8"), order_id
             )
             return HTMLResponse(content=html)
+        if path.suffix.lower() == ".css":
+            from pathlib import PurePosixPath
+
+            rel_dir = str(PurePosixPath(rel).parent)
+            if rel_dir == ".":
+                rel_dir = ""
+            css = path.read_text(encoding="utf-8", errors="replace")
+            css = factory.rewrite_live_urls(
+                css, order_id=order_id, relative_dir=rel_dir
+            )
+            return Response(content=css, media_type="text/css; charset=utf-8")
         media = {
-            ".css": "text/css; charset=utf-8",
             ".js": "application/javascript; charset=utf-8",
             ".json": "application/json; charset=utf-8",
             ".svg": "image/svg+xml",
@@ -4643,7 +5376,11 @@ async def store_admin_create_product(request: Request, order_id: str) -> dict:
         payload = await request.json()
         if not isinstance(payload, dict):
             raise ValueError("invalid_payload")
-        return _store_catalog().create_product(order_id, payload)
+        result = _store_catalog().create_product(order_id, payload)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -4657,6 +5394,36 @@ def store_admin_get_product(request: Request, order_id: str, product_id: str) ->
         raise _client_store_http_error(exc) from exc
 
 
+def _shop_product_dir_for_order(order_id: str):
+    from app.factory.store_factory.service import StoreFactoryService
+
+    order = _ctx().sales.get_order(order_id) or {}
+    product_id = str(order.get("product_id") or "").strip()
+    if not product_id:
+        return None, order
+    return StoreFactoryService(_memory_dir()).product_dir(product_id), order
+
+
+def _live_sync_shop_catalog(order_id: str) -> dict:
+    """Push catalog SSOT into published storefront HTML (honest Live Sync)."""
+    from app.integration.store_admin.shop_live_sync import sync_catalog_to_storefront
+
+    product_dir, _order = _shop_product_dir_for_order(order_id)
+    if product_dir is None or not product_dir.is_dir():
+        return {"ok": False, "live_sync": False, "reason": "product_dir_missing"}
+    catalog = _store_catalog()
+    products = catalog._load(order_id)  # noqa: SLF001
+    media_root = catalog._media._media  # noqa: SLF001
+    sync = sync_catalog_to_storefront(
+        product_dir, products, media_root=media_root
+    )
+    # Persist storefront_path back into catalog SSOT when materialize ran
+    updated = sync.get("catalog") if isinstance(sync, dict) else None
+    if isinstance(updated, list):
+        catalog._save(order_id, updated)  # noqa: SLF001
+    return {k: v for k, v in sync.items() if k != "catalog"}
+
+
 @app.patch("/api/client/stores/{order_id}/admin/products/{product_id}")
 async def store_admin_update_product(
     request: Request, order_id: str, product_id: str
@@ -4666,7 +5433,11 @@ async def store_admin_update_product(
         payload = await request.json()
         if not isinstance(payload, dict):
             raise ValueError("invalid_payload")
-        return _store_catalog().update_product(order_id, product_id, payload)
+        result = _store_catalog().update_product(order_id, product_id, payload)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -4677,7 +5448,11 @@ def store_admin_delete_product(
 ) -> dict:
     try:
         _assert_store_admin_access(request, order_id)
-        return _store_catalog().delete_product(order_id, product_id)
+        result = _store_catalog().delete_product(order_id, product_id)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -4723,7 +5498,18 @@ async def store_admin_upload_media(
         _assert_store_admin_access(request, order_id)
         if not files:
             raise ValueError("files_required")
-        return _store_catalog().add_images(order_id, product_id, list(files))
+        result = _store_catalog().add_images(order_id, product_id, list(files))
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+            # Refresh product with storefront_path after materialize
+            try:
+                refreshed = _store_catalog().get_product(order_id, product_id)
+                if isinstance(refreshed, dict) and refreshed.get("product"):
+                    result["product"] = refreshed["product"]
+            except ValueError:
+                pass
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -4737,7 +5523,11 @@ async def store_admin_update_media(
         payload = await request.json()
         if not isinstance(payload, dict):
             raise ValueError("invalid_payload")
-        return _store_catalog().update_images(order_id, product_id, payload)
+        result = _store_catalog().update_images(order_id, product_id, payload)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -4750,7 +5540,11 @@ def store_admin_delete_media(
 ) -> dict:
     try:
         _assert_store_admin_access(request, order_id)
-        return _store_catalog().delete_image(order_id, product_id, image_id)
+        result = _store_catalog().delete_image(order_id, product_id, image_id)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -5128,6 +5922,52 @@ def store_buyer_orders(request: Request, order_id: str) -> dict:
         raise _store_buyer_http_error(exc) from exc
 
 
+@app.get("/api/store/{order_id}/checkout/options")
+def store_checkout_options(order_id: str) -> dict:
+    """Checkout 1.0 — shipping + payment methods from merchant commerce settings."""
+    from app.integration.store_checkout import StoreCheckoutService
+
+    return StoreCheckoutService(_memory_dir()).checkout_options(order_id)
+
+
+@app.post("/api/store/{order_id}/checkout/place")
+def store_checkout_place(
+    request: Request, order_id: str, body: dict | None = None
+) -> dict:
+    """Checkout 1.0 — place order (no live PSP charge)."""
+    from app.integration.store_customer.auth import require_store_buyer
+    from app.integration.store_checkout import StoreCheckoutService
+
+    buyer = require_store_buyer(request, order_id)
+    try:
+        return StoreCheckoutService(_memory_dir()).place_order(
+            order_id, str(buyer["sub"]), body or {}
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg in {
+            "cart_empty",
+            "shipping_required",
+            "payment_required",
+            "address_incomplete",
+            "below_min_order",
+            "buyer_not_found",
+        }:
+            raise HTTPException(status_code=400, detail=msg) from exc
+        raise _store_buyer_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/orders")
+def store_admin_orders(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_checkout import StoreCheckoutService
+
+        return StoreCheckoutService(_memory_dir()).list_shop_orders(order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
 @app.get("/api/client/stores/{order_id}/admin/customers")
 def store_admin_list_customers(request: Request, order_id: str) -> dict:
     try:
@@ -5147,6 +5987,1629 @@ def store_admin_commerce_settings(request: Request, order_id: str) -> dict:
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
+
+@app.get("/api/client/stores/{order_id}/admin/integrations")
+def store_admin_integrations(request: Request, order_id: str) -> dict:
+    """Integrations hub — Payments, Shipping, Email, … unified cards."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        return StoreCommerceSettingsService(_memory_dir()).integrations_hub(order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/integrations/{provider_id}/connect")
+def store_admin_integration_connect(
+    request: Request, order_id: str, provider_id: str, body: dict | None = None
+) -> dict:
+    """R3.3.1+ — merchant connects their own provider account."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        account = str((body or {}).get("account") or "").strip() or None
+        return StoreCommerceSettingsService(_memory_dir()).connect(
+            order_id, provider_id, account=account
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg == "oauth_required":
+            raise HTTPException(
+                status_code=400,
+                detail="Use Stripe Connect OAuth — GET .../integrations/stripe/oauth/start",
+            ) from exc
+        if msg == "smtp_form_required":
+            raise HTTPException(
+                status_code=400,
+                detail="Use POST .../integrations/{gmail|outlook|microsoft365|smtp}/smtp-connect",
+            ) from exc
+        if msg == "shipping_api_required":
+            raise HTTPException(
+                status_code=400,
+                detail="Use POST .../integrations/{dhl|dpd|gls|hermes|ups|fedex}/shipping-connect",
+            ) from exc
+        if msg == "account_required":
+            raise HTTPException(status_code=400, detail=msg) from exc
+        if msg == "provider_not_connectable":
+            raise HTTPException(status_code=400, detail=msg) from exc
+        if msg == "provider_not_found":
+            raise HTTPException(status_code=404, detail=msg) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/integrations/{provider_id}/smtp-connect")
+def store_admin_smtp_connect(
+    request: Request, order_id: str, provider_id: str, body: dict | None = None
+) -> dict:
+    """Gen1 SMTP — Gmail / Outlook / M365 / custom SMTP credentials."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        return StoreCommerceSettingsService(_memory_dir()).connect_email_smtp(
+            order_id, provider_id, body or {}
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg in {
+            "provider_not_found",
+            "smtp_host_required",
+            "smtp_port_invalid",
+            "smtp_username_required",
+            "smtp_password_required",
+            "smtp_from_invalid",
+            "smtp_encryption_invalid",
+        }:
+            raise HTTPException(
+                status_code=404 if msg == "provider_not_found" else 400, detail=msg
+            ) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/integrations/{provider_id}/shipping-connect")
+def store_admin_shipping_connect(
+    request: Request, order_id: str, provider_id: str, body: dict | None = None
+) -> dict:
+    """Gen1 Shipping API — DHL / DPD / GLS / Hermes / UPS / FedEx credentials + test."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreShippingApiService
+
+        return StoreShippingApiService(_memory_dir()).connect_carrier(
+            order_id, provider_id, body or {}
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg in {
+            "carrier_not_supported",
+            "provider_not_found",
+            "api_credentials_required",
+            "connection_failed",
+            "API Authentication failed",
+        } or msg.startswith("Missing"):
+            raise HTTPException(
+                status_code=404 if msg == "provider_not_found" else 400, detail=msg
+            ) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/shipping/{carrier}/test")
+def store_admin_shipping_test(
+    request: Request, order_id: str, carrier: str, body: dict | None = None
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreShippingApiService
+
+        return StoreShippingApiService(_memory_dir()).test_connection(
+            order_id, carrier, body or {}
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/shipping/quotes")
+def store_admin_shipping_quotes(
+    request: Request,
+    order_id: str,
+    carrier: str | None = None,
+    weight_kg: float = 1.0,
+    country: str = "DE",
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreShippingApiService
+
+        return StoreShippingApiService(_memory_dir()).quote_rates(
+            order_id, carrier=carrier, weight_kg=weight_kg, country=country
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/shipping/shipments")
+def store_admin_shipping_list(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreShippingApiService
+
+        return StoreShippingApiService(_memory_dir()).list_shipments(order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/shipping/shipments")
+def store_admin_shipping_create(
+    request: Request, order_id: str, body: dict | None = None
+) -> dict:
+    """Create shipment for a shop order → tracking number."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreShippingApiService
+
+        shop_order_id = str((body or {}).get("shop_order_id") or "").strip()
+        if not shop_order_id:
+            raise HTTPException(status_code=400, detail="shop_order_id_required")
+        return StoreShippingApiService(_memory_dir()).create_shipment(
+            order_id,
+            shop_order_id=shop_order_id,
+            carrier=str((body or {}).get("carrier") or "").strip() or None,
+            service_id=str((body or {}).get("service_id") or "").strip() or None,
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg in {
+            "order_not_found",
+            "carrier_not_connected",
+            "offline_carrier_no_shipment",
+        }:
+            raise HTTPException(
+                status_code=404 if msg == "order_not_found" else 400, detail=msg
+            ) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/shipping/track")
+def store_admin_shipping_track(
+    request: Request, order_id: str, body: dict | None = None
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreShippingApiService
+
+        return StoreShippingApiService(_memory_dir()).track_shipment(
+            order_id,
+            tracking_number=str((body or {}).get("tracking_number") or "").strip()
+            or None,
+            shipment_id=str((body or {}).get("shipment_id") or "").strip() or None,
+            advance=bool((body or {}).get("advance")),
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg == "shipment_not_found":
+            raise HTTPException(status_code=404, detail=msg) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/email/test")
+def store_admin_email_test(request: Request, order_id: str, body: dict | None = None) -> dict:
+    """Send Test Email via merchant SMTP — required UX after Connect."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        to = str((body or {}).get("to") or "").strip() or None
+        return StoreCommerceSettingsService(_memory_dir()).send_test_email(
+            order_id, to=to
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg == "smtp_not_connected":
+            raise HTTPException(status_code=400, detail=msg) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/business-profile")
+def store_admin_business_profile_get(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import BusinessProfileService
+
+        return BusinessProfileService(_memory_dir()).get(order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.patch("/api/client/stores/{order_id}/admin/business-profile")
+def store_admin_business_profile_patch(
+    request: Request, order_id: str, body: dict | None = None
+) -> dict:
+    """Contact & Communication — single source of truth for the whole Virtus surface."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import BusinessProfileService
+
+        return BusinessProfileService(_memory_dir()).update(order_id, body or {})
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/email-templates")
+def store_admin_email_templates(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import EmailTemplatesService
+
+        return EmailTemplatesService(_memory_dir()).get(order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/integrations/stripe/oauth/start")
+def store_admin_stripe_oauth_start(request: Request, order_id: str):
+    """Stripe Connect OAuth — break out of iframe and send merchant to Stripe."""
+    import html as html_lib
+    import json as json_lib
+
+    from app.integration import stripe_connect_oauth as stripe_oauth
+    from app.integration.store_admin import StoreCommerceSettingsService
+
+    try:
+        _assert_store_admin_access(request, order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+    if not stripe_oauth.oauth_client_ready():
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Set STRIPE_CONNECT_CLIENT_ID (ca_…) and STRIPE_SECRET_KEY, "
+                "or GENESIS_STRIPE_CONNECT_MOCK=1 for QA."
+            ),
+        )
+
+    base = str(request.base_url).rstrip("/")
+    redirect_uri = stripe_oauth.default_redirect_uri(base)
+    frontend_base = (
+        os.getenv("GENESIS_FRONTEND_URL", "").strip()
+        or os.getenv("NEXT_PUBLIC_SITE_URL", "").strip()
+        or ""
+    )
+    return_url = stripe_oauth.frontend_return_url(
+        order_id, public_frontend_base=frontend_base
+    )
+    state = stripe_oauth.create_oauth_state(order_id=order_id, return_url=return_url)
+
+    # Mock path: complete Connect without leaving Virtus (QA / demos).
+    if stripe_oauth.mock_enabled():
+        exchanged = stripe_oauth.exchange_code(code=f"mock-{order_id}", redirect_uri=redirect_uri)
+        info = stripe_oauth.retrieve_account(str(exchanged.get("stripe_user_id") or ""))
+        label = stripe_oauth.account_label_from_oauth(exchanged, account_info=info)
+        StoreCommerceSettingsService(_memory_dir()).apply_stripe_oauth(
+            order_id,
+            stripe_user_id=str(exchanged["stripe_user_id"]),
+            account_label=label,
+            livemode=False,
+            scope=str(exchanged.get("scope") or "read_write"),
+            stripe_publishable_key=exchanged.get("stripe_publishable_key"),
+            mock=True,
+        )
+        accept = (request.headers.get("accept") or "").lower()
+        if "application/json" in accept and "text/html" not in accept:
+            return {"ok": True, "mock": True, "redirect": return_url, "account": label}
+        safe = html_lib.escape(return_url, quote=True)
+        js_url = json_lib.dumps(return_url)
+        return HTMLResponse(
+            f"""<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"/>
+<meta http-equiv="refresh" content="0;url={safe}"/>
+<title>Stripe Connected</title></head>
+<body style="font-family:system-ui;padding:2rem;background:#111;color:#eee">
+<p>Stripe Connected (mock). Returning to Store Admin…</p>
+<p><a href="{safe}" target="_top" style="color:#8cf">Continue</a></p>
+<script>
+try {{ window.top.location.href = {js_url}; }}
+catch (e) {{ window.location.href = {js_url}; }}
+</script>
+</body></html>"""
+        )
+
+    url = stripe_oauth.authorization_url(redirect_uri=redirect_uri, state=state)
+    accept = (request.headers.get("accept") or "").lower()
+    if "application/json" in accept and "text/html" not in accept:
+        return {"ok": True, "url": url, "redirect_uri": redirect_uri}
+    safe = html_lib.escape(url, quote=True)
+    js_url = json_lib.dumps(url)
+    return HTMLResponse(
+        f"""<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"/>
+<meta http-equiv="refresh" content="0;url={safe}"/>
+<title>Connect Stripe…</title></head>
+<body style="font-family:system-ui;padding:2rem;background:#111;color:#eee">
+<p>Redirecting to Stripe… If this screen stays blank, open the link:</p>
+<p><a href="{safe}" target="_top" style="color:#8cf">Continue to Stripe</a></p>
+<script>
+try {{ window.top.location.href = {js_url}; }}
+catch (e) {{ window.location.href = {js_url}; }}
+</script>
+</body></html>"""
+    )
+
+
+@app.get("/api/client/stores/stripe/oauth/callback", response_class=HTMLResponse)
+def store_admin_stripe_oauth_callback(
+    request: Request,
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+    error_description: str | None = None,
+) -> str:
+    """Stripe Connect OAuth callback — save acct_… and return merchant to Store Admin."""
+    import html as html_lib
+    import json as json_lib
+
+    from app.integration import stripe_connect_oauth as stripe_oauth
+    from app.integration.store_admin import StoreCommerceSettingsService
+
+    def _fail(msg: str) -> str:
+        safe = html_lib.escape(msg)
+        return (
+            "<!DOCTYPE html><html><body style='font-family:system-ui;padding:2rem'>"
+            f"<h1>Stripe Connect error</h1><pre>{safe}</pre>"
+            "<p>Close this tab and try Connect again from Store Admin → Payments.</p>"
+            "</body></html>"
+        )
+
+    if error:
+        return _fail(error_description or error)
+    payload = stripe_oauth.consume_oauth_state(state or "")
+    if not payload:
+        raise HTTPException(status_code=400, detail="Invalid or expired OAuth state")
+    order_id = str(payload.get("order_id") or "").strip()
+    return_url = str(payload.get("return_url") or "").strip() or stripe_oauth.frontend_return_url(
+        order_id
+    )
+    if not code:
+        return _fail("Missing authorization code")
+    base = str(request.base_url).rstrip("/")
+    redirect_uri = stripe_oauth.default_redirect_uri(base)
+    exchanged = stripe_oauth.exchange_code(code=code, redirect_uri=redirect_uri)
+    if not exchanged.get("ok"):
+        return _fail(str(exchanged.get("detail") or exchanged.get("reason") or "token_exchange_failed"))
+    info = stripe_oauth.retrieve_account(str(exchanged.get("stripe_user_id") or ""))
+    label = stripe_oauth.account_label_from_oauth(exchanged, account_info=info if info.get("ok") else None)
+    try:
+        StoreCommerceSettingsService(_memory_dir()).apply_stripe_oauth(
+            order_id,
+            stripe_user_id=str(exchanged["stripe_user_id"]),
+            account_label=label,
+            livemode=bool(exchanged.get("livemode")),
+            scope=str(exchanged.get("scope") or "read_write"),
+            stripe_publishable_key=exchanged.get("stripe_publishable_key"),
+            mock=bool(exchanged.get("mock")),
+        )
+    except ValueError as exc:
+        return _fail(str(exc))
+
+    # Prefer top-level redirect back into the client app.
+    safe = html_lib.escape(return_url, quote=True)
+    js_url = json_lib.dumps(return_url)
+    return f"""<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"/>
+<meta http-equiv="refresh" content="0;url={safe}"/>
+<title>Stripe Connected</title></head>
+<body style="font-family:system-ui;padding:2rem;background:#111;color:#eee">
+<p>Stripe Connected. Returning to Virtus Core…</p>
+<p><a href="{safe}" target="_top" style="color:#8cf">Continue to Store Admin</a></p>
+<script>
+try {{ window.top.location.href = {js_url}; }}
+catch (e) {{ window.location.href = {js_url}; }}
+</script>
+</body></html>"""
+
+
+@app.post("/api/client/stores/{order_id}/admin/integrations/{provider_id}/disconnect")
+def store_admin_integration_disconnect(
+    request: Request, order_id: str, provider_id: str
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        return StoreCommerceSettingsService(_memory_dir()).disconnect(
+            order_id, provider_id
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg in {"provider_not_connectable", "provider_not_found"}:
+            raise HTTPException(
+                status_code=404 if "not_found" in msg else 400, detail=msg
+            ) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/integrations/{provider_id}/reconnect")
+def store_admin_integration_reconnect(
+    request: Request, order_id: str, provider_id: str, body: dict | None = None
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        account = str((body or {}).get("account") or "").strip() or None
+        return StoreCommerceSettingsService(_memory_dir()).reconnect(
+            order_id, provider_id, account=account
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg in {
+            "account_required",
+            "oauth_required",
+            "smtp_form_required",
+            "shipping_api_required",
+            "provider_not_connectable",
+            "provider_not_found",
+        }:
+            raise HTTPException(
+                status_code=404 if "not_found" in msg else 400, detail=msg
+            ) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/integrations/{provider_id}/sync")
+def store_admin_integration_sync(
+    request: Request, order_id: str, provider_id: str
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        return StoreCommerceSettingsService(_memory_dir()).sync(order_id, provider_id)
+    except ValueError as exc:
+        msg = str(exc)
+        if msg in {"provider_not_connected", "provider_not_found"}:
+            raise HTTPException(
+                status_code=404 if "not_found" in msg else 400, detail=msg
+            ) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.patch("/api/client/stores/{order_id}/admin/shipping-config")
+def store_admin_shipping_config(
+    request: Request, order_id: str, body: dict | None = None
+) -> dict:
+    """R3.3.2 — general shipping settings, rates, methods."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        return StoreCommerceSettingsService(_memory_dir()).update_shipping_config(
+            order_id, body or {}
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg == "invalid_rate_mode":
+            raise HTTPException(status_code=400, detail=msg) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.patch("/api/client/stores/{order_id}/admin/tax-config")
+def store_admin_tax_config(
+    request: Request, order_id: str, body: dict | None = None
+) -> dict:
+    """R3.3.3 — MwSt / VAT profiles for DE & EU."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        return StoreCommerceSettingsService(_memory_dir()).update_tax_config(
+            order_id, body or {}
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg == "invalid_tax_profile":
+            raise HTTPException(status_code=400, detail=msg) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.patch("/api/client/stores/{order_id}/admin/invoice-config")
+def store_admin_invoice_config(
+    request: Request, order_id: str, body: dict | None = None
+) -> dict:
+    """R3.3.5 — invoice / credit note numbering."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        return StoreCommerceSettingsService(_memory_dir()).update_invoice_config(
+            order_id, body or {}
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/invoices/allocate")
+def store_admin_invoice_allocate(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        return StoreCommerceSettingsService(_memory_dir()).allocate_invoice_number(
+            order_id
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/credit-notes/allocate")
+def store_admin_credit_allocate(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        return StoreCommerceSettingsService(_memory_dir()).allocate_credit_note(order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/documents")
+def store_admin_documents_list(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreInvoiceService
+
+        return StoreInvoiceService(_memory_dir()).list_documents(order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/documents/invoice")
+def store_admin_create_invoice(
+    request: Request, order_id: str, body: dict | None = None
+) -> dict:
+    """Generate professional Invoice PDF from a shop order + Business Profile."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreInvoiceService
+
+        shop_order_id = str((body or {}).get("shop_order_id") or "").strip()
+        if not shop_order_id:
+            raise HTTPException(status_code=400, detail="shop_order_id_required")
+        language = str((body or {}).get("language") or "").strip() or None
+        return StoreInvoiceService(_memory_dir()).create_invoice(
+            order_id, shop_order_id=shop_order_id, language=language
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg == "order_not_found":
+            raise HTTPException(status_code=404, detail=msg) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/documents/credit-note")
+def store_admin_create_credit_note(
+    request: Request, order_id: str, body: dict | None = None
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreInvoiceService
+
+        invoice_doc_id = str((body or {}).get("invoice_doc_id") or "").strip()
+        if not invoice_doc_id:
+            raise HTTPException(status_code=400, detail="invoice_doc_id_required")
+        reason = str((body or {}).get("reason") or "").strip()
+        refund_type = str((body or {}).get("refund_type") or "full").strip()
+        amount = (body or {}).get("amount_eur")
+        amount_eur = float(amount) if amount is not None else None
+        language = str((body or {}).get("language") or "").strip() or None
+        return StoreInvoiceService(_memory_dir()).create_credit_note(
+            order_id,
+            invoice_doc_id=invoice_doc_id,
+            reason=reason,
+            refund_type=refund_type,
+            amount_eur=amount_eur,
+            language=language,
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg in {"document_not_found", "invoice_required"}:
+            raise HTTPException(
+                status_code=404 if "not_found" in msg else 400, detail=msg
+            ) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/documents/{doc_id}/pdf")
+def store_admin_document_pdf(request: Request, order_id: str, doc_id: str):
+    try:
+        _assert_store_admin_access(request, order_id)
+        from fastapi.responses import Response
+
+        from app.integration.store_admin import StoreInvoiceService
+
+        data, number = StoreInvoiceService(_memory_dir()).read_pdf_bytes(order_id, doc_id)
+        filename = f"{number}.pdf".replace('"', "")
+        return Response(
+            content=data,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+            },
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg == "document_not_found":
+            raise HTTPException(status_code=404, detail=msg) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/documents/{doc_id}/email")
+def store_admin_document_email(
+    request: Request, order_id: str, doc_id: str, body: dict | None = None
+) -> dict:
+    """Send / resend invoice PDF notice via merchant SMTP."""
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreInvoiceService
+
+        to = str((body or {}).get("to") or "").strip() or None
+        resend = bool((body or {}).get("resend"))
+        return StoreInvoiceService(_memory_dir()).send_document_email(
+            order_id, doc_id, to=to, resend=resend
+        )
+    except ValueError as exc:
+        msg = str(exc)
+        if msg in {"document_not_found", "smtp_not_connected", "recipient_required"}:
+            raise HTTPException(
+                status_code=404 if "not_found" in msg else 400, detail=msg
+            ) from exc
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/owner/global-analytics")
+def owner_global_analytics() -> dict:
+    """Mission Control — company-wide Global Analytics + Integrations Analytics."""
+    from app.integration.platform_global_analytics import PlatformGlobalAnalyticsService
+
+    finance_snap: dict = {}
+    company_snap: dict = {}
+    try:
+        fin_svc = getattr(_ctx(), "finance", None)
+        if fin_svc is not None:
+            if hasattr(fin_svc, "revenue_summary"):
+                finance_snap = dict(fin_svc.revenue_summary() or {})
+            hist = getattr(fin_svc, "_load_snapshot", None)
+            if callable(hist):
+                snap = hist() or {}
+                if isinstance(snap, dict):
+                    finance_snap = {**snap, **finance_snap}
+    except Exception:
+        pass
+    try:
+        company_snap = _ctx().mission_control._company_history()  # noqa: SLF001
+    except Exception:
+        pass
+    return PlatformGlobalAnalyticsService(_memory_dir()).global_snapshot(
+        finance=finance_snap if isinstance(finance_snap, dict) else {},
+        factory={},
+        company=company_snap if isinstance(company_snap, dict) else {},
+    )
+
+
+@app.get("/api/owner/ceo-dashboard")
+def owner_ceo_executive_dashboard(stage: str = "core") -> dict:
+    """Mission Control — morning Executive Dashboard (Virtus + Farm + Today Focus).
+
+    stage=core (default): Today Focus + Health + Virtus — fast first paint.
+    stage=full: includes Farm panel + heavy company audits.
+    """
+    from app.integration.ceo_executive_dashboard import build_ceo_executive_dashboard
+
+    finance_snap: dict = {}
+    try:
+        fin_svc = getattr(_ctx(), "finance", None)
+        if fin_svc is not None:
+            if hasattr(fin_svc, "revenue_summary"):
+                finance_snap = dict(fin_svc.revenue_summary() or {})
+            hist = getattr(fin_svc, "_load_snapshot", None)
+            if callable(hist):
+                snap = hist() or {}
+                if isinstance(snap, dict):
+                    finance_snap = {**snap, **finance_snap}
+    except Exception:
+        pass
+    return build_ceo_executive_dashboard(
+        _memory_dir(),
+        finance=finance_snap if isinstance(finance_snap, dict) else {},
+        include_deployment=False,
+        stage=stage or "core",
+    )
+
+
+@app.get("/api/owner/ceo-dashboard/farm")
+def owner_ceo_dashboard_farm() -> dict:
+    """Lazy Farm KPIs — never block CEO first paint."""
+    from app.integration.ceo_executive_dashboard import build_ceo_farm_section
+
+    return build_ceo_farm_section(_memory_dir())
+
+
+@app.get("/api/owner/deployment-manager")
+def owner_deployment_manager() -> dict:
+    """Live OVH/SSH deployment probe — lazy, never on CEO Dashboard critical path."""
+    from app.integration.deployment_manager import build_deployment_manager
+
+    return {"ok": True, **build_deployment_manager()}
+
+
+@app.get("/api/owner/ai-providers")
+def owner_ai_providers_gateway() -> dict:
+    """CEO — Provider Gateway status (Creative Production Pipeline foundation)."""
+    from app.integration.provider_gateway import ProviderGateway, pipeline_stages
+
+    gw = ProviderGateway(_memory_dir())
+    board = gw.status_board()
+    board["pipeline"] = pipeline_stages()
+    return board
+
+
+@app.post("/api/owner/ai-providers/{provider_id}/connect")
+async def owner_ai_provider_connect(provider_id: str, request: Request) -> dict:
+    """Store API key via Gateway vault (not hand-edited .env as primary path)."""
+    from app.integration.provider_gateway import ProviderGateway
+
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    key = str(body.get("api_key") or body.get("key") or "").strip()
+    gw = ProviderGateway(_memory_dir())
+    return gw.connect(provider_id, key)
+
+
+@app.post("/api/owner/ai-providers/{provider_id}/test")
+def owner_ai_provider_test(provider_id: str) -> dict:
+    from app.integration.provider_gateway import ProviderGateway
+
+    return ProviderGateway(_memory_dir()).test_connection(provider_id)
+
+
+def _support_center():
+    from app.integration.customer_identity.support_center import SupportCenterService
+
+    return SupportCenterService(_memory_dir())
+
+
+@app.get("/api/public/service-marketplace")
+def public_service_marketplace() -> dict:
+    """Gen2 Stage 0 — Service Marketplace vitrine (catalog only)."""
+    from app.integration.service_marketplace_stage0 import build_service_marketplace_catalog
+
+    return build_service_marketplace_catalog()
+
+
+@app.get("/api/owner/clients/lookup")
+def owner_clients_lookup(q: str = "", limit: int = 20) -> dict:
+    """Support Center — find clients by Business ID, email, name, phone, company."""
+    svc = _support_center()
+    svc.backfill_missing_ids(limit=200)
+    hits = svc.lookup(q, limit=min(max(limit, 1), 50))
+    return {"ok": True, "query": q, "results": hits, "count": len(hits)}
+
+
+@app.get("/api/owner/clients/{customer_id}")
+def owner_client_card(customer_id: str) -> dict:
+    """Support Center — full Client Card."""
+    card = _support_center().build_client_card(customer_id)
+    if not card:
+        raise HTTPException(status_code=404, detail="client_not_found")
+    return card
+
+
+@app.post("/api/owner/clients/{customer_id}/notes")
+def owner_client_add_note(customer_id: str, body: dict) -> dict:
+    text = str((body or {}).get("text") or "")
+    author = str((body or {}).get("author") or "owner")
+    note = _support_center().add_note(customer_id, text, author=author)
+    if not note:
+        raise HTTPException(status_code=400, detail="note_failed")
+    return {"ok": True, "note": note}
+
+
+@app.post("/api/owner/clients/{customer_id}/tickets")
+def owner_client_create_ticket(customer_id: str, body: dict) -> dict:
+    subject = str((body or {}).get("subject") or "Support")
+    text = str((body or {}).get("body") or "")
+    ticket = _support_center().create_ticket(customer_id, subject=subject, body=text)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="client_not_found")
+    return {"ok": True, "ticket": ticket}
+
+
+@app.get("/api/owner/integrations-analytics")
+def owner_integrations_analytics() -> dict:
+    from app.integration.platform_global_analytics import PlatformGlobalAnalyticsService
+
+    return PlatformGlobalAnalyticsService(_memory_dir()).integrations()
+
+
+@app.get("/api/client/stores/{order_id}/admin/setup-status")
+def store_admin_setup_status(request: Request, order_id: str) -> dict:
+    """Vector Phase 1 — contextual store setup checklist + readiness %."""
+    try:
+        store = _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreSetupStatusService
+
+        customer_count = 0
+        try:
+            listed = _store_customers().admin_list_customers(order_id)
+            customer_count = int(listed.get("count") or len(listed.get("customers") or []))
+        except Exception:
+            customer_count = 0
+
+        return StoreSetupStatusService(_memory_dir()).get(
+            order_id,
+            store_name=str(store.get("store_name") or ""),
+            shop_pipeline=store.get("shop_pipeline"),
+            customer_count=customer_count,
+            order_count=0,
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/vector/dialog")
+def store_admin_vector_dialog(
+    request: Request,
+    order_id: str,
+    learning_mode: str | None = None,
+    step_id: str | None = None,
+) -> dict:
+    """Vector Phase 2 — docked dialog wizard for Store Admin."""
+    try:
+        store = _assert_store_admin_access(request, order_id)
+        from app.integration.vector import VectorContextService
+
+        mode = (learning_mode or "").strip().lower() or None
+        if mode not in (None, "skip", "show"):
+            mode = None
+        return VectorContextService(_memory_dir(), sales=_ctx().sales).store_dialog(
+            order_id,
+            store_name=str(store.get("store_name") or ""),
+            shop_pipeline=store.get("shop_pipeline"),
+            learning_mode=mode,
+            step_id=(step_id or "").strip() or None,
+            include_welcome=mode == "show" and not step_id,
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/vector/dialog")
+def client_vector_dialog(
+    request: Request,
+    surface: str = "platform",
+    learning_mode: str | None = None,
+    order_id: str | None = None,
+) -> dict:
+    """One Vector — platform / website_admin / customer surfaces."""
+    customer_id, email = _client_store_identity(request)
+    from app.integration.vector import VectorContextService
+
+    mode = (learning_mode or "").strip().lower() or "skip"
+    if mode not in ("skip", "show"):
+        mode = "skip"
+    return VectorContextService(_memory_dir(), sales=_ctx().sales).dialog_for_surface(
+        surface,
+        order_id=(order_id or "").strip() or None,
+        customer_id=customer_id,
+        email=email,
+        learning_mode=mode,
+    )
+
+
+@app.get("/api/client/vector/business-setup")
+def client_vector_business_setup(request: Request) -> dict:
+    """Business Ready % across Website, Store, commerce stubs."""
+    customer_id, email = _client_store_identity(request)
+    from app.integration.vector import VectorContextService
+
+    return VectorContextService(
+        _memory_dir(), sales=_ctx().sales
+    ).business_setup_for_customer(customer_id=customer_id, email=email)
+
+
+@app.get("/api/client/vector/ai-health")
+def client_vector_ai_health(request: Request) -> dict:
+    customer_id, email = _client_store_identity(request)
+    from app.integration.vector import VectorContextService
+
+    return VectorContextService(
+        _memory_dir(), sales=_ctx().sales
+    ).ai_health_for_customer(customer_id=customer_id, email=email)
+
+
+@app.get("/api/client/vector/business-bundle")
+def client_vector_business_bundle(request: Request) -> dict:
+    """Business Ready + AI Health in one payload."""
+    customer_id, email = _client_store_identity(request)
+    from app.integration.vector import VectorContextService
+
+    return VectorContextService(
+        _memory_dir(), sales=_ctx().sales
+    ).business_bundle(customer_id=customer_id, email=email)
+
+
+@app.post("/api/client/vector/progress")
+def client_vector_progress(request: Request, body: dict) -> dict:
+    """Persist Vector learning mode + wizard step (survives restart)."""
+    customer_id, email = _client_store_identity(request)
+    from app.integration.vector import VectorContextService
+
+    scope = str((body or {}).get("scope") or "platform").strip()[:40]
+    subject = str((body or {}).get("subject_id") or customer_id or "").strip()
+    if not subject:
+        raise HTTPException(status_code=400, detail="subject_id_required")
+    svc = VectorContextService(_memory_dir(), sales=_ctx().sales)
+    return {
+        "ok": True,
+        "progress": svc.save_progress(
+            scope,
+            subject,
+            learning_mode=(body or {}).get("learning_mode"),
+            step_id=(body or {}).get("step_id"),
+            mark_completed=(body or {}).get("mark_completed"),
+        ),
+    }
+
+
+@app.get("/api/client/workspace/nav")
+def client_workspace_nav(request: Request, commerce_mode: str | None = None) -> dict:
+    """Standalone vs Connected nav allowlist for Virtus AI Workspace."""
+    customer_id, email = _client_store_identity(request)
+    from app.factory.commerce_gates import workspace_nav_spec
+    from app.integration.vector import VectorContextService
+
+    products: list = []
+    try:
+        bundle = VectorContextService(
+            _memory_dir(), sales=_ctx().sales
+        ).business_setup_for_customer(customer_id=customer_id, email=email)
+        # Infer products from setup flags
+        if bundle.get("items"):
+            for it in bundle["items"]:
+                if it.get("id") == "website" and it.get("done"):
+                    products.append({"product_type": "website"})
+                if it.get("id") == "store" and it.get("done"):
+                    products.append({"product_type": "store"})
+    except Exception:
+        products = [{"product_type": "website"}]
+    mode = (commerce_mode or "").strip() or None
+    return {
+        "ok": True,
+        **workspace_nav_spec(commerce_mode=mode, products=products),
+        "customer_id": customer_id,
+    }
+
+
+@app.post("/api/client/virtus-ai/turn")
+def client_virtus_ai_turn(request: Request, body: dict) -> dict:
+    """Virtus AI orchestrator turn — ownership + plan + internal model_hint."""
+    customer_id, email = _client_store_identity(request)
+    from app.integration.virtus_ai import handle_turn
+
+    msg = str((body or {}).get("message") or "").strip()
+    mode = str((body or {}).get("mode") or "auto").strip().lower()
+    commerce = str((body or {}).get("commerce_mode") or "").strip() or None
+    ctx = dict((body or {}).get("context") or {})
+    if email and not ctx.get("client_name"):
+        ctx["client_name"] = str(email).split("@")[0]
+    products = (body or {}).get("products") or [{"product_type": "website"}]
+    out = handle_turn(
+        msg or "__welcome__",
+        client_id=str(customer_id or email or "anon"),
+        products=products,
+        commerce_mode=commerce,
+        context=ctx,
+        mode=mode if mode in ("auto", "confirm") else "auto",
+    )
+    return {"ok": True, **out}
+
+
+@app.get("/api/client/orders/{order_id}/website-tips")
+def client_website_tips(request: Request, order_id: str) -> dict:
+    """Website Admin Tips — legal / SEO / performance / content."""
+    customer_id, email = _client_store_identity(request)
+    order = _ctx().sales.get_order(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="order_not_found")
+    oid_cid = str(order.get("customer_id") or "")
+    oid_email = str(order.get("email") or "").strip().lower()
+    if customer_id and oid_cid and oid_cid != customer_id:
+        if not email or oid_email != str(email).lower():
+            raise HTTPException(status_code=403, detail="forbidden")
+    from app.integration.vector import VectorContextService
+
+    return VectorContextService(
+        _memory_dir(), sales=_ctx().sales
+    ).website_tips_for_order(order)
+
+
+# —— Website Control v1 (Business Workspace) ——
+
+
+def _website_content_svc():
+    from app.integration.website_admin import WebsiteContentService
+
+    return WebsiteContentService(_memory_dir())
+
+
+def _website_design_svc():
+    from app.integration.website_admin import WebsiteDesignService
+
+    return WebsiteDesignService(_memory_dir())
+
+
+def _assert_website_admin_access(request: Request, order_id: str) -> dict:
+    """Ownership gate: customer owns order and it is a Website (not shop)."""
+    from app.integration.website_admin import assert_website_order_access
+
+    customer_id, email = _client_store_identity(request)
+    order = _ctx().sales.get_order(order_id)
+    return assert_website_order_access(
+        order, customer_id=customer_id, email=email
+    )
+
+
+def _website_product_meta(order: dict) -> tuple[str | None, dict, _Path | None]:
+    from pathlib import Path
+
+    from app.integration.vector.website_tips import find_product_dir
+
+    product_id = str(order.get("product_id") or "").strip() or None
+    meta: dict = {}
+    product_dir = find_product_dir(product_id) if product_id else None
+    if product_dir and (product_dir / "meta.json").is_file():
+        try:
+            import json
+
+            raw = json.loads((product_dir / "meta.json").read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                meta = raw
+        except Exception:
+            meta = {}
+    return product_id, meta, product_dir
+
+
+def _reapply_website_overlay(order_id: str, order: dict) -> bool:
+    from app.integration.website_admin import apply_website_overlay_to_product_dir
+
+    product_id, meta, product_dir = _website_product_meta(order)
+    if not product_dir:
+        return False
+    name = str(
+        meta.get("business_name")
+        or order.get("company_name")
+        or order.get("business_name")
+        or ""
+    )
+    return apply_website_overlay_to_product_dir(
+        _memory_dir(),
+        order_id,
+        product_dir,
+        business_name=name,
+        seed_meta=meta,
+    )
+
+
+@app.get("/api/client/websites/{order_id}/admin/preview-meta")
+def website_admin_preview_meta(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+    product_id, meta, product_dir = _website_product_meta(order)
+    preview_url = None
+    if product_id:
+        preview_url = f"/api/factory/products/{product_id}/preview"
+    return {
+        "ok": True,
+        "order_id": order_id,
+        "product_id": product_id,
+        "business_name": meta.get("business_name")
+        or order.get("company_name")
+        or order.get("business_name"),
+        "niche": meta.get("niche") or order.get("niche"),
+        "preview_url": preview_url,
+        "has_product_dir": bool(product_dir),
+        "commerce_mode": order.get("commerce_mode") or "standalone",
+        "sections": {
+            "website": True,
+            "design": True,
+            "media": True,
+            "files": True,
+            "support": True,
+            "ai": True,
+            "store": False,
+            "crm": False,
+            "automation": False,
+            "marketing": False,
+            "analytics": False,
+        },
+    }
+
+
+@app.get("/api/client/websites/{order_id}/admin/content")
+def website_admin_get_content(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+    _pid, meta, _dir = _website_product_meta(order)
+    return _website_content_svc().get_content(order_id, seed_meta=meta)
+
+
+@app.put("/api/client/websites/{order_id}/admin/content")
+@app.patch("/api/client/websites/{order_id}/admin/content")
+async def website_admin_update_content(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+    _pid, meta, _dir = _website_product_meta(order)
+    result = _website_content_svc().update_content(
+        order_id, payload, seed_meta=meta
+    )
+    _reapply_website_overlay(order_id, order)
+    return result
+
+
+@app.post("/api/client/websites/{order_id}/admin/content/undo")
+def website_admin_content_undo(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, meta, _dir = _website_product_meta(order)
+        result = _website_content_svc().undo(order_id, seed_meta=meta)
+        _reapply_website_overlay(order_id, order)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/content/redo")
+def website_admin_content_redo(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, meta, _dir = _website_product_meta(order)
+        result = _website_content_svc().redo(order_id, seed_meta=meta)
+        _reapply_website_overlay(order_id, order)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/websites/{order_id}/admin/design")
+def website_admin_get_design(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+    _pid, meta, _dir = _website_product_meta(order)
+    name = str(meta.get("business_name") or order.get("company_name") or "")
+    return _website_design_svc().get_design(order_id, business_name=name)
+
+
+@app.put("/api/client/websites/{order_id}/admin/design")
+@app.patch("/api/client/websites/{order_id}/admin/design")
+async def website_admin_update_design(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+    _pid, meta, _dir = _website_product_meta(order)
+    name = str(meta.get("business_name") or order.get("company_name") or "")
+    result = _website_design_svc().update_design(
+        order_id, payload, business_name=name
+    )
+    _reapply_website_overlay(order_id, order)
+    return result
+
+
+@app.post("/api/client/websites/{order_id}/admin/design/undo")
+def website_admin_design_undo(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, meta, _dir = _website_product_meta(order)
+        name = str(meta.get("business_name") or order.get("company_name") or "")
+        result = _website_design_svc().undo(order_id, business_name=name)
+        _reapply_website_overlay(order_id, order)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/design/redo")
+def website_admin_design_redo(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, meta, _dir = _website_product_meta(order)
+        name = str(meta.get("business_name") or order.get("company_name") or "")
+        result = _website_design_svc().redo(order_id, business_name=name)
+        _reapply_website_overlay(order_id, order)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/websites/{order_id}/admin/media")
+def website_admin_list_media(request: Request, order_id: str) -> dict:
+    try:
+        _assert_website_admin_access(request, order_id)
+        rows = _website_content_svc().media.list_order_media(order_id)
+        return {"ok": True, "media": rows}
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/media")
+async def website_admin_upload_media(
+    request: Request,
+    order_id: str,
+    file: UploadFile = File(...),
+    role: str = "gallery",
+) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        row = _website_content_svc().media.save_upload(
+            file, order_id=order_id, role=role or "gallery"
+        )
+        row["url"] = f"/api/client/websites/{order_id}/admin/media/{row['id']}"
+        return {"ok": True, "media": row, "order_id": order.get("order_id") or order_id}
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.delete("/api/client/websites/{order_id}/admin/media/{image_id}")
+def website_admin_delete_media(
+    request: Request, order_id: str, image_id: str
+) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _website_content_svc().media.delete_by_id(order_id, image_id)
+        # Detach from content if referenced
+        content_svc = _website_content_svc()
+        _pid, meta, _dir = _website_product_meta(order)
+        raw = content_svc.raw_content(order_id, seed_meta=meta)
+        changed = False
+        hero = raw.get("hero") if isinstance(raw.get("hero"), dict) else {}
+        if isinstance(hero.get("image"), dict) and hero["image"].get("id") == image_id:
+            raw["hero"] = {**hero, "image": None}
+            changed = True
+        for list_key in ("gallery", "team"):
+            items = raw.get(list_key)
+            if not isinstance(items, list):
+                continue
+            next_items = []
+            list_changed = False
+            for item in items:
+                if not isinstance(item, dict):
+                    continue
+                img = item.get("image")
+                if isinstance(img, dict) and img.get("id") == image_id:
+                    list_changed = True
+                    if list_key == "gallery":
+                        continue
+                    next_items.append({**item, "image": None})
+                else:
+                    next_items.append(item)
+            if list_changed:
+                raw[list_key] = next_items
+                changed = True
+        if changed:
+            content_svc.update_content(
+                order_id,
+                {
+                    "hero": raw.get("hero"),
+                    "gallery": raw.get("gallery"),
+                    "team": raw.get("team"),
+                },
+                seed_meta=meta,
+            )
+            _reapply_website_overlay(order_id, order)
+        return {"ok": True, "deleted": image_id}
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+@app.get("/api/client/websites/{order_id}/admin/media/{image_id}")
+def website_admin_serve_media(
+    request: Request,
+    order_id: str,
+    image_id: str,
+    access_token: str | None = None,
+) -> FileResponse:
+    """Serve owner media. Auth via Bearer or access_token query (for <img>)."""
+    try:
+        if access_token:
+            from app.integration.customer_identity.auth import decode_client_token
+
+            payload = decode_client_token(access_token)
+            if not payload or not payload.get("sub"):
+                raise HTTPException(status_code=401, detail="client_auth_required")
+            # Attach synthetic identity for ownership check via order fields
+            customer_id = str(payload["sub"])
+            email = str(payload.get("email") or "").strip() or None
+            order = _ctx().sales.get_order(order_id)
+            if not order:
+                raise ValueError("order_not_found")
+            oid_cid = str(order.get("customer_id") or "")
+            oid_email = str(order.get("email") or "").strip().lower()
+            if customer_id and oid_cid and oid_cid != customer_id:
+                if not email or oid_email != str(email).lower():
+                    raise ValueError("forbidden")
+            kind = str(order.get("product_kind") or "").strip().lower()
+            if kind == "shop" or str(order.get("package_id") or "").lower() == "ecommerce_shop":
+                raise ValueError("not_a_website_order")
+        else:
+            _assert_website_admin_access(request, order_id)
+        path = _website_content_svc().media.find_by_id(order_id, image_id)
+        if path is None:
+            raise ValueError("image_not_found")
+        media = {
+            ".webp": "image/webp",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".gif": "image/gif",
+        }.get(path.suffix.lower(), "application/octet-stream")
+        return FileResponse(path, media_type=media)
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/control-capabilities")
+def client_control_capabilities_api(request: Request) -> dict:
+    """Honest Workspace capability map for Basic / Business / Premium (+ gift)."""
+    from app.integration.client_control_contract import client_control_capabilities
+
+    customer_id, _email = _client_store_identity(request)
+    me = _customer_identity().me(customer_id) if customer_id else {}
+    gift = bool(me.get("gift_unlimited") or me.get("unlimited"))
+    return client_control_capabilities(
+        "premium" if gift else None,
+        gift_unlimited=gift,
+    )
+
+
+@app.get("/api/client/websites/{order_id}/admin/cinematic")
+def website_admin_list_cinematic(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import (
+            ensure_control_point_original,
+            list_cinematic_scenes,
+        )
+
+        ensure_control_point_original(product_dir)
+        out = list_cinematic_scenes(product_dir)
+        from app.integration.client_control_contract import client_control_capabilities
+
+        caps = client_control_capabilities(
+            str(order.get("package_id") or ""),
+            gift_unlimited=False,
+        )
+        out["capabilities"] = caps.get("website")
+        return out
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/cinematic/{scene}/replace")
+async def website_admin_replace_cinematic(
+    request: Request, order_id: str, scene: int, file: UploadFile = File(...)
+) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import replace_cinematic_scene
+
+        data = await file.read()
+        result = replace_cinematic_scene(
+            product_dir, int(scene), data, filename=file.filename or "upload.jpg"
+        )
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/cinematic/{scene}/restore")
+def website_admin_restore_cinematic(
+    request: Request, order_id: str, scene: int
+) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import restore_cinematic_scene
+
+        return restore_cinematic_scene(product_dir, int(scene))
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/websites/{order_id}/admin/versions")
+def website_admin_list_versions(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import list_website_versions
+
+        return list_website_versions(product_dir)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/versions/restore-original")
+def website_admin_restore_original(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import restore_website_original
+
+        result = restore_website_original(product_dir)
+        _reapply_website_overlay(order_id, order)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/restore-original")
+def store_admin_restore_original(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        product_dir, _order = _shop_product_dir_for_order(order_id)
+        if product_dir is None:
+            raise ValueError("product_dir_missing")
+        from app.integration.store_admin.shop_live_sync import restore_shop_original
+
+        return restore_shop_original(product_dir)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/ai-edit")
+async def website_admin_ai_edit(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        prompt = str(payload.get("prompt") or "").strip()
+        from app.integration.website_admin import (
+            apply_content_intent,
+            parse_ai_edit_prompt,
+        )
+
+        parsed = parse_ai_edit_prompt(prompt)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+    _pid, meta, _dir = _website_product_meta(order)
+    name = str(meta.get("business_name") or order.get("company_name") or "")
+    content_svc = _website_content_svc()
+    design_svc = _website_design_svc()
+    current = content_svc.raw_content(order_id, seed_meta=meta)
+    content_patch = apply_content_intent(
+        current, parsed.get("content_patch") or {}
+    )
+    out_content = None
+    out_design = None
+    if content_patch:
+        out_content = content_svc.update_content(
+            order_id, content_patch, seed_meta=meta
+        )
+    design_patch = parsed.get("design_patch") or {}
+    if design_patch:
+        out_design = design_svc.update_design(
+            order_id, design_patch, business_name=name
+        )
+    _reapply_website_overlay(order_id, order)
+    return {
+        "ok": True,
+        "summary": parsed.get("summary") or "Updated",
+        "content": (out_content or content_svc.get_content(order_id, seed_meta=meta)).get(
+            "content"
+        ),
+        "design": (
+            out_design or design_svc.get_design(order_id, business_name=name)
+        ).get("design"),
+    }
+
+
+@app.post("/api/client/websites/{order_id}/admin/publish")
+def website_admin_publish(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+    product_id, meta, product_dir = _website_product_meta(order)
+    content = _website_content_svc().raw_content(order_id, seed_meta=meta)
+    from app.integration.website_admin.publish_safety import evaluate_publish_safety
+
+    safety = evaluate_publish_safety(content, product_dir=product_dir)
+    if not safety.get("ok"):
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "publish_blocked",
+                "message": "Publish blocked — fix quality issues first.",
+                "blockers": safety.get("blockers") or [],
+                "warnings": safety.get("warnings") or [],
+            },
+        )
+    applied = _reapply_website_overlay(order_id, order)
+    published = False
+    public_url = None
+    if product_id and product_dir:
+        try:
+            # Soft publish marker for client preview (Path A delivery may skip CEO approve)
+            meta = dict(meta)
+            meta["owner_overlay_applied"] = True
+            meta["publish_safety"] = safety
+            meta["client_publish_requested_at"] = __import__(
+                "datetime"
+            ).datetime.now(__import__("datetime").timezone.utc).isoformat()
+            (product_dir / "meta.json").write_text(
+                __import__("json").dumps(meta, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            public_url = f"/api/factory/products/{product_id}/preview"
+            published = True
+        except Exception:
+            published = False
+    return {
+        "ok": True,
+        "applied": applied,
+        "published": published,
+        "preview_url": public_url,
+        "product_id": product_id,
+        "warnings": safety.get("warnings") or [],
+    }
+
+
+@app.get("/api/client/websites/{order_id}/admin/publish-check")
+def website_admin_publish_check(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+    _pid, meta, product_dir = _website_product_meta(order)
+    content = _website_content_svc().raw_content(order_id, seed_meta=meta)
+    from app.integration.website_admin.publish_safety import evaluate_publish_safety
+
+    safety = evaluate_publish_safety(content, product_dir=product_dir)
+    return {"ok": True, **safety}
 
 @app.post("/api/sales/order-materials", response_model=OrderMaterialUploadResponse)
 async def upload_sales_order_material(
@@ -5634,6 +8097,40 @@ def sales_order_pay_sandbox(order_id: str) -> RevenuePaymentResponse:
     return RevenuePaymentResponse(**result)
 
 
+@app.post("/api/sales/orders/{order_id}/pay-demo", response_model=RevenuePaymentResponse)
+def sales_order_pay_demo(order_id: str) -> RevenuePaymentResponse:
+    """D0 Demo Payment Bridge — only tagged demo orders; never real money."""
+    try:
+        result = _ctx().revenue.complete_demo_payment(order_id)
+    except ValueError as e:
+        code = str(e)
+        if code == "order_not_found":
+            raise HTTPException(status_code=404, detail="Заказ не найден")
+        if code == "demo_payment_disabled":
+            raise HTTPException(
+                status_code=403,
+                detail="Demo Payment Bridge отключён (Production lock)",
+            )
+        if code == "not_a_demo_order":
+            raise HTTPException(
+                status_code=403,
+                detail="Demo Payment только для demo-заказов",
+            )
+        if code == "amount_mismatch":
+            raise HTTPException(status_code=400, detail="Сумма не совпадает")
+        raise HTTPException(status_code=400, detail="Demo Payment не прошёл")
+    return RevenuePaymentResponse(**result)
+
+
+@app.post(
+    "/api/owner/demo-orders/{order_id}/complete-payment",
+    response_model=RevenuePaymentResponse,
+)
+def owner_demo_complete_payment(order_id: str) -> RevenuePaymentResponse:
+    """Owner-only alias for Demo Payment Bridge (Mission Control demos)."""
+    return sales_order_pay_demo(order_id)
+
+
 @app.get("/api/owner/notifications", response_model=OwnerNotificationsResponse)
 def owner_notifications() -> OwnerNotificationsResponse:
     items = _ctx().notifications.list_recent()
@@ -5780,6 +8277,97 @@ def public_website_analysis(body: dict) -> dict:
     return report
 
 
+@app.post("/api/public/vc-auditor")
+def public_vc_website_auditor(body: dict) -> dict:
+    """Virtus Core Website Auditor — public URL mode (Apify-ready brand)."""
+    from fastapi import HTTPException
+
+    from app.integration.vc_auditor import VirtusCoreWebsiteAuditor
+
+    url = str((body or {}).get("url") or "").strip()
+    locale = str((body or {}).get("locale") or "de").strip()[:8] or "de"
+    if not url:
+        raise HTTPException(status_code=400, detail="url_required")
+    return VirtusCoreWebsiteAuditor(_memory_dir()).analyze_url(url, locale=locale)
+
+
+@app.get("/api/public/vc-auditor/{report_id}")
+def public_vc_auditor_get(report_id: str) -> dict:
+    from fastapi import HTTPException
+
+    from app.integration.vc_auditor import VirtusCoreWebsiteAuditor
+
+    row = VirtusCoreWebsiteAuditor(_memory_dir()).get_report(report_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="report_not_found")
+    return row
+
+
+@app.get("/api/public/vc-auditor/{report_id}/export")
+def public_vc_auditor_export(report_id: str, format: str = "json"):
+    from fastapi import HTTPException
+    from fastapi.responses import Response
+
+    from app.integration.vc_auditor import VirtusCoreWebsiteAuditor
+    from app.integration.vc_auditor.branding import PRODUCT_ID
+
+    out = VirtusCoreWebsiteAuditor(_memory_dir()).export(report_id, format)
+    if not out:
+        raise HTTPException(status_code=404, detail="report_not_found")
+    body, media, suffix = out
+    filename = f"{PRODUCT_ID}_{report_id}.{suffix}"
+    return Response(
+        content=body,
+        media_type=media,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@app.get("/api/client/orders/{order_id}/vc-auditor")
+def client_vc_auditor_for_order(request: Request, order_id: str, locale: str = "de") -> dict:
+    """Virtus Core mode — audit Factory package without URL entry."""
+    customer_id, email = _client_store_identity(request)
+    order = _ctx().sales.get_order(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="order_not_found")
+    oid_cid = str(order.get("customer_id") or "")
+    oid_email = str(order.get("email") or "").strip().lower()
+    if customer_id and oid_cid and oid_cid != customer_id:
+        if not email or oid_email != str(email).lower():
+            raise HTTPException(status_code=403, detail="forbidden")
+    from app.integration.vc_auditor import VirtusCoreWebsiteAuditor
+
+    product_id = str(order.get("product_id") or "").strip() or None
+    return VirtusCoreWebsiteAuditor(_memory_dir()).analyze_virtus_product(
+        product_id=product_id,
+        order_id=order_id,
+        locale=locale or "de",
+        niche=str(order.get("business_name") or "") or None,
+    )
+
+
+@app.get("/api/client/orders/{order_id}/vc-auditor/export")
+def client_vc_auditor_export(
+    request: Request, order_id: str, format: str = "markdown", locale: str = "de"
+):
+    """Run Virtus audit then export (JSON/CSV/MD/PDF)."""
+    from fastapi.responses import Response
+
+    from app.integration.vc_auditor import VirtusCoreWebsiteAuditor
+    from app.integration.vc_auditor.branding import PRODUCT_ID
+    from app.integration.vc_auditor.export import export_report
+
+    report = client_vc_auditor_for_order(request, order_id, locale=locale)
+    if not report.get("ok"):
+        raise HTTPException(status_code=404, detail=report.get("error") or "audit_failed")
+    body, media, suffix = export_report(report, format)
+    filename = f"{PRODUCT_ID}_{order_id}.{suffix}"
+    return Response(
+        content=body,
+        media_type=media,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
 @app.get("/api/public/website-analysis/{case_id}")
 def public_website_analysis_case(case_id: str) -> dict:
     from fastapi import HTTPException
@@ -5826,6 +8414,41 @@ def preview_factory_product(product_id: str) -> HTMLResponse:
     if not html:
         raise HTTPException(status_code=404, detail="Превью не найдено")
     return HTMLResponse(content=html)
+
+
+@app.get("/api/factory/products/{product_id}/preview/{asset_path:path}")
+def preview_factory_product_asset(product_id: str, asset_path: str):
+    """Serve sandbox assets for Website Admin live preview (relative HTML/CSS urls)."""
+    path = _ctx().factory.resolve_preview_asset(product_id, asset_path)
+    if path is None:
+        raise HTTPException(status_code=404, detail="asset_not_found")
+    media = "application/octet-stream"
+    suffix = path.suffix.lower()
+    if suffix in {".jpg", ".jpeg"}:
+        media = "image/jpeg"
+    elif suffix == ".png":
+        media = "image/png"
+    elif suffix == ".webp":
+        media = "image/webp"
+    elif suffix == ".gif":
+        media = "image/gif"
+    elif suffix == ".svg":
+        media = "image/svg+xml"
+    elif suffix == ".css":
+        media = "text/css; charset=utf-8"
+        from pathlib import PurePosixPath
+
+        rel_dir = str(PurePosixPath(asset_path).parent)
+        if rel_dir == ".":
+            rel_dir = ""
+        css = path.read_text(encoding="utf-8", errors="replace")
+        css = _ctx().factory.rewrite_asset_urls(
+            css, product_id=product_id, relative_dir=rel_dir
+        )
+        return Response(content=css, media_type=media)
+    elif suffix == ".js":
+        media = "application/javascript"
+    return FileResponse(path, media_type=media)
 
 
 @app.post("/api/factory/products/{product_id}/approve", response_model=FactoryProduct)

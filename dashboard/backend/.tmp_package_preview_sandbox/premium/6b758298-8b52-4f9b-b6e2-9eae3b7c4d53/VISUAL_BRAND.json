@@ -1,0 +1,63 @@
+{
+  "brand_name": "Lichtspur Studio",
+  "niche_id": "photography",
+  "fingerprint": "88d555e69dfdeb3846ae",
+  "color": {
+    "primary": "#101014",
+    "accent": "#df6459",
+    "secondary": "#5da0a9",
+    "surface": "#e2e2e6",
+    "cards": "#dcdee4",
+    "background": "#101014",
+    "gradient": "linear-gradient(145deg,#101014 0%,#6f322c 48%,#df6459 100%)",
+    "glow": "rgba(223,100,89,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "glass_3d",
+    "abstract_gradient",
+    "neon_line"
+  ],
+  "illustration_pack": "minimal line illustrations",
+  "motion_language": "kinetic micro-motion · glow pulse · scroll scenes",
+  "icon_style": "soft rounded symbols",
+  "scene_library": {
+    "hero": [
+      "Fotostudio Softbox",
+      "Porträtsession",
+      "Kamera und Lichtsetup"
+    ],
+    "gallery": [
+      "Produktsetup",
+      "Outdoor-Session",
+      "Retusche-Arbeitsplatz"
+    ],
+    "team": [
+      "Fotograf hinter Kamera"
+    ],
+    "equipment": [
+      "Softbox",
+      "Blitzanlage"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Fotostudio Softbox, Porträtsession, Kamera und Lichtsetup. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=minimal line illustrations. Must show: Fotostudio Softbox, Porträtsession, Kamera und Lichtsetup. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Produktsetup, Outdoor-Session, Retusche-Arbeitsplatz. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Produktsetup, Outdoor-Session. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=team. Medium=glass_3d. Illustration language=minimal line illustrations. Must show: Fotograf hinter Kamera. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=equipment. Medium=glass_3d. Illustration language=minimal line illustrations. Must show: Softbox, Blitzanlage. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Retusche-Arbeitsplatz. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=illustration. Medium=glass_3d. Illustration language=minimal line illustrations. Must show: Fotostudio Softbox, Porträtsession. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=minimal line illustrations. Must show: soft rounded symbols. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Fotostudio Softbox, Porträtsession, Kamera und Lichtsetup. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

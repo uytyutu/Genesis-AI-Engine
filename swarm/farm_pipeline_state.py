@@ -160,6 +160,76 @@ def attach_pipeline_state(task: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def bump_pipeline_lifetime(state: dict[str, Any], key: str, *, n: int = 1) -> dict[str, Any]:
+    """Lifetime funnel counters — never decrease when a task auto-skips later."""
+    life = state.setdefault(
+        "pipeline_lifetime",
+        {
+            "approved": 0,
+            "started": 0,
+            "draft_pr": 0,
+            "merged": 0,
+            "paid": 0,
+            "impossible": 0,
+        },
+    )
+    if not isinstance(life, dict):
+        life = {
+            "approved": 0,
+            "started": 0,
+            "draft_pr": 0,
+            "merged": 0,
+            "paid": 0,
+            "impossible": 0,
+        }
+        state["pipeline_lifetime"] = life
+    k = str(key or "").strip().lower()
+    if k not in life:
+        life[k] = 0
+    life[k] = int(life.get(k) or 0) + int(n)
+    return life
+
+
+def pipeline_kpi(
+    *,
+    found: int,
+    lifetime: dict[str, Any] | None,
+    live: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Single CEO Pipeline KPI: Found → Approved → Started → Draft PR → Merged → Paid."""
+    life = lifetime if isinstance(lifetime, dict) else {}
+    live = live if isinstance(live, dict) else {}
+    approved = int(life.get("approved") or 0)
+    started = int(life.get("started") or 0)
+    # Live in-flight still counts toward Started if lifetime lag
+    started = max(started, int(live.get("started") or 0))
+    draft = max(int(life.get("draft_pr") or 0), int(live.get("draft_pr") or 0))
+    merged = max(int(life.get("merged") or 0), int(live.get("merged") or 0))
+    paid = max(int(life.get("paid") or 0), int(live.get("paid") or 0))
+    return {
+        "id": "pipeline_kpi",
+        "found": int(found or 0),
+        "approved": approved,
+        "started": started,
+        "draft_pr": draft,
+        "merged": merged,
+        "paid": paid,
+        "impossible": int(life.get("impossible") or 0),
+        "blocker_ru": (
+            None
+            if started > 0
+            else (
+                "Started = 0 — Execution Engine ещё не стартовал после Approve. "
+                "Это главный блокер: сначала нужен Approve → Started > 0."
+            )
+        ),
+        "note_ru": (
+            "Lifetime Pipeline KPI. Approved/Started не обнуляются после Impossible→Skip. "
+            "Пока Started=0 смотреть дальше бессмысленно."
+        ),
+    }
+
+
 def count_execution_success(tasks: list[dict[str, Any]]) -> dict[str, Any]:
     """Counters derived only from pipeline_state (single SSOT)."""
     enriched = [attach_pipeline_state(t) for t in tasks]
@@ -224,7 +294,7 @@ def count_execution_success(tasks: list[dict[str, Any]]) -> dict[str, Any]:
         },
         "tasks": enriched,
         "note_ru": (
-            "Один pipeline_state на задачу. Started = Execution стартовал (QUEUED+). "
-            "Execution = сейчас в работе. Draft PR = пакет готов / дальше."
+            "Live snapshot: только текущие non-skipped задачи. "
+            "Lifetime KPI смотри в panel.pipeline."
         ),
     }

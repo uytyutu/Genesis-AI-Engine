@@ -1,0 +1,15 @@
+{
+  "brand_name": "Kanzlei Bergmann",
+  "niche_id": "law",
+  "package_id": "premium",
+  "media_mode": "cinematic_photo",
+  "visual_metaphor": "Brand character in space",
+  "hero_concept": "Brand character in space | Kanzlei Bergmann",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "5ed6e4886f737ea0b090",
+  "image_prompt": "Kanzlei Bergmann law brand hero, Brand character in space, European studio, media_mode=cinematic_photo, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

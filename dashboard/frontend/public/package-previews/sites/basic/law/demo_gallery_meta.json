@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "law",
+  "niche": "law",
+  "package_id": "basic",
+  "product_id": "4fa6d710-cd26-4552-b219-67b7a2670894",
+  "business_name": "Kanzlei Bergmann",
+  "generated_at": "2026-08-06T22:03:43.585070+00:00",
+  "engine": "Design Concept Owner Preview",
+  "index_bytes": 4074,
+  "data_tier_ok": true,
+  "concept_only": true,
+  "reality_benchmark": "FAIL",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/basic/law/index.html"
+}

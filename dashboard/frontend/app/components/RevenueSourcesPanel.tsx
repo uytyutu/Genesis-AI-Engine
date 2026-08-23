@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 export type RevenueSourceRow = {
   id: string;
   name: string;
@@ -16,6 +18,11 @@ export type RevenueSourceRow = {
   why_ru: string;
   action_ru: string;
   scalable?: boolean;
+  stage?: string;
+  why_not_earned_ru?: string;
+  next_step_ru?: string;
+  pipeline_steps?: Array<{ id?: string; label?: string; done?: boolean }>;
+  why_button_label_ru?: string;
 };
 
 export type RevenueSourcesCenter = {
@@ -54,6 +61,46 @@ function statusClass(status: string, keysPresent?: boolean): string {
   if (status === "candidate") return "border-amber-500/40 bg-amber-950/15 text-amber-100";
   if (status === "unsupported" || status === "stub") return "border-rose-500/35 bg-rose-950/15 text-rose-100";
   return "border-white/10 bg-white/5 text-genesis-muted";
+}
+
+function SourceWhy({ s }: { s: RevenueSourceRow }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-1.5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="rounded border border-amber-400/30 bg-amber-950/20 px-2 py-0.5 text-[10px] text-amber-100 hover:bg-amber-950/40"
+      >
+        {open ? "Скрыть" : s.why_button_label_ru || "Почему не заработало?"}
+      </button>
+      {open ? (
+        <div className="mt-2 space-y-1.5 rounded-lg border border-white/10 bg-black/30 px-2.5 py-2 text-[10px] leading-snug text-zinc-300">
+          <p>
+            <span className="text-zinc-500">Этап: </span>
+            <span className="font-medium text-white">{s.stage || s.status}</span>
+          </p>
+          <p>
+            <span className="text-zinc-500">Почему? </span>
+            {s.why_not_earned_ru || s.why_ru}
+          </p>
+          <p>
+            <span className="text-zinc-500">Следующее действие: </span>
+            <span className="text-emerald-200">{s.next_step_ru || s.action_ru}</span>
+          </p>
+          {(s.pipeline_steps || []).length > 0 ? (
+            <ul className="mt-1 space-y-0.5 font-mono text-[9px] text-zinc-400">
+              {(s.pipeline_steps || []).map((p) => (
+                <li key={p.id || p.label}>
+                  {p.done ? "✓" : "○"} {p.label}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 export function RevenueSourcesPanel({ data }: { data: RevenueSourcesCenter }) {
@@ -118,7 +165,8 @@ export function RevenueSourcesPanel({ data }: { data: RevenueSourcesCenter }) {
               <tr key={s.id} className="border-b border-white/5 align-top">
                 <td className="py-2.5 pr-3">
                   <p className="font-medium text-white">{s.name}</p>
-                  <p className="mt-1 max-w-xs text-[10px] leading-snug text-genesis-muted">{s.why_ru}</p>
+                  <p className="mt-0.5 font-mono text-[9px] text-zinc-500">{s.stage}</p>
+                  <SourceWhy s={s} />
                 </td>
                 <td className="py-2.5 pr-3">
                   <span

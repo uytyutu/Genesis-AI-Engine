@@ -1,0 +1,91 @@
+{
+  "niche_id": "dental",
+  "subniche_id": "anxiety",
+  "subniche_label": "Angst & Panik",
+  "business_model": "anxiety_clinic_small_team",
+  "city": "München",
+  "company_name": "SmileCare Praxis",
+  "who": "Moderne Praxis: Aufklärung vor Bohrer, klare Kosten, ruhige Behandlung.",
+  "trust_why": "Nachweisbare Arbeit · Angst & Panik · München",
+  "sells": "['Prophylaxe', 'Implantate', 'Bleaching', 'Füllungen']",
+  "differentiator": "Schmerzarm, transparente Pläne, moderne Technik",
+  "atmosphere": "clinic",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Chair, equipment, reception",
+  "media_brief": {
+    "hero": "Modern clinic room, doctor with patient trust",
+    "gallery": "Chair, equipment, reception",
+    "video": "Gentle clinic atmosphere",
+    "before_after": "Smile cases only if appropriate",
+    "team": "Dentists & assistants",
+    "equipment": "Modern dental unit",
+    "atmosphere": "clinic",
+    "subniche": "anxiety",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "booking",
+      "label": "Online Booking",
+      "why": "Termin ohne Telefon."
+    },
+    {
+      "id": "doctors",
+      "label": "Doctors",
+      "why": "Team der Praxis."
+    },
+    {
+      "id": "services",
+      "label": "Services",
+      "why": "Leistungen klar."
+    },
+    {
+      "id": "insurance",
+      "label": "Insurance Info",
+      "why": "Kasse / Privat."
+    },
+    {
+      "id": "gallery",
+      "label": "Practice Gallery",
+      "why": "Räume = Vertrauen."
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "why": "Angstpatienten & Ablauf."
+    },
+    {
+      "id": "emergency_contact",
+      "label": "Crisis Boundaries",
+      "why": "Therapy sub-niche needs responsible framing."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services"
+  ],
+  "style": "clinic",
+  "clients_who": "Familien und Berufstätige in München",
+  "fingerprint": "bb3b24609cfdcd93356e",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

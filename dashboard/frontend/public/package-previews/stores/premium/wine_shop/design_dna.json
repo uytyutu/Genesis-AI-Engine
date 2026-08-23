@@ -1,0 +1,75 @@
+{
+  "emotion": "warmth",
+  "style": "modern_clinical",
+  "palette_family": "terracotta_olive",
+  "typography_pair": "playfair_source_culinary",
+  "motion": "premium",
+  "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "narrative",
+  "package_id": "premium",
+  "niche_id": "restaurant",
+  "fingerprint": "fa6532c9ecfe84f02b12d233f19910035f59419a3279b5488053259d97cfff65",
+  "section_treatments": [
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "process",
+      "gradient"
+    ],
+    [
+      "gallery",
+      "illustration"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "faq",
+      "gradient"
+    ],
+    [
+      "reviews",
+      "illustration"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "late_cta",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#c45c26",
+  "surface_hex": "#e6eaf0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "cinematic",
+  "brand_book_fp": "8becf8eb8cd983c6064c55ba",
+  "border_radius_px": 2
+}

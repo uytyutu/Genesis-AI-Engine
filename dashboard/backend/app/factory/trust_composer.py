@@ -25,6 +25,7 @@ MARKET_TRUST_ORDER: dict[str, tuple[str, ...]] = {
 # Niche → which trust families matter most (filter + priority boost).
 NICHE_TRUST_FOCUS: dict[str, tuple[str, ...]] = {
     "dental": ("credentials", "process", "social", "portfolio"),
+    "psychology": ("credentials", "process", "social", "guarantees"),
     "auto": ("guarantees", "portfolio", "brands", "process", "social"),
     "law": ("credentials", "process", "guarantees", "social"),
     "energy": ("credentials", "guarantees", "process", "social"),

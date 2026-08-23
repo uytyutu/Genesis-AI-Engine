@@ -1,0 +1,28 @@
+{
+  "business_name": "SmileCare Praxis",
+  "niche_id": "dental",
+  "package_id": "basic",
+  "voice": "friendly humanist — clear for all ages",
+  "feeling": "calm confidence",
+  "why_hero_exists": "The Hero exists to make 'Family Care' felt in 3 seconds: Trust that feels like home for every age.",
+  "color_feeling": "soft peach, cream, sky calm",
+  "type_voice": "friendly humanist — clear for all ages",
+  "scene_arc": "warm home light, multi-generation presence, soft corners",
+  "avoid": [
+    "luxury_noir",
+    "gaming",
+    "aggressive_sale"
+  ],
+  "fingerprint": "dbe02e439b542787",
+  "brand_story": "Lea built SmileCare Praxis because they make precision feel gentle. Clients (30–50) should feel calm confidence. Only then do we name the craft: dental.",
+  "core_emotion": "calm confidence",
+  "core_promise": "Trust that feels like home for every age.",
+  "visual_metaphor": "kitchen-table trust in a clinic",
+  "creative_theme": "Family Care",
+  "creative_theme_id": "family_care",
+  "scene_language": "warm home light, multi-generation presence, soft corners",
+  "motion_language": "gentle transitions — never startling",
+  "interaction_style": "reassuring, simple paths, no jargon walls",
+  "photo_world": "parent and child calm moment, soft daylight",
+  "founder_name": "Lea"
+}

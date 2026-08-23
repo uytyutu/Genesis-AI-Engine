@@ -4,7 +4,9 @@
 
 Ниши: dental · beauty · auto · restaurant · law
 
-В каждой папке: `questionnaire.json`, `meta.json`, `index.html`, `delivery.zip`, `MANIFEST.json`.
+В каждой папке: `questionnaire.json`, `meta.json`, `index.html`, `MANIFEST.json` (+ `delivery.zip` после локального generate).
+
+`delivery.zip` не коммитится (размер) — всегда пересобирается скриптом.
 
 Пересобрать:
 

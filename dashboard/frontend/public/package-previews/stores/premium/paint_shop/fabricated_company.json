@@ -1,0 +1,151 @@
+{
+  "legal_name": "PigmentPro Shop",
+  "brand_name": "PigmentPro Shop",
+  "slogan": "Klar. Menschlich. Präzise.",
+  "mission": "Kunden in Berlin spürbar besser bedienen als gestern.",
+  "history": "Was als kleines Vorhaben in Berlin begann, ist über die Jahre zu einem festen Ort mit Stammgästen und klarer Handschrift geworden. Seit 2016 wächst PigmentPro Shop bewusst — Qualität vor Tempo.",
+  "values": [
+    "Präzision",
+    "Menschlichkeit",
+    "Transparenz",
+    "Verlässlichkeit",
+    "Handwerk"
+  ],
+  "approach": "Klarheit, Handwerk, langfristige Beziehung.",
+  "founded_year": 2016,
+  "city": "Berlin",
+  "niche_id": "other",
+  "services": [
+    [
+      "Beratung",
+      "Individuelle Erstberatung",
+      "auf Anfrage"
+    ],
+    [
+      "Analyse",
+      "Bestandsaufnahme & Empfehlung",
+      "ab 99 €"
+    ],
+    [
+      "Umsetzung",
+      "Umsetzung mit klaren Meilensteinen",
+      "auf Anfrage"
+    ],
+    [
+      "Betreuung",
+      "Laufende Begleitung",
+      "Monatsabo"
+    ],
+    [
+      "Workshop",
+      "Team-Workshop vor Ort",
+      "ab 490 €"
+    ],
+    [
+      "Audit",
+      "Qualitäts- & Prozesscheck",
+      "ab 290 €"
+    ],
+    [
+      "Support",
+      "Priorisierter Support",
+      "inkl."
+    ],
+    [
+      "Dokumentation",
+      "Transparente Unterlagen",
+      "inkl."
+    ]
+  ],
+  "advantages": [
+    "Seit 2016 in Berlin",
+    "Transparente Preise",
+    "Feste Ansprechpartner",
+    "Termine mit Bestätigung",
+    "Nachvollziehbarer Ablauf"
+  ],
+  "team": [
+    [
+      "Sofia Becker",
+      "Leitung",
+      "Leitung bei PigmentPro Shop — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Noah Schulz",
+      "Spezialist/in",
+      "Spezialist/in bei PigmentPro Shop — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Clara Becker",
+      "Beratung",
+      "Beratung bei PigmentPro Shop — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Lea Weber",
+      "Assistenz",
+      "Assistenz bei PigmentPro Shop — Fokus auf Qualität und ruhige Abläufe."
+    ]
+  ],
+  "faq": [
+    [
+      "Wie vereinbare ich einen Termin bei PigmentPro Shop?",
+      "Über das Kontaktformular, telefonisch oder per E-Mail. Sie erhalten eine Bestätigung."
+    ],
+    [
+      "Wie transparent sind die Kosten?",
+      "Vor Beginn erhalten Sie eine klare Einschätzung. Keine versteckten Positionen."
+    ],
+    [
+      "Seit wann gibt es PigmentPro Shop?",
+      "Seit 2016 in Berlin — gewachsen mit Stammkunden und klarer Handschrift."
+    ],
+    [
+      "Gibt es Parkplätze / Anreise?",
+      "Zentral in Berlin. Details zur Anreise senden wir mit der Terminbestätigung."
+    ],
+    [
+      "Arbeitet ihr auch online / hybrid?",
+      "Wo sinnvoll ja — Details klären wir im Erstkontakt."
+    ]
+  ],
+  "reviews": [
+    [
+      "Seriös, klar, ohne Show. Weiterzuempfehlen.",
+      "Lea · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Fühlt sich nach echtem Handwerk an — nicht nach Vorlage.",
+      "Felix · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Transparente Kommunikation. Genau das wollte ich.",
+      "Noah · Demo-Bewertung — kein echter Kundenname"
+    ]
+  ],
+  "process_steps": [
+    "Kennenlernen & Bedarf",
+    "Klare Empfehlung & Preis",
+    "Umsetzung mit Abstimmung",
+    "Nachsorge & Feedback"
+  ],
+  "blog_titles": [
+    "Warum PigmentPro Shop anders arbeitet",
+    "3 Dinge, die Kunden in Berlin uns am häufigsten fragen",
+    "Hinter den Kulissen: Qualität statt Tempo",
+    "So bereiten Sie Ihren ersten Termin vor"
+  ],
+  "certificates": [
+    "Qualitätsversprechen",
+    "Transparente Prozesse",
+    "Versicherungsschutz"
+  ],
+  "hours": "Mo–Fr 09:00–18:00 · Sa nach Vereinbarung",
+  "phone": "+49 30 2854139",
+  "email": "kontakt@pigmentpro-shop.example.de",
+  "social": [
+    "instagram.com/pigmentproshop.demo",
+    "linkedin.com/company/pigmentpro-shop-demo"
+  ],
+  "fingerprint": "abf5a40fcad8047c",
+  "demo_content": true
+}

@@ -1,0 +1,126 @@
+{
+  "brand_name": "Grünzeit Garten",
+  "niche_id": "gartenpflege",
+  "package_id": "premium",
+  "positioning": "Sorgfältige Gartenpflege mit ruhiger Hand",
+  "archetype_primary": "The Gardener",
+  "archetype_secondary": "The Steward",
+  "brand_promise": "Ein Garten, der atmet — und gepflegt bleibt.",
+  "core_emotion": "Ruhe",
+  "secondary_emotion": "Lebendige Ordnung",
+  "tone": [
+    "Warm",
+    "Ruhig",
+    "Natürlich",
+    "Sorgfältig"
+  ],
+  "visual_style": "Organic Modern",
+  "visual_metaphor": "Morgentau auf frisch geschnittenem Grün",
+  "photography": [
+    "Hecken",
+    "Rasenflächen",
+    "Beete",
+    "Werkzeug",
+    "Tageslicht im Garten"
+  ],
+  "forbidden": [
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting",
+    "tropical resort",
+    "spa stones"
+  ],
+  "motion_language": "Weich · Atmend · Langsam",
+  "motion_token": "soft",
+  "palette": {
+    "names": [
+      "Leaf",
+      "Moss",
+      "Soil",
+      "Cream",
+      "Sky Mist"
+    ],
+    "accent_hex": "#15803d",
+    "surface_hex": "#f4f7f1",
+    "ink_hex": "#14532d",
+    "secondary_hex": "#3f6212",
+    "highlight_hex": "#86efac"
+  },
+  "typography_display": "Fraunces",
+  "typography_body": "Source Sans 3",
+  "typography_pair_id": "fraunces_source_garden",
+  "typography_emotion": "organic",
+  "icon_style": "Soft Outline",
+  "border_radius_px": 14,
+  "shadow_style": "Soft Lift",
+  "glass_level": "medium",
+  "texture": [
+    "Laub",
+    "Holz",
+    "Erde"
+  ],
+  "scene_language": [
+    "Garden",
+    "Dew",
+    "Light",
+    "Air"
+  ],
+  "cta_style": "Einladende Buttons · Viel Weißraum",
+  "trust_strategy": [
+    "Saisonarbeit",
+    "Vorher/Nachher",
+    "Team",
+    "Pflegepläne"
+  ],
+  "atmosphere_mode": "mist",
+  "dna_style": "nature_therapy",
+  "dna_palette_family": "leaf_moss",
+  "hero_concept": "garden_morning_dew",
+  "fingerprint": "00d3f0d9f14c88bdc55c29e0",
+  "media_dna": {
+    "required": [
+      "Garden",
+      "Greenery",
+      "Tools",
+      "Outdoor work",
+      "Daylight"
+    ],
+    "preferred": [
+      "Dew",
+      "Hedge",
+      "Lawn",
+      "Beds",
+      "Morning"
+    ],
+    "forbidden": [
+      "Café",
+      "Spa stones",
+      "Tropical resort",
+      "Office",
+      "Laptop"
+    ],
+    "hero_proof": "Gardener at real outdoor work — hedge, lawn, or bed care.",
+    "profession_keywords": [
+      "garden",
+      "garten",
+      "hedge",
+      "lawn",
+      "rasen",
+      "plant",
+      "leaf"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "city_hint": ""
+}

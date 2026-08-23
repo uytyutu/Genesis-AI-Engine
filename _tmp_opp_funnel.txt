@@ -1,0 +1,28 @@
+﻿status_counts {'new': 124, 'proposed': 54, 'contacted': 4}
+total 182
+recent_readyish:
+2026-07-31T16:19:57 new Acontax Ing. V─Ыra Hrb├б─Нov├б email=no
+2026-07-31T16:19:57 new Bookeepio s.r.o. email=no
+2026-07-31T16:19:57 new Expert contabil - Delia Stoica email=no
+2026-07-31T16:19:57 new Armina ClinicMed email=no
+2026-07-31T16:19:57 new Private medical center - Centrum email=no
+2026-07-31T16:19:57 new Medic├нnske centrum Ipe─╛sk├б 1 - PreventClinic s.r.o. email=no
+2026-07-31T16:19:57 new ╨Ь╨╜╨╛╨│╨╛╨┐╤А╨╛╤Д╨╕╨╗╤М╨╜╨░╤П ╨║╨╗╨╕╨╜╨╕╨║╨░ ╨Ь╨Х╨Ф╨Я╨а╨Р╨Щ╨Ь ╨п╨║╨╕╨╝╨░╨╜╨║╨░ email=no
+2026-07-31T16:19:57 new ╨Ь╨╡╨┤╨╕╤Ж╨╕╨╜╤Б╨║╨╕╨╣ ╤Ж╨╡╨╜╤В╤А ╨╜╨░ ╨Ъ╤Г╨╖╨╜╨╡╤Ж╨║╨╛╨╝ ╨Ь╨╛╤Б╤В╤Г - ╨Ы╨Ю╨а. ╨У╨╕╨╜╨╡╨║╨╛╨╗╨╛╨│. ╨Ф╨╡╤А╨╝╨░╤В╨╛╨╗╨╛╨│. ╨Э╨╡╨▓╤А╨╛╨╗╨╛╨│. ╨г╤А╨╛╨╗╨╛╨│. ╨Ю╨║╤Г╨╗╨╕╤Б╤В email=no
+2026-07-31T16:19:57 new ╨Ъ╨╗╨╕╨╜╨╕╨║╨░ ╨й╨╡╤А╨▒╨░╤В╨╛╨▓╨╛╨╣ ╨╜╨░ ╨Э╨╕╨║╨╕╤В╤Б╨║╨╛╨╣ email=no
+2026-07-31T16:19:57 new Forte Health Hospital email=no
+2026-07-31T16:19:57 new Engineering Ingegneria Informatica spa email=no
+2026-07-31T16:19:57 new Brigante Engineering Srl email=no
+2026-07-31T16:19:57 new AAM Driveline | Lyon Manufacturing Facility email=no
+2026-07-31T16:19:57 new Mosaic Manufacturing email=no
+2026-07-31T16:19:57 new SVR Global Canada email=no
+2026-07-31T16:19:57 new Transformers Manufacturing Company email=no
+2026-07-31T16:19:57 new Strong Plumbing Inc email=no
+2026-07-31T16:19:57 new Centre Dermo-Esth├йtique Laser Medical Bruxelles | Lea Esthetic email=no
+2026-07-31T16:19:57 new Premier Clinic email=no
+2026-07-31T16:19:57 new Esthetic, s.r.o. Klinika korekt├нvnej dermatol├│gie a plastickej chirurgie email=no
+2026-07-31T16:19:57 new ╨Ъ╨╛╤Б╨╝╨╡╤В╨╛╨╗╨╛╨│╤Ц╤З╨╜╨░ ╨╗╤Ц╨║╨░╤А╨╜╤П email=no
+2026-07-31T16:19:57 new SANCTUM - ╨║╨╗╨╕╨╜╨╕╨║╨░ ╨┤╨╛╨║╨░╨╖╨░╤В╨╡╨╗╤М╨╜╨╛╨╣ ╨║╨╛╤Б╨╝╨╡╤В╨╛╨╗╨╛╨│╨╕╨╕ ╨╕ ╨╗╨░╨╖╨╡╤А╨╜╨╛╨╣ ╤Н╨┐╨╕╨╗╤П╤Ж╨╕╨╕ email=no
+2026-07-31T16:19:57 new Amberg Engineering Slovakia, s.r.o. email=no
+2026-07-31T16:19:57 new Diagnoza auto la domicliu tester/ Golire rezervor/ Reparatii alternatoare, electromotare/ Service mobil email=no
+2026-07-31T16:19:57 new ╨Р╨▓╤В╨╛╤Б╨╡╤А╨▓╨╕╤Б ╨Я╨╕╤В╨╡╤А email=no

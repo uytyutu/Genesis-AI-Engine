@@ -1,0 +1,236 @@
+{
+  "ok": true,
+  "passed": true,
+  "gate": "MEDIA_INTEGRITY",
+  "action": "PASS",
+  "checks": [
+    {
+      "id": "no_absolute_paths",
+      "slot": "all_refs",
+      "ok": true,
+      "detail": "relative_ok"
+    },
+    {
+      "id": "no_empty_img",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "id": "lazy_loading",
+      "slot": "lazy",
+      "ok": true,
+      "detail": "lazy_ok"
+    },
+    {
+      "id": "file:assets/motion_kit.css",
+      "slot": "other",
+      "ok": true,
+      "detail": "4047B"
+    },
+    {
+      "id": "file:assets/hero.jpg",
+      "slot": "hero",
+      "ok": true,
+      "detail": "1600x900:26799B"
+    },
+    {
+      "id": "file:assets/hero_pack/showcase.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1600x900:212263B"
+    },
+    {
+      "id": "file:assets/hero_pack/footer.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1600x900:257440B"
+    },
+    {
+      "id": "file:assets/hero_pack/banner.jpg",
+      "slot": "background",
+      "ok": true,
+      "detail": "1536x1024:2578666B"
+    },
+    {
+      "id": "file:assets/hero_pack/gallery.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1600x900:29895B"
+    },
+    {
+      "id": "file:assets/hero_pack/hero_2.jpg",
+      "slot": "hero",
+      "ok": true,
+      "detail": "1600x900:30340B"
+    },
+    {
+      "id": "file:assets/background.jpg",
+      "slot": "background",
+      "ok": true,
+      "detail": "1600x900:23805B"
+    },
+    {
+      "id": "file:assets/logo.png",
+      "slot": "logo",
+      "ok": true,
+      "detail": "640x640:497613B"
+    },
+    {
+      "id": "file:assets/gallery_1.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1200x800:21711B"
+    },
+    {
+      "id": "file:assets/gallery_2.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1200x800:19862B"
+    },
+    {
+      "id": "file:assets/gallery_3.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1200x800:20167B"
+    },
+    {
+      "id": "file:assets/reputation/case_0_before.jpg",
+      "slot": "before_after",
+      "ok": true,
+      "detail": "800x520:12254B"
+    },
+    {
+      "id": "file:assets/reputation/case_0_after.jpg",
+      "slot": "before_after",
+      "ok": true,
+      "detail": "800x520:12406B"
+    },
+    {
+      "id": "file:assets/reputation/team_0.jpg",
+      "slot": "before_after",
+      "ok": true,
+      "detail": "320x320:5661B"
+    },
+    {
+      "id": "file:assets/reputation/team_1.jpg",
+      "slot": "before_after",
+      "ok": true,
+      "detail": "320x320:5606B"
+    },
+    {
+      "id": "file:assets/reputation/team_2.jpg",
+      "slot": "before_after",
+      "ok": true,
+      "detail": "320x320:5494B"
+    },
+    {
+      "id": "file:assets/reputation/team_3.jpg",
+      "slot": "before_after",
+      "ok": true,
+      "detail": "320x320:6101B"
+    },
+    {
+      "id": "file:assets/reveal.js",
+      "slot": "other",
+      "ok": true,
+      "detail": "3016B"
+    },
+    {
+      "id": "file:assets/ux_polish.js",
+      "slot": "other",
+      "ok": true,
+      "detail": "960B"
+    },
+    {
+      "id": "hero_required",
+      "slot": "hero",
+      "ok": true,
+      "detail": "1600x900:26799B"
+    },
+    {
+      "id": "logo_required",
+      "slot": "logo",
+      "ok": true,
+      "detail": "640x640:497613B"
+    },
+    {
+      "id": "background_required",
+      "slot": "background",
+      "ok": true,
+      "detail": "1600x900:23805B"
+    },
+    {
+      "id": "gallery_visual_floor",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "5_gallery_files"
+    },
+    {
+      "id": "hero_stage_has_media",
+      "slot": "hero",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "id": "before_after_required",
+      "slot": "before_after",
+      "ok": true,
+      "detail": "2_ba_files"
+    },
+    {
+      "id": "svg_icons",
+      "slot": "svg",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "id": "local_fonts",
+      "slot": "fonts",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "id": "favicon",
+      "slot": "favicon",
+      "ok": true,
+      "detail": "not_referenced"
+    }
+  ],
+  "referenced": [
+    "assets/motion_kit.css",
+    "assets/hero.jpg",
+    "assets/hero_pack/showcase.jpg",
+    "assets/hero_pack/footer.jpg",
+    "assets/hero_pack/banner.jpg",
+    "assets/hero_pack/gallery.jpg",
+    "assets/hero_pack/hero_2.jpg",
+    "assets/background.jpg",
+    "assets/logo.png",
+    "assets/gallery_1.jpg",
+    "assets/gallery_2.jpg",
+    "assets/gallery_3.jpg",
+    "assets/reputation/case_0_before.jpg",
+    "assets/reputation/case_0_after.jpg",
+    "assets/reputation/team_0.jpg",
+    "assets/reputation/team_1.jpg",
+    "assets/reputation/team_2.jpg",
+    "assets/reputation/team_3.jpg",
+    "assets/reveal.js",
+    "assets/ux_polish.js"
+  ],
+  "missing": [],
+  "summary": {
+    "all_refs": "PASS",
+    "gallery": "PASS",
+    "lazy": "PASS",
+    "hero": "PASS",
+    "background": "PASS",
+    "logo": "PASS",
+    "before_after": "PASS",
+    "svg": "PASS",
+    "fonts": "PASS",
+    "favicon": "PASS"
+  },
+  "manifest_path": "assets/asset_manifest.json"
+}

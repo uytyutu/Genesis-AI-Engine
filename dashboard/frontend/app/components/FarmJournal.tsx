@@ -47,6 +47,9 @@ type FarmDash = {
   global_spider?: {
     polling_interval_sec?: number;
     min_task_price?: number;
+    idle?: boolean;
+    idle_status?: string;
+    hunter_mode?: boolean;
   };
 };
 
@@ -99,15 +102,21 @@ export function FarmJournal() {
   }, [refresh]);
 
   useEffect(() => {
-    const refreshMs = dash?.running ? 8_000 : 20_000;
+    const refreshMs = dash?.running ? 20_000 : 45_000;
     const id = window.setInterval(refresh, refreshMs);
     return () => window.clearInterval(id);
   }, [refresh, dash?.running]);
 
-  const pollSec = Math.max(8, dash?.global_spider?.polling_interval_sec ?? 12);
+  const pollSec = Math.max(
+    15,
+    dash?.global_spider?.polling_interval_sec ?? 30,
+  );
+  const spiderIdle = Boolean(dash?.global_spider?.idle);
 
   useEffect(() => {
     if (!dash?.running) return;
+    // Idle spider: do not hammer /api/farm/feed (Places/hunt) — dashboard refresh only.
+    if (spiderIdle) return;
     const tick = window.setInterval(async () => {
       try {
         await fetchApi(`${API}/api/farm/feed`, { method: "POST", timeoutMs: 8_000 });
@@ -117,7 +126,7 @@ export function FarmJournal() {
       }
     }, pollSec * 1000);
     return () => window.clearInterval(tick);
-  }, [dash?.running, refresh, pollSec]);
+  }, [dash?.running, refresh, pollSec, spiderIdle]);
 
   const guide = dash?.payout_guide;
 
@@ -129,10 +138,12 @@ export function FarmJournal() {
             <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/90">Журнал · live</p>
             <h1 className="mt-2 text-3xl font-bold text-white">Доход и задачи фермы</h1>
             <p className="mt-2 text-sm text-genesis-muted">
-              Обновление каждые {dash?.running ? "3" : "5"} сек
-              {dash?.running && dash.global_spider?.polling_interval_sec
-                ? ` · охота каждые ${dash.global_spider.polling_interval_sec} сек`
-                : ""}
+              Обновление каждые {dash?.running ? "20" : "45"} сек
+              {dash?.running && dash.global_spider?.idle
+                ? ` · IDLE ${dash.global_spider.idle_status ?? "WAITING_FOR_INPUT"} · backoff ${dash.global_spider.polling_interval_sec} сек · feed OFF`
+                : dash?.running && dash.global_spider?.polling_interval_sec
+                  ? ` · охота каждые ${Math.max(15, dash.global_spider.polling_interval_sec)} сек`
+                  : ""}
               {dash?.global_spider?.min_task_price != null
                 ? ` · фильтр ≥ ${dash.global_spider.min_task_price.toFixed(2)} €`
                 : ""}

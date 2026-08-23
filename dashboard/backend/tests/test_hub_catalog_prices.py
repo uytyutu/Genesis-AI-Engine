@@ -7,13 +7,13 @@ from app.integration.pricing_engine import resolve_hub_catalog_prices
 
 # market → (currency, symbol, basic_amount)
 _SMOKE: list[tuple[str, str, str, int]] = [
-    ("AU", "AUD", "A$", 549),
-    ("GB", "GBP", "£", 299),
-    ("CZ", "CZK", "Kč", 15000),
-    ("PL", "PLN", "zł", 1200),
-    ("US", "USD", "$", 399),
-    ("DE", "EUR", "€", 350),
-    ("FR", "EUR", "€", 330),
+    ("AU", "AUD", "A$", 312),
+    ("GB", "GBP", "£", 170),
+    ("CZ", "CZK", "Kč", 8529),
+    ("PL", "PLN", "zł", 682),
+    ("US", "USD", "$", 227),
+    ("DE", "EUR", "€", 199),
+    ("FR", "EUR", "€", 188),
 ]
 
 

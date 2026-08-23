@@ -99,15 +99,19 @@ def test_quality_gate_pass(tmp_path: Path):
     gen = factory.generate_from_order(order)
     assert gen["ok"] is True
     product_dir = tmp_path / "sandbox" / gen["product_id"]
+    css = (product_dir / "assets" / "store.css").read_text(encoding="utf-8")
+    # Accent comes from Design Engine niche tokens (fashion for clothing).
+    m = re.search(r"--store-accent\s*:\s*([^;]+);", css)
+    assert m, "missing --store-accent"
+    accent = m.group(1).strip()
     q = run_shop_quality_gate(
         product_dir,
         brief=brief,
-        colors={"accent": "#c45c26"},
+        colors={"accent": accent},
     )
     assert q.passed is True, q.errors
     assert (product_dir / "cart.html").is_file()
     assert (product_dir / "assets" / "store.js").is_file()
-    css = (product_dir / "assets" / "store.css").read_text(encoding="utf-8")
     assert "--store-bg" in css
     assert not re.search(r"--store-bg\s*:\s*#fff(?:fff)?\s*;", css, re.I)
     catalog = (product_dir / "catalog.html").read_text(encoding="utf-8")

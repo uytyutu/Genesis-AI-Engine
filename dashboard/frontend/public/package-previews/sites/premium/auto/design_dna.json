@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "moderne Kfz-Werkstatt abends · Mechaniker an BMW / Audi / Mercedes · Diagnosegerät und Hebebühne",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "ritual",
+  "package_id": "premium",
+  "niche_id": "auto",
+  "fingerprint": "025e6183bd61497c5002b58889369e90c632449729306d0ba538a5bb7f0bcb50",
+  "section_treatments": [
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "services",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "about",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#e4e8ee",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "1afcdcef26d7b9b2fcdcb68e",
+  "border_radius_px": 12
+}

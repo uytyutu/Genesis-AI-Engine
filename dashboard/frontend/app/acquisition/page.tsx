@@ -175,6 +175,13 @@ type OutreachRunner = {
   session_drafts?: number;
   session_sends?: number;
   session_skipped?: number;
+  session_places_requests?: number;
+  search_efficiency_pct?: number | null;
+  hunt_slot_memory?: {
+    slots_tracked?: number;
+    slots_cooling?: number;
+    slots_last_zero_yield?: number;
+  };
   last_message_ru?: string | null;
   last_tick_at?: string | null;
   next_tick_at?: string | null;
@@ -346,7 +353,14 @@ type StudioStatus = {
     manual_review?: number;
     summary_ru?: string;
     reasons?: { code?: string; count?: number; ok?: boolean; label_ru?: string }[];
-  } | null;  pilot_catalog?: {
+  } | null;
+  places_quota?: {
+    active?: boolean;
+    until?: string | null;
+    blocker_ru?: string;
+    ok?: boolean;
+  } | null;
+  pilot_catalog?: {
     checkout_online: string[];
     pilot_quote: string[];
     horizon: string[];
@@ -897,6 +911,12 @@ export default function AcquisitionPage() {
               </ul>
             </div>
           ) : null}
+          {status?.places_quota?.active ? (
+            <p className="mt-3 rounded-xl border border-amber-500/40 bg-amber-950/30 px-4 py-3 text-sm text-amber-50">
+              {status.places_quota.blocker_ru ||
+                "Google Places: суточная квота SearchText исчерпана — Hunt на паузе."}
+            </p>
+          ) : null}
           {status ? (
             <div className="mt-4 grid gap-3 sm:grid-cols-4">
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3">
@@ -1379,6 +1399,16 @@ export default function AcquisitionPage() {
                 {runner.session_leads ?? 0} · черновики {runner.session_drafts ?? 0} · отправки{" "}
                 {runner.session_sends ?? 0} · пропуски {runner.session_skipped ?? 0} · интервал ~
                 {runner.interval_sec ?? "—"}с
+              </p>
+              <p className="mt-1 text-white/80">
+                Search Efficiency: {runner.session_places_requests ?? 0} SearchText →{" "}
+                {runner.session_leads ?? 0} new →{" "}
+                {runner.search_efficiency_pct == null
+                  ? "—"
+                  : `${runner.search_efficiency_pct}%`}
+                {runner.hunt_slot_memory
+                  ? ` · слоты в cool-down ${runner.hunt_slot_memory.slots_cooling ?? 0}/${runner.hunt_slot_memory.slots_tracked ?? 0}`
+                  : ""}
               </p>
               <p className="mt-1">{runner.last_message_ru || runner.note_ru}</p>
               {runner.log && runner.log.length > 0 ? (

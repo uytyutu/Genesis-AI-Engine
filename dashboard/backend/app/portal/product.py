@@ -53,7 +53,7 @@ def default_product_catalog() -> tuple[Product, ...]:
             product_id="prod_website",
             product_type="website",
             display_name="Landing Website",
-            description="One-time landing packages: Basic 350 € · Business 650 € · Premium 1200 €.",
+            description="One-time landing packages: Basic 199 € · Business 399 € · Premium 699 €.",
             availability="available",
         ),
         Product(

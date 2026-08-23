@@ -1,0 +1,55 @@
+{
+  "form": {
+    "business_name": "NordLicht Autohaus",
+    "city": "München",
+    "phone": "+49 89 1122334",
+    "email": "kontakt@nordlicht-auto.example.de",
+    "niche": "car_dealership",
+    "package_id": "premium",
+    "commerce_mode": "connected",
+    "motion_level": "3d_premium",
+    "brand_style": "luxury",
+    "style": "luxury",
+    "market_code": "DE",
+    "ui_lang": "de",
+    "language": "de",
+    "services_list": [
+      "Neuwagenberatung",
+      "Gebrauchtwagen mit Historie",
+      "Probefahrt",
+      "Werkstatt & Inspektion",
+      "Online-Zubehörshop"
+    ],
+    "advantages": [
+      "Transparente Preise",
+      "3D Showroom-Erlebnis",
+      "Servicenetz München"
+    ],
+    "who_is_company": "Familiengeführtes Autohaus in München — Auswahl mit Klarheit statt Druckverkauf. Showroom und Werkstatt unter einem Dach.",
+    "client_story": "Schlüsselübergabe — und alles ist klar dokumentiert.",
+    "main_promise": "Das nächste Auto ohne Überraschungen.",
+    "why_choose_us": "Ehrliche Beratung, saubere Historie, 3D-Showroom, Shop für Pflege.",
+    "dream_wishes": "Website wie eine teure Münchner Digitalagentur + Online-Shop für Zubehör.",
+    "keep_business_name": true,
+    "demo_gallery": true,
+    "diversity_salt": "client-form-3d-nordlicht-2026"
+  },
+  "webgl": {
+    "enabled": true,
+    "mode": "amplify",
+    "reason": "sells_the_offer",
+    "hero_media": "webgl",
+    "sell_reason": "Showroom car + light + reflection sells the handover fantasy."
+  },
+  "motion_gate": {
+    "ok": true,
+    "code": "studio_3d_sells",
+    "motion_level": "3d_premium",
+    "sell_reason": "Showroom car + light + reflection sells the handover fantasy.",
+    "webgl_mode": "amplify"
+  },
+  "website_url": "/package-previews/client-forms/nordlicht-autohaus/website/",
+  "store_url": "/package-previews/client-forms/nordlicht-autohaus/store/catalog.html",
+  "product_id": "25c93807-2162-4c47-a1fd-debc3bd5a45c",
+  "note": "NO COMMIT until Owner Eye checklist PASS"
+}

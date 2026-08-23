@@ -1,0 +1,151 @@
+{
+  "legal_name": "VoltHaus Electronics",
+  "brand_name": "VoltHaus Electronics",
+  "slogan": "Qualität ohne Show",
+  "mission": "Kunden in Berlin spürbar besser bedienen als gestern.",
+  "history": "Was als kleines Vorhaben in Berlin begann, ist über die Jahre zu einem festen Ort mit Stammgästen und klarer Handschrift geworden. Seit 2018 wächst VoltHaus Electronics bewusst — Qualität vor Tempo.",
+  "values": [
+    "Präzision",
+    "Menschlichkeit",
+    "Transparenz",
+    "Verlässlichkeit",
+    "Handwerk"
+  ],
+  "approach": "Klarheit, Handwerk, langfristige Beziehung.",
+  "founded_year": 2018,
+  "city": "Berlin",
+  "niche_id": "electronics",
+  "services": [
+    [
+      "Dokumentation",
+      "Transparente Unterlagen",
+      "inkl."
+    ],
+    [
+      "Beratung",
+      "Individuelle Erstberatung",
+      "auf Anfrage"
+    ],
+    [
+      "Analyse",
+      "Bestandsaufnahme & Empfehlung",
+      "ab 99 €"
+    ],
+    [
+      "Umsetzung",
+      "Umsetzung mit klaren Meilensteinen",
+      "auf Anfrage"
+    ],
+    [
+      "Betreuung",
+      "Laufende Begleitung",
+      "Monatsabo"
+    ],
+    [
+      "Workshop",
+      "Team-Workshop vor Ort",
+      "ab 490 €"
+    ],
+    [
+      "Audit",
+      "Qualitäts- & Prozesscheck",
+      "ab 290 €"
+    ],
+    [
+      "Support",
+      "Priorisierter Support",
+      "inkl."
+    ]
+  ],
+  "advantages": [
+    "Seit 2018 in Berlin",
+    "Transparente Preise",
+    "Feste Ansprechpartner",
+    "Termine mit Bestätigung",
+    "Nachvollziehbarer Ablauf"
+  ],
+  "team": [
+    [
+      "Sofia Keller",
+      "Leitung",
+      "Leitung bei VoltHaus Electronics — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Max Becker",
+      "Spezialist/in",
+      "Spezialist/in bei VoltHaus Electronics — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Max Hoffmann",
+      "Beratung",
+      "Beratung bei VoltHaus Electronics — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Jonas Schulz",
+      "Assistenz",
+      "Assistenz bei VoltHaus Electronics — Fokus auf Qualität und ruhige Abläufe."
+    ]
+  ],
+  "faq": [
+    [
+      "Wie vereinbare ich einen Termin bei VoltHaus Electronics?",
+      "Über das Kontaktformular, telefonisch oder per E-Mail. Sie erhalten eine Bestätigung."
+    ],
+    [
+      "Wie transparent sind die Kosten?",
+      "Vor Beginn erhalten Sie eine klare Einschätzung. Keine versteckten Positionen."
+    ],
+    [
+      "Seit wann gibt es VoltHaus Electronics?",
+      "Seit 2018 in Berlin — gewachsen mit Stammkunden und klarer Handschrift."
+    ],
+    [
+      "Gibt es Parkplätze / Anreise?",
+      "Zentral in Berlin. Details zur Anreise senden wir mit der Terminbestätigung."
+    ],
+    [
+      "Arbeitet ihr auch online / hybrid?",
+      "Wo sinnvoll ja — Details klären wir im Erstkontakt."
+    ]
+  ],
+  "reviews": [
+    [
+      "Seriös, klar, ohne Show. Weiterzuempfehlen.",
+      "Noah · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Fühlt sich nach echtem Handwerk an — nicht nach Vorlage.",
+      "Erik · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Transparente Kommunikation. Genau das wollte ich.",
+      "Lea · Demo-Bewertung — kein echter Kundenname"
+    ]
+  ],
+  "process_steps": [
+    "Kennenlernen & Bedarf",
+    "Klare Empfehlung & Preis",
+    "Umsetzung mit Abstimmung",
+    "Nachsorge & Feedback"
+  ],
+  "blog_titles": [
+    "Warum VoltHaus Electronics anders arbeitet",
+    "3 Dinge, die Kunden in Berlin uns am häufigsten fragen",
+    "Hinter den Kulissen: Qualität statt Tempo",
+    "So bereiten Sie Ihren ersten Termin vor"
+  ],
+  "certificates": [
+    "Qualitätsversprechen",
+    "Transparente Prozesse",
+    "Versicherungsschutz"
+  ],
+  "hours": "Mo–Fr 09:00–18:00 · Sa nach Vereinbarung",
+  "phone": "+49 89 7453547",
+  "email": "kontakt@volthaus-electronics.example.de",
+  "social": [
+    "instagram.com/volthauselectronics.demo",
+    "linkedin.com/company/volthaus-electronics-demo"
+  ],
+  "fingerprint": "d34ce968e0cdc8f7",
+  "demo_content": true
+}

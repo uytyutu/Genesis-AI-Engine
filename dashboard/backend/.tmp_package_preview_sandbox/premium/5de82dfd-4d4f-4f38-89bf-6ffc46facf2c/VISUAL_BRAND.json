@@ -1,0 +1,72 @@
+{
+  "brand_name": "GlanzWerk Detailing",
+  "niche_id": "auto_detailing",
+  "fingerprint": "658c4a205ecd020b7d3c",
+  "color": {
+    "primary": "#080a0e",
+    "accent": "#dcb44d",
+    "secondary": "#5a3c9d",
+    "surface": "#dadce0",
+    "cards": "#d4d8de",
+    "background": "#080a0e",
+    "gradient": "linear-gradient(145deg,#080a0e 0%,#6e5a26 48%,#dcb44d 100%)",
+    "glow": "rgba(220,180,77,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "editorial_photo",
+    "neon_line",
+    "glass_3d",
+    "minimal_illustration"
+  ],
+  "illustration_pack": "neon line diagrams",
+  "motion_language": "atelier drift · glass shimmer · slow depth",
+  "icon_style": "filled craft glyphs",
+  "scene_library": {
+    "hero": [
+      "Lackpolitur unter LED",
+      "schwarzer Sportwagen, Spiegelglanz",
+      "Keramikversiegelung, Dunst und Glanz",
+      "Premium-Detailing-Studio"
+    ],
+    "gallery": [
+      "Lackkorrektur",
+      "Innenraumreinigung",
+      "Felgenpflege",
+      "Scheibenversiegelung",
+      "Vorher/Nachher Lack",
+      "Keramikbeschichtung"
+    ],
+    "before_after": [
+      "matte Lackfläche",
+      "Hochglanz nach Politur"
+    ],
+    "team": [
+      "Detailer mit Poliermaschine"
+    ],
+    "equipment": [
+      "Poliermaschine",
+      "Dampfreiniger",
+      "Keramik-Set"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «GlanzWerk Detailing» (auto_detailing) in Germany. Role=hero. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Lackpolitur unter LED, schwarzer Sportwagen, Spiegelglanz, Keramikversiegelung, Dunst und Glanz, Premium-Detailing-Studio. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «GlanzWerk Detailing» (auto_detailing) in Germany. Role=hero_background. Medium=glass_3d. Illustration language=neon line diagrams. Must show: Lackpolitur unter LED, schwarzer Sportwagen, Spiegelglanz, Keramikversiegelung, Dunst und Glanz, Premium-Detailing-Studio. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «GlanzWerk Detailing» (auto_detailing) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Lackkorrektur, Innenraumreinigung, Felgenpflege, Scheibenversiegelung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «GlanzWerk Detailing» (auto_detailing) in Germany. Role=before_after. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: matte Lackfläche, Hochglanz nach Politur. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «GlanzWerk Detailing» (auto_detailing) in Germany. Role=team. Medium=neon_line. Illustration language=neon line diagrams. Must show: Detailer mit Poliermaschine. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «GlanzWerk Detailing» (auto_detailing) in Germany. Role=equipment. Medium=neon_line. Illustration language=neon line diagrams. Must show: Poliermaschine, Dampfreiniger, Keramik-Set. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «GlanzWerk Detailing» (auto_detailing) in Germany. Role=projects. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Felgenpflege, Scheibenversiegelung, Vorher/Nachher Lack, Keramikbeschichtung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «GlanzWerk Detailing» (auto_detailing) in Germany. Role=illustration. Medium=neon_line. Illustration language=neon line diagrams. Must show: Lackpolitur unter LED, schwarzer Sportwagen, Spiegelglanz. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «GlanzWerk Detailing» (auto_detailing) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=neon line diagrams. Must show: filled craft glyphs. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «GlanzWerk Detailing» (auto_detailing) in Germany. Role=video_storyboard. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Lackpolitur unter LED, schwarzer Sportwagen, Spiegelglanz, Keramikversiegelung, Dunst und Glanz. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

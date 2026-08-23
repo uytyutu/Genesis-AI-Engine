@@ -1,0 +1,127 @@
+BRAND BOOK
+Brand Name
+Röstwerk Coffee
+
+Positioning
+Klare lokale Marke
+
+Brand Archetype
+The Expert
++
+The Guide
+
+Brand Promise
+Klar. Vertrauenswürdig. Vor Ort.
+
+Core Emotion
+Vertrauen
+
+Secondary Emotion
+Klarheit
+
+Tone of Voice
+  Klar
+  Freundlich
+  Kompetent
+
+Visual Style
+Modern Clear · neon line diagrams
+
+Visual Metaphor
+Offenes Licht auf ruhiger Fläche
+
+Photography
+  professioneller Arbeitsort
+  Team bei echter Arbeit
+  deutsche Alltagsszene
+  Detail Arbeit
+  Kundenmoment
+  Werkzeug / Material
+  Ergebnis
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+
+Motion
+kinetic micro-motion · glow pulse · scroll scenes
+
+Palette
+Slate, Sage, Warm White
+Accent #5b7c6e
+Surface #e6eaf0
+Ink #f4f6f8
+
+Typography
+Manrope
++
+IBM Plex Sans
+(manrope_ibm_plex_industrial)
+
+Icon Style
+minimal stroke set
+
+Border Radius
+12 px
+
+Shadow Style
+Soft
+
+Glass Level
+medium
+
+Texture
+  Paper
+  Light
+
+Scene Language
+  professioneller Arbeitsort
+  Team bei echter Arbeit
+  deutsche Alltagsszene
+
+CTA Style
+Große Buttons · Ruhiger Abstand
+
+Trust Strategy
+  Transparenz
+  Kontakt
+  Prozess
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Real workplace
+✔ People at craft
+✔ Daylight
+
+Preferred
+✔ Local place
+✔ Honest detail
+
+Forbidden
+✖ Café
+✖ Coworking
+✖ Abstract business
+✖ Laptop stock
+✖ Beauty salon
+
+Hero Proof
+A frame that answers: what does this company live every day?
+
+Fingerprint
+51be77d35fc9f51b5a37d6d0
+

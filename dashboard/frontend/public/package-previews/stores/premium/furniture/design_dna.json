@@ -1,0 +1,75 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "narrative",
+  "package_id": "premium",
+  "niche_id": "realestate",
+  "fingerprint": "18d7d3fba0add9bb3f153af931f5c17d1a36bb9a2bf2401d6c8b79916b0ce7e2",
+  "section_treatments": [
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "showcase",
+      "gradient"
+    ],
+    [
+      "trust",
+      "illustration"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "tint"
+    ],
+    [
+      "maps",
+      "glass"
+    ],
+    [
+      "late_cta",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#e6eaf0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "4914ed0e3b01e8ed719a4eeb",
+  "border_radius_px": 12
+}

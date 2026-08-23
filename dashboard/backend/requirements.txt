@@ -5,6 +5,9 @@ pydantic==2.10.3
 httpx==0.28.1
 python-multipart==0.0.20
 pypdf==5.1.0
+fpdf2>=2.7.0,<3
+qrcode>=7.4,<9
+Pillow>=10.0.0,<12
 openai>=1.40.0,<2
 anthropic>=0.40.0,<1
 stripe>=10.40.0,<13

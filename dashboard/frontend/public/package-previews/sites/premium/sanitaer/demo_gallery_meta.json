@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "sanitaer",
+  "niche": "sanitaer",
+  "package_id": "premium",
+  "product_id": "80248f24-c4a3-4273-b879-6c3e1eee7a09",
+  "business_name": "WasserKlar Sanitär",
+  "generated_at": "2026-08-07T19:17:32.556812+00:00",
+  "engine": "FactoryService.build_landing + Design DNA + Design Engine + VIE",
+  "index_bytes": 139799,
+  "data_tier_ok": true,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/premium/sanitaer/index.html"
+}

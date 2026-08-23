@@ -280,6 +280,33 @@ def build_revenue_sources_center(
             ),
             next_step_ru="Не использовать в DATEV/EÜR. Смотреть Stripe / Opire REAL.",
         ),
+        _row(
+            source_id="rapidapi",
+            name="RapidAPI / API Farm",
+            status=STATUS_CANDIDATE,
+            income_type="Marketplace",
+            income_eur=0.0,
+            income_label="0 € Actual",
+            roi_label="—",
+            confidence=CONF_KEYS_PRESENT
+            if (keys_probe or {}).get("RAPIDAPI_KEY")
+            or (keys_probe or {}).get("RAPIDAPI_PROVIDER_KEY")
+            else CONF_NOT_CONNECTED,
+            automation_score=70,
+            why_ru=(
+                "API Farm channel: discover→build→Quality Gate→CEO approve→publish. "
+                "Payout RapidAPI → PayPal. Actual Revenue только после PAID_OUT Hard REAL. "
+                "Не смешивать с Stripe B2B."
+            ),
+            action_ru="Mission Control → API Farm",
+            scalable=True,
+            stage="API_FARM",
+            why_not_earned_ru="Нет подтверждённого RapidAPI PAID_OUT в Ledger.",
+            next_step_ru=(
+                "Запустить Research → довести 1 API до APPROVAL_REQUIRED → "
+                "CEO Approve → ключи RapidAPI → Publish → 1 платящий пользователь."
+            ),
+        ),
         _opire_row(opire or {}),
         _row(
             source_id="groq",

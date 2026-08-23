@@ -1,0 +1,20 @@
+{
+  "niche_id": "cleaning",
+  "idea": "Sauberkeit, die man merkt — ohne Drama.",
+  "who": "Facility-Team mit Checklisten statt Chaos — Büros und Glas, die morgens fertig sind.",
+  "character": [],
+  "metaphor": "modern",
+  "hero_concept": "",
+  "emotion_3s": "",
+  "source": "dream_brief",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Sauberkeit, die man merkt — ohne Drama.",
+    "who": "Facility-Team mit Checklisten statt Chaos — Büros und Glas, die morgens fertig sind.",
+    "package_id": "premium",
+    "source": "dream_brief",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "order_id": "demo-nordlicht",
+  "product_id": "demo-nordlicht",
+  "product_kind": "shop",
+  "template_id": "niche_clothing",
+  "pipeline": "published",
+  "current_version": 1,
+  "versions": [
+    {
+      "version": 1,
+      "created_at": "2026-08-04T20:52:10.047517+00:00",
+      "template_id": "niche_clothing",
+      "pages": [
+        "index.html",
+        "catalog.html",
+        "product.html",
+        "about.html",
+        "contact.html",
+        "faq.html",
+        "returns.html",
+        "impressum.html",
+        "datenschutz.html"
+      ],
+      "quality_passed": true
+    }
+  ],
+  "published": true,
+  "published_at": "2026-08-04T20:52:10.050025+00:00",
+  "published_url": "/api/client/stores/demo-nordlicht/live",
+  "created_at": "2026-08-04T20:52:10.025130+00:00",
+  "updated_at": "2026-08-04T20:52:10.050025+00:00",
+  "quality": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "required_pages",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "name": "title_present",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "store_name_in_html",
+        "ok": true,
+        "detail": "Nordlicht Boots"
+      },
+      {
+        "name": "meta_description",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "navigation",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "colors_applied",
+        "ok": true,
+        "detail": "#c45c26"
+      },
+      {
+        "name": "demo_catalog_cards",
+        "ok": true,
+        "detail": ""
+      }
+    ],
+    "errors": []
+  }
+}

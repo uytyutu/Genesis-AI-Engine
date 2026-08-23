@@ -107,15 +107,25 @@ const nextConfig: NextConfig = {
         headers: htmlNoStore,
       },
       {
-        source: "/((?!agb$|datenschutz$|_next/static|_next/image).*)",
+        // Exclude package-previews + legal pages — previews need their own frame/CSP rules.
+        source:
+          "/((?!agb$|datenschutz$|_next/static|_next/image|package-previews/).*)",
         headers: htmlNoStore,
+      },
+      {
+        // HTML demos only — never attach CSP to jpg/png thumbs (breaks <img> decode in some browsers).
+        source: "/package-previews/:path*\\.html",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: packagePreviewCsp },
+          { key: "Cache-Control", value: "public, max-age=60, must-revalidate" },
+        ],
       },
       {
         source: "/package-previews/:path*",
         headers: [
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "Content-Security-Policy", value: packagePreviewCsp },
-          { key: "Cache-Control", value: "public, max-age=60, must-revalidate" },
+          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
         ],
       },
       {
@@ -130,6 +140,40 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
+      // Reality Gallery static folder → index.html (folder URL was 404)
+      {
+        source: "/reality-gallery",
+        destination: "/reality-gallery/index.html",
+      },
+      {
+        source: "/reality-gallery/",
+        destination: "/reality-gallery/index.html",
+      },
+      // Package demos: folder URLs → index.html (avoids 404 without trailing filename)
+      {
+        source: "/package-previews/stores/:tier/:niche/",
+        destination: "/package-previews/stores/:tier/:niche/index.html",
+      },
+      {
+        source: "/package-previews/stores/:tier/:niche",
+        destination: "/package-previews/stores/:tier/:niche/index.html",
+      },
+      {
+        source: "/package-previews/sites/:tier/:niche/",
+        destination: "/package-previews/sites/:tier/:niche/index.html",
+      },
+      {
+        source: "/package-previews/sites/:tier/:niche",
+        destination: "/package-previews/sites/:tier/:niche/index.html",
+      },
+      {
+        source: "/package-previews/stores/:niche/",
+        destination: "/package-previews/stores/:niche/index.html",
+      },
+      {
+        source: "/package-previews/stores/:niche",
+        destination: "/package-previews/stores/:niche/index.html",
+      },
       {
         source: "/api/public/:path*",
         destination: `${apiBase}/api/public/:path*`,

@@ -1,0 +1,144 @@
+{
+  "brand_name": "DachKlar Service",
+  "niche_id": "dachreinigung",
+  "package_id": "premium",
+  "positioning": "Premium Roof Care",
+  "archetype_primary": "The Craftsman",
+  "archetype_secondary": "The Guardian",
+  "brand_promise": "Nach dem Regen sieht das Dach wieder neu aus.",
+  "core_emotion": "Erleichterung",
+  "secondary_emotion": "Stolz auf das eigene Zuhause",
+  "tone": [
+    "Ruhig",
+    "Präzise",
+    "Ehrlich",
+    "Kompetent"
+  ],
+  "visual_style": "Industrial Modern",
+  "visual_metaphor": "Frischer Regen nach dem Sturm — nasse Ziegel, klarer Himmel",
+  "photography": [
+    "Echte Dächer",
+    "Morgensonne nach Regen",
+    "Wassertropfen",
+    "Arbeiter in Schutzkleidung",
+    "Luftaufnahmen"
+  ],
+  "forbidden": [
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting",
+    "nail salon",
+    "coffee shop",
+    "yoga studio",
+    "tech landing"
+  ],
+  "motion_language": "Langsam · Flüssig · Präzise",
+  "motion_token": "premium",
+  "palette": {
+    "names": [
+      "Slate",
+      "Steel",
+      "Sky Blue",
+      "Warm White",
+      "Safety Orange"
+    ],
+    "accent_hex": "#3b82c4",
+    "surface_hex": "#f8fafc",
+    "ink_hex": "#0f172a",
+    "secondary_hex": "#64748b",
+    "highlight_hex": "#f97316"
+  },
+  "typography_display": "Manrope",
+  "typography_body": "IBM Plex Sans",
+  "typography_pair_id": "manrope_ibm_plex_industrial",
+  "typography_emotion": "confidence",
+  "icon_style": "Outline Industrial",
+  "border_radius_px": 12,
+  "shadow_style": "Soft Deep",
+  "glass_level": "medium",
+  "texture": [
+    "Beton",
+    "Schiefer",
+    "Wasser"
+  ],
+  "scene_language": [
+    "Sky",
+    "Height",
+    "Light",
+    "Wind",
+    "Rain"
+  ],
+  "cta_style": "Große Buttons · Viel Abstand · Keine Aggressivität",
+  "trust_strategy": [
+    "Vorher/Nachher",
+    "Zertifikate",
+    "Fahrzeuge",
+    "Team",
+    "Versicherung",
+    "Garantie"
+  ],
+  "atmosphere_mode": "cinematic",
+  "dna_style": "tech_precision",
+  "dna_palette_family": "slate_steel",
+  "hero_concept": "roof_after_rain",
+  "fingerprint": "778a3b395f86a2a55beadde9",
+  "media_dna": {
+    "required": [
+      "Roof",
+      "Water",
+      "Sky",
+      "Drone",
+      "Height",
+      "Worker",
+      "Equipment"
+    ],
+    "preferred": [
+      "Morning light",
+      "Clouds",
+      "Wet tiles",
+      "Family house",
+      "Gutter",
+      "Safety harness"
+    ],
+    "forbidden": [
+      "Café",
+      "Restaurant",
+      "Office",
+      "Beauty",
+      "Laptop",
+      "Coworking",
+      "Abstract business",
+      "Coffee smile stock"
+    ],
+    "hero_proof": "Worker in safety harness cleaning a wet roof after rain — not a pretty empty roof, not a café.",
+    "profession_keywords": [
+      "roof",
+      "dach",
+      "tile",
+      "ziegel",
+      "gutter",
+      "rinne",
+      "moss",
+      "moos",
+      "harness",
+      "ladder",
+      "drone",
+      "height",
+      "water",
+      "rain"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "city_hint": ""
+}

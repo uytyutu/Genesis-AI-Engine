@@ -15,15 +15,17 @@ from app.integration.payment_checkout_service import PaymentCheckoutService
 
 logger = logging.getLogger(__name__)
 
-_SUPPORT_EMAIL = "hello@genesis-ai-engine.com"
+_SUPPORT_EMAIL = "hello@virtuscore.com"
 _RECEIPT_TEMPLATE = (
     Path(__file__).resolve().parents[4] / "docs" / "support_templates" / "01_receipt_de.txt"
 )
 
 
 def _support_email() -> str:
+    """Public support address — brand is Virtus Core; domain may still be legacy until DNS cutover."""
     return (
-        os.getenv("GENESIS_SUPPORT_EMAIL", "").strip()
+        os.getenv("VIRTUS_SUPPORT_EMAIL", "").strip()
+        or os.getenv("GENESIS_SUPPORT_EMAIL", "").strip()
         or os.getenv("GENESIS_OWNER_NOTIFY_EMAIL", "").strip()
         or _SUPPORT_EMAIL
     )
@@ -146,7 +148,7 @@ class RevenuePipelineService:
         if not self._checkout.is_configured():
             raise ValueError("payment_not_configured")
 
-        label = f"{order['package_name']} — {order['business_name']}"
+        label = f"{BRAND_NAME} · {order['package_name']} — {order['business_name']}"
         currency = str(order.get("currency") or "EUR").lower()
         session = self._checkout.create_checkout(
             order_id=order_id,
@@ -174,6 +176,23 @@ class RevenuePipelineService:
             provider="sandbox",
             sender="sandbox@test",
             external_id=f"sandbox-{order_id}",
+        )
+
+    def complete_demo_payment(self, order_id: str) -> dict:
+        """D0 Demo Payment Bridge — demo orders only; no real money / no finance inflate."""
+        from app.integration.demo_payment import assert_demo_payment_allowed
+
+        order = self._sales.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        assert_demo_payment_allowed(order)
+        return self._apply_payment(
+            order_id=order_id,
+            amount_eur=None,
+            provider="demo",
+            sender="demo@virtus.local",
+            external_id=f"demo-{order_id}",
+            payment_mode="demo",
         )
 
     def handle_stripe_webhook(self, payload: bytes, signature: str) -> dict:
@@ -254,6 +273,7 @@ class RevenuePipelineService:
         sender: str | None,
         external_id: str,
         currency: str | None = None,
+        payment_mode: str | None = None,
     ) -> dict:
         order = self._sales.get_order(order_id)
         if not order:
@@ -275,22 +295,34 @@ class RevenuePipelineService:
             if paid_cur != expected_cur:
                 raise ValueError("currency_mismatch")
 
+        mode = (payment_mode or order.get("payment_mode") or "").strip().lower()
+        if provider == "demo":
+            mode = "demo"
+
         label = f"Bestellung {order_id}: {order['business_name']}"
-        self._finance.credit_order_payment(
-            paid,
-            label,
-            provider=provider,
-            order_id=order_id,
-            sender=sender,
-            external_id=external_id,
-        )
+        # Demo payments must never inflate real finance metrics
+        if mode != "demo":
+            self._finance.credit_order_payment(
+                paid,
+                label,
+                provider=provider,
+                order_id=order_id,
+                sender=sender,
+                external_id=external_id,
+            )
 
         now = datetime.now(timezone.utc)
         order["status"] = "paid"
-        order["status_label"] = "Bezahlt"
+        order["status_label"] = "Bezahlt (Demo)" if mode == "demo" else "Bezahlt"
         order["paid_at"] = now.isoformat()
         order["payment_provider"] = provider
         order["payment_external_id"] = external_id
+        order["payment_mode"] = mode or None
+        if mode == "demo":
+            order["demo"] = True
+            order["is_demo"] = True
+            order["demo_payment"] = True
+            order["counts_toward_revenue"] = False
         order["updated_at"] = now.isoformat()
         # Path A Factory builds in minutes — not multi-day handoff.
         from app.factory.market_delivery import (
@@ -320,6 +352,15 @@ class RevenuePipelineService:
         order["client_receipt_text"] = render_client_receipt_text(
             order=order, status_path=status_path, paid=paid
         )
+        # Activate cinematic media budget only after confirmed payment (not checkout create).
+        try:
+            from app.integration.cinematic_media import on_order_paid
+
+            mem = getattr(self._sales, "_memory", None)
+            if mem is not None and order.get("cinematic_enabled"):
+                on_order_paid(order, Path(mem) if not isinstance(mem, Path) else mem)
+        except Exception:
+            logger.exception("cinematic_media_budget_activate_failed order=%s", order_id)
         self._sales._save_order(order)
 
         # Link Path A website orders to Workspace when customer_id known or email matches.
@@ -387,10 +428,17 @@ class RevenuePipelineService:
         price_display = str(order.get("price_label") or f"{paid:.0f} €")
 
         self._notifications.notify(
-            title="Neue Zahlung",
+            title="Demo-Zahlung" if mode == "demo" else "Neue Zahlung",
             message=(
-                f"🟢 {order['business_name']} — {price_display} ({order['package_name']}). "
-                f"Work Farm · производство запущено."
+                (
+                    f"🟣 DEMO {order['business_name']} — {price_display} "
+                    f"({order['package_name']}). Нет реальных денег."
+                )
+                if mode == "demo"
+                else (
+                    f"🟢 {order['business_name']} — {price_display} ({order['package_name']}). "
+                    f"Work Farm · производство запущено."
+                )
             ),
             order_id=order_id,
         )
@@ -399,11 +447,13 @@ class RevenuePipelineService:
         self._ensure_order_email(order, sender)
         self._backfill_email_from_checkout(order)
         email_result = self._send_receipt_if_needed(order)
-        owner_mail = self._receipt_email.send_owner_payment_alert(
-            order=order, support_email=_support_email()
-        )
-        order["owner_payment_alert"] = owner_mail
-        self._sales._save_order(order)
+        owner_mail = None
+        if mode != "demo":
+            owner_mail = self._receipt_email.send_owner_payment_alert(
+                order=order, support_email=_support_email()
+            )
+            order["owner_payment_alert"] = owner_mail
+            self._sales._save_order(order)
 
         return {
             "ok": True,
@@ -415,6 +465,8 @@ class RevenuePipelineService:
             "order": self._sales.public_status(order_id),
             "receipt_email": email_result,
             "owner_payment_alert": owner_mail,
+            "payment_mode": mode or None,
+            "demo": mode == "demo",
         }
 
     def _already_paid_response(

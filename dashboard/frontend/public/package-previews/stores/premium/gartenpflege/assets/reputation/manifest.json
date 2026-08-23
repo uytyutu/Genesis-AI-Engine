@@ -1,0 +1,17 @@
+{
+  "files": {
+    "case_0_before": "assets/reputation/case_0_before.jpg",
+    "case_0_after": "assets/reputation/case_0_after.jpg",
+    "case_1_before": "assets/reputation/case_1_before.jpg",
+    "case_1_after": "assets/reputation/case_1_after.jpg",
+    "ba_0_before": "assets/reputation/case_0_before.jpg",
+    "ba_0_after": "assets/reputation/case_0_after.jpg",
+    "ba_1_before": "assets/reputation/case_1_before.jpg",
+    "ba_1_after": "assets/reputation/case_1_after.jpg",
+    "team_0": "assets/reputation/team_0.jpg",
+    "team_1": "assets/reputation/team_1.jpg",
+    "team_2": "assets/reputation/team_2.jpg",
+    "team_3": "assets/reputation/team_3.jpg"
+  },
+  "demo": true
+}

@@ -217,7 +217,24 @@
     body[data-tier="business"] #services { background-image: linear-gradient(180deg,rgba(248,250,252,.92),rgba(248,250,252,.96)), url("assets/hero_pack/services.jpg"); background-size: cover; background-position: center; }
     body[data-tier="business"] .mid-cta { background-image: linear-gradient(120deg,rgba(15,23,42,.78),rgba(15,23,42,.55)), url("assets/hero_pack/cta.jpg"); background-size: cover; background-position: center; color: #fff; }
     body[data-tier="business"] .benefits { background-image: linear-gradient(180deg,rgba(248,250,252,.94),rgba(255,255,255,.98)), url("assets/hero_pack/background_1.jpg"); background-size: cover; }
-  </style>
+  
+/* typography overflow guard · gallery repair */
+body, body h1, body h2, body h3, body .hero h1, body .hero-title, body .page-title {
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+}
+body .hero h1, body .hero-title, body h1 {
+  font-size: clamp(1.7rem, 4.2vw, 3.2rem) !important;
+}
+@media (max-width: 720px) {
+  body .hero h1, body .hero-title, body h1 {
+    font-size: clamp(1.55rem, 5.8vw, 2.15rem) !important;
+  }
+}
+
+</style>
 </head>
 <body data-tier="business">
   <nav class="topbar">

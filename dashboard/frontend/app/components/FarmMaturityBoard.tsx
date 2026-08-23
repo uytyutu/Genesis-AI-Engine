@@ -321,6 +321,10 @@ export function FarmMaturityBoard({ data: initial, autoFetch = false, compact }:
             ? "разрешён (все Gate PASS)"
             : "закрыт — нет Confirmed € PASS"}
         </p>
+        <p className="mt-1 text-[11px] text-genesis-muted">
+          Это Gate для Stripe Micro / чужого Earn-рынка — не про Opire Scanner. Opire bounty
+          ищите в /farm-engine (публичный api.opire.dev ≈ десятки reward, не миллионы issues).
+        </p>
       </div>
 
       {data.income_phase ? (

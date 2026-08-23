@@ -1,0 +1,6 @@
+﻿ .../backend/app/integration/email_provider_pool.py | 154 +++++++++++++++------
+ .../backend/app/integration/engine_ai_service.py   |   8 +-
+ .../genesis_brain/product_consultant.py            |  48 +++++--
+ .../backend/app/integration/sales_order_service.py |  47 ++++++-
+ .../backend/app/integration/worker_research_lab.py |  60 +++++++-
+ 5 files changed, 255 insertions(+), 62 deletions(-)

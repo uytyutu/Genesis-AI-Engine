@@ -1,0 +1,20 @@
+{
+  "niche_id": "realestate",
+  "idea": "Wohnraum mit Klarheit.",
+  "who": "Makler mit lokaler Marktkenntnis und klarer Provision.",
+  "character": [],
+  "metaphor": "Ruhig, premium, klar",
+  "hero_concept": "",
+  "emotion_3s": "",
+  "source": "dream_brief",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Wohnraum mit Klarheit.",
+    "who": "Makler mit lokaler Marktkenntnis und klarer Provision.",
+    "package_id": "business",
+    "source": "dream_brief",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

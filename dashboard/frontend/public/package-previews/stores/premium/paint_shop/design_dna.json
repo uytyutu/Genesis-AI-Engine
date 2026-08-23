@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "product_first",
+  "package_id": "premium",
+  "niche_id": "generic",
+  "fingerprint": "8c88dde2836485b51e7fb0f4a0a2f7ec5d1d39e3bad6ad0c5e6bc7f92efc6137",
+  "section_treatments": [
+    [
+      "catalog",
+      "gradient"
+    ],
+    [
+      "showcase",
+      "illustration"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "faq",
+      "illustration"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "glass"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#e6eaf0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "607a1e1e8cb643d78b355f02",
+  "border_radius_px": 12
+}

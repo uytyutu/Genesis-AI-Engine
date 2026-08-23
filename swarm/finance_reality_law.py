@@ -35,7 +35,29 @@ DEFAULT_TRIAL_OPS = 100
 DEFAULT_TRIAL_DAYS = 30
 
 LAW_ID = "FINANCE_REALITY_OVER_SIMULATION"
-LAW_VERSION = "1.4"
+LAW_VERSION = "1.5"
+
+# Financial Truth Rule — tax / DATEV / EÜR / Steuerberater exports
+TAX_ALLOWED_CONFIDENCE: frozenset[str] = frozenset(
+    {"CONFIRMED", "BOOKED", "WITHDRAWN"}
+)
+TAX_FORBIDDEN_LAYERS: tuple[str, ...] = (
+    "SIMULATED",
+    "ESTIMATED",
+    "PENDING",
+    "PIPELINE",
+    "COMMERCIAL",
+    "REPLAY",
+    "DEMO",
+    "GOLDEN_TEST",
+    "FACTORY_REPLAY",
+    "EXPECTED",
+    "FORECAST",
+)
+MONEY_LAYER_REAL = "REAL"
+MONEY_LAYER_PIPELINE = "PIPELINE"
+MONEY_LAYER_COMMERCIAL = "COMMERCIAL"
+MONEY_LAYER_SIMULATION = "SIMULATION"
 
 # Law №3 — system is modeling-only until Live Earn exists with confirmed payouts
 INCOME_PHASE_MODELING = "modeling"
@@ -263,6 +285,55 @@ def real_money_missing_fields(payload: dict[str, Any] | None) -> list[str]:
     return missing
 
 
+def tax_export_allowed(confidence: str | None) -> bool:
+    """Financial Truth: DATEV/EÜR/CSV/PDF may only use CONFIRMED|BOOKED|WITHDRAWN."""
+    return str(confidence or "").strip().upper() in TAX_ALLOWED_CONFIDENCE
+
+
+def financial_truth_manifest() -> dict[str, Any]:
+    return {
+        "id": "FINANCIAL_TRUTH_RULE",
+        "version": "1.0",
+        "title_ru": "Financial Truth Rule — только Ledger CONFIRMED/BOOKED для налогов",
+        "tax_allowed_confidence": sorted(TAX_ALLOWED_CONFIDENCE),
+        "tax_forbidden_layers": list(TAX_FORBIDDEN_LAYERS),
+        "money_layers": [
+            {
+                "id": MONEY_LAYER_REAL,
+                "label_ru": "REAL (налоги)",
+                "sources": "Stripe/PayPal/Bank/Digistore/Awin webhook → Ledger",
+                "in_tax_export": True,
+            },
+            {
+                "id": MONEY_LAYER_PIPELINE,
+                "label_ru": "Pipeline (ожидает settlement/вывод)",
+                "in_tax_export": False,
+            },
+            {
+                "id": MONEY_LAYER_COMMERCIAL,
+                "label_ru": "Commercial (цены заказов / витрина)",
+                "in_tax_export": False,
+            },
+            {
+                "id": MONEY_LAYER_SIMULATION,
+                "label_ru": "Simulation / Replay / Demo / Golden",
+                "in_tax_export": False,
+                "banner_ru": "НЕ ИСПОЛЬЗУЕТСЯ В ФИНАНСОВОЙ ОТЧЁТНОСТИ",
+            },
+        ],
+        "rule_ru": (
+            "Любой документ DATEV · EÜR · Finanzamt · CSV · PDF · ZIP для Steuerberater "
+            "имеет право использовать исключительно операции CONFIRMED или BOOKED "
+            "(и WITHDRAWN после подтверждения) из finance_ledger. "
+            "Replay, simulation, estimate, demo, golden tests, pipeline, expected — запрещены."
+        ),
+        "safe_zero_ru": (
+            "Если оплат не было — налоговый отчёт показывает 0,00 €, "
+            "а не суммы витрины / demo / Factory replay."
+        ),
+    }
+
+
 def module_may_mutate_real(module_id: str | None) -> bool:
     """Law №2: only the Finance Ledger write path may increase REAL.
 
@@ -354,7 +425,10 @@ def law_manifest() -> dict[str, Any]:
             "CONFIRMED ≠ WITHDRAWN",
             "WITHDRAWN ≠ BOOKED",
             "Module estimate ≠ Ledger REAL",
+            "Demo / Replay ≠ DATEV / EÜR",
+            "Commercial catalog price ≠ tax income",
         ],
+        "financial_truth": financial_truth_manifest(),
         "rules_ru": list(RULES_RU),
         "owner_gate_ru": (
             "Virtus Core никогда сама не создаёт аккаунты, не принимает ToS, "

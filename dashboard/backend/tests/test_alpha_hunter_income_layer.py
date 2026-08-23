@@ -63,6 +63,7 @@ def test_lab_scan_income_sources_sets_analysis_ready(tmp_path: Path):
     lab = AlphaHunterLab(_Mem(tmp_path))
     out = lab.scan_income_sources(bank_eur=20.0)
     assert out["ok"] is True
+    assert out.get("adapter_cycle") is True
     assert lab._load_lab()["analysis_ready"] is True
     panel = lab.panel()
     assert panel["income_layer"]["income_sources"]["total"] >= 10
@@ -80,6 +81,7 @@ def test_toggle_income_source(tmp_path: Path):
 
 def test_adapter_sdk_naming_and_passport():
     from swarm.alpha_hunter_adapter_sdk import (
+        NO_OPPORTUNITY,
         RapidAPIAdapter,
         discover_all_registered,
         list_adapters,
@@ -90,7 +92,10 @@ def test_adapter_sdk_naming_and_passport():
     assert "has_api" in passport["questions"]
     assert "needs_browser" in passport["questions"]
     adapters = list_adapters()
-    assert len(adapters) >= 3
+    assert len(adapters) >= 4
     dig = discover_all_registered()
     assert "Opportunity Discovery Engine" in dig["engine"]
-    assert "не движок" in dig["law_ru"].lower() or "Discovery" in dig["engine"]
+    # Without RapidAPI key → NO_OPPORTUNITY, not a fake card
+    rapid = RapidAPIAdapter().discover()
+    assert rapid.status == NO_OPPORTUNITY
+    assert rapid.opportunities == []

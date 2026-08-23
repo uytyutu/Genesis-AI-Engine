@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "dental",
+  "niche": "dental",
+  "package_id": "basic",
+  "product_id": "810ac103-286c-41f9-a88e-f44e8cfe738b",
+  "business_name": "SmileCare Praxis",
+  "generated_at": "2026-08-06T22:03:43.340067+00:00",
+  "engine": "Design Concept Owner Preview",
+  "index_bytes": 4039,
+  "data_tier_ok": true,
+  "concept_only": true,
+  "reality_benchmark": "FAIL",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/basic/dental/index.html"
+}

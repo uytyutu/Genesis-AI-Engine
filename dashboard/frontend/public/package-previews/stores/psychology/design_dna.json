@@ -1,0 +1,68 @@
+{
+  "emotion": "trust",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "cormorant_source",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "tech_stack",
+  "package_id": "business",
+  "niche_id": "psychology",
+  "fingerprint": "3ecb00cb55fd17692dcfea760967cfde166703da5679a2dcd96a2d4f0c72f1d0",
+  "section_treatments": [
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "stats",
+      "tint"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "process",
+      "gradient"
+    ],
+    [
+      "about",
+      "illustration"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f3f6f4",
+  "ink_hex": "#243029"
+}

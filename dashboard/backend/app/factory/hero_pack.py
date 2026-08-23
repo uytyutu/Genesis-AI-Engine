@@ -51,28 +51,52 @@ def resolve_slot(
     package_id: str | None,
     slot: str,
 ) -> Path | None:
-    """Best file for a slot: exact → same slot lower tier → niche preview.jpg."""
+    """Best file for a slot without cross-polluting basic<-premium looks."""
     tier = (package_id or "basic").strip().lower()
     if tier not in _TIER_SLOTS:
         tier = "basic"
     key = (niche_id or "generic").strip().lower() or "generic"
-    candidates: list[Path] = [slot_path(key, tier, slot)]
-    # Prefer higher-quality premium assets when requesting business hero, etc.
-    if tier == "premium":
-        candidates.append(slot_path(key, "business", slot))
-        candidates.append(slot_path(key, "basic", slot))
+    candidates: list[Path] = []
+
+    def _add(t: str, s: str) -> None:
+        candidates.append(slot_path(key, t, s))
+
+    if tier == "basic":
+        # ONLY basic tier for the requested slot; never business/premium heroes
+        _add("basic", slot)
+        if slot.startswith("hero"):
+            for s in ("hero_1", "hero_2"):
+                _add("basic", s)
+        candidates.append(_SHOWCASES / key / "preview.jpg")
+        candidates.append(_SHOWCASES / "generic" / "preview.jpg")
     elif tier == "business":
-        candidates.append(slot_path(key, "basic", slot))
-        candidates.append(slot_path(key, "premium", slot))
+        # business first, then basic (not premium) for same slot
+        _add("business", slot)
+        _add("basic", slot)
+        if slot.startswith("hero"):
+            for s in ("hero_1", "hero_2"):
+                _add("business", s)
+            for s in ("hero_1", "hero_2"):
+                _add("basic", s)
+        candidates.append(_SHOWCASES / key / "preview.jpg")
+        candidates.append(_SHOWCASES / "generic" / "preview.jpg")
     else:
-        candidates.append(slot_path(key, "business", slot))
-    # Cross-slot fallbacks for hero
-    if slot.startswith("hero"):
-        for t in ("premium", "business", "basic"):
-            for s in ("hero_1", "hero_2", "hero_3"):
-                candidates.append(slot_path(key, t, s))
-    candidates.append(_SHOWCASES / key / "preview.jpg")
-    candidates.append(_SHOWCASES / "generic" / "preview.jpg")
+        # premium first; business same slot next; basic only after interiors exhausted
+        _add("premium", slot)
+        _add("business", slot)
+        if slot.startswith("hero"):
+            for s in ("hero_2", "hero_3", "banner", "hero_1", "showcase"):
+                _add("premium", s)
+            for s in ("hero_1", "hero_2", "hero_3", "banner"):
+                _add("business", s)
+            # never prefer basic implant when premium/business interior exists
+            for s in ("hero_1", "hero_2"):
+                _add("basic", s)
+        else:
+            _add("basic", slot)
+        candidates.append(_SHOWCASES / key / "preview.jpg")
+        candidates.append(_SHOWCASES / "generic" / "preview.jpg")
+
     seen: set[Path] = set()
     for path in candidates:
         if path in seen:
@@ -83,8 +107,23 @@ def resolve_slot(
     return None
 
 
+def _primary_hero_slots(tier: str) -> tuple[str, ...]:
+    if tier == "premium":
+        return ("hero_2", "hero_3", "banner", "hero_1", "showcase")
+    if tier == "business":
+        return ("hero_1", "hero_2")
+    return ("hero_1", "hero_2")
+
+
 def primary_hero_src(niche_id: str | None, package_id: str | None) -> Path | None:
-    return resolve_slot(niche_id, package_id, "hero_1")
+    tier = (package_id or "basic").strip().lower()
+    if tier not in _TIER_SLOTS:
+        tier = "basic"
+    for slot in _primary_hero_slots(tier):
+        path = resolve_slot(niche_id, tier, slot)
+        if path is not None and path.is_file():
+            return path
+    return None
 
 
 def write_hero_pack(
@@ -120,9 +159,9 @@ def write_hero_pack(
         shutil.copy2(src, dest)
         manifest[slot] = f"assets/hero_pack/{dest_name}"
 
-    # Canonical hero.jpg = Media Gate–passing primary still
+    # Canonical hero.jpg — tier-aware primary still (Media Gate must pass)
     hero_src = None
-    for slot in ("hero_1", "hero_2", "hero_3"):
+    for slot in _primary_hero_slots(tier):
         cand = resolve_slot(niche_id, tier, slot)
         if cand is None or not cand.is_file():
             continue

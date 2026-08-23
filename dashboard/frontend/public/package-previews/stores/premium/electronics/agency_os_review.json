@@ -1,0 +1,165 @@
+{
+  "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+  "roles": [
+    {
+      "id": "ceo",
+      "title": "CEO",
+      "question": "Does this strengthen the client's business presence — not just fill a page?"
+    },
+    {
+      "id": "creative_director",
+      "title": "Creative Director",
+      "question": "Is the creative direction clear, ownable, and non-template?"
+    },
+    {
+      "id": "brand_strategist",
+      "title": "Brand Strategist",
+      "question": "What is this brand's personality — and why does it exist?"
+    },
+    {
+      "id": "marketing_strategist",
+      "title": "Marketing Strategist",
+      "question": "What should the stranger feel in 3 seconds — and what should they do?"
+    },
+    {
+      "id": "ux_researcher",
+      "title": "UX Researcher",
+      "question": "Is the path human, calm, credible — free of constructor anxiety?"
+    },
+    {
+      "id": "art_director",
+      "title": "Art Director",
+      "question": "Does every scene have its own composition, rhythm, mood, and visual center?"
+    },
+    {
+      "id": "typography_director",
+      "title": "Typography Director",
+      "question": "Does type carry character and brand voice — not a default stack?"
+    },
+    {
+      "id": "color_director",
+      "title": "Color Director",
+      "question": "Does color create the intended emotion — not decoration?"
+    },
+    {
+      "id": "motion_director",
+      "title": "Motion Director",
+      "question": "Does every animation have meaning — or is it noise?"
+    },
+    {
+      "id": "frontend_architect",
+      "title": "Frontend Architect",
+      "question": "Is the craft export clean, resilient, and worthy of a studio?"
+    },
+    {
+      "id": "accessibility_specialist",
+      "title": "Accessibility Specialist",
+      "question": "Can everyone use this with dignity?"
+    },
+    {
+      "id": "performance_engineer",
+      "title": "Performance Engineer",
+      "question": "Does beauty stay fast on real devices?"
+    },
+    {
+      "id": "qa_designer",
+      "title": "QA Designer",
+      "question": "Would a European digital studio ship this without shame?"
+    },
+    {
+      "id": "owner_review",
+      "title": "Owner Review",
+      "question": "Has the owner said: \"Да. Я бы купил такой сайт.\"?"
+    }
+  ],
+  "digital_signature": {
+    "name": "Virtus Core Digital Signature",
+    "aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+    "craft_marks": [
+      "attention to detail",
+      "meaningful motion",
+      "strong typography",
+      "harmonious spacing",
+      "considered interactive states",
+      "coherent interaction sequences"
+    ],
+    "never": [
+      "same colors across every niche",
+      "identical compositions",
+      "constructor ladders",
+      "empty decorative zones",
+      "motion without meaning"
+    ]
+  },
+  "ecosystem_frame": {
+    "wrong": "Create a dentist website.",
+    "right": "Create the digital business of a dental clinic.",
+    "for_this_project": "Create the digital business of VoltHaus Electronics (computer) — experience is one surface of the ecosystem, not the end product.",
+    "surfaces": [
+      {
+        "id": "experience",
+        "label": "Digital Experience (site/store)",
+        "role": "first impression & brand face"
+      },
+      {
+        "id": "booking",
+        "label": "Booking / scheduling",
+        "role": "convert intent to appointments"
+      },
+      {
+        "id": "crm",
+        "label": "CRM",
+        "role": "remember and serve the client"
+      },
+      {
+        "id": "reminders",
+        "label": "Automated reminders",
+        "role": "reduce no-shows"
+      },
+      {
+        "id": "chat",
+        "label": "Chat / assistant",
+        "role": "answer when humans sleep"
+      },
+      {
+        "id": "reviews",
+        "label": "Reviews",
+        "role": "trust at scale"
+      },
+      {
+        "id": "seo",
+        "label": "SEO",
+        "role": "be found"
+      },
+      {
+        "id": "ads",
+        "label": "Advertising",
+        "role": "reach with brand integrity"
+      },
+      {
+        "id": "analytics",
+        "label": "Analytics",
+        "role": "learn what works"
+      },
+      {
+        "id": "video",
+        "label": "Video",
+        "role": "emotion and proof"
+      },
+      {
+        "id": "social",
+        "label": "Social",
+        "role": "presence beyond the site"
+      },
+      {
+        "id": "cabinet",
+        "label": "Client cabinet",
+        "role": "ongoing relationship"
+      }
+    ],
+    "package_id": "premium"
+  },
+  "owner_buy_phrase": "Да. Я бы купил такой сайт.",
+  "owner_review": "PENDING_OWNER",
+  "note": "Roles are questions every generation must face. PASS only after human approval."
+}

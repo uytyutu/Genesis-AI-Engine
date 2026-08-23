@@ -1,0 +1,93 @@
+{
+  "niche_id": "dachreinigung",
+  "subniche_id": "roof_cleaning",
+  "subniche_label": "Dachreinigung",
+  "business_model": "roof_cleaning_craft_small_team",
+  "city": "Nürnberg",
+  "company_name": "DachKlar Service",
+  "who": "Wir kommen, reinigen, dokumentieren das Ergebnis und verlängern die Lebensdauer Ihres Dachs.",
+  "trust_why": "Nachweisbare Arbeit · Dachreinigung · Nürnberg",
+  "sells": "['Dachreinigung', 'Moosentfernung', 'Fassadenwäsche', 'Dachrinne reinigen', 'Imprägnierung']",
+  "differentiator": "Qualität, Verlässlichkeit, lokale Präsenz",
+  "atmosphere": "craft",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Roof surface, gutter, impregnation",
+  "media_brief": {
+    "hero": "Technician on roof / moss removal",
+    "gallery": "Roof surface, gutter, impregnation",
+    "video": "Pressure wash timelapse",
+    "before_after": "Mossy roof → clean roof",
+    "team": "Height-safety crew",
+    "equipment": "Lift, hoses, safety gear",
+    "atmosphere": "craft",
+    "subniche": "roof_cleaning",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "cost_calculator",
+      "label": "Cost Calculator",
+      "why": "Dachfläche → grobe Orientierung."
+    },
+    {
+      "id": "before_after",
+      "label": "Before / After",
+      "why": "Moos → klar — der stärkste Beweis."
+    },
+    {
+      "id": "emergency_call",
+      "label": "Emergency Call",
+      "why": "Akute Abläufe / Regenperiode."
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp CTA",
+      "why": "Fotos vom Dach schicken."
+    },
+    {
+      "id": "service_area",
+      "label": "Service Area Map",
+      "why": "Einsatzgebiet."
+    },
+    {
+      "id": "projects",
+      "label": "Projects",
+      "why": "Häuser in der Region."
+    },
+    {
+      "id": "equipment",
+      "label": "Equipment",
+      "why": "Höhe & Sicherheit."
+    },
+    {
+      "id": "crew",
+      "label": "Crew",
+      "why": "Team auf dem Dach."
+    }
+  ],
+  "site_jobs": [],
+  "style": "craft",
+  "clients_who": "",
+  "fingerprint": "ec9fe69e0a6db2de488e",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

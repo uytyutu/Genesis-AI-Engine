@@ -1,0 +1,118 @@
+{
+  "brand_name": "Salon Mira",
+  "niche_id": "beauty",
+  "package_id": "business",
+  "positioning": "Beauty Ritual Atelier",
+  "archetype_primary": "The Artist",
+  "archetype_secondary": "The Host",
+  "brand_promise": "Ein Ritual der Schönheit — kein Salon.",
+  "core_emotion": "Ruhe",
+  "secondary_emotion": "Selbstachtung",
+  "tone": [
+    "Ruhig",
+    "Präzise",
+    "Warm",
+    "Ohne Hype"
+  ],
+  "visual_style": "Atelier Light",
+  "visual_metaphor": "Helles Atelierlicht — ruhige Hände, kein Neon-Salon",
+  "photography": [
+    "Atelierlicht",
+    "Hände bei der Arbeit",
+    "Produkt detail",
+    "Spiegel ohne Chaos",
+    "Ruhe vor dem Termin"
+  ],
+  "forbidden": [
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting",
+    "neon salon",
+    "pink glitter stock",
+    "waiting room chairs row"
+  ],
+  "motion_language": "Weich · Ritual · Langsam",
+  "motion_token": "premium",
+  "palette": {
+    "names": [
+      "Porcelain",
+      "Rose Clay",
+      "Soft Ink",
+      "Champagne"
+    ],
+    "accent_hex": "#c4787a",
+    "surface_hex": "#faf7f4",
+    "ink_hex": "#2a2420",
+    "secondary_hex": "#8b7355",
+    "highlight_hex": "#f0e6dc"
+  },
+  "typography_display": "Cormorant",
+  "typography_body": "DM Sans",
+  "typography_pair_id": "cormorant_dm_beauty",
+  "typography_emotion": "soft_precision",
+  "icon_style": "Soft Outline",
+  "border_radius_px": 8,
+  "shadow_style": "Soft Lift",
+  "glass_level": "medium",
+  "texture": [
+    "Porcelain",
+    "Linen",
+    "Soft metal"
+  ],
+  "scene_language": [
+    "Ritual",
+    "Light",
+    "Hands",
+    "Quiet"
+  ],
+  "cta_style": "Termin · Ruhig · Klar",
+  "trust_strategy": [
+    "Beratung zuerst",
+    "Preise",
+    "Portfolio"
+  ],
+  "atmosphere_mode": "atelier",
+  "dna_style": "calm_luxury",
+  "dna_palette_family": "porcelain_rose",
+  "hero_concept": "beauty_ritual",
+  "fingerprint": "e496482b509680ce0f60aa6f",
+  "media_dna": {
+    "required": [
+      "Atelier light",
+      "Hands at work",
+      "Quiet mirror",
+      "Ritual space"
+    ],
+    "preferred": [
+      "Product detail",
+      "Soft tools",
+      "Calm before appointment"
+    ],
+    "forbidden": [
+      "Neon salon",
+      "Pink glitter stock",
+      "Waiting-room chair row"
+    ],
+    "hero_proof": "A beauty ritual room — not a noisy salon corridor.",
+    "profession_keywords": [
+      "salon",
+      "schnitt",
+      "farbe",
+      "ritual",
+      "atelier"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "city_hint": ""
+}

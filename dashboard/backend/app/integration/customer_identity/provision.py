@@ -80,6 +80,10 @@ class CustomerProvisioner:
             gdpr_service_consent=True,
             marketing=MarketingConsent(),
         )
+        from app.integration.customer_identity.support_center import SupportCenterService
+
+        support = SupportCenterService(self._memory)
+        support.ensure_business_id(card)
         company = DigitalCompany(
             company_id=company_id,
             customer_id=customer_id,
@@ -105,5 +109,6 @@ class CustomerProvisioner:
         self._store.save_card(card)
         self._store.save_company(company)
         self._store.save_welcome(welcome)
+        support.record_registration(card)
 
         return account, card, company, welcome

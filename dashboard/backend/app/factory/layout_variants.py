@@ -75,6 +75,7 @@ LAYOUT_PROFILES: dict[str, LayoutProfile] = {
             "stats",
             "catalog",
             "services",
+            "reputation",
             "mid_cta",
             "benefits",
             "trust",
@@ -107,6 +108,7 @@ LAYOUT_PROFILES: dict[str, LayoutProfile] = {
             "catalog",
             "benefits",
             "services",
+            "reputation",
             "mid_cta",
             "gallery",
             "process",
@@ -136,6 +138,7 @@ LAYOUT_PROFILES: dict[str, LayoutProfile] = {
             "gallery",
             "showcase",
             "services",
+            "reputation",
             "benefits",
             "trust",
             "process",
@@ -164,6 +167,7 @@ LAYOUT_PROFILES: dict[str, LayoutProfile] = {
             "info",
             "stats",
             "services",
+            "reputation",
             "mid_cta",
             "process",
             "benefits",
@@ -196,6 +200,7 @@ LAYOUT_PROFILES: dict[str, LayoutProfile] = {
             "stats",
             "catalog",
             "services",
+            "reputation",
             "mid_cta",
             "benefits",
             "process",
@@ -226,6 +231,7 @@ LAYOUT_PROFILES: dict[str, LayoutProfile] = {
             "about",
             "benefits",
             "services",
+            "reputation",
             "mid_cta",
             "gallery",
             "trust",
@@ -244,7 +250,10 @@ LAYOUT_PROFILES: dict[str, LayoutProfile] = {
 
 NICHE_LAYOUT_POOL: dict[str, tuple[str, ...]] = {
     "dental": ("L2", "L6", "L1"),  # trust-first professional
+    "psychology": ("L6", "L2", "L3"),  # editorial / trust / visual — not classic funnel
+    "family_psychology": ("L6", "L2", "L3"),
     "auto": ("L4", "L5", "L1"),  # dense industrial / contact-forward
+    "car_dealership": ("L4", "L5", "L1"),
     "law": ("L2", "L6", "L1"),  # editorial trust
     "energy": ("L1", "L4", "L5"),
     "beauty": ("L3", "L6", "L1"),  # visual portfolio (gallery early)
@@ -283,6 +292,7 @@ def resolve_layout_profile(
     package_id: str,
     market_code: str,
     niche_id: str,
+    diversity_salt: str = "",
 ) -> LayoutProfile:
     """Deterministic Layout Profile from Client × Package × Market × Niche."""
     niche = (niche_id or "generic").strip().lower() or "generic"
@@ -299,7 +309,10 @@ def resolve_layout_profile(
             ordered.append(pid)
     if package == "basic" and len(ordered) > 2:
         ordered = ordered[: max(2, len(ordered) - 1)]
+    salt = (diversity_salt or "").strip()
     seed = f"{business_name.strip()}|{package}|{niche}|{market}|layout-profile"
+    if salt:
+        seed = f"{seed}|dm:{salt}"
     digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
     pick = ordered[int(digest[:8], 16) % len(ordered)]
     return get_layout_profile(pick)
@@ -311,6 +324,7 @@ def resolve_hero_for_layout(
     niche_id: str,
     business_name: str,
     package_id: str,
+    diversity_salt: str = "",
 ) -> str:
     """Hero from profile.hero_variants ∩ niche allowlist (fallback: niche pool).
 
@@ -324,22 +338,31 @@ def resolve_hero_for_layout(
     package = (package_id or "basic").strip().lower() or "basic"
     niche_pool = NICHE_LAYOUT_ALLOWLIST.get(niche) or NICHE_LAYOUT_ALLOWLIST["generic"]
 
+    salt = (diversity_salt or "").strip()
+    salt_suffix = f"|dm:{salt}" if salt else ""
     if package == "premium":
+        # Psychology Premium Character: immersive glass-panel hero (Therapy Trust)
+        if niche == "psychology":
+            return "D"
         pool = PREMIUM_HERO_POOL
-        seed = f"{business_name.strip()}|premium|{niche}|cinematic-hero"
+        seed = f"{business_name.strip()}|premium|{niche}|cinematic-hero{salt_suffix}"
+    elif package == "business" and niche == "psychology":
+        # Tier ladder: Business must not clone Premium D wow
+        pool = ("C", "A", "E")
+        seed = f"{business_name.strip()}|business|{niche}|calm-hero{salt_suffix}"
     elif package == "basic":
         preferred = tuple(h for h in BASIC_HERO_PREFER if h in niche_pool)
         pool = preferred or tuple(
             h for h in profile.hero_variants if h in niche_pool
         ) or niche_pool
         seed = (
-            f"{business_name.strip()}|basic|{niche}|{profile.id}|layout-hero"
+            f"{business_name.strip()}|basic|{niche}|{profile.id}|layout-hero{salt_suffix}"
         )
     else:
         pool = tuple(h for h in profile.hero_variants if h in niche_pool) or niche_pool
         seed = (
             f"{business_name.strip()}|{package}|{niche}|"
-            f"{profile.id}|layout-hero"
+            f"{profile.id}|layout-hero{salt_suffix}"
         )
     digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
     return pool[int(digest[:8], 16) % len(pool)]
@@ -352,6 +375,7 @@ def resolve_component_for_layout(
     business_name: str,
     package_id: str,
     niche_id: str,
+    diversity_salt: str = "",
 ) -> str:
     """Prefer profile.component when hero-compatible; else Component Composer."""
     from app.factory.component_composer import (
@@ -364,9 +388,13 @@ def resolve_component_for_layout(
     preferred = (profile.preferred_component or "").strip().upper()
     if preferred and preferred in compat:
         return preferred
+    # diversity_salt shifts Component Composer when preferred profile is unused
+    name_for_seed = business_name
+    if (diversity_salt or "").strip():
+        name_for_seed = f"{business_name}\0dm:{(diversity_salt or '').strip()}"
     return select_component_profile(
         hero_layout=hero,
-        business_name=business_name,
+        business_name=name_for_seed,
         package_id=package_id,
         niche_id=niche_id,
     )

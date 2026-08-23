@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "car_dealership",
+  "niche": "car_dealership",
+  "package_id": "premium",
+  "product_id": "2cc79634-ad16-40b0-9d5d-edb8c66b8511",
+  "business_name": "NordLicht Autohaus",
+  "generated_at": "2026-08-08T16:19:46.404730+00:00",
+  "engine": "FactoryService.build_landing + Design DNA + Design Engine + VIE",
+  "index_bytes": 146184,
+  "data_tier_ok": true,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/premium/car_dealership/index.html"
+}

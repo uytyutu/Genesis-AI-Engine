@@ -1,0 +1,568 @@
+{
+  "studio_id": "digital_creative_studio_v4_studio_era",
+  "era": "Virtus Core Studio Era",
+  "product_noun": "Digital Experience Generation",
+  "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+  "digital_signature_aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+  "philosophy": "virtus_core_studio_era_digital_experience_generation",
+  "immutable_law_1": "Каждый новый проект обязан быть не хуже предыдущего лучшего проекта. Если генерация ухудшила качество — REBUILD. Если она повторила шаблон — REBUILD. Если сайт выглядит как конструктор — REBUILD. Если сайт уступает современным digital-студиям — REBUILD.",
+  "immutable_law_2": "Любая новая идея должна сначала стать заметной клиенту. Если появляется Director, Engine, Rule или Memory — ответь: «Что изменится в первом впечатлении клиента?» Если ответ: «Пока ничего, но архитектура стала лучше» — работа ещё не закончена.",
+  "pipeline": [
+    "human_first",
+    "brand_story",
+    "core_emotion",
+    "core_promise",
+    "visual_metaphor",
+    "creative_theme",
+    "scene_language",
+    "motion_language",
+    "typography_voice",
+    "color_emotion",
+    "interaction_style",
+    "creative_conflict",
+    "owner_preview"
+  ],
+  "scene_arc": [
+    "scene",
+    "story",
+    "emotion",
+    "interaction",
+    "experience",
+    "conversion"
+  ],
+  "package_id": "basic",
+  "niche_id": "restaurant",
+  "studio_approach": {
+    "id": "boutique",
+    "label": "Boutique",
+    "pillars": [
+      "emotional photography",
+      "storytelling",
+      "atmosphere",
+      "curated offer",
+      "intimate brand"
+    ],
+    "composition_bias": [
+      "boutique",
+      "spotlight",
+      "runway",
+      "visual_first",
+      "floating"
+    ],
+    "type_bias": [
+      "fraunces_dm",
+      "bodoni_jakarta",
+      "gloock_manrope"
+    ],
+    "color_feeling": "tactile warm + soft contrast",
+    "motion": "lifestyle hover, gallery breath",
+    "niches_affinity": [
+      "beauty",
+      "fashion",
+      "restaurant",
+      "psychology"
+    ],
+    "notes": ""
+  },
+  "moodboard": {
+    "niche_id": "restaurant",
+    "emotion": "appetite and belonging",
+    "keywords": [
+      "depth",
+      "rhythm",
+      "hero presence",
+      "niche truth",
+      "fire & smoke"
+    ],
+    "avoid": [
+      "template ladder",
+      "flat white",
+      "metric PASS theater",
+      "silent_forest",
+      "tech_saas",
+      "pastel_clinic",
+      "corporate_office"
+    ],
+    "hero_feeling": "Appetite born from heat and craft.",
+    "atmosphere": "ember glow, close heat, dark atmosphere with life",
+    "references": [
+      "Best contemporary niche studios"
+    ]
+  },
+  "brand_dna": {
+    "business_name": "Küche Luna",
+    "niche_id": "restaurant",
+    "package_id": "basic",
+    "voice": "bold condensed display + honest body",
+    "feeling": "appetite and belonging",
+    "why_hero_exists": "The Hero exists to make 'Fire & Smoke' felt in 3 seconds: Appetite born from heat and craft.",
+    "color_feeling": "charcoal, ember orange, smoke grey",
+    "type_voice": "bold condensed display + honest body",
+    "scene_arc": "ember glow, close heat, dark atmosphere with life",
+    "avoid": [
+      "silent_forest",
+      "tech_saas",
+      "pastel_clinic",
+      "corporate_office"
+    ],
+    "fingerprint": "1ed10fbd68a24e32",
+    "brand_story": "Felix built Küche Luna because the room makes you want to stay. Clients (30–50) should feel appetite and belonging. Only then do we name the craft: restaurant.",
+    "core_emotion": "appetite and belonging",
+    "core_promise": "Appetite born from heat and craft.",
+    "visual_metaphor": "flame under the plate",
+    "creative_theme": "Fire & Smoke",
+    "creative_theme_id": "fire_smoke",
+    "scene_language": "ember glow, close heat, dark atmosphere with life",
+    "motion_language": "flicker and rise — heat language",
+    "interaction_style": "urgent desire — reserve now",
+    "photo_world": "grill glow, hands plating, steam",
+    "founder_name": "Felix"
+  },
+  "creative_identity": {
+    "title": "Fire & Smoke",
+    "theme_id": "fire_smoke",
+    "idea": "Appetite born from heat and craft.",
+    "human": {
+      "founder_name": "Felix",
+      "founder_role": "chef & host",
+      "client_age_range": "30–50",
+      "why_choose_them": "The room makes you want to stay.",
+      "visitor_must_feel": "appetite and belonging",
+      "niche_revealed_later": "restaurant"
+    },
+    "brand_story": "Felix built Küche Luna because the room makes you want to stay. Clients (30–50) should feel appetite and belonging. Only then do we name the craft: restaurant.",
+    "core_emotion": "appetite and belonging",
+    "core_promise": "Appetite born from heat and craft.",
+    "visual_metaphor": "flame under the plate",
+    "creative_theme": "Fire & Smoke",
+    "scene_language": "ember glow, close heat, dark atmosphere with life",
+    "motion_language": "flicker and rise — heat language",
+    "typography_voice": "bold condensed display + honest body",
+    "color_emotion": "charcoal, ember orange, smoke grey",
+    "interaction_style": "urgent desire — reserve now",
+    "photo_world": "grill glow, hands plating, steam",
+    "niche_revealed": "restaurant",
+    "package_id": "basic",
+    "surface": "site",
+    "conflict": {
+      "ok": true,
+      "action": "CONTINUE",
+      "conflicts": []
+    },
+    "forbidden": [
+      "silent_forest",
+      "tech_saas",
+      "pastel_clinic",
+      "corporate_office"
+    ],
+    "owner_preview": "PENDING_OWNER",
+    "html_export_allowed": true,
+    "html_blocked_reason": "",
+    "fingerprint": "1ed10fbd68a24e32",
+    "generated_at": "2026-08-07T05:57:36.099195+00:00",
+    "sprint": "Creative Identity Generation",
+    "agency_note": "Think like a creative agency director on a €50,000 brief. No idea → no HTML. Creative Identity becomes site, store, social, video, ads.",
+    "pipeline": [
+      "human_first",
+      "brand_story",
+      "core_emotion",
+      "core_promise",
+      "visual_metaphor",
+      "creative_theme",
+      "scene_language",
+      "motion_language",
+      "typography_voice",
+      "color_emotion",
+      "interaction_style",
+      "creative_conflict",
+      "owner_preview"
+    ],
+    "before_html": true,
+    "naming": "Creative Identity — not Concept",
+    "question": "Who is the human — and what idea can you feel?",
+    "not_question": "How do we assemble a psychologist website?"
+  },
+  "observatory": {
+    "niche_id": "restaurant",
+    "era": "2026+",
+    "study_sources": [
+      "Independent fine-casual brands",
+      "Editorial food magazines",
+      "Hospitality brand sites"
+    ],
+    "first_screen": [
+      "Appetite image owns the fold",
+      "Reservation CTA as invitation",
+      "Atmosphere before menu dump"
+    ],
+    "page_rhythm": "Gallery hunger → story → menu → book",
+    "composition_depth": [
+      "Full-bleed food/lifestyle",
+      "Warm surfaces",
+      "Sparse type"
+    ],
+    "typography": "Character display + soft sans",
+    "micro_interactions": [
+      "Parallax soft",
+      "Menu hover taste"
+    ],
+    "trust": [
+      "Real kitchen / team photos",
+      "Hours & map clear"
+    ],
+    "cta_craft": "Reserve — one primary",
+    "brand_feel": [
+      "warmth",
+      "appetite",
+      "alive"
+    ],
+    "invent": "A restaurant brand scene sequence — not a delivery-app clone.",
+    "never": "Generic pizza stock for every cuisine",
+    "lenses": [
+      {
+        "id": "first_screen",
+        "question": "Why does the first screen exist?",
+        "principles": [
+          "One emotional job in 3 seconds",
+          "Visual center owns the fold",
+          "Brand voice before feature list"
+        ],
+        "anti_patterns": [
+          "Hero as feature dump",
+          "equal card grid first",
+          "logo wall as hero"
+        ]
+      },
+      {
+        "id": "rhythm",
+        "question": "How does the page breathe?",
+        "principles": [
+          "Scenes with distinct moods",
+          "Alternating density — never identical section padding",
+          "Story → emotion → interaction → conversion"
+        ],
+        "anti_patterns": [
+          "Hero→Text→Cards→Text→Cards",
+          "uniform white slabs"
+        ]
+      },
+      {
+        "id": "trust",
+        "question": "How is confidence earned?",
+        "principles": [
+          "Proof woven into scenes, not bolted as a strip",
+          "Specific over generic claims",
+          "Quiet credentials beat badge spam"
+        ],
+        "anti_patterns": [
+          "fake counters",
+          "stock handshake photos as trust"
+        ]
+      },
+      {
+        "id": "cta",
+        "question": "How does desire become action?",
+        "principles": [
+          "CTA matches emotional temperature of the scene",
+          "Secondary path without visual noise",
+          "One primary ask per scene"
+        ],
+        "anti_patterns": [
+          "identical pill buttons everywhere",
+          "three equal CTAs"
+        ]
+      }
+    ]
+  },
+  "observatory_brief": "Design Observatory · restaurant · 2026+\nRule: analyze principles — invent original — never copy pixels.\nFirst screen: Appetite image owns the fold; Reservation CTA as invitation; Atmosphere before menu dump\nRhythm: G; a; l\nDepth: Full-bleed food/lifestyle; Warm surfaces; Sparse type\nType: C; h; a\nMotion: Parallax soft; Menu hover taste\nTrust: Real kitchen / team photos; Hours & map clear\nCTA: R; e; s\nInvent: A restaurant brand scene sequence — not a delivery-app clone.\nNever: G; e; n; e; r",
+  "benchmark_brief": "",
+  "quality_floor": "Starter ≥ modern small-business website (sellable without shame at Starter price)",
+  "why_hero_exists": "The Hero exists to make 'Fire & Smoke' felt in 3 seconds: Appetite born from heat and craft.",
+  "scene_sequence": [
+    "scene",
+    "interaction",
+    "experience",
+    "conversion",
+    "emotion",
+    "interaction",
+    "experience",
+    "scene",
+    "emotion",
+    "story",
+    "interaction",
+    "conversion"
+  ],
+  "taste": null,
+  "law_1": {},
+  "memory_bias": {
+    "compositions": [
+      "solstice",
+      "editorial",
+      "whisper"
+    ],
+    "approaches": [
+      "boutique"
+    ],
+    "typography": [
+      "fraunces_dm",
+      "cormorant_source",
+      "libre_source"
+    ],
+    "heroes": [
+      "D",
+      "F",
+      "B"
+    ],
+    "prior_best_overall": 72.125,
+    "rule": "Bias principles from memory — never copy a prior site literally"
+  },
+  "agency_review": {
+    "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+    "roles": [
+      {
+        "id": "ceo",
+        "title": "CEO",
+        "question": "Does this strengthen the client's business presence — not just fill a page?"
+      },
+      {
+        "id": "creative_director",
+        "title": "Creative Director",
+        "question": "Is the creative direction clear, ownable, and non-template?"
+      },
+      {
+        "id": "brand_strategist",
+        "title": "Brand Strategist",
+        "question": "What is this brand's personality — and why does it exist?"
+      },
+      {
+        "id": "marketing_strategist",
+        "title": "Marketing Strategist",
+        "question": "What should the stranger feel in 3 seconds — and what should they do?"
+      },
+      {
+        "id": "ux_researcher",
+        "title": "UX Researcher",
+        "question": "Is the path human, calm, credible — free of constructor anxiety?"
+      },
+      {
+        "id": "art_director",
+        "title": "Art Director",
+        "question": "Does every scene have its own composition, rhythm, mood, and visual center?"
+      },
+      {
+        "id": "typography_director",
+        "title": "Typography Director",
+        "question": "Does type carry character and brand voice — not a default stack?"
+      },
+      {
+        "id": "color_director",
+        "title": "Color Director",
+        "question": "Does color create the intended emotion — not decoration?"
+      },
+      {
+        "id": "motion_director",
+        "title": "Motion Director",
+        "question": "Does every animation have meaning — or is it noise?"
+      },
+      {
+        "id": "frontend_architect",
+        "title": "Frontend Architect",
+        "question": "Is the craft export clean, resilient, and worthy of a studio?"
+      },
+      {
+        "id": "accessibility_specialist",
+        "title": "Accessibility Specialist",
+        "question": "Can everyone use this with dignity?"
+      },
+      {
+        "id": "performance_engineer",
+        "title": "Performance Engineer",
+        "question": "Does beauty stay fast on real devices?"
+      },
+      {
+        "id": "qa_designer",
+        "title": "QA Designer",
+        "question": "Would a European digital studio ship this without shame?"
+      },
+      {
+        "id": "owner_review",
+        "title": "Owner Review",
+        "question": "Has the owner said: \"Да. Я бы купил такой сайт.\"?"
+      }
+    ],
+    "digital_signature": {
+      "name": "Virtus Core Digital Signature",
+      "aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+      "craft_marks": [
+        "attention to detail",
+        "meaningful motion",
+        "strong typography",
+        "harmonious spacing",
+        "considered interactive states",
+        "coherent interaction sequences"
+      ],
+      "never": [
+        "same colors across every niche",
+        "identical compositions",
+        "constructor ladders",
+        "empty decorative zones",
+        "motion without meaning"
+      ]
+    },
+    "ecosystem_frame": {
+      "wrong": "Create a dentist website.",
+      "right": "Create the digital business of a dental clinic.",
+      "for_this_project": "Create the digital business of Küche Luna (restaurant) — experience is one surface of the ecosystem, not the end product.",
+      "surfaces": [
+        {
+          "id": "experience",
+          "label": "Digital Experience (site/store)",
+          "role": "first impression & brand face"
+        },
+        {
+          "id": "booking",
+          "label": "Booking / scheduling",
+          "role": "convert intent to appointments"
+        },
+        {
+          "id": "crm",
+          "label": "CRM",
+          "role": "remember and serve the client"
+        },
+        {
+          "id": "reminders",
+          "label": "Automated reminders",
+          "role": "reduce no-shows"
+        },
+        {
+          "id": "chat",
+          "label": "Chat / assistant",
+          "role": "answer when humans sleep"
+        },
+        {
+          "id": "reviews",
+          "label": "Reviews",
+          "role": "trust at scale"
+        },
+        {
+          "id": "seo",
+          "label": "SEO",
+          "role": "be found"
+        },
+        {
+          "id": "ads",
+          "label": "Advertising",
+          "role": "reach with brand integrity"
+        },
+        {
+          "id": "analytics",
+          "label": "Analytics",
+          "role": "learn what works"
+        },
+        {
+          "id": "video",
+          "label": "Video",
+          "role": "emotion and proof"
+        },
+        {
+          "id": "social",
+          "label": "Social",
+          "role": "presence beyond the site"
+        },
+        {
+          "id": "cabinet",
+          "label": "Client cabinet",
+          "role": "ongoing relationship"
+        }
+      ],
+      "package_id": "basic"
+    },
+    "owner_buy_phrase": "Да. Я бы купил такой сайт.",
+    "owner_review": "PENDING_OWNER",
+    "note": "Roles are questions every generation must face. PASS only after human approval."
+  },
+  "variants_considered": [],
+  "chosen": null,
+  "dna": {
+    "emotion": "trust",
+    "style": "modern_clinical",
+    "palette_family": "sage_mist",
+    "typography_pair": "cormorant_source",
+    "motion": "soft",
+    "hero_concept": "trust_panel",
+    "hero_layout": "C",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "clean",
+    "package_id": "basic",
+    "niche_id": "restaurant",
+    "fingerprint": "82d036f13976aa5e6fababdeace474461c17ac806b1424530ea1d1a7bfef37b3",
+    "section_treatments": [
+      [
+        "stats",
+        "ink"
+      ],
+      [
+        "services",
+        "glass"
+      ],
+      [
+        "mid_cta",
+        "tint"
+      ],
+      [
+        "benefits",
+        "glass"
+      ],
+      [
+        "trust",
+        "ink"
+      ],
+      [
+        "process",
+        "gradient"
+      ],
+      [
+        "showcase",
+        "illustration"
+      ],
+      [
+        "gallery",
+        "ink"
+      ],
+      [
+        "about",
+        "glass"
+      ],
+      [
+        "faq",
+        "tint"
+      ],
+      [
+        "reviews",
+        "glass"
+      ],
+      [
+        "maps",
+        "ink"
+      ],
+      [
+        "contact",
+        "gradient"
+      ]
+    ],
+    "accent_hex": "#5b7c6e",
+    "surface_hex": "#f3f6f4",
+    "ink_hex": "#243029"
+  },
+  "layout_profile_id": null,
+  "section_order": [],
+  "hero_layout": "C",
+  "generation_status": "OK_TO_BUILD",
+  "creative_review": "PASS_INTERNAL",
+  "kpi_question": "Without Virtus Core logo — would a stranger believe a modern European digital studio built this?",
+  "owner_review": "PENDING_OWNER",
+  "owner_required": "Да, я бы без стыда продал этот сайт клиенту",
+  "optimize_for": "designer_decisions_and_taste",
+  "note": "FAIL: Commercial Owner FAIL — sites/stores still read as niche templates, not living 5-year-old companies. Invent the business (name, legend, services, team, FAQ, demo-labeled reviews). Would a stranger believe this company exists? If no → FAIL. No new features — generation quality only. Creative Identity required before marketing HTML."
+}

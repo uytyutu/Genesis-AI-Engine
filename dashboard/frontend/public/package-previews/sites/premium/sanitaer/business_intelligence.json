@@ -1,0 +1,91 @@
+{
+  "niche_id": "sanitaer",
+  "subniche_id": "bathroom",
+  "subniche_label": "Badrenovierung",
+  "business_model": "bathroom_modern_small_team",
+  "city": "Stuttgart",
+  "company_name": "WasserKlar Sanitär",
+  "who": "Sanitär- und Heizungsteam in Stuttgart — Wasser und Wärme ohne Stress.",
+  "trust_why": "Nachweisbare Arbeit · Badrenovierung · Stuttgart",
+  "sells": "['Badsanierung', 'Heizung', 'Wartung', 'Notdienst']",
+  "differentiator": "Klare Abläufe, Meisterhandwerk, ehrliche Preise",
+  "atmosphere": "modern",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Work, place, people, proof",
+  "media_brief": {
+    "hero": "Professional sanitaer scene — European studio 2026",
+    "gallery": "Work, place, people, proof",
+    "video": "Niche atmosphere loop if provider available",
+    "before_after": "",
+    "team": "People of the company",
+    "equipment": "",
+    "atmosphere": "modern",
+    "subniche": "bathroom",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "contact_form",
+      "label": "Contact Form",
+      "why": "Kern-CTA."
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "why": "Schneller Kanal."
+    },
+    {
+      "id": "map",
+      "label": "Map",
+      "why": "Lokalität."
+    },
+    {
+      "id": "reviews",
+      "label": "Reviews",
+      "why": "Social proof (Demo-label)."
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "why": "Einwände vor dem Anruf."
+    },
+    {
+      "id": "gallery",
+      "label": "Gallery",
+      "why": "Visueller Beweis."
+    },
+    {
+      "id": "before_after",
+      "label": "Before / After",
+      "why": "Sub-niche needs visual proof."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services"
+  ],
+  "style": "modern",
+  "clients_who": "Familien und Eigentümer in Stuttgart",
+  "fingerprint": "aae9c4912564c0a9569a",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

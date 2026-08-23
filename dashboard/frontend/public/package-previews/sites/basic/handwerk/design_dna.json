@@ -1,0 +1,72 @@
+{
+  "emotion": "warmth",
+  "style": "organic_premium",
+  "palette_family": "warm_clay",
+  "typography_pair": "oswald_source",
+  "motion": "soft",
+  "hero_concept": "soft_orb_photo",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "soft",
+  "package_id": "basic",
+  "niche_id": "handwerk",
+  "fingerprint": "61f219361dc8a8a8269b1787a6d3cd14d776337a89318480ab9dba1def177665",
+  "section_treatments": [
+    [
+      "stats",
+      "gradient"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "photo_band"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "trust",
+      "illustration"
+    ],
+    [
+      "process",
+      "tint"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "gallery",
+      "gradient"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "faq",
+      "photo_band"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "contact",
+      "tint"
+    ]
+  ],
+  "accent_hex": "#a68a6d",
+  "surface_hex": "#faf6f1",
+  "ink_hex": "#292524"
+}

@@ -1,5 +1,5 @@
 {
-  "product_id": "01fecc76-d1e1-44ea-9ffb-908fe973533c",
+  "product_id": "a3c52e26-766c-4c7e-9208-96543d5657f6",
   "intent_id": null,
   "product_type": "Landing Page",
   "description": "Autowerkstatt Nord Hamburg — Autowerkstatt, Diagnose, Inspektion, Reifen, Ölwechsel",
@@ -113,7 +113,7 @@
     "background_src": null,
     "assessments": [
       {
-        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/app/factory/golden_demos/_sandbox_build/01fecc76-d1e1-44ea-9ffb-908fe973533c/assets/hero.jpg",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/app/factory/golden_demos/_sandbox_build/a3c52e26-766c-4c7e-9208-96543d5657f6/assets/hero.jpg",
         "role": "hero",
         "ok": true,
         "width": 1536,
@@ -269,7 +269,7 @@
       "emotional_tone": "industrial_confident",
       "journey": "repair",
       "primary": "#b91c1c",
-      "font_display": "\"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+      "font_display": "\"Barlow Condensed\", \"Arial Narrow\", Impact, sans-serif",
       "radius": "6px",
       "btn_radius": "6px",
       "forbid_platform_aurora": true
@@ -507,7 +507,7 @@
         "id": "css_budget",
         "category": "performance",
         "ok": true,
-        "detail": "24027B"
+        "detail": "24170B"
       },
       {
         "id": "motion_css_budget",
@@ -771,7 +771,7 @@
         "id": "css_budget",
         "domain": "performance",
         "ok": true,
-        "detail": "24027B"
+        "detail": "24170B"
       },
       {
         "id": "motion_css_budget",
@@ -1036,7 +1036,7 @@
           "id": "css_budget",
           "category": "performance",
           "ok": true,
-          "detail": "24027B"
+          "detail": "24170B"
         },
         {
           "id": "motion_css_budget",
@@ -1123,8 +1123,8 @@
   "owner_approved": false,
   "owner_approved_at": null,
   "revision": 0,
-  "created_at": "2026-08-03T19:37:51.150187+00:00",
-  "updated_at": "2026-08-03T19:37:51.150187+00:00",
+  "created_at": "2026-08-06T00:21:51.641106+00:00",
+  "updated_at": "2026-08-06T00:21:51.641106+00:00",
   "style_flags": {
     "modern": false,
     "blue_boost": false,

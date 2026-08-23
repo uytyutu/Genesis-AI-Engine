@@ -1,0 +1,75 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "Familienraum warm · zwei Sessel und Kinderecke dezent · weiches Licht",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "narrative",
+  "package_id": "premium",
+  "niche_id": "family_psychology",
+  "fingerprint": "f7e2258373679f12638fa1d09cbe38990311ae8a19ca88cbc6b85d28cfc70c4c",
+  "section_treatments": [
+    [
+      "about",
+      "gradient"
+    ],
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "services",
+      "photo_band"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "trust",
+      "photo_band"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "tint"
+    ],
+    [
+      "late_cta",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f6f0e8",
+  "ink_hex": "#0b0d10",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "9ac94a3e0c5969999ff96c46",
+  "border_radius_px": 12
+}

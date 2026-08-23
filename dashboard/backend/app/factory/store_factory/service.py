@@ -92,6 +92,12 @@ class StoreFactoryService:
         version: int,
         quality: dict[str, Any],
     ) -> None:
+        # Drop in-memory StudioPlan object — meta.json must be JSON-safe.
+        brief_meta = {
+            k: v
+            for k, v in (brief or {}).items()
+            if k != "_studio_plan" and not hasattr(v, "as_dict")
+        }
         meta = {
             "id": product_id,
             "product_id": product_id,
@@ -100,7 +106,7 @@ class StoreFactoryService:
             "business_name": brief.get("store_name") or order.get("business_name"),
             "package_id": "ecommerce_shop",
             "market_code": order.get("market_code") or "DE",
-            "shop_brief": brief,
+            "shop_brief": brief_meta,
             "template_id": template_id,
             "version": version,
             "status": "ready",
@@ -154,14 +160,91 @@ class StoreFactoryService:
         if current == 0:
             version = 1
 
+        store_pkg = str(
+            order.get("package_id")
+            or brief.get("package_id")
+            or order.get("path_a_package")
+            or "business"
+        ).strip().lower() or "business"
+        if store_pkg in ("starter", "ai_store", "shop"):
+            store_pkg = "business" if store_pkg != "starter" else "basic"
+        catalog_n = brief.get("catalog_size") or brief.get("product_count")
+        try:
+            catalog_n = int(catalog_n) if catalog_n is not None else None
+        except (TypeError, ValueError):
+            catalog_n = None
+        # Resolve AFTER package/catalog are known — demo product count depends on them.
+        brief = {
+            **brief,
+            "package_id": store_pkg if store_pkg in ("basic", "business", "premium") else "business",
+            "catalog_size": catalog_n or {"basic": 12, "business": 18, "premium": 24}.get(
+                store_pkg if store_pkg in ("basic", "business", "premium") else "business",
+                18,
+            ),
+        }
+        catalog_n = int(brief["catalog_size"])
         resolved = self._registry.resolve(brief)
+        from app.factory.visual_intelligence.store_director import decide_store_experience
+        from app.factory.visual_intelligence.studio import convene_board
+
+        store_director = decide_store_experience(
+            package_id=store_pkg,
+            category=str(brief.get("category") or brief.get("what_is_sold") or "")
+            or None,
+            catalog_size=catalog_n,
+        )
+        # Store packages map to website ladder for Creative Director emotion brief.
+        creative_pkg = store_pkg if store_pkg in ("basic", "business", "premium") else "business"
+        from app.factory.visual_intelligence.studio import convene_board
+
+        studio_plan = convene_board(
+            package_id=creative_pkg,
+            niche=str(brief.get("niche") or brief.get("category") or "generic"),
+            market_code=str(brief.get("market_code") or order.get("market_code") or "DE"),
+            goal="commerce",
+            surface="store",
+            catalog_size=catalog_n,
+            category=str(brief.get("category") or "") or None,
+        )
+        creative_brief = studio_plan.creative
+        brief = {
+            **brief,
+            "package_id": creative_pkg,
+            "store_director": store_director,
+            "creative_director": creative_brief,
+            "digital_creative_studio": studio_plan.as_dict(),
+            "_studio_plan": studio_plan,
+        }
         append_generation_log(
             product_dir,
             "generating",
-            {"version": version, "template_id": resolved.template_id},
+            {
+                "version": version,
+                "template_id": resolved.template_id,
+                "store_director": store_director.get("engine"),
+                "luxury_mode": bool(creative_brief.get("luxury_mode")),
+            },
         )
 
         written = write_storefront(product_dir, brief=brief, resolved=resolved)
+
+        try:
+            from app.factory.studio_critic import run_studio_critic
+
+            critic = run_studio_critic(
+                product_dir,
+                niche_id=str(brief.get("niche_id") or brief.get("niche") or ""),
+                brand_name=str(brief.get("store_name") or brief.get("business_name") or ""),
+                package_id=str(brief.get("package_id") or creative_pkg or ""),
+            )
+            brief["studio_critic"] = critic.as_dict()
+            if critic.rebuild and str(brief.get("package_id") or "").lower() in (
+                "premium",
+                "connected",
+            ):
+                brief["studio_critic_rebuild_recommended"] = True
+        except Exception:
+            pass
 
         # User Data Protection Rule: Factory never wipes owner design/catalog.
         # Re-apply Store Admin Design overlay onto freshly generated HTML.
@@ -221,6 +304,14 @@ class StoreFactoryService:
                 "current_version": version,
                 "versions": versions,
                 "quality": quality.as_dict(),
+                "store_director": store_director,
+                "creative_director": creative_brief,
+                "digital_creative_studio": studio_plan.as_dict(),
+                "luxury_mode": bool(creative_brief.get("luxury_mode")),
+                "studio_critic": brief.get("studio_critic"),
+                "studio_critic_rebuild_recommended": brief.get(
+                    "studio_critic_rebuild_recommended"
+                ),
                 "updated_at": utc_now(),
             }
         )
@@ -366,7 +457,60 @@ class StoreFactoryService:
         return path.read_text(encoding="utf-8")
 
     @staticmethod
-    def rewrite_live_html(html: str, order_id: str) -> str:
+    def rewrite_live_urls(
+        text: str, *, order_id: str, relative_dir: str = ""
+    ) -> str:
+        """Rewrite relative href/src/url(...) to the store live asset base."""
+        import re
+        from pathlib import PurePosixPath
+
+        base = f"/api/client/stores/{order_id}/live"
+
+        def _norm(target: str) -> str | None:
+            t = (target or "").strip()
+            if not t or t.startswith(
+                ("http://", "https://", "/", "#", "mailto:", "data:", "javascript:")
+            ) or t.startswith(base):
+                return None
+            joined = PurePosixPath(relative_dir or ".") / t
+            parts: list[str] = []
+            for part in joined.parts:
+                if part in ("", "."):
+                    continue
+                if part == "..":
+                    if parts:
+                        parts.pop()
+                    continue
+                parts.append(part)
+            return "/".join(parts) if parts else None
+
+        def _href(match: re.Match[str]) -> str:
+            attr, quote, target = match.group(1), match.group(2), match.group(3)
+            cleaned = _norm(target)
+            if cleaned is None:
+                return match.group(0)
+            return f"{attr}={quote}{base}/{cleaned}{quote}"
+
+        text = re.sub(r'(href|src)=([\'"])([^\'"]+)\2', _href, text, flags=re.I)
+
+        def _css_url(match: re.Match[str]) -> str:
+            quote, target = match.group(1) or "", match.group(2)
+            cleaned = _norm(target)
+            if cleaned is None:
+                return match.group(0)
+            if quote:
+                return f"url({quote}{base}/{cleaned}{quote})"
+            return f"url({base}/{cleaned})"
+
+        return re.sub(
+            r"url\(\s*([\'\"]?)([^)\'\"]+)\1\s*\)",
+            _css_url,
+            text,
+            flags=re.I,
+        )
+
+    @classmethod
+    def rewrite_live_html(cls, html: str, order_id: str) -> str:
         """Point relative page/asset links at the live API base."""
         import re
 
@@ -385,21 +529,16 @@ class StoreFactoryService:
             else:
                 html = boot + html
 
-        def _href(match: re.Match[str]) -> str:
-            attr, quote, target = match.group(1), match.group(2), match.group(3)
-            if (
-                target.startswith(("http://", "https://", "/", "#", "mailto:", "data:"))
-                or target.startswith(base)
-            ):
-                return match.group(0)
-            return f"{attr}={quote}{base}/{target.lstrip('./')}{quote}"
-
-        return re.sub(
-            r'(href|src)=([\'"])([^\'"]+)\2',
-            _href,
-            html,
-            flags=re.I,
-        )
+        html = cls.rewrite_live_urls(html, order_id=order_id, relative_dir="")
+        if not re.search(r"<base\b", html, flags=re.I):
+            tag = f'<base href="{base}/" />'
+            if re.search(r"<head\b[^>]*>", html, flags=re.I):
+                html = re.sub(
+                    r"(<head\b[^>]*>)", rf"\1\n  {tag}", html, count=1, flags=re.I
+                )
+            else:
+                html = f"{tag}\n{html}"
+        return html
 
     def status_payload(self, product_id: str | None) -> dict[str, Any]:
         if not product_id:

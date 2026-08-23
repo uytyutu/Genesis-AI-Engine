@@ -1,0 +1,74 @@
+{
+  "hero_src": "assets/hero.jpg",
+  "hero_from_client": false,
+  "hero_ok": true,
+  "gallery": [],
+  "background_src": "assets/background.jpg",
+  "assessments": [
+    {
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/basic/3d21f402-3411-489b-b7c8-e2464f2f2085/assets/hero.jpg",
+      "role": "hero",
+      "ok": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 3428783,
+      "reason": "ok",
+      "source": "niche"
+    },
+    {
+      "path": "assets/background.jpg",
+      "role": "background",
+      "ok": true,
+      "width": 1600,
+      "height": 900,
+      "bytes": 427166,
+      "reason": "ok",
+      "source": "pack"
+    }
+  ],
+  "gate_ok": true,
+  "gate_failures": [],
+  "media_gate_ok": true,
+  "media_gate_failures": [],
+  "media_gate": {
+    "engine_id": "media_gate_v1",
+    "passed": true,
+    "failures": [],
+    "checks": [
+      {
+        "section": "hero",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/green/hero_pack/basic/hero_1.jpg",
+        "ok": true,
+        "tags": [
+          "exterior",
+          "garden",
+          "landscape",
+          "plants",
+          "result",
+          "work"
+        ],
+        "detail": "ok"
+      },
+      {
+        "section": "about",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/green/hero_pack/basic/hero_2.jpg",
+        "ok": true,
+        "tags": [
+          "calm",
+          "client",
+          "clinic",
+          "garden",
+          "interior",
+          "landscape",
+          "nature",
+          "office",
+          "plants",
+          "specialist",
+          "team",
+          "therapy"
+        ],
+        "detail": "ok"
+      }
+    ]
+  }
+}

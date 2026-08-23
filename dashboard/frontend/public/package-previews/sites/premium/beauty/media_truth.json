@@ -1,0 +1,70 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Atelier light",
+      "Hands at work",
+      "Quiet mirror",
+      "Ritual space"
+    ],
+    "preferred": [
+      "Product detail",
+      "Soft tools",
+      "Calm before appointment"
+    ],
+    "forbidden": [
+      "Neon salon",
+      "Pink glitter stock",
+      "Waiting-room chair row"
+    ],
+    "hero_proof": "A beauty ritual room — not a noisy salon corridor.",
+    "profession_keywords": [
+      "salon",
+      "schnitt",
+      "farbe",
+      "ritual",
+      "atelier"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\premium\\82dcda58-db5e-40e8-8805-1c7c32ac5a2e\\assets\\hero.jpg",
+      "role": "hero"
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\premium\\82dcda58-db5e-40e8-8805-1c7c32ac5a2e\\assets\\background.jpg",
+      "role": "background"
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\premium\\82dcda58-db5e-40e8-8805-1c7c32ac5a2e\\assets\\gallery.jpg",
+      "role": "gallery"
+    }
+  ],
+  "rebuilds": [],
+  "ok": true
+}

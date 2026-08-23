@@ -1,0 +1,21 @@
+{
+  "website_count": 24,
+  "store_count": 25,
+  "issues": [
+    "website niche 'restaurant' has no showcase dir (mapped=restaurant)",
+    "website niche 'fitness' has no showcase dir (mapped=fitness)",
+    "website niche 'realestate' has no showcase dir (mapped=realestate)",
+    "website niche 'cleaning' has no showcase dir (mapped=cleaning)",
+    "website niche 'orthodontics' has no showcase dir (mapped=orthodontics)",
+    "website niche 'auto_detailing' has no showcase dir (mapped=auto_detailing)",
+    "website niche 'photography' has no showcase dir (mapped=photography)",
+    "website niche 'it_support' has no showcase dir (mapped=it_support)",
+    "website niche 'elektro' has no showcase dir (mapped=elektro)",
+    "website niche 'sanitaer' has no showcase dir (mapped=sanitaer)",
+    "website niche 'maler' has no showcase dir (mapped=maler)",
+    "website niche 'family_psychology' has no showcase dir (mapped=family_psychology)",
+    "website niche 'car_dealership' has no showcase dir (mapped=car_dealership)"
+  ],
+  "empty_or_tiny_public_heroes": [],
+  "empty_count": 0
+}

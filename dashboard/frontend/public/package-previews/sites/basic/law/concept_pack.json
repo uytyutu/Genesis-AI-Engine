@@ -1,0 +1,68 @@
+{
+  "renamed_to": "creative_identity.json",
+  "sprint": "Creative Identity Generation",
+  "identity": {
+    "title": "Safe Space",
+    "theme_id": "safe_space",
+    "idea": "A place where nobody judges you.",
+    "human": {
+      "founder_name": "Lea",
+      "founder_role": "managing counsel",
+      "client_age_range": "30–50",
+      "why_choose_them": "Quiet competence without theatrics.",
+      "visitor_must_feel": "protected clarity",
+      "niche_revealed_later": "law"
+    },
+    "brand_story": "Lea built Kanzlei Bergmann because quiet competence without theatrics. Clients (30–50) should feel protected clarity. Only then do we name the craft: law.",
+    "core_emotion": "protected clarity",
+    "core_promise": "A place where nobody judges you.",
+    "visual_metaphor": "a room that holds you without asking questions first",
+    "creative_theme": "Safe Space",
+    "scene_language": "protected chamber, soft boundaries, human scale",
+    "motion_language": "stillness — micro-motion only for reassurance",
+    "typography_voice": "warm readable — never cold legal marble",
+    "color_emotion": "soft clay, ivory, muted sage",
+    "interaction_style": "listening UI — calm forms, quiet confirmations",
+    "photo_world": "empty sofa, soft lamp, closed door that feels safe",
+    "niche_revealed": "law",
+    "package_id": "basic",
+    "surface": "site",
+    "conflict": {
+      "ok": true,
+      "action": "CONTINUE",
+      "conflicts": []
+    },
+    "forbidden": [
+      "tech_saas",
+      "gaming",
+      "flash_sale",
+      "stock_teeth_smile"
+    ],
+    "owner_preview": "PENDING_OWNER",
+    "html_export_allowed": false,
+    "html_blocked_reason": "Reality Benchmark FAIL — demos still read as templates without a felt idea. Sprint: Creative Identity Generation. No idea → no HTML. New features forbidden.",
+    "fingerprint": "94771b3bf5b6cdda",
+    "generated_at": "2026-08-06T22:03:43.497617+00:00",
+    "sprint": "Creative Identity Generation",
+    "agency_note": "Think like a creative agency director on a €50,000 brief. No idea → no HTML. Creative Identity becomes site, store, social, video, ads.",
+    "pipeline": [
+      "human_first",
+      "brand_story",
+      "core_emotion",
+      "core_promise",
+      "visual_metaphor",
+      "creative_theme",
+      "scene_language",
+      "motion_language",
+      "typography_voice",
+      "color_emotion",
+      "interaction_style",
+      "creative_conflict",
+      "owner_preview"
+    ],
+    "before_html": true,
+    "naming": "Creative Identity — not Concept",
+    "question": "Who is the human — and what idea can you feel?",
+    "not_question": "How do we assemble a psychologist website?"
+  }
+}

@@ -101,6 +101,6 @@ def merge_services(
     """Prefer questionnaire services; never invent titles."""
     q = [s for s in questionnaire if str(s).strip()]
     if len(q) >= 2:
-        return list(q)[:8]
+        return list(q)[:15]
     base = [s for s in analysis_services if str(s).strip()]
-    return base[:8] if base else list(q)[:8]
+    return base[:15] if base else list(q)[:15]

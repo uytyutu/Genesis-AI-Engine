@@ -1,0 +1,186 @@
+{
+  "business": {
+    "business_name": "Voltwerk",
+    "niche": "electronics",
+    "city": "Hamburg",
+    "description": "Electronics Store Gadgets",
+    "product_kind": "shop",
+    "cta": "Kaufen",
+    "phone": "+49 40 778899",
+    "email": "shop@voltwerk-demo.example.de",
+    "instagram": "https://www.instagram.com/",
+    "street": "Speicherstadt 7",
+    "zip": "20457",
+    "accent": "#7eb6ff",
+    "accent2": "#2a4a7a",
+    "about_title": "Details, die überzeugen",
+    "about_body": "Voltwerk — Premium Electronics Showcase: cinematic Produkt-Reveal und Demo-Shop mit Preisen und lokalem Warenkorb.",
+    "about_points": [
+      "Produkt-Details im Fokus",
+      "Klare Preise",
+      "Demo-Warenkorb in dieser Vitrine"
+    ],
+    "marketing_lines": [
+      "Details, die überzeugen.",
+      "Präzision im Design.",
+      "Bereit für den Alltag.",
+      "Jetzt kaufen."
+    ],
+    "products_or_services": [
+      {
+        "name": "Devices",
+        "blurb": "Kuratierte Gadgets."
+      },
+      {
+        "name": "Accessories",
+        "blurb": "Passendes Zubehör."
+      }
+    ],
+    "gallery": [
+      {
+        "src": "assets/01_reveal.jpg",
+        "alt": "Electronics",
+        "caption": ""
+      },
+      {
+        "src": "assets/02_macro.jpg",
+        "alt": "Electronics",
+        "caption": ""
+      },
+      {
+        "src": "assets/03_light.jpg",
+        "alt": "Electronics",
+        "caption": ""
+      },
+      {
+        "src": "assets/04_orbit.jpg",
+        "alt": "Electronics",
+        "caption": ""
+      },
+      {
+        "src": "assets/05_ports.jpg",
+        "alt": "Electronics",
+        "caption": ""
+      },
+      {
+        "src": "assets/06_hero.jpg",
+        "alt": "Electronics",
+        "caption": ""
+      }
+    ],
+    "shop_products": [
+      {
+        "name": "Pulse Earbuds",
+        "price": "129 €",
+        "image": "assets/p1.jpg"
+      },
+      {
+        "name": "Nord Charge Pad",
+        "price": "59 €",
+        "image": "assets/p2.jpg"
+      },
+      {
+        "name": "Arc Speaker",
+        "price": "199 €",
+        "image": "assets/p3.jpg"
+      },
+      {
+        "name": "Slim Hub",
+        "price": "89 €",
+        "image": "assets/p4.jpg"
+      }
+    ],
+    "showcase_badge": "Showcase Demo · Premium Creative Engine"
+  },
+  "creative": {
+    "engine": "v2",
+    "niche_key": "electronics",
+    "cta": "Kaufen"
+  },
+  "scene": {
+    "beats": [
+      {
+        "time": 0.0,
+        "scroll": 0.0,
+        "action": "product_appears",
+        "camera": "hero",
+        "continues": null,
+        "index": 0
+      },
+      {
+        "time": 1.5,
+        "scroll": 0.15,
+        "action": "macro_detail",
+        "camera": "macro",
+        "continues": "product_appears",
+        "index": 1
+      },
+      {
+        "time": 3.0,
+        "scroll": 0.3,
+        "action": "light_reflection",
+        "camera": "close",
+        "continues": "macro_detail",
+        "index": 2
+      },
+      {
+        "time": 4.5,
+        "scroll": 0.45,
+        "action": "rotation",
+        "camera": "medium",
+        "continues": "light_reflection",
+        "index": 3
+      },
+      {
+        "time": 6.0,
+        "scroll": 0.6,
+        "action": "ports_buttons",
+        "camera": "macro",
+        "continues": "rotation",
+        "index": 4
+      },
+      {
+        "time": 7.5,
+        "scroll": 0.75,
+        "action": "hand_interact",
+        "camera": "close",
+        "continues": "ports_buttons",
+        "index": 5
+      },
+      {
+        "time": 8.5,
+        "scroll": 0.85,
+        "action": "in_environment",
+        "camera": "medium",
+        "continues": "hand_interact",
+        "index": 6
+      },
+      {
+        "time": 9.5,
+        "scroll": 0.95,
+        "action": "final_hero",
+        "camera": "hero",
+        "continues": "in_environment",
+        "index": 7
+      },
+      {
+        "time": 10.0,
+        "scroll": 1.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "final_hero",
+        "index": 8
+      }
+    ]
+  },
+  "posters": [
+    "assets/01_reveal.jpg",
+    "assets/02_macro.jpg",
+    "assets/03_light.jpg",
+    "assets/04_orbit.jpg",
+    "assets/05_ports.jpg",
+    "assets/06_hero.jpg"
+  ],
+  "kind": "shop",
+  "showcase": true
+}

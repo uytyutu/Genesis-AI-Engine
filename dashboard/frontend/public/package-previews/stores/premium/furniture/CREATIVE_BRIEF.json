@@ -1,0 +1,15 @@
+{
+  "brand_name": "Wohnraum Furniture",
+  "niche_id": "realestate",
+  "package_id": "premium",
+  "media_mode": "cinematic_photo",
+  "visual_metaphor": "Brand character in space",
+  "hero_concept": "Brand character in space | Wohnraum Furniture",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "ff63a5261ae0b130587e",
+  "image_prompt": "Wohnraum Furniture realestate brand hero, Brand character in space, European studio, media_mode=cinematic_photo, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

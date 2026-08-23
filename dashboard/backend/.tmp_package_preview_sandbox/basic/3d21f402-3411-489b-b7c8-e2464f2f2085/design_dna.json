@@ -1,0 +1,72 @@
+{
+  "emotion": "calm",
+  "style": "scandinavian_calm",
+  "palette_family": "sand",
+  "typography_pair": "cormorant_source",
+  "motion": "soft",
+  "hero_concept": "soft_split_photo",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "low",
+  "composition": "airy",
+  "package_id": "basic",
+  "niche_id": "green",
+  "fingerprint": "18883fe38058faba2d43008e21706c7738b2d7606ad43f9e8f7f4ed41ba00c43",
+  "section_treatments": [
+    [
+      "stats",
+      "ink"
+    ],
+    [
+      "services",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "glass"
+    ],
+    [
+      "benefits",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "process",
+      "illustration"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "about",
+      "gradient"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "tint"
+    ],
+    [
+      "contact",
+      "illustration"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#2c3330"
+}

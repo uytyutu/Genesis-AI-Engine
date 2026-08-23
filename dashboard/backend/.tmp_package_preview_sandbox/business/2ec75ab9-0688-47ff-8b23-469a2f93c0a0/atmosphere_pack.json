@@ -1,0 +1,148 @@
+{
+  "brand_name": "Praxis Klarheit",
+  "niche_id": "psychology",
+  "package_id": "business",
+  "metaphor": "Weiches Morgenlicht in einem stillen Raum",
+  "core_emotion": "Ruhe",
+  "atmosphere_mode": "atelier",
+  "scene_language": [
+    "Light",
+    "Space",
+    "Silence",
+    "Breath"
+  ],
+  "texture_language": [
+    "Paper",
+    "Linen",
+    "Wood grain soft"
+  ],
+  "motion_language": "Sehr langsam · Atmung · Wenig Bewegung",
+  "camera_feeling": "still eye-level in a quiet chamber · soft window light",
+  "scroll_feeling": "very slow breathe · almost no motion",
+  "cta_feeling": "one calm link · no urgency · Ein ruhiger Link · Kein Druck",
+  "sound_mood": "room hush · distant city muted",
+  "illustration_style": "soft chair silhouette · paper · light band",
+  "glass_level": "low",
+  "shadow_language": "barely there · open air · Barely",
+  "icon_language": "Outline Soft",
+  "lighting": "morning soft fill · warm paper surfaces",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "quiet_chamber",
+      "must_include": [
+        "Stillleben Raum",
+        "Tageslicht",
+        "Leere Stühle mit Abstand",
+        "Papier und Stift",
+        "Fensterlicht"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "neon spa",
+        "stock yoga beach",
+        "purple wellness",
+        "crystal cliché"
+      ],
+      "seed": "Praxis Klarheit|psychology|business|9dfea0dbe684fc3ac66a817c|hero",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "role": "background",
+      "concept": "scene · Light · Space · Silence",
+      "must_include": [
+        "Light",
+        "Space",
+        "Silence",
+        "Breath",
+        "Paper",
+        "Linen"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "neon spa",
+        "stock yoga beach",
+        "purple wellness",
+        "crystal cliché"
+      ],
+      "seed": "Praxis Klarheit|psychology|business|9dfea0dbe684fc3ac66a817c|bg",
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "role": "gallery",
+      "concept": "proof texture · craft detail",
+      "must_include": [
+        "Leere Stühle mit Abstand",
+        "Papier und Stift",
+        "Fensterlicht"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "neon spa",
+        "stock yoga beach",
+        "purple wellness",
+        "crystal cliché"
+      ],
+      "seed": "Praxis Klarheit|psychology|business|9dfea0dbe684fc3ac66a817c|gal",
+      "size": [
+        1400,
+        1000
+      ]
+    }
+  ],
+  "fingerprint": "5fcfcce6b777c52e5ebc9596",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

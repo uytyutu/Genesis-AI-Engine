@@ -1,0 +1,55 @@
+=== PLACES ===
+reason: SearchTextRequest_per_day
+until_utc: 2026-08-02T08:46:31.097710+00:00
+active: True
+hours_left: 1.74
+updated_at: 2026-08-01T08:46:31.098709+00:00
+=== RUNNER ===
+running: True
+last_action: hunt_paused_quota
+session_leads/drafts/sends/places/skipped: 0/0/0/0/3260
+ticks: 3260
+last_tick_at: 2026-08-02T07:01:27.769687+00:00
+last_message_ru: Google Places: суточная квота SearchText исчерпана. Hunt на паузе до сброса (~2026-08-02 08:46 UTC). Смена рынка не поможет.
+=== SEND QUOTA (local day counter) ===
+{"day": "2026-08-01", "regions": {"us": 1, "de": 1}, "domains": {"genesis-ai-engine.com": 2}, "markets": {"US": 1, "DE": 1}, "last_send_at": "2026-08-01T22:35:53.052713+00:00"}
+=== PROVIDER POOL ===
+gmail: last_ok=True http=None at=2026-07-30T00:00:20.878043+00:00 reason=None cooldown=None
+mailbox: last_ok=True http=None at=2026-07-26T21:42:03.149524+00:00 reason=None cooldown=None
+resend: last_ok=True http=200 at=2026-07-31T13:33:56.364650+00:00 reason=None cooldown=None
+=== RESEND COOLDOWN FILE ===
+{"resend_until": null, "last_reason": null, "updated_at": "2026-07-31T13:33:56.368648+00:00", "cleared_reason": "cleared_via_provider_pool"}
+=== JOURNAL OK SENDS ===
+2026-07-29: {'resend:ok': 2, 'gmail:ok': 129}
+2026-07-30: {'gmail:ok': 1, 'resend:ok': 67}
+2026-07-31: {'resend:ok': 1}
+last_journal_at: 2026-07-31T13:33:56.365650+00:00
+journal_total: 200
+=== MEMORY HITS: quota/429/resend ===
+  vector_pipeline.jsonl:"429" = 131
+  quality_archive.jsonl:"429" = 64
+  smart_gate_log.jsonl:"429" = 38
+  engine_harvest_events.jsonl:"429" = 34
+  outreach_sent_forever.json:"429" = 22
+  swarm_raw_done.jsonl:"429" = 21
+  opportunities.demo_backup_20260715T181531Z.jsonl:"429" = 16
+  swarm_labels_export.jsonl:"429" = 16
+  swarm_raw_queue.jsonl:"429" = 12
+  opportunities.jsonl:"429" = 9
+  toloka_submit_state.json:"429" = 6
+  email_provider_send_journal.jsonl:"429" = 3
+  finance_settlements.phantom_backup_20260715T174906Z.jsonl:"429" = 3
+  hunter_dataset.jsonl:"429" = 3
+  places_quota_cooldown.json:searchtextrequest = 3
+  pricing_analytics.jsonl:"429" = 3
+  factory_intents.jsonl:"429" = 1
+  farm_engine_v1_decisions.jsonl:"429" = 1
+  mission1_freeze_baseline.json:searchtextrequest = 1
+  places_quota_cooldown.json:quota exceeded = 1
+samples:
+  places_quota_cooldown.json:   "detail": "places_error:Quota exceeded for quota metric 'SearchTextRequest' and limit 'SearchTextRequest per day' of service 'places.googleapis.com' for consumer 'project_number:
+=== ACQUISITION / LEAD FILES ===
+acquisition_desk_actions.json size=23003
+opportunities.demo_backup_20260715T181531Z.jsonl size=1194100
+opportunities.jsonl size=835680
+opportunity_engine.json size=1830

@@ -159,7 +159,7 @@ class StoreCustomerService:
             "addresses": list(row.get("addresses") or []),
             "wishlist": list(row.get("wishlist") or []),
             "orders": list(row.get("orders") or []),
-            "orders_note": "Order history activates with Commerce (R3.3).",
+            "orders_note": "Checkout 1.0 — your shop orders live here.",
         }
 
     def update_profile(
@@ -350,15 +350,102 @@ class StoreCustomerService:
             return {"ok": True, "wishlist": cleaned}
         raise ValueError("buyer_not_found")
 
+    def attach_order(
+        self, order_id: str, buyer_id: str, order_summary: dict[str, Any]
+    ) -> dict[str, Any]:
+        buyers = self._load_index(order_id)
+        for i, row in enumerate(buyers):
+            if row.get("id") != buyer_id:
+                continue
+            orders = list(row.get("orders") or [])
+            oid = str(order_summary.get("id") or "")
+            orders = [o for o in orders if isinstance(o, dict) and o.get("id") != oid]
+            orders.insert(0, order_summary)
+            row["orders"] = orders[:100]
+            row["updated_at"] = _now()
+            buyers[i] = row
+            self._save_index(order_id, buyers)
+            return {"ok": True, "orders": row["orders"]}
+        raise ValueError("buyer_not_found")
+
+    def update_order_summary(
+        self,
+        order_id: str,
+        buyer_id: str,
+        shop_order_id: str,
+        patch: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Merge tracking / status fields into the buyer's order summary."""
+        buyers = self._load_index(order_id)
+        for i, row in enumerate(buyers):
+            if row.get("id") != buyer_id:
+                continue
+            orders = list(row.get("orders") or [])
+            for j, o in enumerate(orders):
+                if not isinstance(o, dict) or o.get("id") != shop_order_id:
+                    continue
+                updated = {**o, **(patch or {}), "id": shop_order_id}
+                orders[j] = updated
+                row["orders"] = orders
+                row["updated_at"] = _now()
+                buyers[i] = row
+                self._save_index(order_id, buyers)
+                return {"ok": True, "order": updated}
+            raise ValueError("order_not_found")
+        raise ValueError("buyer_not_found")
+
     def get_orders(self, order_id: str, buyer_id: str) -> dict[str, Any]:
         row = self._find(order_id, buyer_id=buyer_id)
         if not row:
             raise ValueError("buyer_not_found")
+        orders = list(row.get("orders") or [])
+        # Enrich with live shipment from shop orders.json when present
+        try:
+            safe = re.sub(r"[^\w\-]", "_", order_id)[:80]
+            path = self._root / safe / "orders.json"
+            if path.is_file():
+                data = json.loads(path.read_text(encoding="utf-8"))
+                live = {
+                    o.get("id"): o
+                    for o in (data.get("orders") or [])
+                    if isinstance(o, dict) and o.get("id")
+                }
+                enriched = []
+                for o in orders:
+                    if not isinstance(o, dict):
+                        continue
+                    shop = live.get(o.get("id"))
+                    if not shop:
+                        enriched.append(o)
+                        continue
+                    ship = shop.get("shipment") if isinstance(shop.get("shipment"), dict) else {}
+                    method = (
+                        shop.get("shipping_method")
+                        if isinstance(shop.get("shipping_method"), dict)
+                        else {}
+                    )
+                    enriched.append(
+                        {
+                            **o,
+                            "status": shop.get("status") or o.get("status"),
+                            "carrier": ship.get("carrier")
+                            or method.get("carrier")
+                            or o.get("carrier"),
+                            "shipping_method": method.get("label") or o.get("shipping_method"),
+                            "tracking_number": ship.get("tracking_number")
+                            or o.get("tracking_number"),
+                            "tracking_url": ship.get("tracking_url") or o.get("tracking_url"),
+                            "shipping_status": ship.get("status") or o.get("shipping_status"),
+                        }
+                    )
+                orders = enriched
+        except (OSError, json.JSONDecodeError, AttributeError):
+            pass
         return {
             "ok": True,
-            "orders": list(row.get("orders") or []),
-            "commerce_ready": False,
-            "note": "Checkout and payments arrive in R3.3 Commerce.",
+            "orders": orders,
+            "commerce_ready": True,
+            "note": "Checkout 1.0 — orders appear after place-order.",
         }
 
     def admin_list_customers(self, order_id: str) -> dict[str, Any]:

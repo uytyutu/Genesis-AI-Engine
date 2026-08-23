@@ -1,0 +1,429 @@
+{
+  "engine": "creative_project_v2",
+  "version": 2,
+  "production_enabled": false,
+  "business_identity": {
+    "business_name": "Nordlicht Atelier",
+    "niche": "fashion",
+    "city": "Berlin",
+    "market": "DE",
+    "product_kind": "shop",
+    "description": "Fashion Store Mode Kollektion",
+    "invented_facts": false
+  },
+  "character_identity": {
+    "character_id": "char_0a2e632f85",
+    "role": "model",
+    "gender": "unspecified",
+    "age_range": "25-35",
+    "hair": "consistent with first keyframe",
+    "facial_features": "locked from master reference",
+    "skin_tone": "locked from master reference",
+    "clothing": "hero look — same outfit continuity until product reveal",
+    "accessories": "",
+    "lock_rule": "ONE_SITE_ONE_CHARACTER — every shot must reference character_id + master_ref",
+    "master_ref": null,
+    "previous_frame_ref": null
+  },
+  "product_identity": {
+    "product_id": "prod_7c6410b081",
+    "name": "Hero Look",
+    "category": "fashion",
+    "color": "locked",
+    "materials": "",
+    "logo_marks": "must not change between frames",
+    "lock_rule": "ONE_PRODUCT_ID — master product image is the only source of truth",
+    "master_ref": null
+  },
+  "environment_identity": {
+    "environment_id": "env_7febd3f470",
+    "world": "editorial studio",
+    "city_hint": "Berlin",
+    "palette": "soft key light",
+    "props": [],
+    "lock_rule": "ONE_SCENE_ONE_WORLD — camera may move; room must not teleport",
+    "master_ref": null
+  },
+  "scene": {
+    "niche_key": "fashion",
+    "title": "Fabric to Collection Desire",
+    "principle": "ACTION → TRANSFORMATION → RESULT",
+    "uses_character": true,
+    "uses_product": true,
+    "world": "editorial fashion studio",
+    "scene_duration_sec": 10,
+    "preferred_delivery": [
+      "image_to_video_clips",
+      "keyframe_crossfade"
+    ],
+    "cta": "Shop Collection",
+    "marketing_lines": [
+      "Dein Look.",
+      "Deine Kollektion.",
+      "Klar. Modern. Tragbar.",
+      "Shop Collection."
+    ],
+    "character_seed": {
+      "role": "model",
+      "gender": "unspecified",
+      "age_range": "25-35",
+      "clothing": "hero look — same outfit continuity until product reveal"
+    },
+    "product_seed": {
+      "name": "Hero Look",
+      "category": "fashion"
+    },
+    "environment_seed": {
+      "world": "editorial studio",
+      "palette": "soft key light"
+    },
+    "beats": [
+      {
+        "t": 0.0,
+        "action": "model_enters",
+        "camera": "wide",
+        "continues": null
+      },
+      {
+        "t": 1.5,
+        "action": "fabric_motion",
+        "camera": "medium",
+        "continues": "model_enters"
+      },
+      {
+        "t": 3.0,
+        "action": "material_closeup",
+        "camera": "macro",
+        "continues": "fabric_motion"
+      },
+      {
+        "t": 4.5,
+        "action": "walking",
+        "camera": "medium",
+        "continues": "material_closeup"
+      },
+      {
+        "t": 6.0,
+        "action": "angle_change",
+        "camera": "close",
+        "continues": "walking"
+      },
+      {
+        "t": 7.0,
+        "action": "clothing_detail",
+        "camera": "macro",
+        "continues": "angle_change"
+      },
+      {
+        "t": 8.0,
+        "action": "complete_look",
+        "camera": "hero",
+        "continues": "clothing_detail"
+      },
+      {
+        "t": 9.0,
+        "action": "product_reveal",
+        "camera": "medium",
+        "continues": "complete_look"
+      },
+      {
+        "t": 10.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "product_reveal"
+      }
+    ],
+    "clip_plan": [
+      {
+        "id": "A",
+        "from_t": 0.0,
+        "to_t": 4.0,
+        "intent": "enter_fabric"
+      },
+      {
+        "id": "B",
+        "from_t": 4.0,
+        "to_t": 8.0,
+        "intent": "motion_detail"
+      },
+      {
+        "id": "C",
+        "from_t": 8.0,
+        "to_t": 10.0,
+        "intent": "product_cta"
+      }
+    ],
+    "commerce_layer": true,
+    "camera_ladder": [
+      "wide",
+      "medium",
+      "close",
+      "macro",
+      "medium",
+      "hero"
+    ]
+  },
+  "timeline": {
+    "engine": "scene_timeline_v2",
+    "scene_duration": 10.0,
+    "fps_target": 30,
+    "delivery": [
+      "image_to_video_clips",
+      "keyframe_crossfade"
+    ],
+    "rule": "Timeline drives continuous motion. Do NOT emit one JPEG per millisecond.",
+    "keyframes": [
+      {
+        "time": 0.0,
+        "scroll": 0.0,
+        "action": "model_enters",
+        "camera": "wide",
+        "continues": null,
+        "index": 0
+      },
+      {
+        "time": 1.5,
+        "scroll": 0.15,
+        "action": "fabric_motion",
+        "camera": "medium",
+        "continues": "model_enters",
+        "index": 1
+      },
+      {
+        "time": 3.0,
+        "scroll": 0.3,
+        "action": "material_closeup",
+        "camera": "macro",
+        "continues": "fabric_motion",
+        "index": 2
+      },
+      {
+        "time": 4.5,
+        "scroll": 0.45,
+        "action": "walking",
+        "camera": "medium",
+        "continues": "material_closeup",
+        "index": 3
+      },
+      {
+        "time": 6.0,
+        "scroll": 0.6,
+        "action": "angle_change",
+        "camera": "close",
+        "continues": "walking",
+        "index": 4
+      },
+      {
+        "time": 7.0,
+        "scroll": 0.7,
+        "action": "clothing_detail",
+        "camera": "macro",
+        "continues": "angle_change",
+        "index": 5
+      },
+      {
+        "time": 8.0,
+        "scroll": 0.8,
+        "action": "complete_look",
+        "camera": "hero",
+        "continues": "clothing_detail",
+        "index": 6
+      },
+      {
+        "time": 9.0,
+        "scroll": 0.9,
+        "action": "product_reveal",
+        "camera": "medium",
+        "continues": "complete_look",
+        "index": 7
+      },
+      {
+        "time": 10.0,
+        "scroll": 1.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "product_reveal",
+        "index": 8
+      }
+    ],
+    "clips": [
+      {
+        "id": "A",
+        "from_t": 0.0,
+        "to_t": 4.0,
+        "from_scroll": 0.0,
+        "to_scroll": 0.4,
+        "intent": "enter_fabric",
+        "asset": null
+      },
+      {
+        "id": "B",
+        "from_t": 4.0,
+        "to_t": 8.0,
+        "from_scroll": 0.4,
+        "to_scroll": 0.8,
+        "intent": "motion_detail",
+        "asset": null
+      },
+      {
+        "id": "C",
+        "from_t": 8.0,
+        "to_t": 10.0,
+        "from_scroll": 0.8,
+        "to_scroll": 1.0,
+        "intent": "product_cta",
+        "asset": null
+      }
+    ],
+    "scroll_binding": {
+      "0.0": 0.0,
+      "0.25": 0.25,
+      "0.5": 0.5,
+      "0.75": 0.75,
+      "1.0": 1.0
+    }
+  },
+  "keyframes": [
+    {
+      "time": 0.0,
+      "scroll": 0.0,
+      "action": "model_enters",
+      "camera": "wide",
+      "continues": null,
+      "index": 0
+    },
+    {
+      "time": 1.5,
+      "scroll": 0.15,
+      "action": "fabric_motion",
+      "camera": "medium",
+      "continues": "model_enters",
+      "index": 1
+    },
+    {
+      "time": 3.0,
+      "scroll": 0.3,
+      "action": "material_closeup",
+      "camera": "macro",
+      "continues": "fabric_motion",
+      "index": 2
+    },
+    {
+      "time": 4.5,
+      "scroll": 0.45,
+      "action": "walking",
+      "camera": "medium",
+      "continues": "material_closeup",
+      "index": 3
+    },
+    {
+      "time": 6.0,
+      "scroll": 0.6,
+      "action": "angle_change",
+      "camera": "close",
+      "continues": "walking",
+      "index": 4
+    },
+    {
+      "time": 7.0,
+      "scroll": 0.7,
+      "action": "clothing_detail",
+      "camera": "macro",
+      "continues": "angle_change",
+      "index": 5
+    },
+    {
+      "time": 8.0,
+      "scroll": 0.8,
+      "action": "complete_look",
+      "camera": "hero",
+      "continues": "clothing_detail",
+      "index": 6
+    },
+    {
+      "time": 9.0,
+      "scroll": 0.9,
+      "action": "product_reveal",
+      "camera": "medium",
+      "continues": "complete_look",
+      "index": 7
+    },
+    {
+      "time": 10.0,
+      "scroll": 1.0,
+      "action": "cta",
+      "camera": "hero",
+      "continues": "product_reveal",
+      "index": 8
+    }
+  ],
+  "generated_assets": [],
+  "copy": {
+    "marketing_lines": [
+      "Dein Look.",
+      "Deine Kollektion.",
+      "Klar. Modern. Tragbar.",
+      "Shop Collection."
+    ],
+    "cta": "Shop Collection",
+    "about_hint": "Fabric to Collection Desire",
+    "rule": "Niche marketing only — no invented company facts."
+  },
+  "cta": "Shop Collection",
+  "contacts": {
+    "invented": false,
+    "demo": true,
+    "provided": {
+      "phone": "+49 30 1122334",
+      "email": "hello@nordlicht-atelier-demo.example.de",
+      "street": "Torstraße 44",
+      "zip": "10119",
+      "instagram": "https://www.instagram.com/"
+    },
+    "note": "Explicit demo_contacts=true — values are labeled demo, not live client data."
+  },
+  "layers": {
+    "cinematic": {
+      "role": "emotion + desire",
+      "delivery": [
+        "image_to_video_clips",
+        "keyframe_crossfade"
+      ]
+    },
+    "commerce": {
+      "enabled": true,
+      "path": [
+        "home",
+        "cinematic_hero",
+        "collections",
+        "product_cards",
+        "price",
+        "pdp",
+        "cart",
+        "checkout",
+        "account",
+        "orders"
+      ],
+      "honesty": "Do not show cart/checkout UI that is not implemented for this demo."
+    },
+    "contact": {
+      "show_phone": true,
+      "show_email": true,
+      "show_form": true,
+      "show_social": true
+    }
+  },
+  "continuity_prompt": "CONTINUITY LOCK (mandatory):\n- environment_id=env_7febd3f470 world=editorial studio\n- character_id=char_0a2e632f85 unspecified 25-35 hair=consistent with first keyframe clothing=hero look — same outfit continuity until product reveal\n- SAME person in every shot. Do not invent a new face.\n- product_id=prod_7c6410b081 name=Hero Look color=locked\n- SAME product in every shot. Do not swap models/logos.\n- Each shot CONTINUES the previous action. Not a random gallery.",
+  "mobile_strategy": {
+    "desktop": "full cinematic scroll (clips preferred)",
+    "mobile": "shorter clip / poster / lightweight crossfade — do not ship desktop megabytes"
+  },
+  "qa": {
+    "engine": "continuity_qa_v2",
+    "status": "PASS",
+    "failures": [],
+    "warnings": [],
+    "retry_scope": null,
+    "message": "Continuous ad film contract OK."
+  }
+}

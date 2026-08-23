@@ -143,6 +143,15 @@ def test_owner_paths_not_public_and_client_admin_deny_rule():
     assert client_admin_denied()
 
 
+def test_farm_runtime_is_public_for_rapidapi_upstream():
+    """Hub consumers call OVH upstream; MC farm admin stays non-public."""
+    assert is_public_api_path("/api/farm/runtime/de-plz-city-lookup/health", "GET")
+    assert production_api_allowed("/api/farm/runtime/de-plz-city-lookup/v1/de/plz/10115", "GET")
+    assert production_api_allowed("/api/farm/runtime/openapi-lint-report/v1/openapi/lint", "POST")
+    assert not is_public_api_path("/api/farm/queues", "GET")
+    assert not is_public_api_path("/api/farm/rapidapi/status", "GET")
+
+
 def test_support_role_has_no_portal_admin_and_no_silent_portal_commerce():
     """Support is not a portal Account role — commerce APIs stay own_only/deny for guests."""
     assert support_admin_denied()

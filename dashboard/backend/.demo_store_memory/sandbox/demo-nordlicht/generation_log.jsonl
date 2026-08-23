@@ -1,0 +1,4 @@
+{"ts": "2026-08-04T20:52:10.025130+00:00", "event": "generating", "version": 1, "template_id": "niche_clothing"}
+{"ts": "2026-08-04T20:52:10.034160+00:00", "event": "quality_check", "passed": true, "errors": []}
+{"ts": "2026-08-04T20:52:10.048515+00:00", "event": "version_saved", "version": 1, "pages": ["index.html", "catalog.html", "product.html", "about.html", "contact.html", "faq.html", "returns.html", "impressum.html", "datenschutz.html"]}
+{"ts": "2026-08-04T20:52:10.143511+00:00", "event": "published", "published_url": "/api/client/stores/demo-nordlicht/live"}

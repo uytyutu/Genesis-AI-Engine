@@ -1,0 +1,67 @@
+{
+  "emotion": "confidence",
+  "style": "modern_clinical",
+  "palette_family": "iron_umber",
+  "typography_pair": "barlow_source_craft",
+  "motion": "business",
+  "hero_concept": "fence_line_dusk",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "healthcare",
+  "package_id": "premium",
+  "niche_id": "zaunbau",
+  "fingerprint": "5795e44dc4b198e9606e4cb4d5348448fe8646892d63114ba7dcb04fe90e6735",
+  "section_treatments": [
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "services",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "process",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "benefits",
+      "illustration"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "gradient"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#d97706",
+  "surface_hex": "#faf7f2",
+  "ink_hex": "#1c1917",
+  "atmosphere_mode": "dusk",
+  "brand_book_fp": "15a2e398b33c0b349fec84db",
+  "border_radius_px": 10
+}

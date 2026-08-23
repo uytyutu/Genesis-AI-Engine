@@ -1,5 +1,5 @@
 {
-  "product_id": "21c5173b-3f98-4489-a2f4-ae78edbccd97",
+  "product_id": "090f4d03-f6a0-44ff-a646-a4565b15efa7",
   "intent_id": null,
   "product_type": "Landing Page",
   "description": "SmileCare Praxis München — Zahnarztpraxis, Prophylaxe, Implantate, Ästhetik, schmerzarme Behandlung",
@@ -113,7 +113,7 @@
     "background_src": "assets/background.jpg",
     "assessments": [
       {
-        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/app/factory/golden_demos/_sandbox_build/21c5173b-3f98-4489-a2f4-ae78edbccd97/assets/hero.jpg",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/app/factory/golden_demos/_sandbox_build/090f4d03-f6a0-44ff-a646-a4565b15efa7/assets/hero.jpg",
         "role": "hero",
         "ok": true,
         "width": 1400,
@@ -293,7 +293,7 @@
       "emotional_tone": "calm_trust",
       "journey": "booking",
       "primary": "#0284c7",
-      "font_display": "\"Segoe UI\", system-ui, -apple-system, sans-serif",
+      "font_display": "\"DM Sans\", system-ui, -apple-system, sans-serif",
       "radius": "16px",
       "btn_radius": "999px",
       "forbid_platform_aurora": true
@@ -524,7 +524,7 @@
         "id": "css_budget",
         "category": "performance",
         "ok": true,
-        "detail": "24575B"
+        "detail": "24736B"
       },
       {
         "id": "motion_css_budget",
@@ -786,7 +786,7 @@
         "id": "css_budget",
         "domain": "performance",
         "ok": true,
-        "detail": "24575B"
+        "detail": "24736B"
       },
       {
         "id": "motion_css_budget",
@@ -1049,7 +1049,7 @@
           "id": "css_budget",
           "category": "performance",
           "ok": true,
-          "detail": "24575B"
+          "detail": "24736B"
         },
         {
           "id": "motion_css_budget",
@@ -1136,8 +1136,8 @@
   "owner_approved": false,
   "owner_approved_at": null,
   "revision": 0,
-  "created_at": "2026-08-03T19:37:49.311046+00:00",
-  "updated_at": "2026-08-03T19:37:49.311046+00:00",
+  "created_at": "2026-08-06T00:21:49.842157+00:00",
+  "updated_at": "2026-08-06T00:21:49.842157+00:00",
   "style_flags": {
     "modern": false,
     "blue_boost": false,

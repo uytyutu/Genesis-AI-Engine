@@ -1,0 +1,15 @@
+{
+  "brand_name": "NordLicht Autohaus",
+  "niche_id": "car_dealership",
+  "package_id": "premium",
+  "media_mode": "showroom_gloss",
+  "visual_metaphor": "Showroom key handover",
+  "hero_concept": "Showroom key handover | NordLicht Autohaus",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": true,
+  "experience_tier": "cinematic",
+  "fingerprint": "2e63eafe7c99b690663a",
+  "image_prompt": "NordLicht Autohaus car_dealership brand hero, Showroom key handover, European studio, media_mode=showroom_gloss, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

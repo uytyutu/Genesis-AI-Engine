@@ -104,6 +104,9 @@ def kill_pid(pid: int | None) -> KillResult:
             creationflags=_no_window(),
         )
         detail = (result.stderr or result.stdout or "").strip()
+        # Race / encoding: taskkill rc=128 often means already gone; trust liveness.
+        if not pid_alive(pid):
+            return KillResult(pid, True, "already_stopped")
         if result.returncode != 0:
             reason = _classify_taskkill_failure(result.returncode, detail)
             if detail:

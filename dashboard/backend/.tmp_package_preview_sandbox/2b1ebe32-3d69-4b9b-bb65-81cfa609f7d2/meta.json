@@ -1,0 +1,1290 @@
+{
+  "product_id": "2b1ebe32-3d69-4b9b-bb65-81cfa609f7d2",
+  "intent_id": null,
+  "product_type": "Landing Page",
+  "description": "FitBase Studio Stuttgart — Fitnessstudio, Personal Training, Gruppenkurse, Ernährungsberatung",
+  "niche": "fitness",
+  "template_id": "landing-fitness-v1",
+  "business_name": "FitBase Studio",
+  "market_code": "DE",
+  "language": "de",
+  "locale": null,
+  "currency": null,
+  "ui_lang": "de",
+  "path_a_pricing": {
+    "package_id": "business",
+    "amount": null,
+    "currency": null,
+    "price_label": null
+  },
+  "market_design": "DE",
+  "motion_level": "css",
+  "composer_engine": "composer_v1",
+  "composition_plan": {
+    "engine_id": "composer_v1",
+    "layout_profile": {
+      "id": "L4",
+      "label": "Dense industrial / crafts",
+      "hero_variants": [
+        "B",
+        "D",
+        "F"
+      ],
+      "preferred_component": "B",
+      "cta_strategy": "dual",
+      "services_layout": "solid",
+      "trust_position": "after_services",
+      "gallery_style": "grid",
+      "faq_style": "twocol",
+      "footer_variant": "split",
+      "section_order": [
+        "info",
+        "stats",
+        "services",
+        "mid_cta",
+        "process",
+        "benefits",
+        "trust",
+        "gallery",
+        "showcase",
+        "catalog",
+        "about",
+        "faq",
+        "calculator",
+        "reviews",
+        "maps",
+        "late_cta",
+        "contact"
+      ]
+    },
+    "hero_layout": "B",
+    "component_profile": "B",
+    "trust_template": "A",
+    "market_code": "DE",
+    "niche_id": "fitness",
+    "package_id": "business",
+    "business_name": "FitBase Studio",
+    "language": "de",
+    "currency": "EUR",
+    "locale": "de_DE",
+    "default_cta": "Termin buchen"
+  },
+  "hero_layout": "B",
+  "component_profile": "B",
+  "layout_profile": {
+    "id": "L4",
+    "label": "Dense industrial / crafts",
+    "hero_variants": [
+      "B",
+      "D",
+      "F"
+    ],
+    "preferred_component": "B",
+    "cta_strategy": "dual",
+    "services_layout": "solid",
+    "trust_position": "after_services",
+    "gallery_style": "grid",
+    "faq_style": "twocol",
+    "footer_variant": "split",
+    "section_order": [
+      "info",
+      "stats",
+      "services",
+      "mid_cta",
+      "process",
+      "benefits",
+      "trust",
+      "gallery",
+      "showcase",
+      "catalog",
+      "about",
+      "faq",
+      "calculator",
+      "reviews",
+      "maps",
+      "late_cta",
+      "contact"
+    ]
+  },
+  "trust_template": "A",
+  "media_plan": {
+    "hero_src": "assets/hero.jpg",
+    "hero_from_client": false,
+    "hero_ok": true,
+    "gallery": [],
+    "background_src": "assets/background.jpg",
+    "assessments": [
+      {
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/2b1ebe32-3d69-4b9b-bb65-81cfa609f7d2/assets/hero.jpg",
+        "role": "hero",
+        "ok": true,
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2578666,
+        "reason": "ok",
+        "source": "niche"
+      },
+      {
+        "path": "assets/background.jpg",
+        "role": "background",
+        "ok": true,
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2578666,
+        "reason": "ok",
+        "source": "pack"
+      }
+    ],
+    "gate_ok": true,
+    "gate_failures": [],
+    "media_gate_ok": true,
+    "media_gate_failures": [],
+    "media_gate": {
+      "engine_id": "media_gate_v1",
+      "passed": true,
+      "failures": [],
+      "checks": [
+        {
+          "section": "hero",
+          "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/generic/preview.jpg",
+          "ok": true,
+          "tags": [
+            "boutique",
+            "interior",
+            "restaurant",
+            "retail"
+          ],
+          "detail": "ok"
+        },
+        {
+          "section": "about",
+          "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/generic/preview.jpg",
+          "ok": true,
+          "tags": [
+            "boutique",
+            "interior",
+            "restaurant",
+            "retail"
+          ],
+          "detail": "ok"
+        }
+      ]
+    }
+  },
+  "content_gate": {
+    "engine_id": "content_gate_v1",
+    "passed": true,
+    "failures": [],
+    "repairs": [],
+    "checks": [
+      {
+        "id": "hero_fields",
+        "section": "hero",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "hero_niche_voice",
+        "section": "hero",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "services_niche",
+        "section": "services",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "benefits_niche",
+        "section": "benefits",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "nav_no_marketing",
+        "section": "navigation",
+        "ok": true,
+        "detail": "links=3"
+      },
+      {
+        "id": "legal_profile_hook",
+        "section": "legal",
+        "ok": true,
+        "detail": "deferred_r34:DE"
+      }
+    ]
+  },
+  "commercial_gate": {
+    "engine_id": "commercial_gate_v1",
+    "hard_passed": true,
+    "score_passed": true,
+    "passed": true,
+    "brand_leak": "PASS",
+    "threshold": 95.0,
+    "ai_score": {
+      "niche_match": 92.0,
+      "content_quality": 98.0,
+      "cta_quality": 96.0,
+      "structure_quality": 98.0,
+      "design_quality": 96.0,
+      "commercial_readiness": 100.0,
+      "overall": 96.7
+    },
+    "hard_checks": [
+      {
+        "id": "brand_leak",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_stubs",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_generic_phrases",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "hero_matches_niche",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "services_match_questionnaire",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "cta_actionable",
+        "ok": true,
+        "detail": "Probe-Training buchen"
+      },
+      {
+        "id": "contacts_present",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "structure_matches_scenario",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_empty_core_sections",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "pages_linked",
+        "ok": true,
+        "detail": "ok"
+      }
+    ],
+    "failures": [],
+    "commercial_rule_1": "first_visitor_ready",
+    "design": {
+      "composer": "design",
+      "niche": "fitness",
+      "emotional_tone": "industrial_confident",
+      "journey": "booking",
+      "primary": "#ea580c",
+      "font_display": "\"Oswald\", \"Arial Narrow\", sans-serif",
+      "radius": "8px",
+      "btn_radius": "6px",
+      "forbid_platform_aurora": true
+    },
+    "seo": {
+      "composer": "seo",
+      "title": "FitBase Studio — Personal Training | Stuttgart",
+      "description": "Personal Training, Kurse und Fortschritt — ohne leere Versprechen."
+    },
+    "layout_id": "L5",
+    "layout_pool": [
+      "L5",
+      "L1",
+      "L4"
+    ],
+    "max_rebuild_attempts": 2,
+    "one_lifetime_project": true
+  },
+  "status": "completed",
+  "quality_percent": 98,
+  "validation_passed": false,
+  "technical_checks": [
+    {
+      "id": "html",
+      "label": "HTML",
+      "ok": true
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile",
+      "ok": true
+    },
+    {
+      "id": "accessibility",
+      "label": "Accessibility",
+      "ok": true
+    },
+    {
+      "id": "compliance",
+      "label": "Compliance Engine",
+      "ok": false
+    },
+    {
+      "id": "quality_gate",
+      "label": "Quality Gate",
+      "ok": false
+    },
+    {
+      "id": "compliance:brand:no_demo_preview_words",
+      "label": "brand:no_demo_preview_words — demo|preview",
+      "ok": false
+    }
+  ],
+  "quality_gate": {
+    "passed": false,
+    "failures": [
+      "brand:no_demo_preview_words — demo|preview"
+    ],
+    "checks": [
+      {
+        "id": "hero_layout",
+        "category": "design",
+        "ok": true,
+        "detail": "data-hero-layout"
+      },
+      {
+        "id": "component_profile",
+        "category": "design",
+        "ok": true,
+        "detail": "data-comp-profile"
+      },
+      {
+        "id": "layout_profile",
+        "category": "design",
+        "ok": true,
+        "detail": "data-layout-profile"
+      },
+      {
+        "id": "footer_variant",
+        "category": "design",
+        "ok": true,
+        "detail": "data-footer-variant"
+      },
+      {
+        "id": "section_contact",
+        "category": "design",
+        "ok": true,
+        "detail": "contact section present"
+      },
+      {
+        "id": "market_profile",
+        "category": "design",
+        "ok": true,
+        "detail": "data-market"
+      },
+      {
+        "id": "niche_style",
+        "category": "design",
+        "ok": true,
+        "detail": "data-niche + design tokens"
+      },
+      {
+        "id": "meta_hero",
+        "category": "design",
+        "ok": true,
+        "detail": "meta hero_layout matches HTML"
+      },
+      {
+        "id": "no_stubs",
+        "category": "localization",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_mustache",
+        "category": "localization",
+        "ok": true,
+        "detail": "{{…}}"
+      },
+      {
+        "id": "no_ui_keys",
+        "category": "localization",
+        "ok": true,
+        "detail": "ui.* keys"
+      },
+      {
+        "id": "no_english_stubs",
+        "category": "localization",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lang",
+        "category": "seo",
+        "ok": true,
+        "detail": "html lang"
+      },
+      {
+        "id": "hreflang",
+        "category": "seo",
+        "ok": true,
+        "detail": "hreflang"
+      },
+      {
+        "id": "title",
+        "category": "seo",
+        "ok": true,
+        "detail": "title"
+      },
+      {
+        "id": "description",
+        "category": "seo",
+        "ok": true,
+        "detail": "meta description"
+      },
+      {
+        "id": "canonical",
+        "category": "seo",
+        "ok": true,
+        "detail": "canonical"
+      },
+      {
+        "id": "schema",
+        "category": "seo",
+        "ok": true,
+        "detail": "JSON-LD"
+      },
+      {
+        "id": "og",
+        "category": "seo",
+        "ok": true,
+        "detail": "Open Graph"
+      },
+      {
+        "id": "lang_ok",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "supported lang"
+      },
+      {
+        "id": "img_alt",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "imgs=1"
+      },
+      {
+        "id": "h1",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "h1 present"
+      },
+      {
+        "id": "heading_order",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "h1 before h2/h3"
+      },
+      {
+        "id": "aria_or_labels",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "aria/summary"
+      },
+      {
+        "id": "reduced_motion",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "reduced-motion support"
+      },
+      {
+        "id": "contrast_tokens",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "--ink token"
+      },
+      {
+        "id": "no_heavy_libs",
+        "category": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lazy_images",
+        "category": "performance",
+        "ok": true,
+        "detail": "non-hero images"
+      },
+      {
+        "id": "motion_killswitch",
+        "category": "performance",
+        "ok": true,
+        "detail": "motion css/js"
+      },
+      {
+        "id": "css_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "27067B"
+      },
+      {
+        "id": "motion_css_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "4047B"
+      },
+      {
+        "id": "js_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "3016B"
+      },
+      {
+        "id": "js_no_heavy",
+        "category": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "manifest",
+        "category": "media",
+        "ok": true,
+        "detail": "media_manifest.json"
+      },
+      {
+        "id": "hero_ok",
+        "category": "media",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "section_aware",
+        "category": "media",
+        "ok": true,
+        "detail": "media_gate"
+      },
+      {
+        "id": "object_fit_css",
+        "category": "media",
+        "ok": true,
+        "detail": "no stretch"
+      },
+      {
+        "id": "weight_ok",
+        "category": "media",
+        "ok": true,
+        "detail": "0_oversized"
+      },
+      {
+        "id": "cls_safe",
+        "category": "media",
+        "ok": true,
+        "detail": "dimensions_or_object_fit"
+      },
+      {
+        "id": "no_platform_chrome",
+        "category": "brand",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_demo_preview_words",
+        "category": "brand",
+        "ok": false,
+        "detail": "demo|preview"
+      }
+    ]
+  },
+  "compliance": {
+    "engine_id": "compliance_v1",
+    "passed": false,
+    "domains": {
+      "design": true,
+      "brand": false,
+      "performance": true,
+      "seo": true,
+      "accessibility": true,
+      "authenticity": true,
+      "market_rules": true
+    },
+    "failures": [
+      "brand:no_demo_preview_words — demo|preview"
+    ],
+    "checks": [
+      {
+        "id": "hero_layout",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-hero-layout"
+      },
+      {
+        "id": "component_profile",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-comp-profile"
+      },
+      {
+        "id": "layout_profile",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-layout-profile"
+      },
+      {
+        "id": "footer_variant",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-footer-variant"
+      },
+      {
+        "id": "section_contact",
+        "domain": "design",
+        "ok": true,
+        "detail": "contact section present"
+      },
+      {
+        "id": "market_profile",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-market"
+      },
+      {
+        "id": "niche_style",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-niche + design tokens"
+      },
+      {
+        "id": "meta_hero",
+        "domain": "design",
+        "ok": true,
+        "detail": "meta hero_layout matches HTML"
+      },
+      {
+        "id": "no_stubs",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_mustache",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": "{{…}}"
+      },
+      {
+        "id": "no_ui_keys",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": "ui.* keys"
+      },
+      {
+        "id": "no_english_stubs",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lang",
+        "domain": "seo",
+        "ok": true,
+        "detail": "html lang"
+      },
+      {
+        "id": "hreflang",
+        "domain": "seo",
+        "ok": true,
+        "detail": "hreflang"
+      },
+      {
+        "id": "title",
+        "domain": "seo",
+        "ok": true,
+        "detail": "title"
+      },
+      {
+        "id": "description",
+        "domain": "seo",
+        "ok": true,
+        "detail": "meta description"
+      },
+      {
+        "id": "canonical",
+        "domain": "seo",
+        "ok": true,
+        "detail": "canonical"
+      },
+      {
+        "id": "schema",
+        "domain": "seo",
+        "ok": true,
+        "detail": "JSON-LD"
+      },
+      {
+        "id": "og",
+        "domain": "seo",
+        "ok": true,
+        "detail": "Open Graph"
+      },
+      {
+        "id": "lang_ok",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "supported lang"
+      },
+      {
+        "id": "img_alt",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "imgs=1"
+      },
+      {
+        "id": "h1",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "h1 present"
+      },
+      {
+        "id": "heading_order",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "h1 before h2/h3"
+      },
+      {
+        "id": "aria_or_labels",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "aria/summary"
+      },
+      {
+        "id": "reduced_motion",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "reduced-motion support"
+      },
+      {
+        "id": "contrast_tokens",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "--ink token"
+      },
+      {
+        "id": "no_heavy_libs",
+        "domain": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lazy_images",
+        "domain": "performance",
+        "ok": true,
+        "detail": "non-hero images"
+      },
+      {
+        "id": "motion_killswitch",
+        "domain": "performance",
+        "ok": true,
+        "detail": "motion css/js"
+      },
+      {
+        "id": "css_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "27067B"
+      },
+      {
+        "id": "motion_css_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "4047B"
+      },
+      {
+        "id": "js_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "3016B"
+      },
+      {
+        "id": "js_no_heavy",
+        "domain": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "manifest",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "media_manifest.json"
+      },
+      {
+        "id": "hero_ok",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "section_aware",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "media_gate"
+      },
+      {
+        "id": "object_fit_css",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "no stretch"
+      },
+      {
+        "id": "weight_ok",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "0_oversized"
+      },
+      {
+        "id": "cls_safe",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "dimensions_or_object_fit"
+      },
+      {
+        "id": "no_platform_chrome",
+        "domain": "brand",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_demo_preview_words",
+        "domain": "brand",
+        "ok": false,
+        "detail": "demo|preview"
+      },
+      {
+        "id": "section_aware_media",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "section_aware_content",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "visual_intelligence",
+        "domain": "design",
+        "ok": true,
+        "detail": "score=94.6/90.0"
+      }
+    ],
+    "quality_gate": {
+      "passed": false,
+      "failures": [
+        "brand:no_demo_preview_words — demo|preview"
+      ],
+      "checks": [
+        {
+          "id": "hero_layout",
+          "category": "design",
+          "ok": true,
+          "detail": "data-hero-layout"
+        },
+        {
+          "id": "component_profile",
+          "category": "design",
+          "ok": true,
+          "detail": "data-comp-profile"
+        },
+        {
+          "id": "layout_profile",
+          "category": "design",
+          "ok": true,
+          "detail": "data-layout-profile"
+        },
+        {
+          "id": "footer_variant",
+          "category": "design",
+          "ok": true,
+          "detail": "data-footer-variant"
+        },
+        {
+          "id": "section_contact",
+          "category": "design",
+          "ok": true,
+          "detail": "contact section present"
+        },
+        {
+          "id": "market_profile",
+          "category": "design",
+          "ok": true,
+          "detail": "data-market"
+        },
+        {
+          "id": "niche_style",
+          "category": "design",
+          "ok": true,
+          "detail": "data-niche + design tokens"
+        },
+        {
+          "id": "meta_hero",
+          "category": "design",
+          "ok": true,
+          "detail": "meta hero_layout matches HTML"
+        },
+        {
+          "id": "no_stubs",
+          "category": "localization",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "no_mustache",
+          "category": "localization",
+          "ok": true,
+          "detail": "{{…}}"
+        },
+        {
+          "id": "no_ui_keys",
+          "category": "localization",
+          "ok": true,
+          "detail": "ui.* keys"
+        },
+        {
+          "id": "no_english_stubs",
+          "category": "localization",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "lang",
+          "category": "seo",
+          "ok": true,
+          "detail": "html lang"
+        },
+        {
+          "id": "hreflang",
+          "category": "seo",
+          "ok": true,
+          "detail": "hreflang"
+        },
+        {
+          "id": "title",
+          "category": "seo",
+          "ok": true,
+          "detail": "title"
+        },
+        {
+          "id": "description",
+          "category": "seo",
+          "ok": true,
+          "detail": "meta description"
+        },
+        {
+          "id": "canonical",
+          "category": "seo",
+          "ok": true,
+          "detail": "canonical"
+        },
+        {
+          "id": "schema",
+          "category": "seo",
+          "ok": true,
+          "detail": "JSON-LD"
+        },
+        {
+          "id": "og",
+          "category": "seo",
+          "ok": true,
+          "detail": "Open Graph"
+        },
+        {
+          "id": "lang_ok",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "supported lang"
+        },
+        {
+          "id": "img_alt",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "imgs=1"
+        },
+        {
+          "id": "h1",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "h1 present"
+        },
+        {
+          "id": "heading_order",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "h1 before h2/h3"
+        },
+        {
+          "id": "aria_or_labels",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "aria/summary"
+        },
+        {
+          "id": "reduced_motion",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "reduced-motion support"
+        },
+        {
+          "id": "contrast_tokens",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "--ink token"
+        },
+        {
+          "id": "no_heavy_libs",
+          "category": "performance",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "lazy_images",
+          "category": "performance",
+          "ok": true,
+          "detail": "non-hero images"
+        },
+        {
+          "id": "motion_killswitch",
+          "category": "performance",
+          "ok": true,
+          "detail": "motion css/js"
+        },
+        {
+          "id": "css_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "27067B"
+        },
+        {
+          "id": "motion_css_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "4047B"
+        },
+        {
+          "id": "js_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "3016B"
+        },
+        {
+          "id": "js_no_heavy",
+          "category": "performance",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "manifest",
+          "category": "media",
+          "ok": true,
+          "detail": "media_manifest.json"
+        },
+        {
+          "id": "hero_ok",
+          "category": "media",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "section_aware",
+          "category": "media",
+          "ok": true,
+          "detail": "media_gate"
+        },
+        {
+          "id": "object_fit_css",
+          "category": "media",
+          "ok": true,
+          "detail": "no stretch"
+        },
+        {
+          "id": "weight_ok",
+          "category": "media",
+          "ok": true,
+          "detail": "0_oversized"
+        },
+        {
+          "id": "cls_safe",
+          "category": "media",
+          "ok": true,
+          "detail": "dimensions_or_object_fit"
+        },
+        {
+          "id": "no_platform_chrome",
+          "category": "brand",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "no_demo_preview_words",
+          "category": "brand",
+          "ok": false,
+          "detail": "demo|preview"
+        }
+      ]
+    },
+    "media_gate": {
+      "engine_id": "media_gate_v1",
+      "passed": true,
+      "failures": [],
+      "checks": []
+    },
+    "content_gate": {
+      "engine_id": "content_gate_v1",
+      "passed": true,
+      "failures": [],
+      "repairs": [],
+      "checks": []
+    },
+    "visual_quality": {
+      "engine_id": "visual_quality_v1",
+      "passed": true,
+      "score": 94.6,
+      "threshold": 90.0,
+      "checks": [
+        {
+          "id": "composition",
+          "ok": true,
+          "points": 100.0,
+          "detail": "hero=True sections=True niche=True vie=True"
+        },
+        {
+          "id": "color_harmony",
+          "ok": true,
+          "points": 88.0,
+          "detail": "#ea580c / #fdba74"
+        },
+        {
+          "id": "typography",
+          "ok": true,
+          "points": 100.0,
+          "detail": "fonts/display hierarchy"
+        },
+        {
+          "id": "contrast",
+          "ok": true,
+          "points": 98.0,
+          "detail": "ratio=16.47"
+        },
+        {
+          "id": "images",
+          "ok": true,
+          "points": 80.0,
+          "detail": "n=1 alt=100% lazy=0%"
+        },
+        {
+          "id": "performance",
+          "ok": true,
+          "points": 98.0,
+          "detail": "heavy=none"
+        },
+        {
+          "id": "adaptivity",
+          "ok": true,
+          "points": 100.0,
+          "detail": "viewport=True mq=True"
+        },
+        {
+          "id": "readability",
+          "ok": true,
+          "points": 88.0,
+          "detail": "words≈2389"
+        }
+      ],
+      "suggestions": [],
+      "failures": []
+    }
+  },
+  "owner_approved": false,
+  "owner_approved_at": null,
+  "revision": 0,
+  "created_at": "2026-08-06T05:52:42.777754+00:00",
+  "updated_at": "2026-08-06T05:52:42.777754+00:00",
+  "style_flags": {
+    "modern": false,
+    "blue_boost": false,
+    "calculator": false,
+    "testimonials": true
+  },
+  "package_delivery": {
+    "package_id": "business",
+    "whatsapp": true,
+    "maps": true,
+    "testimonials": true,
+    "logo_slot": true,
+    "extended_seo": true,
+    "analytics": false,
+    "calculator": false,
+    "premium_design": false,
+    "contact_form": true,
+    "faq": true,
+    "process": true,
+    "mid_cta": true,
+    "trust_bar": true,
+    "stats_strip": false,
+    "showcase": false,
+    "catalog_grid": false,
+    "catalog_categories": false,
+    "catalog_search_filter": false,
+    "catalog_request_cart": false,
+    "catalog_rich_cards": false
+  },
+  "catalog_enabled": false,
+  "client_assets": {
+    "logo": false,
+    "logo_src": "assets/logo.png",
+    "hero_from_client": false,
+    "gallery": [],
+    "used_files": []
+  },
+  "brand_style": "auto",
+  "client_legal": {
+    "business_name": "FitBase Studio",
+    "owner_name": "",
+    "legal_form": "",
+    "street": "",
+    "zip": "",
+    "city": "Stuttgart",
+    "country": "DE",
+    "email": "kontakt@fitbase-demo.example.de",
+    "phone": "+49 711 3332211",
+    "website": "",
+    "managing_director": "",
+    "vat_id": "",
+    "handelsregister": "",
+    "register_court": "",
+    "uses_maps": true,
+    "uses_analytics": false,
+    "uses_contact_form": true,
+    "missing_impressum": [
+      "street",
+      "zip"
+    ],
+    "impressum_ready": false
+  },
+  "legal_pages": {
+    "pack": "de_impressum",
+    "market_code": "DE",
+    "impressum_ready": false,
+    "missing_impressum": [
+      "street",
+      "zip"
+    ],
+    "files": [
+      "impressum.html",
+      "datenschutz.html"
+    ]
+  },
+  "publish_ready_de": false
+}

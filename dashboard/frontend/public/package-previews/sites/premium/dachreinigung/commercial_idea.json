@@ -1,0 +1,28 @@
+{
+  "niche_id": "dachreinigung",
+  "idea": "Nach dem Regen sieht das Dach wieder neu aus.",
+  "who": "Wir kommen, reinigen, dokumentieren das Ergebnis und verlängern die Lebensdauer Ihres Dachs.",
+  "character": [
+    "Qualität",
+    "Sicherheit",
+    "Akkuratesse",
+    "Ordnung",
+    "Nach dem Regen",
+    "Profi-Technik",
+    "Zuverlässigkeit"
+  ],
+  "metaphor": "Frischer Regen nach dem Sturm — nasse Ziegel, klarer Himmel",
+  "hero_concept": "roof_after_rain",
+  "emotion_3s": "Erleichterung und Stolz aufs eigene Haus",
+  "source": "premium_pack",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Nach dem Regen sieht das Dach wieder neu aus.",
+    "who": "Wir kommen, reinigen, dokumentieren das Ergebnis und verlängern die Lebensdauer Ihres Dachs.",
+    "package_id": "premium",
+    "source": "premium_pack",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

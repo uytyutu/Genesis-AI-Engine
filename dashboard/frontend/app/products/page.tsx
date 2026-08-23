@@ -8,6 +8,7 @@ import { BRAND_NAME } from "../lib/publicBrand";
 
 /**
  * G2.X — Product showcase with service cards (form → pay).
+ * DE-primary copy (public default market).
  */
 
 export default function ProductsPage() {
@@ -18,10 +19,13 @@ export default function ProductsPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300/90">
             {BRAND_NAME}
           </p>
-          <h1 className="text-3xl font-bold text-white sm:text-4xl">Products & services</h1>
+          <h1 className="text-3xl font-bold text-white sm:text-4xl">
+            Produkte & Leistungen
+          </h1>
           <p className="text-sm text-zinc-400 sm:text-base">
-            Choose a card → fill the order form for that product → then pay. Coming Soon cards
-            are honest: not for checkout until delivery is ready.
+            Karte wählen → Bestellformular für dieses Produkt ausfüllen → bezahlen.
+            „Demnächst“-Karten sind ehrlich: noch kein Checkout, bis die Lieferung
+            bereit ist.
           </p>
           <BotChannelIconRow className="pt-1" />
         </header>
@@ -29,11 +33,11 @@ export default function ProductsPage() {
         <ServiceCatalogGrid mode="all" />
 
         <p className="text-center text-sm text-zinc-500">
-          Need advice?{" "}
+          Unsicher?{" "}
           <Link href="/site?view=vector" className="text-emerald-300 hover:underline">
-            Ask Vector
+            Vector fragen
           </Link>{" "}
-          — he links you to the right form.
+          — er führt Sie zum passenden Formular.
         </p>
       </div>
     </PublicPageShell>
