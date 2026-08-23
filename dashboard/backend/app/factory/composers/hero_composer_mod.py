@@ -14,6 +14,24 @@ _BANNED_TAILS = (
 )
 
 
+def _headline_has_commercial_signal(
+    headline: str, *, niche: str, services: list[str]
+) -> bool:
+    """Same cues as Commercial Hard Gate hero_matches_niche (strict)."""
+    hl = (headline or "").strip()
+    if not hl:
+        return False
+    n = (niche or "generic").strip().lower() or "generic"
+    if n == "generic":
+        return True
+    low = hl.lower()
+    if n.replace("_", " ") in low:
+        return True
+    if any(s.lower() in low for s in services[:2] if s):
+        return True
+    return " — " in hl
+
+
 def compose_hero(analysis: AnalysisResult, ctx: QuestionnaireContext) -> AnalysisResult:
     name = ctx.business_name or analysis.business_name
     services = list(analysis.services or [])
@@ -29,6 +47,11 @@ def compose_hero(analysis: AnalysisResult, ctx: QuestionnaireContext) -> Analysi
         if rest.lower().startswith(name.lower()):
             rest = services[0] if services else (ctx.primary_service() or "klare Leistungen")
         headline = f"{name} — {rest}"
+    elif name and not _headline_has_commercial_signal(
+        headline, niche=str(analysis.niche or ""), services=services
+    ):
+        # First Impression emotion lines must still carry a commercial cue.
+        headline = f"{name} — {headline}"
 
     subtitle = (analysis.subtitle or "").strip()
     if not subtitle or "helfen ihrem" in subtitle.lower():

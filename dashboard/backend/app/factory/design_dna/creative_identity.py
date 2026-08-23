@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -444,6 +445,31 @@ def invent_human_first(
     )
 
 
+def _ban_appears_as_positive_cue(blob: str, ban: str) -> bool:
+    """True when a forbidden token is used as a style cue — not as a negation.
+
+    Brand books often write «kein Neon-Salon» / «never neon». That is compliance
+    with the ban, not a Creative Conflict. Naive substring matching falsely FAIL'd
+    beauty exports and froze marketing HTML into identity-preview decks.
+    """
+    ban_l = (ban or "").lower().replace("_", " ").strip()
+    if not ban_l:
+        return False
+    blob_l = (blob or "").lower().replace("_", " ")
+    first = ban_l.split()[0]
+    if first not in blob_l and ban_l not in blob_l:
+        return False
+    for match in re.finditer(re.escape(first), blob_l):
+        left = blob_l[max(0, match.start() - 28) : match.start()]
+        if re.search(
+            r"(?:kein(?:e|en)?|nie|never|no|not|without|ohne)[\s\-]*$",
+            left,
+        ):
+            continue
+        return True
+    return False
+
+
 def check_creative_conflict(
     theme: CreativeTheme,
     *,
@@ -463,9 +489,7 @@ def check_creative_conflict(
         ]
     )
     for ban in theme.forbidden:
-        token = ban.lower().replace("_", " ")
-        compact = ban.lower()
-        if compact in blob.replace(" ", "_") or token in blob or compact in blob:
+        if _ban_appears_as_positive_cue(blob, ban):
             conflicts.append(f"Theme '{theme.title}' conflicts with '{ban}'")
     # Hard semantic conflicts
     if theme.id == "silent_forest" and ("tech" in blob or "saas" in blob or "gaming" in blob):

@@ -304,11 +304,21 @@ def apply_first_impression_to_analysis(
     analysis: AnalysisResult,
     fi: FirstImpression,
 ) -> AnalysisResult:
-    """Hero H1 = client story; lead = emotion + offer; trust rail = trust line."""
+    """Hero H1 = client story; lead = emotion + offer; trust rail = trust line.
+
+    Commercial Hard Gate still requires a niche cue (name — story, niche word,
+    or service). Pure emotion lines like «Zeit, die nur Ihnen gehört.» without
+    that cue freeze client ZIP delivery — keep the story, prefix the brand.
+    """
     from dataclasses import replace
 
     if not fi.story:
         return analysis
+    story = fi.story.strip()
+    name = (analysis.business_name or "").strip()
+    headline = story
+    if name and " — " not in story:
+        headline = f"{name} — {story}"
     subtitle = fi.emotion
     if fi.offer:
         subtitle = f"{fi.emotion} {fi.offer}".strip() if fi.emotion else fi.offer
@@ -317,7 +327,7 @@ def apply_first_impression_to_analysis(
         trust = [fi.trust, *[t for t in trust if t != fi.trust]][:4]
     return replace(
         analysis,
-        headline=fi.story,
+        headline=headline,
         subtitle=subtitle[:320],
         trust_points=tuple(trust),
     )
