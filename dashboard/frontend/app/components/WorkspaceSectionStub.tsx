@@ -29,7 +29,7 @@ export function WorkspaceSectionStub({
       <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
         {comingSoon ? (
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-300/80">
-            Раздел Workspace · редактирование через {ASSISTANT_NAME}
+            Coming Soon · Bearbeitung über {ASSISTANT_NAME} / Admin
           </p>
         ) : null}
         <h2 className="mt-3 text-xl font-semibold text-white">{title}</h2>

@@ -39,6 +39,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     href: "/client/pages",
     label: "Seiten",
     match: (p) => p.startsWith("/client/pages"),
+    comingSoon: true,
     group: "core",
   },
   {
@@ -46,6 +47,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     href: "/client/media",
     label: "Medien",
     match: (p) => p.startsWith("/client/media"),
+    comingSoon: true,
     group: "core",
   },
   {
@@ -53,6 +55,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     href: "/client/texts",
     label: "Texte",
     match: (p) => p.startsWith("/client/texts"),
+    comingSoon: true,
     group: "core",
   },
   {
@@ -60,6 +63,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     href: "/client/contacts",
     label: "Kontakte",
     match: (p) => p.startsWith("/client/contacts"),
+    comingSoon: true,
     group: "core",
   },
   {
@@ -83,6 +87,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     href: "/client/settings",
     label: "Einstellungen",
     match: (p) => p.startsWith("/client/settings"),
+    comingSoon: true,
     group: "core",
   },
   {
@@ -97,6 +102,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     href: "/client/domain",
     label: "Domain",
     match: (p) => p.startsWith("/client/domain"),
+    comingSoon: true,
     group: "core",
   },
   {
@@ -104,6 +110,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     href: "/client/stats",
     label: "Statistik",
     match: (p) => p.startsWith("/client/stats") && !p.startsWith("/client/analytics"),
+    comingSoon: true,
     group: "core",
   },
   {
@@ -127,6 +134,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     label: "CRM",
     match: (p) => p.startsWith("/client/crm"),
     connectedOnly: true,
+    comingSoon: true,
     group: "ecosystem",
   },
   {
@@ -135,6 +143,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     label: "Analytics",
     match: (p) => p.startsWith("/client/analytics"),
     connectedOnly: true,
+    comingSoon: true,
     group: "ecosystem",
   },
   {
@@ -159,6 +168,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     label: "Automation",
     match: (p) => p.startsWith("/client/automations"),
     connectedOnly: true,
+    comingSoon: true,
     group: "ecosystem",
   },
   {
@@ -167,6 +177,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     label: "E-Mail-Marketing",
     match: (p) => p.startsWith("/client/email"),
     connectedOnly: true,
+    comingSoon: true,
     group: "ecosystem",
   },
   {
@@ -175,6 +186,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     label: "WhatsApp",
     match: (p) => p.startsWith("/client/whatsapp"),
     connectedOnly: true,
+    comingSoon: true,
     group: "ecosystem",
   },
   {
@@ -183,6 +195,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     label: "Buchung",
     match: (p) => p.startsWith("/client/booking"),
     connectedOnly: true,
+    comingSoon: true,
     group: "ecosystem",
   },
   {
@@ -191,6 +204,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     label: "Benachrichtigungen",
     match: (p) => p.startsWith("/client/notifications"),
     connectedOnly: true,
+    comingSoon: true,
     group: "ecosystem",
   },
   {

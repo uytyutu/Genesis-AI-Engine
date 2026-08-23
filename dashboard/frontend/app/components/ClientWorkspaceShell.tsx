@@ -297,19 +297,31 @@ export function ClientWorkspaceShell({
           >
             {links.map((link) => {
               const active = link.match(pathname);
+              const soon = Boolean(link.comingSoon);
               return (
                 <Link
                   key={link.id}
                   href={link.href}
                   className={`rounded-lg px-3 py-1.5 text-sm transition ${
-                    active
-                      ? "border border-genesis-accent/40 bg-genesis-accent/15 text-white"
-                      : "border border-transparent text-zinc-400 hover:border-white/10 hover:bg-white/5 hover:text-white"
+                    soon
+                      ? active
+                        ? "border border-dashed border-zinc-600/50 bg-zinc-900/40 text-zinc-500"
+                        : "border border-dashed border-zinc-700/40 text-zinc-600 hover:border-zinc-600/50 hover:bg-zinc-900/30 hover:text-zinc-500"
+                      : active
+                        ? "border border-genesis-accent/40 bg-genesis-accent/15 text-white"
+                        : "border border-transparent text-zinc-400 hover:border-white/10 hover:bg-white/5 hover:text-white"
                   }`}
+                  aria-label={
+                    soon
+                      ? `${copy.nav[link.id] || link.label} — Coming Soon`
+                      : undefined
+                  }
                 >
                   {copy.nav[link.id] || link.label}
-                  {link.comingSoon ? (
-                    <span className="ml-1 text-[10px] text-zinc-500">soon</span>
+                  {soon ? (
+                    <span className="ml-1.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                      · Soon
+                    </span>
                   ) : null}
                 </Link>
               );

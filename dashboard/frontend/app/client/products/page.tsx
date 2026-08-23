@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ClientWorkspaceShell } from "../../components/ClientWorkspaceShell";
 import { clientAuthHeaders, getClientToken } from "../../lib/clientAuth";
 import { formatApiDetail } from "../../lib/formatApiError";
+import { resolveOrderHonestStatus, resolvePortalProductHonestStatus } from "../../lib/clientProductStatus";
 import { PortalApiError, portalFetch } from "../../lib/portalApi";
 import { publicApiBase } from "../../lib/publicApiBase";
 
@@ -140,11 +141,8 @@ export default function ClientProductsPage() {
                   ? o.service_name || o.package_name || "Мой интернет-магазин"
                   : o.service_name || o.package_name || o.business_name || "Заказ"}
               </p>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-emerald-300">
-                {o.shop_pipeline_label ||
-                  o.status_label ||
-                  o.status ||
-                  "Active"}
+              <p className={`mt-1 text-xs font-medium uppercase tracking-wide ${resolveOrderHonestStatus(o).toneClass}`}>
+                {resolveOrderHonestStatus(o).label}
               </p>
               <p className="mt-2 flex-1 text-sm text-zinc-500">
                 {o.business_name ? `${o.business_name} · ` : ""}
@@ -213,8 +211,8 @@ export default function ClientProductsPage() {
               className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"
             >
               <p className="text-lg font-semibold text-white">{p.display_name}</p>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-emerald-300">
-                {p.status || "Active"}
+              <p className={`mt-1 text-xs font-medium uppercase tracking-wide ${resolvePortalProductHonestStatus(p).toneClass}`}>
+                {resolvePortalProductHonestStatus(p).label}
               </p>
               <p className="mt-2 flex-1 text-sm text-zinc-500">via {p.source}</p>
               <Link

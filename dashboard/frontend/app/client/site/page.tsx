@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ClientWorkspaceShell } from "../../components/ClientWorkspaceShell";
 import { clientAuthHeaders, getClientToken } from "../../lib/clientAuth";
+import { resolveOrderHonestStatus } from "../../lib/clientProductStatus";
 import { formatApiDetail } from "../../lib/formatApiError";
 import { publicApiBase } from "../../lib/publicApiBase";
 
@@ -95,8 +96,8 @@ export default function ClientWebsiteHubPage() {
               <p className="mt-1 text-lg font-semibold text-white">
                 {o.business_name || o.service_name || o.package_name || "Website"}
               </p>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-emerald-300">
-                {o.status_label || o.status || "Active"}
+              <p className={`mt-1 text-xs font-medium uppercase tracking-wide ${resolveOrderHonestStatus(o).toneClass}`}>
+                {resolveOrderHonestStatus(o).label}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Link

@@ -122,24 +122,29 @@ export type PublicNavLink = {
 export const PUBLIC_NAV_LINKS: readonly PublicNavLink[] = [];
 
 export const CLIENT_NAV_LINKS = [
-  { href: "/client", label: "Dashboard", hint: "Сегодня · продукты · следующий шаг" },
-  { href: "/client/products", label: "Мои продукты", hint: "Сайты · AI Store · услуги" },
-  { href: "/client/orders", label: "Заказы", hint: "Статус · скачивание" },
-  { href: "/client/shop", label: "Магазин", hint: "Заказать ещё услуги" },
+  { href: "/client", label: "Dashboard", hint: "Übersicht · Produkte · nächster Schritt" },
+  { href: "/client/products", label: "Meine Produkte", hint: "Website · AI Store · Status" },
+  { href: "/client/orders", label: "Bestellungen", hint: "Status · Download" },
+  { href: "/client/shop", label: "Marketplace", hint: "Weitere Services bestellen" },
   {
     href: "/client/bots",
-    label: "Digital Employee",
-    hint: "AI bot · отдельно от сайта",
+    label: "KI-Mitarbeiter",
+    hint: "Setup · Kanäle · ehrlicher Status",
   },
   {
     href: "/client/billing",
-    label: "Billing",
-    hint: "Оплаты · лицензии",
+    label: "Abrechnung",
+    hint: "Zahlungsverlauf · Portal Soon",
+  },
+  {
+    href: "/client/support",
+    label: "Support",
+    hint: "E-Mail · Tickets Soon",
   },
   {
     href: "/client/privacy",
-    label: "Privacy & Cookies",
-    hint: "Согласие · Essential / Analytics / Marketing",
+    label: "Privacy",
+    hint: "Cookies · Einwilligung",
   },
 ] as const;
 
