@@ -8,9 +8,9 @@ import { StoreAdminDesign } from "../../../../components/StoreAdminDesign";
 import { StoreAdminCustomers } from "../../../../components/StoreAdminCustomers";
 import { StoreAdminCommerce } from "../../../../components/StoreAdminCommerce";
 import { StoreAdminOrders } from "../../../../components/StoreAdminOrders";
+import { StoreAdminBusinessProfile } from "../../../../components/StoreAdminBusinessProfile";
 import { StoreAdminVectorGuidance } from "../../../../components/StoreAdminVectorGuidance";
-import { VectorDialogDock } from "../../../../components/VectorDialogDock";
-import { BusinessSetupPanel } from "../../../../components/BusinessSetupPanel";
+import { VectorCoachingToasts } from "../../../../components/VectorCoachingToasts";
 import { AiHealthPanel } from "../../../../components/AiHealthPanel";
 import { clientAuthHeaders, getClientToken } from "../../../../lib/clientAuth";
 import { formatApiDetail } from "../../../../lib/formatApiError";
@@ -165,16 +165,7 @@ export default function StoreAdminPage() {
           />
         ) : null
       }
-      vectorDock={
-        <VectorDialogDock
-          surface="store_admin"
-          orderId={orderId}
-          dark={dark}
-          dock="right"
-          onNavigateSection={(s) => setSection(s as StoreAdminSectionId)}
-          onRefreshSetup={() => void loadSetup()}
-        />
-      }
+      vectorDock={<VectorCoachingToasts />}
     >
       {error ? (
         <p
@@ -209,7 +200,6 @@ export default function StoreAdminPage() {
             onNavigate={setSection}
           />
 
-          <BusinessSetupPanel dark={dark} onNavigateSection={setSection} />
           <AiHealthPanel dark={dark} />
 
           <div
@@ -426,8 +416,34 @@ export default function StoreAdminPage() {
         <StoreAdminCommerce orderId={orderId} dark={dark} focus="email" />
       ) : section === "integrations" ? (
         <StoreAdminCommerce orderId={orderId} dark={dark} focus="integrations" />
-      ) : section === "contact" ? (
-        <StoreAdminCommerce orderId={orderId} dark={dark} focus="contact" />
+      ) : section === "contact" || section === "settings" ? (
+        <div className="space-y-6">
+          <div
+            className={`rounded-2xl border px-5 py-4 ${
+              dark
+                ? "border-emerald-500/25 bg-emerald-950/20"
+                : "border-emerald-200 bg-emerald-50"
+            }`}
+          >
+            <h2
+              className={`text-lg font-semibold ${dark ? "text-white" : "text-slate-900"}`}
+            >
+              Shop-Einstellungen
+            </h2>
+            <p className={`mt-1 text-sm ${dark ? "text-zinc-300" : "text-slate-600"}`}>
+              Telefon, E-Mail und Adresse für den Online-Shop. Logo und Farben unter
+              Design.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSection("design")}
+              className="mt-3 rounded-xl border border-white/20 px-3 py-1.5 text-sm text-white hover:bg-white/5"
+            >
+              Design / Logo öffnen
+            </button>
+          </div>
+          <StoreAdminBusinessProfile orderId={orderId} dark={dark} />
+        </div>
       ) : (
         <StoreAdminComingSoon
           title={

@@ -21,6 +21,9 @@ from typing import Any
 _MIN_IMAGE = 4_000
 _MIN_VIDEO = 8_000
 _MIN_OTHER = 32
+# Business/Premium portfolio floor — reject flat SVG-style stub heroes
+_MIN_TIER_HERO_BYTES = 80_000
+_MIN_TIER_GALLERY_BYTES = 50_000
 _MAX_IMAGE_WARN = 3_500_000  # soft warn only
 
 _REF_RE = re.compile(
@@ -401,6 +404,41 @@ def run_media_integrity(
         if not ok_g:
             missing.extend(f"assets/gallery_{i}.jpg" for i in range(1, gallery_n + 1))
 
+        hero_path = product_dir / "assets" / "hero.jpg"
+        if hero_path.is_file():
+            hero_bytes = hero_path.stat().st_size
+            ok_hero_premium = hero_bytes >= _MIN_TIER_HERO_BYTES
+            checks.append(
+                IntegrityCheck(
+                    "hero_premium_bytes",
+                    "hero",
+                    ok_hero_premium,
+                    f"{hero_bytes}B"
+                    if ok_hero_premium
+                    else f"stub:{hero_bytes}B_min_{_MIN_TIER_HERO_BYTES}",
+                )
+            )
+            if not ok_hero_premium:
+                missing.append("assets/hero.jpg:stub")
+
+        gallery_premium_ok = all(
+            (assets / f"gallery_{i}.jpg").is_file()
+            and (assets / f"gallery_{i}.jpg").stat().st_size >= _MIN_TIER_GALLERY_BYTES
+            for i in range(1, min(need, gallery_n) + 1)
+        )
+        checks.append(
+            IntegrityCheck(
+                "gallery_premium_bytes",
+                "gallery",
+                gallery_premium_ok,
+                "premium_gallery_bytes_ok"
+                if gallery_premium_ok
+                else f"gallery_min_{_MIN_TIER_GALLERY_BYTES}B",
+            )
+        )
+        if not gallery_premium_ok:
+            missing.append("assets/gallery_*:stub")
+
         # Studio Renderer 2.0 — Premium section plates (no empty bands)
         if pkg in ("premium", "connected"):
             for plate in (
@@ -478,6 +516,63 @@ def run_media_integrity(
         )
         if not hero_has_media:
             missing.append("assets/hero.jpg")
+
+    # About band must use background.jpg (not empty / not silent hero reuse only)
+    if "rx-about-media" in html_l or 'id="rx-about"' in html_l:
+        about_ok = (assets / "background.jpg").is_file() and (
+            (assets / "background.jpg").stat().st_size >= _MIN_IMAGE
+        )
+        checks.append(
+            IntegrityCheck(
+                "about_background_asset",
+                "about",
+                about_ok,
+                "ok" if about_ok else "background_missing",
+            )
+        )
+        if not about_ok:
+            missing.append("assets/background.jpg")
+
+    # Distinct slot files when photo band / gallery is present
+    if "rx-photo-band" in html_l or "rx-band-img" in html_l or "gallery_" in html_l:
+        plates = [
+            assets / n
+            for n in ("gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg")
+        ]
+        present = [p for p in plates if p.is_file() and p.stat().st_size >= _MIN_IMAGE]
+        ok_g = len(present) >= 3
+        checks.append(
+            IntegrityCheck(
+                "gallery_slot_floor",
+                "gallery",
+                ok_g,
+                f"{len(present)}/3" if present else "missing_gallery_slots",
+            )
+        )
+        if not ok_g:
+            missing.append("assets/gallery_1..3.jpg")
+        # Light uniqueness: gallery plates must not all share one identical byte size
+        # with hero (common when a single file was copied to every slot).
+        if ok_g and (assets / "hero.jpg").is_file():
+            hero_sz = (assets / "hero.jpg").stat().st_size
+            gal_sizes = {p.stat().st_size for p in present}
+            if len(gal_sizes) == 1 and hero_sz in gal_sizes and hero_sz > 0:
+                # Same size alone is weak evidence; also compare first 64 bytes
+                try:
+                    hero_head = (assets / "hero.jpg").read_bytes()[:64]
+                    same = all(p.read_bytes()[:64] == hero_head for p in present)
+                except OSError:
+                    same = False
+                checks.append(
+                    IntegrityCheck(
+                        "gallery_not_hero_clone",
+                        "gallery",
+                        not same,
+                        "ok" if not same else "gallery_cloned_from_hero",
+                    )
+                )
+                if same:
+                    missing.append("distinct_gallery_assets")
 
     # Before/After: if reputation section ships, BA media must exist
     if 'id="reputation"' in html_l or "reputation-pack" in html_l:

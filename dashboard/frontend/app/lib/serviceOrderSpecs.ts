@@ -99,7 +99,7 @@ export const SERVICE_SPECS: ServiceSpec[] = [
     name: "Business Website",
     price_label: "199–699 €",
     blurb:
-      "Start with a professional website — Basic 199 € · Business 399 € · Premium 699 €.",
+      "Start with a professional website — Basic 299 € · Business 599 € · Premium 999 €.",
     mark: "W",
     accent: "border-emerald-400/35 bg-emerald-500/[0.08]",
     availability: "available",
@@ -131,7 +131,7 @@ export const SERVICE_SPECS: ServiceSpec[] = [
     highlights: [
       "Answers customers 24/7 on Telegram",
       "Captures leads automatically",
-      "Website Chat / WhatsApp / Instagram — coming soon",
+      "Telegram live after pay · Website Chat live · WhatsApp / Instagram — coming soon",
     ],
     includes: [
       "One AI employee for your brand",
@@ -432,10 +432,10 @@ export const SERVICE_SPECS: ServiceSpec[] = [
   },
   {
     id: "ecommerce_shop",
-    name: "AI Store",
-    price_label: "from 799 €",
+    name: "AI Store Basic / Start",
+    price_label: "799 €",
     blurb:
-      "Professional online shop for your business in Germany — niche design, catalog, cart, search, legal pages.",
+      "Own shop after purchase — catalog, cart, Shop Admin, German legal pages. Stripe, SMTP and shipping = owner connect.",
     mark: "🛒",
     accent: "border-emerald-400/35 bg-emerald-500/[0.08]",
     availability: "available",

@@ -56,18 +56,23 @@ export function LocaleProvider({
     [i18n],
   );
 
-  // After mount: apply stored / browser locale (cookie already seeded SSR).
+  // After mount: sync storage. Never call changeLanguage when uiLocale is unchanged —
+  // that re-notifies every useTranslation consumer and flickers the whole storefront.
   useEffect(() => {
     setHydrated(true);
     const loaded = loadLocaleState();
-    // Prefer explicit user choice (autoDetect off) from localStorage.
-    // If autoDetect and cookie already matches browser, keep it.
     if (
       loaded.uiLocale === state.uiLocale &&
-      loaded.assistantLocale === state.assistantLocale &&
-      loaded.autoDetect === state.autoDetect
+      loaded.assistantLocale === state.assistantLocale
     ) {
-      persistLocaleState(loaded);
+      if (loaded.autoDetect !== state.autoDetect) {
+        setState((prev) => ({ ...prev, autoDetect: loaded.autoDetect }));
+      }
+      persistLocaleState({
+        ...loaded,
+        uiLocale: state.uiLocale,
+        assistantLocale: state.assistantLocale,
+      });
       return;
     }
     commit(loaded);

@@ -105,10 +105,29 @@ def save_memory(memory: ExperienceMemory, path: Path | None = None) -> Path:
 
 
 def prior_best_overall(niche_id: str, *, path: Path | None = None) -> float | None:
+    """Law #1 hard bar — owner-accepted experiences only.
+
+    Auto-taste memory may still bias principles, but must not invent a phantom
+    «prior best» that freezes marketing HTML into identity-preview decks and
+    breaks production / client-delivery exports (delivery_truth).
+    """
     mem = load_memory(path)
     key = (niche_id or "generic").strip().lower()
-    if key in mem.best_overall_by_niche:
-        return mem.best_overall_by_niche[key]
+    accepted = [
+        float(r.taste_overall)
+        for r in mem.records
+        if (r.niche_id or "").strip().lower() == key
+        and r.owner_accepted
+        and float(r.taste_overall) > 0
+    ]
+    if accepted:
+        return max(accepted)
+    # Legacy map only if it came from an owner-accepted record for this niche
+    if any(
+        (r.niche_id or "").strip().lower() == key and r.owner_accepted
+        for r in mem.records
+    ) and key in mem.best_overall_by_niche:
+        return float(mem.best_overall_by_niche[key])
     return None
 
 
@@ -117,7 +136,7 @@ def remember_experience(
     *,
     path: Path | None = None,
 ) -> ExperienceMemory:
-    """Append experience; update niche best if stronger / owner-accepted."""
+    """Append experience; ratchet niche best only on owner-accepted PASS."""
     mem = load_memory(path)
     if not record.recorded_at:
         record.recorded_at = datetime.now(timezone.utc).isoformat()
@@ -126,8 +145,8 @@ def remember_experience(
     if len(mem.records) > 200:
         mem.records = mem.records[-200:]
     key = record.niche_id
-    prev = mem.best_overall_by_niche.get(key, 0.0)
-    if record.owner_accepted or record.taste_overall >= prev:
+    if record.owner_accepted:
+        prev = mem.best_overall_by_niche.get(key, 0.0)
         mem.best_overall_by_niche[key] = max(prev, record.taste_overall)
     save_memory(mem, path)
     return mem

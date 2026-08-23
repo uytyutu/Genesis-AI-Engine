@@ -6,12 +6,12 @@
   "background_src": null,
   "assessments": [
     {
-      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/03b9eab4-23ae-4482-b525-a9c262fd060b/assets/hero.jpg",
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/3be657dd-a68a-4272-a953-10527ca1bb9b/assets/hero.jpg",
       "role": "hero",
       "ok": true,
-      "width": 1536,
-      "height": 1024,
-      "bytes": 2229327,
+      "width": 1600,
+      "height": 900,
+      "bytes": 193430,
       "reason": "ok",
       "source": "niche"
     }
@@ -27,7 +27,7 @@
     "checks": [
       {
         "section": "hero",
-        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/auto/hero_pack/business/hero_1.jpg",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/auto/hero_pack/premium/hero_3.jpg",
         "ok": true,
         "tags": [
           "auto",

@@ -257,9 +257,39 @@ class CustomerIdentityService:
             "email_verified": account.email_verified,
             "tier": card.tier if card else "free",
             "company_name": company.name if company else None,
+            "company_display_name": (card.company_display_name if card else "")
+            or (company.name if company else None),
             "headline": headline_ready(),
             "welcome": welcome_payload(welcome, name=account.name) if welcome else None,
             "platform_visitor_id": card.platform_visitor_id if card else None,
+            "gift_account": bool(card.gift_account) if card else False,
+            "gift_unlimited": bool(getattr(card, "gift_unlimited", False) or getattr(card, "unlimited", False))
+            if card
+            else False,
+            "unlimited": bool(getattr(card, "unlimited", False) or getattr(card, "gift_unlimited", False))
+            if card
+            else False,
+            "workspace_mode": str(getattr(card, "workspace_mode", "standard") or "standard")
+            if card
+            else "standard",
+            "primary_niche": str(getattr(card, "primary_niche", "") or "") if card else "",
+            "phone": (card.phone if card else None) or None,
+            "company_profile": {
+                "company_name": (card.company_display_name if card else "")
+                or (company.name if company else "")
+                or "",
+                "email": account.email,
+                "phone": (card.phone if card else None) or "",
+                "primary_niche": str(getattr(card, "primary_niche", "") or "") if card else "",
+                "complete": bool(
+                    (
+                        (card.company_display_name if card else "")
+                        or (company.name if company else "")
+                    )
+                    and account.email
+                ),
+            },
+            "forced_setup": False,
         }
 
     def get_welcome(self, customer_id: str) -> dict[str, Any]:

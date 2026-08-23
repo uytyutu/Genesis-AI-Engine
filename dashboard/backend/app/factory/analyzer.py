@@ -408,6 +408,10 @@ def analyze(description: str, *, niche_hint: str | None = None) -> AnalysisResul
     }
     if hint and hint in known and hint != "generic":
         niche = hint
+    else:
+        # Media Gate / DE gallery SSOT: garden-care auto-detect collapses to "green".
+        # Explicit niche_hint="gartenpflege" stays specific for Handwerk demos.
+        niche = {"gartenpflege": "green"}.get(niche, niche)
 
     business_name = _extract_business_name(text, niche)
     template_id = f"landing-{niche}-v1"

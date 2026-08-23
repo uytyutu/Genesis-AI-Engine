@@ -3,7 +3,7 @@ import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
   "Produkte & Leistungen",
-  "Virtus Core Mission 1: digitale Firma mit Vector und Website-Bestellung 199 / 399 / 699 €. Virtus Studio — in Entwicklung.",
+  "Virtus Core Mission 1: digitale Firma mit Vector und Website-Bestellung 299 / 599 / 999 €. Virtus Studio — in Entwicklung.",
   "/products"
 );
 

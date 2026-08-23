@@ -1,7 +1,7 @@
 import type { PricingDisplay } from "./pricingApi";
 
-/** Mission 1 truth catalog — keep in sync with backend public_truth_catalog.py */
-export const PUBLIC_LANDING_MIN_EUR = 199;
+/** Mission 1 truth catalog — keep in sync with backend pricing_engine /site ladder */
+export const PUBLIC_LANDING_MIN_EUR = 299;
 
 const UNIVERSAL_PATH_DE =
   "Dialog → Konzept → Zusammenarbeit → Freigabe → Einmalkauf oder Abo";
@@ -35,7 +35,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
         {
           id: "basic",
           name: "Website Basic",
-          price_label: "199 €",
+          price_label: "299 €",
           timeline: "5–14 Tage",
           includes: [
             "Moderne responsive Website",
@@ -52,7 +52,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
         {
           id: "business",
           name: "Website Business",
-          price_label: "399 €",
+          price_label: "599 €",
           timeline: "5–14 Tage",
           includes: [
             "Alles aus Basic",
@@ -69,7 +69,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
         {
           id: "premium",
           name: "Website Premium",
-          price_label: "699 €",
+          price_label: "999 €",
           timeline: "5–14 Tage",
           includes: [
             "Alles aus Business",

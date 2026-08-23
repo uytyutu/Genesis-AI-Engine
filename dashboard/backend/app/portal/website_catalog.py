@@ -25,11 +25,33 @@ from app.portal.website import Website, WebsiteStatus
 ENGINE_ID = "website_catalog_v1"
 
 
-def default_factory_sandbox_dirs() -> tuple[Path, ...]:
-    """Factory + app sandbox roots (existing on disk only)."""
+def default_factory_sandbox_dirs(memory_dir: Path | None = None) -> tuple[Path, ...]:
+    """Factory sandbox roots — prefer GENESIS_MEMORY_DIR/sandbox (runtime), then legacy."""
+    import os
+
     app_dir = Path(__file__).resolve().parents[1]
     backend_dir = app_dir.parent
-    return (backend_dir / "sandbox", app_dir / "sandbox")
+    roots: list[Path] = []
+    mem = memory_dir
+    if mem is None:
+        env = (os.getenv("GENESIS_MEMORY_DIR") or "").strip()
+        if env:
+            mem = Path(env)
+        else:
+            mem = app_dir / "memory"
+    if mem is not None:
+        roots.append(Path(mem) / "sandbox")
+    roots.extend((backend_dir / "sandbox", app_dir / "sandbox"))
+    # de-dupe while preserving order
+    seen: set[str] = set()
+    unique: list[Path] = []
+    for r in roots:
+        key = str(r.resolve()) if r.exists() else str(r)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(r)
+    return tuple(unique)
 
 
 def _map_website_status(meta: dict[str, Any]) -> WebsiteStatus:

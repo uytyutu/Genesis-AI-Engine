@@ -64,14 +64,18 @@ export function defaultLocaleState(
   initialLocale?: UiLocale,
   options?: { fromCookie?: boolean },
 ): LocaleState {
-  const fromCookie = Boolean(options?.fromCookie);
+  // fromCookie reserved for callers (LocaleProvider) — seed is cookie/SSR locale only.
+  void options?.fromCookie;
   const uiLocale =
     initialLocale && isPlatformLocale(initialLocale)
       ? initialLocale
       : DEFAULT_UI_LOCALE;
   return {
-    // Cookie = explicit prior choice (or last persist). No cookie → still allow auto-detect after mount.
-    autoDetect: !fromCookie,
+    // Match loadLocaleState()/readAuto() default (false) so first visit does not
+    // hydrate with autoDetect=true then immediately commit(autoDetect=false) —
+    // that re-ran i18n.changeLanguage and flickered the whole /site tree.
+    // Auto-detect stays an explicit user toggle, not a post-hydration surprise.
+    autoDetect: false,
     uiLocale,
     assistantLocale: uiLocale,
   };

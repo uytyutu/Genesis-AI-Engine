@@ -84,10 +84,13 @@ def rich_services_html(ctx: RenderContext, *, section_id: str = "co-services") -
         if not str(s).strip():
             continue
         blurb = _service_blurb(str(s), ctx.niche_id, i)
-        img = f"assets/gallery_{(i % 3) + 1}.jpg"
+        # Prefer dedicated service plates; fall back to distinct gallery plates
+        svc_slot = f"assets/service_{(i % 3) + 1}.jpg"
+        gal_slot = f"assets/gallery_{(i % 3) + 1}.jpg"
+        img = svc_slot
         cards.append(
             f"""<article class="rx-svc-card">
-  <div class="rx-svc-media" style="background-image:linear-gradient(160deg,rgba(15,20,16,.35),rgba(15,20,16,.72)),url('{_esc(img)}')"></div>
+  <div class="rx-svc-media" style="background-image:linear-gradient(160deg,rgba(15,20,16,.28),rgba(15,20,16,.68)),url('{_esc(img)}')" data-visual-role="service" data-visual-fallback="{_esc(gal_slot)}"></div>
   <div class="rx-svc-body">
     <h3>{_esc(s)}</h3>
     <p>{_esc(blurb)}</p>
@@ -127,7 +130,7 @@ def rich_about_html(ctx: RenderContext) -> str:
     extra_p = "".join(f"<p>{p}</p>" for p in extras)
     return f"""
     <section class="rx-about" id="rx-about">
-      <div class="rx-about-media" style="background-image:linear-gradient(135deg,rgba(15,20,16,.25),rgba(15,20,16,.65)),url('assets/hero.jpg')"></div>
+      <div class="rx-about-media" style="background-image:linear-gradient(135deg,rgba(15,20,16,.25),rgba(15,20,16,.65)),url('assets/background.jpg')"></div>
       <div class="rx-about-copy">
         <p class="rx-eyebrow">Unternehmen{(' · ' + _esc(city)) if city else ''}</p>
         <h2>Über {_esc(ctx.business_name)}</h2>
@@ -169,8 +172,17 @@ def photo_band_html(ctx: RenderContext) -> str:
         "realestate": ("Objekt", "Stadt", "Schlüssel", "Raum", "Fassade", "Übergabe"),
     }.get((ctx.niche_id or "").lower(), ("Arbeit", "Detail", "Ort", "Team", "Prozess", "Ergebnis"))
     cells = []
+    # Prefer distinct floor plates — never force hero into every band cell.
+    plate_cycle = (
+        "assets/gallery_1.jpg",
+        "assets/gallery_2.jpg",
+        "assets/gallery_3.jpg",
+        "assets/background.jpg",
+        "assets/illustration.jpg",
+        "assets/gallery.jpg",
+    )
     for i, cap in enumerate(caps):
-        src = f"assets/gallery_{(i % 3) + 1}.jpg"
+        src = plate_cycle[i % len(plate_cycle)]
         cells.append(
             f"""<figure class="rx-band-cell">
   <div class="rx-band-img" style="background-image:linear-gradient(180deg,rgba(10,12,14,.18),rgba(10,12,14,.58)),url('{_esc(src)}')"></div>
@@ -262,15 +274,25 @@ ENRICHMENT_CSS = """
   background: #fff;
   overflow: hidden;
   display: flex; flex-direction: column;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.rx-svc-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, .10);
+  border-color: rgba(0,0,0,.12);
 }
 .rx-svc-media {
-  min-height: 140px;
+  min-height: 168px;
   background-size: cover;
   background-position: center;
+  transition: transform .45s ease;
 }
-.rx-svc-body { padding: 1rem 1.1rem 1.2rem; }
-.rx-svc-body h3 { margin: 0 0 .4rem; font-size: 1.05rem; }
-.rx-svc-body p { margin: 0; font-size: .9rem; line-height: 1.5; opacity: .8; }
+.rx-svc-card:hover .rx-svc-media {
+  transform: scale(1.03);
+}
+.rx-svc-body { padding: 1.05rem 1.15rem 1.3rem; }
+.rx-svc-body h3 { margin: 0 0 .45rem; font-size: 1.08rem; letter-spacing: -0.01em; }
+.rx-svc-body p { margin: 0; font-size: .9rem; line-height: 1.55; opacity: .8; }
 .rx-about {
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
@@ -279,10 +301,16 @@ ENRICHMENT_CSS = """
   max-width: 1120px;
 }
 .rx-about-media {
-  min-height: 280px;
+  min-height: 320px;
   background-size: cover;
   background-position: center;
-  border-radius: 2px;
+  border-radius: 4px;
+}
+.rx-about-copy h2 {
+  margin: 0 0 .65rem;
+  font-size: clamp(1.45rem, 2.4vw, 1.9rem);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 .rx-about-points {
   margin: 1rem 0 0; padding: 0 0 0 1.1rem;
@@ -291,15 +319,19 @@ ENRICHMENT_CSS = """
 .rx-band-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: .75rem;
-  margin-top: 1.25rem;
+  gap: .85rem;
+  margin-top: 1.35rem;
 }
 .rx-band-cell { margin: 0; }
 .rx-band-img {
-  min-height: 160px;
+  min-height: 176px;
   background-size: cover;
   background-position: center;
-  opacity: .9;
+  border-radius: 4px;
+  transition: transform .4s ease;
+}
+.rx-band-cell:hover .rx-band-img {
+  transform: scale(1.02);
 }
 .rx-band-cell:nth-child(4) .rx-band-img,
 .rx-band-cell:nth-child(5) .rx-band-img,
@@ -321,10 +353,36 @@ body[data-renderer] .mn-site {
   position: relative;
 }
 @media (max-width: 860px) {
-  [data-split-hero="1"] { grid-template-columns: 1fr; min-height: 0; }
-  .rx-hero-media, .co-hero-media, .ed-hero-media, .cl-hero-media,
-  .lg-hero-media, .rt-hero-media, .lx-hero-media, .mn-hero-media {
-    min-height: 42vh;
+  [data-split-hero="1"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto;
+    min-height: auto !important;
+    clip-path: none !important;
+  }
+  [data-split-hero="1"] .rx-hero-media,
+  [data-split-hero="1"] .co-hero-media,
+  [data-split-hero="1"] .ed-hero-media,
+  [data-split-hero="1"] .cl-hero-media,
+  [data-split-hero="1"] .lg-hero-media,
+  [data-split-hero="1"] .rt-hero-media,
+  [data-split-hero="1"] .lx-hero-media,
+  [data-split-hero="1"] .mn-hero-media {
+    min-height: min(52vh, 440px) !important;
+    max-height: 56vh;
+    width: 100%;
+    order: 0;
+  }
+  [data-split-hero="1"] [data-fi-panel="1"],
+  [data-split-hero="1"] .rt-plate,
+  [data-split-hero="1"] .co-plate,
+  [data-split-hero="1"] .ed-plate,
+  [data-split-hero="1"] .cl-plate,
+  [data-split-hero="1"] .lg-plate,
+  [data-split-hero="1"] .lx-plate,
+  [data-split-hero="1"] .mn-plate {
+    order: 1;
+    min-height: auto;
   }
   .rx-about { grid-template-columns: 1fr; }
   .rx-band-grid { grid-template-columns: 1fr; }

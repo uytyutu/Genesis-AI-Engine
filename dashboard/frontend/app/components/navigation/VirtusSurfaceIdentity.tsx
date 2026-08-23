@@ -19,7 +19,11 @@ export function VirtusSurfaceIdentity({ surface, homeHref = "/" }: Props) {
   return (
     <div className="virtus-surface-identity">
       <Link href={homeHref} className="virtus-surface-identity__brand">
-        <VirtusMark className="h-10 w-10 shrink-0 shadow-glow" />
+        <VirtusMark
+          className="h-10 w-10 shrink-0 shadow-glow"
+          /* Public header: static mark — Framer Motion hydrate re-animates and flickers the logo on mobile. */
+          animate={surface !== "public"}
+        />
         <div className="min-w-0">
           <p className="virtus-surface-identity__name">{BRAND_NAME}</p>
           <p className="virtus-surface-identity__tag" suppressHydrationWarning>

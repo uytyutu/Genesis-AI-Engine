@@ -14,9 +14,17 @@ from app.integration.pricing_engine import (
 
 def test_de_regression_unchanged():
     offer = resolve_path_a_offer("basic", "DE")
-    assert offer.amount == 199
+    assert offer.amount == 299
     assert offer.currency == "EUR"
     assert offer.price_label == resolve_final_offer("basic", "DE").price_label
+
+
+def test_de_website_ladder_299_599_999():
+    assert resolve_path_a_offer("basic", "DE").amount == 299
+    assert resolve_path_a_offer("business", "DE").amount == 599
+    assert resolve_path_a_offer("premium", "DE").amount == 999
+    assert resolve_path_a_offer("standalone", "DE").amount == 599
+    assert resolve_path_a_offer("connected", "DE").amount == 999
 
 
 def test_ssot_parity_offer_and_checkout():
@@ -31,10 +39,10 @@ def test_ssot_parity_offer_and_checkout():
 
 def test_jp_kr_curated_not_ratio_junk():
     jp = resolve_path_a_offer("basic", "JP")
-    assert jp.amount == 31271
+    assert jp.amount == 46985
     assert jp.currency == "JPY"
     kr = resolve_path_a_offer("business", "KR")
-    assert kr.amount == 546323
+    assert kr.amount == 820169
     assert kr.currency == "KRW"
 
 
@@ -125,29 +133,29 @@ def test_reprice_rebuilds_proposed_message(tmp_path: Path):
 def test_desk_market_basic_anchors_match_ceo_table():
     """Country Desk Basic anchors — currency + amount (major units)."""
     expected = {
-        "US": (227, "USD"),
-        "DE": (199, "EUR"),
-        "GB": (170, "GBP"),
-        "FR": (188, "EUR"),
-        "IT": (182, "EUR"),
-        "ES": (171, "EUR"),
-        "CA": (227, "USD"),
-        "AU": (312, "AUD"),
-        "NL": (210, "EUR"),
-        "PL": (682, "PLN"),
-        "CH": (222, "CHF"),
-        "AT": (199, "EUR"),
-        "BE": (199, "EUR"),
-        "PT": (154, "EUR"),
-        "CZ": (8529, "CZK"),
-        "RO": (114, "EUR"),
-        "SK": (125, "EUR"),
-        "UA": (4549, "UAH"),
-        "RU": (102, "EUR"),
-        "NZ": (312, "NZD"),
-        "JP": (31271, "JPY"),
-        "KR": (278600, "KRW"),
-        "SG": (284, "SGD"),
+        "US": (341, "USD"),
+        "DE": (299, "EUR"),
+        "GB": (255, "GBP"),
+        "FR": (282, "EUR"),
+        "IT": (273, "EUR"),
+        "ES": (257, "EUR"),
+        "CA": (341, "USD"),
+        "AU": (469, "AUD"),
+        "NL": (316, "EUR"),
+        "PL": (1025, "PLN"),
+        "CH": (334, "CHF"),
+        "AT": (299, "EUR"),
+        "BE": (299, "EUR"),
+        "PT": (231, "EUR"),
+        "CZ": (12815, "CZK"),
+        "RO": (171, "EUR"),
+        "SK": (188, "EUR"),
+        "UA": (6835, "UAH"),
+        "RU": (153, "EUR"),
+        "NZ": (469, "NZD"),
+        "JP": (46985, "JPY"),
+        "KR": (418600, "KRW"),
+        "SG": (427, "SGD"),
     }
     for market, (amount, currency) in expected.items():
         offer = resolve_path_a_offer("basic", market)

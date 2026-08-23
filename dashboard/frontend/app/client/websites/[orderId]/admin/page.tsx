@@ -11,8 +11,9 @@ import {
 import { WebsiteAdminContent } from "../../../../components/WebsiteAdminContent";
 import { WebsiteAdminDesign } from "../../../../components/WebsiteAdminDesign";
 import { WebsiteAdminMedia } from "../../../../components/WebsiteAdminMedia";
+import { WebsiteAdminCinematic } from "../../../../components/WebsiteAdminCinematic";
 import { WebsiteTipsPanel } from "../../../../components/WebsiteTipsPanel";
-import { VectorDialogDock } from "../../../../components/VectorDialogDock";
+import { VectorCoachingToasts } from "../../../../components/VectorCoachingToasts";
 import { clientAuthHeaders, getClientToken } from "../../../../lib/clientAuth";
 import { formatApiDetail } from "../../../../lib/formatApiError";
 import { publicApiBase } from "../../../../lib/publicApiBase";
@@ -46,6 +47,7 @@ export default function WebsiteAdminPage() {
     const allowed: WebsiteAdminSectionId[] = [
       "dashboard",
       "website",
+      "cinematic",
       "design",
       "media",
       "files",
@@ -190,15 +192,7 @@ export default function WebsiteAdminPage() {
       section={section}
       onSection={setSection}
       commerceMode={meta?.commerce_mode || "standalone"}
-      vectorDock={
-        <VectorDialogDock
-          surface="website_admin"
-          orderId={orderId}
-          dark
-          dock="right"
-          onNavigateSection={(s) => setSection(s as WebsiteAdminSectionId)}
-        />
-      }
+      vectorDock={<VectorCoachingToasts />}
     >
       {error ? (
         <p className="mb-4 rounded-xl border border-rose-400/30 bg-rose-950/30 px-4 py-3 text-sm text-rose-100">
@@ -211,8 +205,8 @@ export default function WebsiteAdminPage() {
           <div className="rounded-2xl border border-emerald-500/25 bg-emerald-950/20 px-5 py-5">
             <h2 className="text-lg font-semibold text-white">Website Control</h2>
             <p className="mt-1 text-sm text-zinc-300">
-              Edit Hero, services, contacts, design and media — changes appear in
-              the live preview. No ZIP round-trip.
+              Telefon, E-Mail, Adresse, Logo und Inhalte selbst ändern — Änderungen
+              erscheinen in der Live-Vorschau.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <button
@@ -220,14 +214,35 @@ export default function WebsiteAdminPage() {
                 onClick={() => setSection("website")}
                 className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black"
               >
-                Edit website
+                Einstellungen (Telefon / E-Mail)
+              </button>
+              <button
+                type="button"
+                onClick={() => setSection("design")}
+                className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Design / Logo
+              </button>
+              <button
+                type="button"
+                onClick={() => setSection("media")}
+                className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Medien
+              </button>
+              <button
+                type="button"
+                onClick={() => setSection("cinematic")}
+                className="rounded-xl border border-violet-400/40 px-4 py-2 text-sm font-semibold text-violet-100"
+              >
+                Cinematic
               </button>
               <button
                 type="button"
                 onClick={() => void publish()}
                 className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white"
               >
-                Preview / Publish
+                Vorschau / Publish
               </button>
             </div>
             {publishMsg ? (
@@ -271,6 +286,14 @@ export default function WebsiteAdminPage() {
 
       {section === "website" ? (
         <WebsiteAdminContent orderId={orderId} onSaved={refreshPreview} />
+      ) : null}
+
+      {section === "cinematic" ? (
+        <WebsiteAdminCinematic
+          orderId={orderId}
+          previewUrl={meta?.preview_url}
+          onSaved={refreshPreview}
+        />
       ) : null}
 
       {section === "design" ? (

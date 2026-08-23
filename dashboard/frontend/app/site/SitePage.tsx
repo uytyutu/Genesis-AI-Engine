@@ -20,9 +20,11 @@ import { logCommerceEvent } from "../lib/commerceFunnel";
 import { canonicalMarketForLang, uiLangForMarket } from "../lib/marketLang";
 import { filterPublicPackages } from "../lib/showSmokePackage";
 import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
-import { AppStoreHub } from "../components/storefront/AppStoreHub";
+import { CommercialAgencyHub } from "../components/storefront/CommercialAgencyHub";
 import { CHATBOT_PRICE_TIERS } from "../components/storefront/modules";
-import { StorefrontAtmosphere } from "../components/storefront/StorefrontAtmosphere";
+import {
+  agencyCardSurface,
+} from "../lib/agencySelectionStyles";
 import { VectorAvatarStage, VectorChatIcon } from "../components/VectorAvatar";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
@@ -152,6 +154,7 @@ export function SitePage() {
     keyboard: 0,
   });
   const [detailId, setDetailId] = useState<string | null>("business");
+  const [selectedPackageId, setSelectedPackageId] = useState("business");
   const [analyzeUrl, setAnalyzeUrl] = useState("");
   const [serviceView, setServiceView] = useState<ServiceView>("hub");
   const [botPackages, setBotPackages] = useState<BotPackageCard[]>([]);
@@ -205,6 +208,11 @@ export function SitePage() {
         setServiceView(raw);
       } else {
         setServiceView("hub");
+      }
+      const pkg = (params.get("package") || "").toLowerCase();
+      if (pkg === "basic" || pkg === "business" || pkg === "premium") {
+        setSelectedPackageId(pkg);
+        setDetailId(pkg);
       }
     } catch {
       /* ignore */
@@ -445,6 +453,18 @@ export function SitePage() {
     return `/order?market=${encodeURIComponent(market)}&package=${encodeURIComponent(pkg)}&form=1`;
   }
 
+  function selectWebsitePackage(id: string) {
+    setSelectedPackageId(id);
+    setDetailId(id);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("package", id);
+      window.history.replaceState({}, "", url.toString());
+    } catch {
+      /* ignore */
+    }
+  }
+
   const comingSoon = t("s0.comingSoon", { defaultValue: "Coming Soon" });
   const orderLabel = t("pathA.cta");
   const detailsLabel = t("s0.details", { defaultValue: "Details" });
@@ -479,21 +499,18 @@ export function SitePage() {
 
   return (
     <PublicPageShell>
-      <StorefrontAtmosphere />
       <div
-        className={`storefront-page relative z-[1] mx-auto space-y-12 py-6 pb-28 animate-fade-up ${
-          serviceView === "hub" ? "max-w-6xl" : "max-w-4xl"
+        className={`storefront-page relative z-[1] mx-auto space-y-12 py-6 pb-28 ${
+          serviceView === "hub" ? "max-w-7xl" : "max-w-4xl"
         }`}
       >
         {serviceView === "hub" ? (
-          <AppStoreHub
+          <CommercialAgencyHub
             market={market}
             localeTag={localeTag}
             marketSelect={marketSelect}
             reviews={reviews}
-            packages={packages}
             botPackages={botPackages}
-            onOpenVector={openChat}
             onOpenWebsites={() => openService("websites")}
             onOpenBots={() => openService("bots")}
             onOpenAnalysis={() => openService("analysis")}
@@ -507,7 +524,7 @@ export function SitePage() {
             <button
               type="button"
               onClick={() => openService("hub")}
-              className="text-sm font-medium text-emerald-300 hover:underline"
+              className="platform-link"
             >
               {backLabel}
             </button>
@@ -520,6 +537,34 @@ export function SitePage() {
               </p>
             </div>
             {marketSelect}
+            {selectedPackageId ? (
+              <div
+                className={`rounded-2xl border p-4 ${agencyCardSurface(true)}`}
+                role="status"
+                aria-live="polite"
+              >
+                <p className="text-lg font-semibold text-white">
+                  {t("agencyHub.products.selectedLine", {
+                    defaultValue: "✓ Website — {{tier}} ausgewählt",
+                    tier: packageTitle(
+                      selectedPackageId,
+                      selectedPackageId,
+                    ),
+                  })}
+                </p>
+                <p className="mt-1 text-sm text-violet-200/90">
+                  {formatLocalizedMoney(
+                    packages.find((p) => p.id === selectedPackageId)?.price_eur ??
+                      LANDING_PACKAGES_EUR[
+                        selectedPackageId as keyof typeof LANDING_PACKAGES_EUR
+                      ] ??
+                      LANDING_PACKAGES_EUR.business,
+                    "EUR",
+                    localeTag,
+                  )}
+                </p>
+              </div>
+            ) : null}
             <div className="grid gap-4 lg:grid-cols-3">
               {packages.map((p) => {
                 const price =
@@ -527,22 +572,35 @@ export function SitePage() {
                   formatLocalizedMoney(p.price_eur, p.currency || "EUR", localeTag);
                 const diffs = packageDiffLines(p.id);
                 const featured = p.id === "business";
+                const isSelected = selectedPackageId === p.id;
                 return (
                   <article
                     key={p.id}
                     id={`pkg-${p.id}`}
-                    className={`flex flex-col rounded-2xl border p-5 text-left ${
-                      featured
-                        ? "border-emerald-500/40 bg-emerald-950/25 shadow-[0_0_0_1px_rgba(16,185,129,0.15)]"
-                        : "border-white/10 bg-white/[0.03]"
-                    }`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => selectWebsitePackage(p.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") selectWebsitePackage(p.id);
+                    }}
+                    className={`flex cursor-pointer flex-col rounded-2xl border p-5 text-left transition ${agencyCardSurface(
+                      isSelected,
+                      featured && !isSelected,
+                    )}`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-medium text-zinc-300">
                         {packageTitle(p.id, p.name)}
                       </p>
-                      {featured ? (
-                        <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
+                      {isSelected ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-violet-400/50 bg-violet-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-violet-100">
+                          <span aria-hidden>✓</span>
+                          {t("agencyHub.products.selected", {
+                            defaultValue: "Ausgewählt",
+                          })}
+                        </span>
+                      ) : featured ? (
+                        <span className="platform-badge">
                           {t("s0.recommended", { defaultValue: "Recommended" })}
                         </span>
                       ) : null}
@@ -551,7 +609,7 @@ export function SitePage() {
                     <ul className="mt-4 flex-1 space-y-2 text-sm text-zinc-300">
                       {diffs.map((d) => (
                         <li key={d} className="flex gap-2">
-                          <span className="text-emerald-400" aria-hidden>
+                          <span className="platform-check" aria-hidden>
                             ✓
                           </span>
                           <span>{d}</span>
@@ -561,16 +619,24 @@ export function SitePage() {
                     <div className="mt-5 flex flex-wrap gap-2">
                       <Link
                         href={orderHrefFor(p.id)}
-                        onClick={() => logCommerceEvent("tier_select", p.id, "site")}
-                        className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110 min-w-[7rem]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          logCommerceEvent("tier_select", p.id, "site");
+                        }}
+                        className={`flex-1 min-w-[7rem] inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition ${
+                          isSelected
+                            ? "bg-violet-600 shadow-[0_12px_40px_-12px_rgba(124,58,237,0.9)] hover:bg-violet-500"
+                            : "platform-btn-primary"
+                        }`}
                       >
                         {orderLabel}
                       </Link>
                       <button
                         type="button"
-                        onClick={() =>
-                          setDetailId((cur) => (cur === p.id ? null : p.id))
-                        }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDetailId((cur) => (cur === p.id ? null : p.id));
+                        }}
                         className="inline-flex items-center justify-center rounded-xl border border-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/5"
                       >
                         {detailsLabel}
@@ -594,7 +660,7 @@ export function SitePage() {
               {t("s0.needAccount", {
                 defaultValue: "Want an office to manage this later?",
               })}{" "}
-              <Link href="/client/register" className="text-emerald-300 hover:underline">
+              <Link href="/client/register" className="platform-link">
                 {t("s0.createAccount", { defaultValue: "Create personal account" })}
               </Link>
             </p>
@@ -606,7 +672,7 @@ export function SitePage() {
             <button
               type="button"
               onClick={() => openService("hub")}
-              className="text-sm font-medium text-emerald-300 hover:underline"
+              className="platform-link"
             >
               {backLabel}
             </button>
@@ -637,7 +703,7 @@ export function SitePage() {
                     className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"
                   >
                     <p className="text-lg font-semibold text-white">{pkg.name}</p>
-                    <p className="mt-3 text-2xl font-semibold tracking-tight text-emerald-300">
+                    <p className="platform-price mt-3">
                       {pkg.setup_label || pkg.price_label}
                     </p>
                     {pkg.monthly_label ? (
@@ -661,7 +727,7 @@ export function SitePage() {
                       {isRu && pkg.includes_ru?.length
                         ? pkg.includes_ru.slice(0, 5).map((line) => (
                             <li key={line} className="flex gap-2">
-                              <span className="text-emerald-400" aria-hidden>
+                              <span className="platform-check" aria-hidden>
                                 ✓
                               </span>
                               <span>{line}</span>
@@ -669,7 +735,7 @@ export function SitePage() {
                           ))
                         : (tier?.outcomeKeys ?? []).map((key) => (
                             <li key={key} className="flex gap-2">
-                              <span className="text-emerald-400" aria-hidden>
+                              <span className="platform-check" aria-hidden>
                                 ✓
                               </span>
                               <span>{t(`appStore.${key}`)}</span>
@@ -679,12 +745,12 @@ export function SitePage() {
                     <p className="mt-3 text-[11px] text-zinc-600">
                       {t("s0.botsChannelsNote", {
                         defaultValue:
-                          "Live now: Website Chat + Telegram. WhatsApp / Instagram — after Meta OAuth (not sold as ready).",
+                          "Live now: Telegram + Website Chat. WhatsApp / Instagram / Messenger — coming soon (not sold as ready).",
                       })}
                     </p>
                     <Link
                       href={botOrderHref(pkg.package_id)}
-                      className="mt-5 inline-flex items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110"
+                      className="platform-btn-primary mt-5"
                     >
                       {t("s0.botsCta", {
                         defaultValue: "Choose package →",
@@ -707,7 +773,7 @@ export function SitePage() {
             <button
               type="button"
               onClick={() => openService("hub")}
-              className="text-sm font-medium text-emerald-300 hover:underline"
+              className="platform-link"
             >
               {backLabel}
             </button>
@@ -726,7 +792,7 @@ export function SitePage() {
               <p className="mt-2 text-sm text-zinc-400">{t("s0.repairMvpIntro")}</p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300/90">
+                  <p className="platform-eyebrow-sm">
                     {t("s0.repairMvpFindTitle")}
                   </p>
                   <ul className="mt-2 space-y-1.5 text-sm text-zinc-300">
@@ -755,7 +821,7 @@ export function SitePage() {
 
         {/* Process + trust (below fold on product views; hub has its own story) */}
         {serviceView !== "hub" ? (
-        <section className="rounded-2xl border border-emerald-500/25 bg-emerald-950/20 p-6">
+        <section className="platform-panel p-6">
           <h2 className="text-lg font-semibold text-white">{t("pathA.whatTitle")}</h2>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
             <li>• {t("pathA.what1")}</li>
@@ -764,10 +830,10 @@ export function SitePage() {
             <li>• {t("pathA.what5")}</li>
           </ul>
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
-            <Link href="/products" className="font-medium text-emerald-300 hover:underline">
+            <Link href="/products" className="platform-link">
               {t("pathA.productsLink")} →
             </Link>
-            <Link href="/client/register" className="font-medium text-emerald-300 hover:underline">
+            <Link href="/client/register" className="platform-link">
               {t("s0.createAccount", { defaultValue: "Create personal account" })} →
             </Link>
             <Link href="/client/login" className="font-medium text-zinc-300 hover:underline">

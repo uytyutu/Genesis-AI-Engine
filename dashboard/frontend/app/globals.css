@@ -211,6 +211,27 @@
     }
   }
 
+  /* Client Workspace: opaque surface so route changes never ghost previous pages
+     through transparent AppShell + body portals (StorefrontAtmosphere is /site only). */
+  .virtus-surface-client.genesis-app-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: #050508;
+    overflow-x: hidden;
+  }
+
+  .virtus-surface-client .genesis-app-main,
+  .virtus-surface-client .genesis-app-content {
+    background-color: #050508;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .virtus-surface-client--product-admin.genesis-app-shell,
+  .virtus-surface-client--product-admin .genesis-app-content {
+    background-color: #07070c;
+  }
+
   .genesis-sidebar {
     position: sticky;
     top: 0;
@@ -440,6 +461,56 @@
     .genesis-mobile-nav {
       display: flex;
     }
+
+    .genesis-mobile-nav--bottom {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-around;
+      align-items: stretch;
+      gap: 0.25rem;
+      overflow: visible;
+      padding: 0.45rem 0.5rem calc(0.45rem + env(safe-area-inset-bottom, 0px));
+      border-bottom: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(8, 8, 12, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .genesis-mobile-nav--bottom .genesis-mobile-nav__link {
+      flex: 1 1 0;
+      flex-shrink: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0.45rem 0.35rem;
+      font-size: 0.7rem;
+      text-align: center;
+      border-radius: 0.75rem;
+    }
+
+    body {
+      padding-bottom: 0;
+    }
+
+    body:has(.genesis-mobile-nav--bottom) {
+      /* Bottom tabs + optional cookie banner clearance */
+      padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    body:has(.genesis-mobile-nav--bottom):has([data-cookie-consent]) {
+      padding-bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .virtus-surface-client .genesis-app-content {
+      padding-left: 0.85rem;
+      padding-right: 0.85rem;
+      padding-bottom: 1.25rem;
+    }
   }
 
   .genesis-mobile-nav__link {
@@ -569,7 +640,8 @@
     }
   }
 
-  /* Ambient page wash behind App Store hub */
+  /* Ambient page wash — present from SSR via .storefront-page-bg (no JS class toggle). */
+  body:has(.storefront-page-bg),
   html.has-storefront-atmosphere body {
     background-color: #050508 !important;
   }
@@ -746,46 +818,62 @@
     }
   }
 
-  /* Section reveal on hub */
+  /* Section reveal — progressive enhancement only.
+     Never opacity:0 + both (mobile blank). Never translateY on first paint on
+     touch/coarse pointers: that settles the whole document and reads as a jump. */
   .storefront section {
-    animation: storefrontSectionIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    opacity: 1;
+    transform: none;
   }
-  .storefront > section:nth-child(1) {
-    animation-delay: 0.02s;
-  }
-  .storefront > section:nth-child(2) {
-    animation-delay: 0.08s;
-  }
-  .storefront > section:nth-child(3) {
-    animation-delay: 0.14s;
-  }
-  .storefront > section:nth-child(4) {
-    animation-delay: 0.2s;
-  }
-  .storefront > section:nth-child(5) {
-    animation-delay: 0.26s;
-  }
-  .storefront > section:nth-child(6) {
-    animation-delay: 0.32s;
-  }
-  .storefront > section:nth-child(7) {
-    animation-delay: 0.38s;
-  }
-  .storefront > section:nth-child(8) {
-    animation-delay: 0.44s;
-  }
-  .storefront > section:nth-child(9) {
-    animation-delay: 0.5s;
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+    .storefront section {
+      animation: storefrontSectionIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .storefront > section:nth-child(1) {
+      animation-delay: 0.02s;
+    }
+    .storefront > section:nth-child(2) {
+      animation-delay: 0.06s;
+    }
+    .storefront > section:nth-child(3) {
+      animation-delay: 0.1s;
+    }
+    .storefront > section:nth-child(4) {
+      animation-delay: 0.14s;
+    }
+    .storefront > section:nth-child(5) {
+      animation-delay: 0.18s;
+    }
+    .storefront > section:nth-child(6) {
+      animation-delay: 0.22s;
+    }
+    .storefront > section:nth-child(7) {
+      animation-delay: 0.26s;
+    }
+    .storefront > section:nth-child(8) {
+      animation-delay: 0.3s;
+    }
+    .storefront > section:nth-child(9) {
+      animation-delay: 0.34s;
+    }
   }
   @keyframes storefrontSectionIn {
     from {
-      opacity: 0;
-      transform: translateY(22px);
+      opacity: 1;
+      transform: translateY(8px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* Public /site root — never hide the whole page behind opacity:0 fade-up */
+  .storefront-page.animate-fade-up,
+  .storefront-page.animate-fade-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   .storefront-module-card {
@@ -943,6 +1031,10 @@
     .vector-chat-fab {
       animation: none !important;
     }
+    .storefront section {
+      opacity: 1 !important;
+      transform: none !important;
+    }
   }
 }
 
@@ -951,12 +1043,20 @@
   --vie-motion-tier: "premium";
 }
 [data-vie-surface="platform"].vie-motion-premium #main-content {
-  animation: viePlatformIn 0.7s ease both;
+  /* Visible by default — motion is optional; never opacity:0 + both (mobile blank). */
+  opacity: 1;
+  transform: none;
+}
+/* Desktop-only entrance: mobile translateY on #main-content = whole-page jump. */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  [data-vie-surface="platform"].vie-motion-premium #main-content.storefront-main {
+    animation: viePlatformIn 0.45s ease forwards;
+  }
 }
 @keyframes viePlatformIn {
   from {
-    opacity: 0;
-    transform: translateY(12px);
+    opacity: 1;
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -966,5 +1066,7 @@
 @media (prefers-reduced-motion: reduce) {
   [data-vie-surface="platform"].vie-motion-premium #main-content {
     animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

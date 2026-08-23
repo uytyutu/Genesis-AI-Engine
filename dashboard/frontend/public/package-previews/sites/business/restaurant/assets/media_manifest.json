@@ -6,7 +6,7 @@
   "background_src": "assets/background.jpg",
   "assessments": [
     {
-      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/fae5572b-eae6-456f-b52b-edc60fc26930/assets/hero.jpg",
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/67987cd6-f7d8-41a1-b6b0-2120e4f30598/assets/hero.jpg",
       "role": "hero",
       "ok": true,
       "width": 1536,
@@ -49,7 +49,7 @@
       },
       {
         "section": "about",
-        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/fae5572b-eae6-456f-b52b-edc60fc26930/assets/background.jpg",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/67987cd6-f7d8-41a1-b6b0-2120e4f30598/assets/background.jpg",
         "ok": true,
         "tags": [
           "client",

@@ -63,7 +63,7 @@ function humanNicheLabel(niche?: string | null): string {
     handwerk: "Handwerk",
     auto: "Autowerkstatt",
     law: "Rechtsanwalt",
-    psychology: "Psychologie",
+    barbershop: "Barbershop",
     gartenpflege: "Gartenpflege",
     dachreinigung: "Dachreinigung",
     zaunbau: "Zaunbau",
@@ -105,9 +105,12 @@ export function PackagePreviewCarousel({
   const productLabel = kind === "store" ? "Online-Shop" : "Website";
   const nicheTitle = humanNicheLabel(niche || slide?.niche);
   const title = `${tierLabel} ${nicheTitle} ${productLabel}`;
-  const subtitle = isPremium
-    ? "Cinematic Beispiel für Ihre Branche"
-    : "Beispiel für Ihre Branche — so kann Ihre Seite aussehen";
+  const subtitle =
+    tier === "premium"
+      ? "Gleiche visuelle Qualität wie Business — mehr Steuerung und Tiefe"
+      : tier === "business"
+        ? "Business-Beispiel mit Workspace — Präsentationsniveau"
+        : "Basic-Beispiel — klare Standard-Website für Ihre Branche";
 
   if (!slide) {
     return (
@@ -118,11 +121,13 @@ export function PackagePreviewCarousel({
         </div>
         <div className="overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950/40">
           <div className="flex h-[220px] flex-col items-center justify-center gap-2 px-4 text-center sm:h-[240px]">
-            <p className="text-sm font-medium text-white/90">Demo folgt bald</p>
+            <p className="text-sm font-medium text-white/90">
+              {tier === "premium" ? "Premium noch nicht bereit" : "Demo folgt bald"}
+            </p>
             <p className="max-w-xs text-[11px] text-genesis-muted">
-              Für {tierLabel} · {nicheTitle} · {productLabel} ist noch kein
-              fertiges Beispiel hinterlegt. Nach der Bestellung erhalten Sie
-              genau dieses Paket für Ihre Branche.
+              {tier === "premium"
+                ? "Öffentliche Premium-Beispiele erscheinen nach Quality Gate. Basic und Business sind bereits sichtbar."
+                : `Für ${tierLabel} · ${nicheTitle} · ${productLabel} ist noch kein freigegebenes Beispiel hinterlegt.`}
             </p>
           </div>
         </div>
@@ -187,7 +192,7 @@ export function PackagePreviewCarousel({
         <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
           <span className="text-[10px] text-genesis-muted">
             {tierLabel} · {nicheTitle} · {productLabel}
-            {isPremium ? " · Cinematic inkl." : ""}
+            {isPremium ? " · Mehr Tiefe" : tier === "business" ? " · Workspace" : " · Standard"}
           </span>
           {demoHref ? (
             <a

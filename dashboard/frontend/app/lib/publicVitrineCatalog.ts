@@ -1,18 +1,25 @@
 /**
- * Public /site vitrine — examples grouped by PACKAGE (not niche-only).
+ * Public /site vitrine — Basic / Business live (2026-08-12).
  *
- * Basic  = earliest simple demos (sites|stores/basic) — one-hero standard pages.
- * Business / Premium = newer demos with generated media + cinematic scroll
- *   (sites|stores/premium folders + live cinematic showcases).
- * Premium leads with cinematic ACTION→TRANSFORM→RESULT demos.
+ * Sellable reality now:
+ *   Basic    = sites/basic + stores/basic (standard delivery)
+ *   Business = cinematic flagships under package-previews/premium/ (Workspace tier)
+ *   Premium  = not ready yet → empty showcase (no fake Premium demos)
+ *
+ * Folder name `/premium/` on disk is historical path for cinematic assets —
+ * packageId on the vitrine is the SSOT for which package they sell.
+ *
+ * Quarantined leftovers stay under:
+ *   public/package-previews/legacy/quarantine/
+ * Do not link random quarantine paths — only restored live Basic folders.
  */
 
 export type PublicVitrineKind = "website" | "store";
 export type PublicVitrinePackage = "basic" | "business" | "premium";
+export type ShowcaseStatus = "PUBLISHED" | "QUARANTINED" | "REWORK_REQUIRED";
 
 export type PublicVitrineDemo = {
   id: string;
-  /** Niche key for order-form gallery matching (e.g. dental, fashion) */
   niche: string;
   kind: PublicVitrineKind;
   packageId: PublicVitrinePackage;
@@ -24,9 +31,11 @@ export type PublicVitrineDemo = {
   blurb: string;
   priceKind: "website" | "store";
   badge?: string;
+  /** Only PUBLISHED may appear on public surfaces */
+  showcaseStatus: ShowcaseStatus;
 };
 
-/** Same 10 niches for Website Basic · Business · Premium */
+/** Niches reserved for future equal-count rebuild. */
 export const WEBSITE_EXAMPLE_NICHES = [
   { id: "dental", folder: "dental", emoji: "🦷", labelKey: "examples.dental", fallback: "Zahnarzt", blurb: "Praxis & Termin" },
   { id: "beauty", folder: "beauty", emoji: "💅", labelKey: "examples.beauty", fallback: "Beauty Studio", blurb: "Salon & Pflege" },
@@ -34,13 +43,12 @@ export const WEBSITE_EXAMPLE_NICHES = [
   { id: "law", folder: "law", emoji: "⚖️", labelKey: "examples.law", fallback: "Rechtsanwalt", blurb: "Bereiche & Kontakt" },
   { id: "auto", folder: "auto", emoji: "🔧", labelKey: "examples.auto", fallback: "Autowerkstatt", blurb: "Service & Termin" },
   { id: "handwerk", folder: "handwerk", emoji: "🔨", labelKey: "examples.handwerk", fallback: "Handwerk", blurb: "Projekte & Angebot" },
-  { id: "psychology", folder: "psychology", emoji: "🧠", labelKey: "examples.psychology", fallback: "Psychologie", blurb: "Praxis & Erstgespräch" },
+  { id: "barbershop", folder: "barbershop", emoji: "💈", labelKey: "examples.barbershop", fallback: "Barbershop", blurb: "Schnitt & Style" },
   { id: "gartenpflege", folder: "gartenpflege", emoji: "🌿", labelKey: "examples.gartenpflege", fallback: "Gartenpflege", blurb: "Garten & Pflege" },
   { id: "dachreinigung", folder: "dachreinigung", emoji: "🏠", labelKey: "examples.dachreinigung", fallback: "Dachreinigung", blurb: "Reinigung & Service" },
   { id: "zaunbau", folder: "zaunbau", emoji: "🪵", labelKey: "examples.zaunbau", fallback: "Zaunbau", blurb: "Zaun & Montage" },
 ] as const;
 
-/** Same 10 niches for Online-Shop Basic · Business · Premium */
 export const STORE_EXAMPLE_NICHES = [
   { id: "fashion", folder: "fashion", emoji: "👗", labelKey: "examples.fashionStore", fallback: "Fashion Store", blurb: "Katalog & Warenkorb" },
   { id: "electronics", folder: "electronics", emoji: "🔌", labelKey: "examples.electronicsStore", fallback: "Electronics Store", blurb: "Geräte & Specs" },
@@ -50,178 +58,248 @@ export const STORE_EXAMPLE_NICHES = [
   { id: "accessories", folder: "accessories", emoji: "👜", labelKey: "examples.accessoriesStore", fallback: "Accessories Store", blurb: "Accessoires" },
   { id: "handwerk", folder: "handwerk", emoji: "🛠", labelKey: "examples.handwerkStore", fallback: "Handwerk Shop", blurb: "Material & Shop" },
   { id: "gartenpflege", folder: "gartenpflege", emoji: "🌱", labelKey: "examples.gartenStore", fallback: "Garten Shop", blurb: "Pflanzen & Pflege" },
-  { id: "psychology", folder: "psychology", emoji: "📚", labelKey: "examples.psychologyStore", fallback: "Psychology Shop", blurb: "Kurse & Produkte" },
+  { id: "dachreinigung", folder: "dachreinigung", emoji: "🏠", labelKey: "examples.dachreinigungStore", fallback: "Dach Shop", blurb: "Reinigung & Shop" },
   { id: "zaunbau", folder: "zaunbau", emoji: "🪵", labelKey: "examples.zaunbauStore", fallback: "Zaunbau Shop", blurb: "Zaunsysteme" },
 ] as const;
 
-export const PACKAGE_EXAMPLE_COUNT = WEBSITE_EXAMPLE_NICHES.length;
-
-/**
- * Folder mapping:
- * - basic → sites|stores/basic (early simple)
- * - business + premium → sites|stores/premium (newer generated media)
- *   Premium additionally prepends live cinematic demos.
- */
-function demoFolderForPackage(pkg: PublicVitrinePackage): "basic" | "premium" {
-  return pkg === "basic" ? "basic" : "premium";
-}
-
-function websiteHref(pkg: PublicVitrinePackage, folder: string): string {
-  const dir = demoFolderForPackage(pkg);
-  return `/package-previews/sites/${dir}/${folder}/index.html`;
-}
-
-function storeHref(pkg: PublicVitrinePackage, folder: string): string {
-  const dir = demoFolderForPackage(pkg);
-  if (dir === "basic") {
-    return `/package-previews/stores/basic/${folder}/index.html`;
-  }
-  return `/package-previews/stores/premium/${folder}/catalog.html`;
-}
-
-function thumbForWebsite(pkg: PublicVitrinePackage, folder: string): string {
-  const dir = demoFolderForPackage(pkg);
-  return `/package-previews/sites/${dir}/${folder}/assets/hero.jpg`;
-}
-
-function thumbForStore(pkg: PublicVitrinePackage, folder: string): string {
-  const dir = demoFolderForPackage(pkg);
-  return `/package-previews/stores/${dir}/${folder}/assets/images/hero.jpg`;
-}
-
-function buildWebsitePackage(pkg: PublicVitrinePackage): PublicVitrineDemo[] {
-  return WEBSITE_EXAMPLE_NICHES.map((n) => ({
-    id: `web-${pkg}-${n.id}`,
-    niche: n.id,
-    kind: "website" as const,
-    packageId: pkg,
-    href: websiteHref(pkg, n.folder),
-    thumb: thumbForWebsite(pkg, n.folder),
-    emoji: n.emoji,
-    labelKey: n.labelKey,
-    fallback: n.fallback,
-    blurb: pkg === "basic" ? n.blurb : `${n.blurb} · Studio`,
-    priceKind: "website" as const,
-    badge: pkg === "premium" ? "Premium" : pkg === "business" ? "Business" : "Basic",
-  }));
-}
-
-function buildStorePackage(pkg: PublicVitrinePackage): PublicVitrineDemo[] {
-  return STORE_EXAMPLE_NICHES.map((n) => ({
-    id: `shop-${pkg}-${n.id}`,
-    niche: n.id,
-    kind: "store" as const,
-    packageId: pkg,
-    href: storeHref(pkg, n.folder),
-    thumb: thumbForStore(pkg, n.folder),
-    emoji: n.emoji,
-    labelKey: n.labelKey,
-    fallback: n.fallback,
-    blurb: pkg === "basic" ? n.blurb : `${n.blurb} · Studio`,
-    priceKind: "store" as const,
-    badge: pkg === "premium" ? "Premium" : pkg === "business" ? "Business" : "Basic",
-  }));
-}
-
-/** Cinematic scroll demos — Business + Premium (never Basic). */
-export const PUBLIC_VITRINE_CINEMATIC_WEBSITES: PublicVitrineDemo[] = [
+/** Basic websites — restored live paths (not quarantine links). */
+export const PUBLIC_VITRINE_WEBSITES_BASIC: PublicVitrineDemo[] = [
   {
-    id: "web-cinematic-hot-dog",
+    id: "web-basic-beauty",
+    niche: "beauty",
+    kind: "website",
+    packageId: "basic",
+    href: "/package-previews/sites/basic/beauty/index.html",
+    thumb: "/package-previews/sites/basic/beauty/assets/hero.jpg",
+    emoji: "💅",
+    labelKey: "examples.beauty",
+    fallback: "Beauty Studio",
+    blurb: "Salon & Pflege",
+    priceKind: "website",
+    badge: "Basic",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "web-basic-barbershop",
+    niche: "barbershop",
+    kind: "website",
+    packageId: "basic",
+    href: "/package-previews/sites/basic/barbershop/index.html",
+    thumb: "/package-previews/sites/basic/barbershop/assets/hero.jpg",
+    emoji: "💈",
+    labelKey: "examples.barbershop",
+    fallback: "Barbershop",
+    blurb: "Schnitt & Style",
+    priceKind: "website",
+    badge: "Basic",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "web-basic-restaurant",
     niche: "restaurant",
     kind: "website",
-    packageId: "premium",
-    href: "/package-previews/premium/hot-dog/index.html",
-    thumb: "/package-previews/premium/hot-dog/assets/seq/f001.jpg",
-    emoji: "🌭",
+    packageId: "basic",
+    href: "/package-previews/sites/basic/restaurant/index.html",
+    thumb: "/package-previews/sites/basic/restaurant/assets/hero.jpg",
+    emoji: "🍽",
     labelKey: "examples.restaurant",
-    fallback: "Hot Dog / Street Food",
-    blurb: "Cinematic Scroll",
+    fallback: "Restaurant",
+    blurb: "Menü & Reservierung",
     priceKind: "website",
-    badge: "Cinematic",
+    badge: "Basic",
+    showcaseStatus: "PUBLISHED",
   },
   {
-    id: "web-cinematic-barbershop",
-    niche: "beauty",
+    id: "web-basic-auto",
+    niche: "auto",
     kind: "website",
-    packageId: "premium",
-    href: "/package-previews/premium/barbershop/index.html",
-    thumb: "/package-previews/premium/barbershop/assets/seq/f001.jpg",
-    emoji: "💈",
-    labelKey: "examples.beauty",
-    fallback: "Barbershop",
-    blurb: "Cinematic Scroll",
+    packageId: "basic",
+    href: "/package-previews/sites/basic/auto/index.html",
+    thumb: "/package-previews/sites/basic/auto/assets/hero.jpg",
+    emoji: "🔧",
+    labelKey: "examples.auto",
+    fallback: "Autowerkstatt",
+    blurb: "Service & Termin",
     priceKind: "website",
-    badge: "Cinematic",
-  },
-  {
-    id: "web-cinematic-brows",
-    niche: "beauty",
-    kind: "website",
-    packageId: "premium",
-    href: "/package-previews/premium/beauty-brows/index.html",
-    thumb: "/package-previews/premium/beauty-brows/assets/seq/f001.jpg",
-    emoji: "✨",
-    labelKey: "examples.beauty",
-    fallback: "Brows Studio",
-    blurb: "Cinematic Scroll",
-    priceKind: "website",
-    badge: "Cinematic",
+    badge: "Basic",
+    showcaseStatus: "PUBLISHED",
   },
 ];
 
-export const PUBLIC_VITRINE_CINEMATIC_STORES: PublicVitrineDemo[] = [
+/**
+ * Business websites — cinematic flagships (disk path still under /premium/).
+ * These are the sellable Business examples, not Premium (Premium not ready).
+ */
+export const PUBLIC_VITRINE_WEBSITES_BUSINESS: PublicVitrineDemo[] = [
   {
-    id: "shop-cinematic-fashion",
+    id: "web-business-automotive",
+    niche: "auto",
+    kind: "website",
+    packageId: "business",
+    href: "/package-previews/sites/business/auto/index.html",
+    thumb: "/package-previews/sites/business/auto/assets/hero.jpg",
+    emoji: "🚗",
+    labelKey: "examples.auto",
+    fallback: "Autowerkstatt · Business",
+    blurb: "Business-Präsentation",
+    priceKind: "website",
+    badge: "Business",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "web-business-restaurant",
+    niche: "restaurant",
+    kind: "website",
+    packageId: "business",
+    href: "/package-previews/sites/business/restaurant/index.html",
+    thumb: "/package-previews/sites/business/restaurant/assets/hero.jpg",
+    emoji: "🍽",
+    labelKey: "examples.restaurant",
+    fallback: "Restaurant · Business",
+    blurb: "Business-Präsentation",
+    priceKind: "website",
+    badge: "Business",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "web-business-beauty",
+    niche: "beauty",
+    kind: "website",
+    packageId: "business",
+    href: "/package-previews/premium/beauty-brows/index.html",
+    thumb: "/package-previews/premium/beauty-brows/assets/seq/f001.jpg",
+    emoji: "💅",
+    labelKey: "examples.beauty",
+    fallback: "Beauty Studio",
+    blurb: "Business-Präsentation",
+    priceKind: "website",
+    badge: "Business",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "web-business-barbershop",
+    niche: "barbershop",
+    kind: "website",
+    packageId: "business",
+    href: "/package-previews/premium/barbershop/index.html",
+    thumb: "/package-previews/premium/barbershop/assets/seq/f001.jpg",
+    emoji: "💈",
+    labelKey: "examples.barbershop",
+    fallback: "Barbershop",
+    blurb: "Business-Präsentation",
+    priceKind: "website",
+    badge: "Business",
+    showcaseStatus: "PUBLISHED",
+  },
+];
+
+/** Premium websites — not ready; no public demos. */
+export const PUBLIC_VITRINE_WEBSITES_PREMIUM: PublicVitrineDemo[] = [];
+
+export const PUBLIC_VITRINE_STORES_BASIC: PublicVitrineDemo[] = [
+  {
+    id: "shop-basic-fashion",
     niche: "fashion",
     kind: "store",
-    packageId: "premium",
+    packageId: "basic",
+    href: "/package-previews/stores/basic/fashion/index.html",
+    thumb: "/package-previews/stores/basic/fashion/assets/images/hero.jpg",
+    emoji: "👗",
+    labelKey: "examples.fashionStore",
+    fallback: "Fashion Store",
+    blurb: "Katalog & Warenkorb",
+    priceKind: "store",
+    badge: "Basic",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "shop-basic-electronics",
+    niche: "electronics",
+    kind: "store",
+    packageId: "basic",
+    href: "/package-previews/stores/basic/electronics/index.html",
+    thumb: "/package-previews/stores/basic/electronics/assets/images/hero.jpg",
+    emoji: "🔌",
+    labelKey: "examples.electronicsStore",
+    fallback: "Electronics Store",
+    blurb: "Geräte & Specs",
+    priceKind: "store",
+    badge: "Basic",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "shop-basic-food",
+    niche: "food",
+    kind: "store",
+    packageId: "basic",
+    href: "/package-previews/stores/basic/food/index.html",
+    thumb: "/package-previews/stores/basic/food/assets/images/hero.jpg",
+    emoji: "🛒",
+    labelKey: "examples.foodStore",
+    fallback: "Food Store",
+    blurb: "Produkte & Checkout",
+    priceKind: "store",
+    badge: "Basic",
+    showcaseStatus: "PUBLISHED",
+  },
+];
+
+export const PUBLIC_VITRINE_STORES_BUSINESS: PublicVitrineDemo[] = [
+  {
+    id: "shop-business-food",
+    niche: "food",
+    kind: "store",
+    packageId: "business",
+    href: "/package-previews/premium/shop-food/index.html",
+    thumb: "/package-previews/premium/shop-food/assets/seq/f001.jpg",
+    emoji: "🌭",
+    labelKey: "examples.foodStore",
+    fallback: "Food Store",
+    blurb: "Business-Shop-Präsentation",
+    priceKind: "store",
+    badge: "Business",
+    showcaseStatus: "QUARANTINED",
+  },
+  {
+    id: "shop-business-fashion",
+    niche: "fashion",
+    kind: "store",
+    packageId: "business",
     href: "/package-previews/premium/shop-fashion-v2/index.html",
     thumb: "/package-previews/premium/shop-fashion-v2/assets/cinematic/c001.jpg",
     emoji: "👗",
     labelKey: "examples.fashionStore",
     fallback: "Fashion Store",
-    blurb: "Cinematic Shop",
+    blurb: "Business-Shop-Präsentation",
     priceKind: "store",
-    badge: "Cinematic",
+    badge: "Business",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "shop-business-electronics",
+    niche: "electronics",
+    kind: "store",
+    packageId: "business",
+    href: "/package-previews/premium/shop-electronics/index.html",
+    thumb: "/package-previews/premium/shop-electronics/assets/seq/f001.jpg",
+    emoji: "🔌",
+    labelKey: "examples.electronicsStore",
+    fallback: "Electronics Store",
+    blurb: "Business-Shop-Präsentation",
+    priceKind: "store",
+    badge: "Business",
+    showcaseStatus: "PUBLISHED",
   },
 ];
 
-function withPackageBadge(
-  demos: PublicVitrineDemo[],
-  pkg: PublicVitrinePackage,
-): PublicVitrineDemo[] {
-  const badge = pkg === "premium" ? "Premium Cinematic" : "Business Cinematic";
-  return demos.map((d) => ({
-    ...d,
-    id: d.id.replace(/-(premium|business)-/, `-${pkg}-`).replace("web-cinematic", `web-${pkg}-cinematic`).replace("shop-cinematic", `shop-${pkg}-cinematic`),
-    packageId: pkg,
-    badge,
-  }));
-}
+/** Premium stores — not ready. */
+export const PUBLIC_VITRINE_STORES_PREMIUM: PublicVitrineDemo[] = [];
 
-export const PUBLIC_VITRINE_WEBSITES_BASIC = buildWebsitePackage("basic");
-/** Business = newer premium-folder demos + cinematic scroll (not basic) */
-export const PUBLIC_VITRINE_WEBSITES_BUSINESS = [
-  ...withPackageBadge(PUBLIC_VITRINE_CINEMATIC_WEBSITES, "business"),
-  ...buildWebsitePackage("business"),
-];
-/** Premium = cinematic first + newer premium-folder demos */
-export const PUBLIC_VITRINE_WEBSITES_PREMIUM = [
-  ...withPackageBadge(PUBLIC_VITRINE_CINEMATIC_WEBSITES, "premium"),
-  ...buildWebsitePackage("premium"),
-];
+export const PACKAGE_EXAMPLE_COUNT = Math.max(
+  PUBLIC_VITRINE_WEBSITES_BASIC.length,
+  PUBLIC_VITRINE_WEBSITES_BUSINESS.length,
+);
 
-export const PUBLIC_VITRINE_STORES_BASIC = buildStorePackage("basic");
-export const PUBLIC_VITRINE_STORES_BUSINESS = [
-  ...withPackageBadge(PUBLIC_VITRINE_CINEMATIC_STORES, "business"),
-  ...buildStorePackage("business"),
-];
-export const PUBLIC_VITRINE_STORES_PREMIUM = [
-  ...withPackageBadge(PUBLIC_VITRINE_CINEMATIC_STORES, "premium"),
-  ...buildStorePackage("premium"),
-];
-
-/** Flat lists used by packagePreviewGallery / gates */
 export const PUBLIC_VITRINE_WEBSITES: PublicVitrineDemo[] = [
   ...PUBLIC_VITRINE_WEBSITES_BASIC,
   ...PUBLIC_VITRINE_WEBSITES_BUSINESS,
@@ -239,6 +317,12 @@ export const PUBLIC_VITRINE_EXAMPLES: PublicVitrineDemo[] = [
   ...PUBLIC_VITRINE_STORES,
 ];
 
+export const SHOWCASE_QUALITY_RESET_NOTE =
+  "Premium-Beispiele noch nicht freigegeben. Basic und Business zeigen echte Paket-Demos.";
+
+export const SHOWCASE_PREMIUM_NOT_READY_NOTE =
+  "Premium ist noch nicht bereit — Beispiele folgen nach Quality Gate. Bestellen Sie Basic oder Business.";
+
 export type PackageIncludesBlock = {
   packageId: PublicVitrinePackage;
   kind: PublicVitrineKind;
@@ -252,10 +336,10 @@ export const WEBSITE_PACKAGE_INCLUDES: PackageIncludesBlock[] = [
   {
     packageId: "basic",
     kind: "website",
-    priceLabel: "199 €",
+    priceLabel: "299 €",
     virtusControl: false,
     includes: [
-      "Fertige Website für Ihre Branche",
+      "Moderne professionelle Website für Ihre Branche",
       "Responsive Design",
       "Kontakt & Impressum-Struktur",
       "SEO-Grundlage",
@@ -266,11 +350,11 @@ export const WEBSITE_PACKAGE_INCLUDES: PackageIncludesBlock[] = [
   {
     packageId: "business",
     kind: "website",
-    priceLabel: "399 €",
+    priceLabel: "599 €",
     virtusControl: true,
     includes: [
       "Alles aus Basic",
-      "Mehr Seiten / erweiterte Struktur",
+      "Präsentations-/cinematic Niveau",
       "Virtus Client Workspace",
       "Inhalte, Texte, Medien selbst ändern",
       "Analytics-Grundlage",
@@ -285,20 +369,20 @@ export const WEBSITE_PACKAGE_INCLUDES: PackageIncludesBlock[] = [
   {
     packageId: "premium",
     kind: "website",
-    priceLabel: "699 €",
+    priceLabel: "999 €",
     virtusControl: true,
     includes: [
-      "Alles aus Business",
-      "Premium Design & Motion",
-      "Cinematic Experience (wo verfügbar)",
-      "Erweiterte Steuerung & Support-Level",
-      "Virtus AI Assist im Workspace",
+      "Alles aus Business — gleiche visuelle Qualität",
+      "Erweiterte Website-Steuerung",
+      "Tiefere Seitenstruktur",
+      "Erweiterte Formulare & Content",
+      "Fortgeschrittenes Management",
     ],
     controlLines: [
       "Alles aus Business-Steuerung",
-      "Hero / Media / Cinematic Szenen",
-      "Feinere Design- und Content-Kontrolle",
-      "Restore Original / Versionen",
+      "Mehr Seiten / feinere Struktur",
+      "Erweiterte Formulare & Content-Blöcke",
+      "Fortgeschrittenes Management & Restore",
     ],
   },
 ];
@@ -307,12 +391,12 @@ export const STORE_PACKAGE_INCLUDES: PackageIncludesBlock[] = [
   {
     packageId: "basic",
     kind: "store",
-    priceLabel: "Start · ab 799 €",
+    priceLabel: "Online Store · Start",
     virtusControl: false,
     includes: [
-      "Online-Shop mit Katalog",
-      "Produktseiten & Preise",
-      "Warenkorb / Bestellweg (Demo/Live je nach Setup)",
+      "Eigenes Produkt: Online-Shop (nicht Website-Paket)",
+      "Katalog, Produktseiten & Preise",
+      "Warenkorb / Bestellweg",
       "Responsive Shop-Design",
     ],
     controlLines: ["Kein volles Virtus Shop-Admin (Änderungen über Auftrag/Support)"],
@@ -320,12 +404,13 @@ export const STORE_PACKAGE_INCLUDES: PackageIncludesBlock[] = [
   {
     packageId: "business",
     kind: "store",
-    priceLabel: "Business · ab 1 499 €",
+    priceLabel: "Online Store · Business",
     virtusControl: true,
     includes: [
-      "Alles aus Start/Basic",
+      "Alles aus Start",
       "Virtus Shop Admin",
       "Produkte · Kategorien · Bestellungen",
+      "Hochwertige Produktpräsentation",
       "Kunden & Commerce-Grundlage",
     ],
     controlLines: [
@@ -339,54 +424,191 @@ export const STORE_PACKAGE_INCLUDES: PackageIncludesBlock[] = [
   {
     packageId: "premium",
     kind: "store",
-    priceLabel: "Premium · ab 2 499 €",
+    priceLabel: "Online Store · Premium",
     virtusControl: true,
     includes: [
-      "Alles aus Business",
-      "Premium Shop Design & cinematic Produktpräsentation",
-      "Erweiterte Steuerung & Analytics",
-      "Virtus AI Assist im Shop Workspace",
+      "Alles aus Store Business — gleiche visuelle Qualität",
+      "Erweiterte Shop-Steuerung & Analytics",
+      "Tiefere Katalog-/Content-Struktur",
+      "Fortgeschrittenes Bestell- und Media-Management",
     ],
     controlLines: [
       "Alles aus Business-Admin",
-      "Design / Hero / Media",
-      "Cinematic Produkt-Story",
+      "Erweiterte Katalog- und Content-Tiefe",
+      "Design / Hero / Media Steuerung",
       "Restore Original / Versionen",
     ],
   },
 ];
 
 export const PUBLIC_VITRINE_LEGACY_BLOCKLIST = [
+  "/package-previews/legacy/quarantine/",
   "/package-previews/client-forms/",
-  "/package-previews/client-forms/studio-lumia/",
+  "/package-previews/sites/premium/",
+  "/package-previews/stores/premium/",
+  "/package-previews/sites/_trash_family/",
+  "family_care",
+  "Family Care",
+  "family_psychology",
+  "shop-*-parity",
 ] as const;
 
-export const PUBLIC_VITRINE_THUMB_VERSION = "v17basicVsStudio";
+/** Cinematic Business demos still live under disk folder /premium/. */
+const BUSINESS_CINEMATIC_HREFS = [
+  "/package-previews/premium/luxury-automotive/",
+  "/package-previews/premium/beauty-brows/",
+  "/package-previews/premium/barbershop/",
+  "/package-previews/premium/shop-food/",
+  "/package-previews/premium/shop-fashion-v2/",
+  "/package-previews/premium/shop-electronics/",
+] as const;
+
+/** One artifact = one preview card. thumb and href must share the same build root. */
+export type PublicAgencyPortfolioItem = {
+  id: string;
+  productId: string;
+  artifactId: string;
+  title: string;
+  industry: string;
+  tag: string;
+  /** Live preview — same folder as previewImage */
+  livePreviewUrl: string;
+  /** Hero from the same artifact (never a different tier/path) */
+  previewImage: string;
+  packageId: PublicVitrinePackage;
+  showcaseStatus: ShowcaseStatus;
+};
+
+const AGENCY_ARTIFACT_AUTO = "/package-previews/sites/business/auto";
+const AGENCY_ARTIFACT_RESTAURANT = "/package-previews/sites/business/restaurant";
+
+export function portfolioArtifactRoot(href: string): string {
+  const clean = href.replace(/\\/g, "/").split("#")[0]?.split("?")[0] ?? href;
+  if (clean.endsWith("/index.html")) {
+    return clean.slice(0, -"/index.html".length);
+  }
+  if (clean.endsWith(".html")) {
+    return clean.slice(0, clean.lastIndexOf("/"));
+  }
+  return clean.replace(/\/$/, "");
+}
+
+export function portfolioPreviewImageForArtifact(artifactRoot: string): string {
+  return `${artifactRoot.replace(/\/$/, "")}/assets/hero.jpg`;
+}
+
+export function portfolioLivePreviewUrl(artifactRoot: string): string {
+  return `${artifactRoot.replace(/\/$/, "")}/index.html`;
+}
+
+/** Published agency portfolio — Automotive + Restaurant only until more Reality PASS builds. */
+export const PUBLIC_AGENCY_PORTFOLIO: PublicAgencyPortfolioItem[] = [
+  {
+    id: "portfolio-auto",
+    productId: "03b9eab4-23ae-4482-b525-a9c262fd060b",
+    artifactId: "sites/business/auto",
+    title: "Automotive",
+    industry: "auto",
+    tag: "Webdesign",
+    livePreviewUrl: portfolioLivePreviewUrl(AGENCY_ARTIFACT_AUTO),
+    previewImage: portfolioPreviewImageForArtifact(AGENCY_ARTIFACT_AUTO),
+    packageId: "business",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "portfolio-restaurant",
+    productId: "web-business-restaurant",
+    artifactId: "sites/business/restaurant",
+    title: "Restaurant",
+    industry: "restaurant",
+    tag: "Webdesign",
+    livePreviewUrl: portfolioLivePreviewUrl(AGENCY_ARTIFACT_RESTAURANT),
+    previewImage: portfolioPreviewImageForArtifact(AGENCY_ARTIFACT_RESTAURANT),
+    packageId: "business",
+    showcaseStatus: "PUBLISHED",
+  },
+];
+
+/** Integrity: preview thumb must belong to the same artifact folder as live preview. */
+export function assertPortfolioArtifactIntegrity(item: PublicAgencyPortfolioItem): boolean {
+  const root = portfolioArtifactRoot(item.livePreviewUrl);
+  const thumbRoot = portfolioArtifactRoot(item.previewImage.replace(/\/assets\/hero\.jpg$/, ""));
+  return (
+    item.showcaseStatus === "PUBLISHED" &&
+    item.previewImage === portfolioPreviewImageForArtifact(root) &&
+    item.livePreviewUrl === portfolioLivePreviewUrl(root) &&
+    root === thumbRoot
+  );
+}
+
+export const PUBLIC_VITRINE_THUMB_VERSION = "v23portfolioIntegrity";
+
+export function isPublishedShowcaseDemo(demo: PublicVitrineDemo): boolean {
+  return demo.showcaseStatus === "PUBLISHED";
+}
 
 export function isLegacyPublicPreview(href: string): boolean {
-  const h = href.replace(/\\/g, "/");
-  return PUBLIC_VITRINE_LEGACY_BLOCKLIST.some((p) => h.includes(p));
+  const h = href.replace(/\\/g, "/").toLowerCase();
+  if (h.includes("/legacy/quarantine/")) return true;
+  if (h.includes("/sites/premium/") || h.includes("/stores/premium/")) return true;
+  if (h.includes("-parity/") || h.includes("beauty-studio") || h.includes("/psychology/")) {
+    return true;
+  }
+  return PUBLIC_VITRINE_LEGACY_BLOCKLIST.some((p) => {
+    if (p.includes("*")) return false;
+    return h.includes(p.toLowerCase());
+  });
 }
 
 export function allPublicVitrineHrefs(): string[] {
-  return PUBLIC_VITRINE_EXAMPLES.map((d) => d.href);
+  return PUBLIC_VITRINE_EXAMPLES.filter(isPublishedShowcaseDemo).map((d) => d.href);
 }
 
 export function allPublicVitrineThumbs(): string[] {
-  return PUBLIC_VITRINE_EXAMPLES.map((d) => d.thumb);
+  return PUBLIC_VITRINE_EXAMPLES.filter(isPublishedShowcaseDemo).map((d) => d.thumb);
 }
 
-function nichePackageCount(demos: PublicVitrineDemo[]): number {
-  return demos.filter((d) => !(d.badge || "").includes("Cinematic")).length;
+/** Integrity: Basic/Business published correctly; Premium empty until ready. */
+export function assertShowcaseIntegrity(): boolean {
+  const live = PUBLIC_VITRINE_EXAMPLES.filter(isPublishedShowcaseDemo);
+  if (live.some((d) => isLegacyPublicPreview(d.href))) return false;
+  if (PUBLIC_VITRINE_WEBSITES_PREMIUM.length !== 0) return false;
+  if (PUBLIC_VITRINE_STORES_PREMIUM.length !== 0) return false;
+  if (live.some((d) => d.packageId === "premium")) return false;
+  if (!live.every((d) => d.packageId === "basic" || d.packageId === "business")) return false;
+  if (!PUBLIC_VITRINE_WEBSITES_BASIC.every((d) => isBasicStandardHref(d.href))) return false;
+  if (!PUBLIC_VITRINE_STORES_BASIC.every((d) => isBasicStandardHref(d.href))) return false;
+  if (!PUBLIC_VITRINE_WEBSITES_BUSINESS.every((d) => isBusinessHref(d.href))) return false;
+  if (!PUBLIC_VITRINE_STORES_BUSINESS.every((d) => isBusinessHref(d.href))) return false;
+  return live.length > 0;
 }
 
+/** @deprecated Use assertShowcaseIntegrity */
 export function assertEqualPackageExampleCounts(): boolean {
+  return assertShowcaseIntegrity();
+}
+
+/** True Premium cinematic (none published yet). */
+export function isPremiumCinematicHref(href: string): boolean {
+  void href;
+  return false;
+}
+
+export function isBasicStandardHref(href: string): boolean {
+  const h = href.replace(/\\/g, "/");
+  if (isLegacyPublicPreview(h)) return false;
   return (
-    PUBLIC_VITRINE_WEBSITES_BASIC.length === PACKAGE_EXAMPLE_COUNT &&
-    PUBLIC_VITRINE_WEBSITES_BUSINESS.length === PACKAGE_EXAMPLE_COUNT &&
-    nichePackageCount(PUBLIC_VITRINE_WEBSITES_PREMIUM) === PACKAGE_EXAMPLE_COUNT &&
-    PUBLIC_VITRINE_STORES_BASIC.length === PACKAGE_EXAMPLE_COUNT &&
-    PUBLIC_VITRINE_STORES_BUSINESS.length === PACKAGE_EXAMPLE_COUNT &&
-    nichePackageCount(PUBLIC_VITRINE_STORES_PREMIUM) === PACKAGE_EXAMPLE_COUNT
+    (h.includes("/package-previews/sites/basic/") ||
+      h.includes("/package-previews/stores/basic/")) &&
+    !h.includes("/legacy/")
   );
+}
+
+export function isBusinessHref(href: string): boolean {
+  const h = href.replace(/\\/g, "/");
+  if (isLegacyPublicPreview(h)) return false;
+  if (h.includes("/package-previews/sites/business/") || h.includes("/package-previews/stores/business/")) {
+    return true;
+  }
+  return BUSINESS_CINEMATIC_HREFS.some((p) => h.includes(p));
 }

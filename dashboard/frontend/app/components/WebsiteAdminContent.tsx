@@ -79,16 +79,16 @@ const SOCIAL_KEYS = [
 ] as const;
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: "hero", label: "Hero" },
-  { id: "about", label: "About" },
-  { id: "services", label: "Services" },
-  { id: "prices", label: "Prices" },
-  { id: "gallery", label: "Gallery" },
-  { id: "team", label: "Team" },
-  { id: "reviews", label: "Reviews" },
-  { id: "contacts", label: "Contacts" },
-  { id: "hours", label: "Hours" },
+  { id: "contacts", label: "Kontakte" },
+  { id: "hours", label: "Öffnungszeiten" },
   { id: "social", label: "Social" },
+  { id: "hero", label: "Hero" },
+  { id: "about", label: "Über uns" },
+  { id: "services", label: "Leistungen" },
+  { id: "prices", label: "Preise" },
+  { id: "gallery", label: "Galerie" },
+  { id: "team", label: "Team" },
+  { id: "reviews", label: "Bewertungen" },
   { id: "faq", label: "FAQ" },
   { id: "seo", label: "SEO" },
 ];
@@ -97,7 +97,7 @@ export function WebsiteAdminContent({ orderId, onSaved }: Props) {
   const [content, setContent] = useState<WebsiteContent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [tab, setTab] = useState<TabId>("hero");
+  const [tab, setTab] = useState<TabId>("contacts");
 
   const load = useCallback(async () => {
     if (!getClientToken() || !orderId) return;

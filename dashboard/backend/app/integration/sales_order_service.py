@@ -238,11 +238,11 @@ HOSTING_PROVIDERS = frozenset(
 )
 
 _PACKAGES = {
-    # Public Website ladder — must match /site (199 / 399 / 699)
+    # Public Website ladder — must match /site (299 / 599 / 999)
     "basic": {
         "id": "basic",
         "name": "Website Basic",
-        "price_eur": 199,
+        "price_eur": 299,
         "commerce_mode": "standalone",
         "tagline": "Moderner Website-Start — fertig für Ihre Branche, ohne Client-Panel",
         "included_summary": (
@@ -262,7 +262,7 @@ _PACKAGES = {
     "business": {
         "id": "business",
         "name": "Website Business",
-        "price_eur": 399,
+        "price_eur": 599,
         "commerce_mode": "standalone",
         "tagline": "Website + Virtus Workspace — Inhalte und Medien selbst steuern",
         "included_summary": (
@@ -283,7 +283,7 @@ _PACKAGES = {
     "premium": {
         "id": "premium",
         "name": "Website Premium",
-        "price_eur": 699,
+        "price_eur": 999,
         "commerce_mode": "connected",
         "tagline": "Premium Website — Workspace + Cinematic Creative Experience",
         "included_summary": (
@@ -305,7 +305,7 @@ _PACKAGES = {
     "standalone": {
         "id": "standalone",
         "name": "Website Business",
-        "price_eur": 399,
+        "price_eur": 599,
         "commerce_mode": "standalone",
         "alias_of": "business",
         "tagline": "Alias — Website Business",
@@ -315,7 +315,7 @@ _PACKAGES = {
     "connected": {
         "id": "connected",
         "name": "Website Premium",
-        "price_eur": 699,
+        "price_eur": 999,
         "commerce_mode": "connected",
         "alias_of": "premium",
         "tagline": "Alias — Website Premium",
@@ -1304,7 +1304,11 @@ class SalesOrderService:
         return [self._summary(o) for o in orders[:limit]]
 
     def attach_customer_by_email(self, *, customer_id: str, email: str) -> int:
-        """Link guest website orders to a customer account (email match)."""
+        """Link *guest* orders (no customer_id yet) to this account by email.
+
+        Never reassign an order that already belongs to another customer_id —
+        that caused cross-tenant cabinet leakage (Client A seeing Client B).
+        """
         cid = str(customer_id or "").strip()
         em = str(email or "").strip().lower()
         if not cid or not em or "@" not in em:
@@ -1314,7 +1318,11 @@ class SalesOrderService:
             order_email = str(order.get("email") or "").strip().lower()
             if order_email != em:
                 continue
-            if str(order.get("customer_id") or "").strip() == cid:
+            existing = str(order.get("customer_id") or "").strip()
+            if existing == cid:
+                continue
+            # Only claim true guest rows. Never steal another tenant's order.
+            if existing:
                 continue
             order["customer_id"] = cid
             order["updated_at"] = datetime.now(timezone.utc).isoformat()
@@ -1322,10 +1330,28 @@ class SalesOrderService:
             linked += 1
         return linked
 
+    @staticmethod
+    def _order_is_cabinet_hidden(order: dict) -> bool:
+        """Soft-replaced / archived duplicates stay out of the client cabinet."""
+        st = str(order.get("status") or "").strip().lower()
+        qs = str(order.get("quality_state") or "").strip().upper()
+        if st == "superseded" or qs == "ARCHIVED":
+            return True
+        # Legacy upgrade scripts set boolean `superseded` without status=superseded.
+        if order.get("superseded") is True:
+            return True
+        return False
+
     def list_orders_for_customer(
         self, *, customer_id: str, email: str | None = None, limit: int = 50
     ) -> list[dict]:
-        """Cabinet orders: by customer_id and/or matching email."""
+        """Cabinet orders owned by this customer.
+
+        Ownership rule (hard):
+        - Include if order.customer_id == customer_id
+        - OR guest order (empty customer_id) with matching email
+        - Never include another tenant's order just because emails match
+        """
         cid = str(customer_id or "").strip()
         em = str(email or "").strip().lower()
         if not cid and not em:
@@ -1336,8 +1362,10 @@ class SalesOrderService:
             oid_email = str(order.get("email") or "").strip().lower()
             if cid and oid_cid == cid:
                 matched.append(order)
-            elif em and oid_email == em:
+            elif em and oid_email == em and not oid_cid:
+                # Guest checkout awaiting claim — safe to show after login attach.
                 matched.append(order)
+            # else: email match but foreign customer_id → isolation: skip
         # de-dupe by order_id
         seen: set[str] = set()
         unique: list[dict] = []
@@ -1349,12 +1377,16 @@ class SalesOrderService:
             unique.append(o)
         unique.sort(key=lambda o: o.get("created_at", ""), reverse=True)
         out: list[dict] = []
-        for order in unique[:limit]:
+        for order in unique:
+            if self._order_is_cabinet_hidden(order):
+                continue
             try:
                 status = self.public_status(str(order["order_id"]))
             except Exception:
                 status = self._summary(order)
             out.append(status)
+            if len(out) >= limit:
+                break
         return out
 
     def list_pending(self) -> list[dict]:
@@ -1388,7 +1420,13 @@ class SalesOrderService:
         em = str(email or "").strip().lower()
         oid_cid = str(order.get("customer_id") or "").strip()
         oid_email = str(order.get("email") or "").strip().lower()
-        if not ((cid and oid_cid == cid) or (em and oid_email == em)):
+        owns = False
+        if cid and oid_cid and oid_cid == cid:
+            owns = True
+        elif em and oid_email == em and not oid_cid:
+            # Guest shop not yet attached — email claim only.
+            owns = True
+        if not owns:
             raise ValueError("forbidden")
         return order
 

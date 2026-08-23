@@ -457,7 +457,60 @@ class StoreFactoryService:
         return path.read_text(encoding="utf-8")
 
     @staticmethod
-    def rewrite_live_html(html: str, order_id: str) -> str:
+    def rewrite_live_urls(
+        text: str, *, order_id: str, relative_dir: str = ""
+    ) -> str:
+        """Rewrite relative href/src/url(...) to the store live asset base."""
+        import re
+        from pathlib import PurePosixPath
+
+        base = f"/api/client/stores/{order_id}/live"
+
+        def _norm(target: str) -> str | None:
+            t = (target or "").strip()
+            if not t or t.startswith(
+                ("http://", "https://", "/", "#", "mailto:", "data:", "javascript:")
+            ) or t.startswith(base):
+                return None
+            joined = PurePosixPath(relative_dir or ".") / t
+            parts: list[str] = []
+            for part in joined.parts:
+                if part in ("", "."):
+                    continue
+                if part == "..":
+                    if parts:
+                        parts.pop()
+                    continue
+                parts.append(part)
+            return "/".join(parts) if parts else None
+
+        def _href(match: re.Match[str]) -> str:
+            attr, quote, target = match.group(1), match.group(2), match.group(3)
+            cleaned = _norm(target)
+            if cleaned is None:
+                return match.group(0)
+            return f"{attr}={quote}{base}/{cleaned}{quote}"
+
+        text = re.sub(r'(href|src)=([\'"])([^\'"]+)\2', _href, text, flags=re.I)
+
+        def _css_url(match: re.Match[str]) -> str:
+            quote, target = match.group(1) or "", match.group(2)
+            cleaned = _norm(target)
+            if cleaned is None:
+                return match.group(0)
+            if quote:
+                return f"url({quote}{base}/{cleaned}{quote})"
+            return f"url({base}/{cleaned})"
+
+        return re.sub(
+            r"url\(\s*([\'\"]?)([^)\'\"]+)\1\s*\)",
+            _css_url,
+            text,
+            flags=re.I,
+        )
+
+    @classmethod
+    def rewrite_live_html(cls, html: str, order_id: str) -> str:
         """Point relative page/asset links at the live API base."""
         import re
 
@@ -476,21 +529,16 @@ class StoreFactoryService:
             else:
                 html = boot + html
 
-        def _href(match: re.Match[str]) -> str:
-            attr, quote, target = match.group(1), match.group(2), match.group(3)
-            if (
-                target.startswith(("http://", "https://", "/", "#", "mailto:", "data:"))
-                or target.startswith(base)
-            ):
-                return match.group(0)
-            return f"{attr}={quote}{base}/{target.lstrip('./')}{quote}"
-
-        return re.sub(
-            r'(href|src)=([\'"])([^\'"]+)\2',
-            _href,
-            html,
-            flags=re.I,
-        )
+        html = cls.rewrite_live_urls(html, order_id=order_id, relative_dir="")
+        if not re.search(r"<base\b", html, flags=re.I):
+            tag = f'<base href="{base}/" />'
+            if re.search(r"<head\b[^>]*>", html, flags=re.I):
+                html = re.sub(
+                    r"(<head\b[^>]*>)", rf"\1\n  {tag}", html, count=1, flags=re.I
+                )
+            else:
+                html = f"{tag}\n{html}"
+        return html
 
     def status_payload(self, product_id: str | None) -> dict[str, Any]:
         if not product_id:

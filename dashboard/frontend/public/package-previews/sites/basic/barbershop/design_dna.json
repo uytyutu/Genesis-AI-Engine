@@ -1,0 +1,72 @@
+{
+  "emotion": "trust",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "cormorant_source",
+  "motion": "soft",
+  "hero_concept": "trust_panel",
+  "hero_layout": "C",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "clean",
+  "package_id": "basic",
+  "niche_id": "beauty",
+  "fingerprint": "ab8d4a5a1e401016f7df9ebe0da02ce540595b6e5b07f60d9caefc169d51ae03",
+  "section_treatments": [
+    [
+      "stats",
+      "ink"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "tint"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "process",
+      "gradient"
+    ],
+    [
+      "showcase",
+      "illustration"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f3f6f4",
+  "ink_hex": "#243029"
+}

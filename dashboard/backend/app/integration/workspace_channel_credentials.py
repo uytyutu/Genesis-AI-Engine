@@ -308,6 +308,27 @@ def save_telegram_token(
         )
         webhook = {"ok": False, "webhook_registered": False, "reason": "setWebhook_error"}
     out = {"ok": True, "connection": _public_view(record), "webhook": webhook}
+    # Brand Virtus consultant bots on Telegram (name/description/commands) — never log token.
+    try:
+        from app.integration import workspace_ai_bots as wab
+        from app.integration.ai_employee_brain import apply_virtus_consultant_profile
+        from app.integration.workspace_bot_runtime import is_virtus_consultant
+
+        bot_row = wab.get_bot(memory_dir, customer_id, bid)
+        if bot_row and is_virtus_consultant(bot_row):
+            brand = apply_virtus_consultant_profile(raw_token)
+            out["telegram_branding"] = {
+                "branded": bool(brand.get("branded")),
+                "methods": {
+                    k: {"ok": bool(v.get("ok"))}
+                    for k, v in brand.items()
+                    if k != "branded"
+                },
+            }
+    except Exception:
+        logger.exception(
+            "telegram_branding_failed customer=%s bot=%s", customer_id, bid
+        )
     return out
 
 

@@ -46,7 +46,7 @@ class CraftsmanRenderer:
                 f'<source src="{v}" type="video/mp4"></video>'
             )
 
-        cases = _craft_cases(ctx.niche_id, city)
+        cases = _craft_cases(ctx.niche_id, city, sample_label="Demo" if ctx.demo else "Beispiel")
         crew = _craft_crew(ctx.niche_id)
         kit = _craft_kit(ctx.niche_id)
         fi = first_impression_copy_html(
@@ -55,10 +55,7 @@ class CraftsmanRenderer:
             cta_class="cr-btn",
             extra_cta_html='<a class="cr-btn cr-btn-ghost" href="#cr-cases">Projekte</a>',
         )
-        site_beat = (
-            '<p class="cr-site-beat" data-atmosphere="1">'
-            "Baustelle · Material · Handwerk</p>"
-        )
+        site_beat = _craft_site_beat(ctx.niche_id)
 
         from app.factory.renderers.enrichment import (
             ENRICHMENT_CSS,
@@ -152,37 +149,50 @@ class CraftsmanRenderer:
         )
 
 
-def _craft_cases(niche_id: str, city: str) -> str:
+def _craft_site_beat(niche_id: str) -> str:
+    niche = (niche_id or "").lower()
+    if niche in ("auto", "autohaus", "car_dealership", "auto_detailing", "auto_ankauf"):
+        label = "Werkstatt · Diagnose · Service"
+    elif niche in ("dachreinigung", "zaunbau", "gartenpflege", "green", "handwerk", "cleaning"):
+        label = "Baustelle · Material · Handwerk"
+    elif niche == "restaurant":
+        label = "Feuer · Rauch · Wärme"
+    else:
+        label = "Qualität · Ablauf · Vertrauen"
+    return f'<p class="cr-site-beat" data-atmosphere="1">{_esc(label)}</p>'
+
+
+def _craft_cases(niche_id: str, city: str, *, sample_label: str = "Beispiel") -> str:
     niche = (niche_id or "").lower()
     loc = city or "Region"
     if niche == "dachreinigung":
         items = (
-            ("Haus Nürnberg-Nord", "Dachreinigung · 1 Tag", "Demo"),
-            ("Familienhaus Fürth", "Imprägnierung · 1–2 Tage", "Demo"),
-            ("Villa Erlangen", "Inspektion + Doku · 2 Tage", "Demo"),
-            ("Townhouse Schwabach", "Rinne + Reinigung · 1 Tag", "Demo"),
+            ("Haus Nürnberg-Nord", "Dachreinigung · 1 Tag", sample_label),
+            ("Familienhaus Fürth", "Imprägnierung · 1–2 Tage", sample_label),
+            ("Villa Erlangen", "Inspektion + Doku · 2 Tage", sample_label),
+            ("Townhouse Schwabach", "Rinne + Reinigung · 1 Tag", sample_label),
         )
     elif niche == "zaunbau":
         items = (
-            ("Grundstück Erlangen", "Metallzaun · 3 Tage", "Demo"),
-            ("Garten Nürnberg", "Holzlatten · 2 Tage", "Demo"),
-            ("Gewerbe Fürth", "Toranlage · 4 Tage", "Demo"),
+            ("Grundstück Erlangen", "Metallzaun · 3 Tage", sample_label),
+            ("Garten Nürnberg", "Holzlatten · 2 Tage", sample_label),
+            ("Gewerbe Fürth", "Toranlage · 4 Tage", sample_label),
         )
     elif niche in ("gartenpflege", "green"):
         items = (
-            (f"Garten {loc}", "Pflege + Heckenschnitt · 1 Tag", "Demo"),
-            (f"Terrasse {loc}", "Reinigung · Halbtag", "Demo"),
-            (f"Anlage {loc}", "Saisonpflege · 2 Tage", "Demo"),
+            (f"Garten {loc}", "Pflege + Heckenschnitt · 1 Tag", sample_label),
+            (f"Terrasse {loc}", "Reinigung · Halbtag", sample_label),
+            (f"Anlage {loc}", "Saisonpflege · 2 Tage", sample_label),
         )
     else:
         # handwerk / cleaning / default — Meister auf Abruf projects
         items = (
-            (f"Badrenovierung {loc}", "4 Tage · Fliesen & Armaturen", "Demo"),
-            (f"IKEA-Küche {loc}", "2 Tage · Montage komplett", "Demo"),
-            (f"Streichen 78 m² {loc}", "3 Tage · Wände + Decke", "Demo"),
-            (f"Vinylboden {loc}", "2 Tage · inkl. Leisten", "Demo"),
-            (f"Büro-Auffrischung {loc}", "3 Tage · Maler + Montage", "Demo"),
-            (f"Lampen & Regale {loc}", "Halbtag · Festpreis", "Demo"),
+            ("Badrenovierung {loc}", "4 Tage · Fliesen & Armaturen", sample_label),
+            (f"IKEA-Küche {loc}", "2 Tage · Montage komplett", sample_label),
+            (f"Streichen 78 m² {loc}", "3 Tage · Wände + Decke", sample_label),
+            (f"Vinylboden {loc}", "2 Tage · inkl. Leisten", sample_label),
+            (f"Büro-Auffrischung {loc}", "3 Tage · Maler + Montage", sample_label),
+            (f"Lampen & Regale {loc}", "Halbtag · Festpreis", sample_label),
         )
     parts = []
     for i, (title, meta, chip) in enumerate(items):
@@ -404,8 +414,21 @@ body[data-renderer="craftsman"] .topbar { border-bottom: 1px solid rgba(255,255,
 .cr-contact p { margin: 0 0 .55rem; }
 .cr-ask .cr-btn { margin-top: 1rem; }
 @media (max-width: 860px) {
-  .cr-hero { grid-template-columns: 1fr; min-height: 0; }
-  .cr-hero-photo, .cr-hero-video { min-height: 42vh; }
+  .cr-hero {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+  }
+  .cr-hero-stage {
+    min-height: min(52vh, 440px) !important;
+    max-height: 56vh;
+    order: 0;
+  }
+  .cr-hero-board { order: 1; }
+  .cr-hero-photo, .cr-hero-video {
+    min-height: min(52vh, 440px) !important;
+    max-height: 56vh;
+    object-fit: cover;
+  }
   .cr-case-wall { grid-template-columns: 1fr; }
   .cr-case:first-child { grid-row: auto; }
 }

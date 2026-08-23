@@ -32,9 +32,26 @@ from app.factory.design_dna.media_truth import enforce_media_truth_on_product
 _esc = html_lib.escape
 
 DEMO_DISCLAIMER = (
-    "Demo-Inhalt · Virtus Core Preview — Projekte, Personen, Ausrüstung und "
+    "Beispielinhalte — Projekte, Personen, Ausrüstung und "
     "Nachweise sind demonstrativ erzeugt und keine echten Referenzen."
 )
+
+CLIENT_DISCLAIMER = (
+    "Beispielinhalte zur Illustration — Projekte, Personen, Ausrüstung und "
+    "Nachweise sind beispielhaft dargestellt und keine echten Referenzen."
+)
+
+
+def _demo_gallery_build(*, contacts: dict | None = None, meta: dict | None = None) -> bool:
+    if isinstance(contacts, dict):
+        if contacts.get("demo_gallery") or contacts.get("fabricate_company") or contacts.get("fabricate"):
+            return True
+        if contacts.get("client_delivery"):
+            return False
+    if isinstance(meta, dict):
+        if meta.get("demo_content") or meta.get("business_generation"):
+            return True
+    return False
 
 
 @dataclass(frozen=True)
@@ -479,6 +496,65 @@ _NICHE_REP: dict[str, dict[str, Any]] = {
         ),
         "gallery_roles": ("Hecke", "Rasen", "Beete", "Werkzeug"),
     },
+    "restaurant": {
+        "cases": (
+            {
+                "title": "Saisonmenü Herbst",
+                "city": "Berlin",
+                "task": "Regionale Zutaten, kurze Wege zur Küche",
+                "duration": "Saison",
+                "works": ("Einkauf", "Menü", "Service", "Reservierung"),
+                "before": "Standardkarte",
+                "after": "Saisonale Speisekarte",
+            },
+            {
+                "title": "Weinabend mit Menü",
+                "city": "Berlin",
+                "task": "Geführtes Menü mit passenden Weinen",
+                "duration": "1 Abend",
+                "works": ("Reservierung", "Menü", "Weinbegleitung", "Service"),
+                "before": "Offene Plätze",
+                "after": "Ausgebuchter Abend",
+            },
+        ),
+        "team": (
+            ("Marco Weber", "Küchenchef", "Saisonküche"),
+            ("Sofia Klein", "Serviceleitung", "Gastgeberin"),
+            ("Jonas Hart", "Sommelier", "Wein & Pairing"),
+            ("Lea Brandt", "Reservierung", "Gäste & Events"),
+        ),
+        "equipment": (
+            "Offene Küche",
+            "Weinkeller",
+            "Frischetheke",
+            "Saisonkarte",
+        ),
+        "process": (
+            "Reservierung",
+            "Begrüßung",
+            "Menü & Getränke",
+            "Service",
+            "Nachgespräch",
+            "Wiederkehr",
+        ),
+        "ba_pairs": (("Standardkarte", "Saisonmenü"), ("Leerer Tisch", "Gedeckter Abend")),
+        "knowledge": (
+            ("Reservierung nötig?", "Am Wochenende empfehlen wir eine Reservierung."),
+            ("Allergene & Ernährung?", "Bitte bei der Reservierung angeben — wir beraten gern."),
+        ),
+        "trust": (
+            ("Regionale Partner", "Lieferanten aus der Region"),
+            ("Hygiene-Konzept", "HACCP-orientierter Küchenablauf"),
+            ("Allergenkennzeichnung", "Transparent auf Karte & im Service"),
+            ("Reservierung", "Online & telefonisch"),
+        ),
+        "timeline": (
+            ("2017", "Eröffnung", "Start in Berlin"),
+            ("2022", "Weinkeller", "Weinkeller erweitert"),
+            ("2026", "Saisonküche", "Saisonküche im Fokus"),
+        ),
+        "gallery_roles": ("Speise", "Küche", "Raum", "Team"),
+    },
 }
 
 
@@ -503,8 +579,30 @@ def inject_reputation_into_order(order: tuple[str, ...] | list[str]) -> tuple[st
     return tuple(keys)
 
 
-def build_reputation_pack(book: BrandBook) -> ReputationPack:
+def _client_rep_detail(detail: str) -> str:
+    """Strip lazy Demo placeholders from client-facing export copy."""
+    d = (detail or "").strip()
+    if d == "Demo":
+        return "Beispielinhalt zur Illustration"
+    return (
+        detail.replace("(Demo)", "(Beispiel)")
+        .replace("(demo)", "(Beispiel)")
+        .replace("— Demo-Hinweis", "— Beispielhinweis")
+        .replace("Demo-Hinweis", "Beispielhinweis")
+    )
+
+
+def build_reputation_pack(
+    book: BrandBook,
+    *,
+    demo_gallery: bool = False,
+) -> ReputationPack:
     niche = book.niche_id
+    client_mode = not demo_gallery
+    case_chip = "Beispiel" if client_mode else "Demonstrationsbeispiel"
+    know_chip = "Fachartikel" if client_mode else "Demo-Artikel"
+    trust_chip = "Beispiel" if client_mode else "Demo-Beispiel"
+    timeline_chip = "Beispiel" if client_mode else "Demo"
     raw = _NICHE_REP.get(niche)
     if not raw:
         raw = {
@@ -512,7 +610,11 @@ def build_reputation_pack(book: BrandBook) -> ReputationPack:
                 {
                     "title": f"Projekt {book.city_hint or 'Lokal'}",
                     "city": book.city_hint or "DE",
-                    "task": "Demonstrative Referenzarbeit",
+                    "task": (
+                        "Typische Referenzarbeit"
+                        if client_mode
+                        else "Demonstrative Referenzarbeit"
+                    ),
                     "duration": "1–2 Tage",
                     "works": ("Beratung", "Umsetzung", "Dokumentation"),
                     "before": "Ausgangslage",
@@ -537,19 +639,38 @@ def build_reputation_pack(book: BrandBook) -> ReputationPack:
             ),
             "ba_pairs": (("Vorher", "Nachher"),),
             "knowledge": (
-                ("Worauf Sie achten sollten", "Kurzer Demo-Fachartikel zur Orientierung."),
+                (
+                    "Worauf Sie achten sollten",
+                    (
+                        "Kurzer Fachartikel zur Orientierung."
+                        if client_mode
+                        else "Kurzer Demo-Fachartikel zur Orientierung."
+                    ),
+                ),
                 ("Ablauf verständlich erklärt", "So arbeiten wir — transparent und lokal."),
             ),
             "trust": (
-                ("Versicherung", "Demo"),
-                ("Dokumentation", "Demo"),
-                ("Festpreis", "Demo"),
-                ("Lokaler Service", "Demo"),
+                (
+                    "Versicherung",
+                    "Betriebshaftpflicht" if client_mode else "Demo",
+                ),
+                (
+                    "Dokumentation",
+                    "Fotodoku & Übergabe" if client_mode else "Demo",
+                ),
+                (
+                    "Festpreis",
+                    "Vor Start klar" if client_mode else "Demo",
+                ),
+                (
+                    "Lokaler Service",
+                    "Regional erreichbar" if client_mode else "Demo",
+                ),
             ),
             "timeline": (
-                ("2022", "Start", "Demo"),
-                ("2024", "Wachstum", "Demo"),
-                ("2026", "Region", "Demo"),
+                ("2022", "Start", "Regional"),
+                ("2024", "Wachstum", "Team erweitert"),
+                ("2026", "Region", "Stammkunden"),
             ),
             "gallery_roles": tuple(book.media_dna.required[:4])
             if getattr(book, "media_dna", None)
@@ -565,18 +686,34 @@ def build_reputation_pack(book: BrandBook) -> ReputationPack:
             works=tuple(c["works"]),
             before_label=c.get("before", "Vorher"),
             after_label=c.get("after", "Nachher"),
+            demo_label=case_chip,
         )
         for c in raw["cases"]
     )
     team = tuple(
-        DemoPerson(name=n, role=r, focus=f) for n, r, f in raw["team"]
+        DemoPerson(name=n, role=r, focus=f, demo_label="Beispielprofil")
+        for n, r, f in raw["team"]
     )
     knowledge = tuple(
-        KnowledgeArticle(title=t, teaser=s) for t, s in raw["knowledge"]
+        KnowledgeArticle(title=t, teaser=s, demo_label=know_chip)
+        for t, s in raw["knowledge"]
     )
-    trust = tuple(TrustPillar(title=t, detail=d) for t, d in raw["trust"])
+    trust = tuple(
+        TrustPillar(
+            title=t,
+            detail=_client_rep_detail(d) if client_mode else d,
+            demo_label=trust_chip,
+        )
+        for t, d in raw["trust"]
+    )
     timeline = tuple(
-        TimelineEvent(year=y, title=t, detail=d) for y, t, d in raw["timeline"]
+        TimelineEvent(
+            year=y,
+            title=t,
+            detail=_client_rep_detail(d) if client_mode else d,
+            demo_label=timeline_chip,
+        )
+        for y, t, d in raw["timeline"]
     )
     ba = tuple((a, b) for a, b in raw["ba_pairs"])
     fp = hashlib.sha256(
@@ -607,6 +744,7 @@ def build_reputation_pack(book: BrandBook) -> ReputationPack:
             "Beauty alone is REBUILD."
         ),
         fingerprint=fp,
+        disclaimer=DEMO_DISCLAIMER if demo_gallery else CLIENT_DISCLAIMER,
     )
 
 
@@ -1061,6 +1199,15 @@ def render_reputation_html(
             ]
         )
     ba_json = _esc(json.dumps(ba_payload, ensure_ascii=False))
+    client_mode = pack.disclaimer == CLIENT_DISCLAIMER
+    sample_label = "Beispiel" if client_mode else "Demo"
+    muted_intro = (
+        f"Warum {_esc(pack.brand_name)} wie ein etabliertes Unternehmen wirkt — "
+        "mit klarer Beispiel-Kennzeichnung."
+        if client_mode
+        else f"Warum {_esc(pack.brand_name)} wie ein reales Unternehmen wirkt — "
+        "mit klarer Demo-Kennzeichnung."
+    )
 
     cases_html = []
     for i, c in enumerate(pack.cases):
@@ -1184,7 +1331,7 @@ def render_reputation_html(
       <h3>Ergebnis, das man sieht</h3>
       <div class="rep-ba-stage">
         <div class="rep-ba-tabs" role="tablist">{ba_tabs}</div>
-        <div class="rep-ba-slider" role="img" aria-label="Vorher Nachher Vergleich Demo">
+        <div class="rep-ba-slider" role="img" aria-label="Vorher Nachher Vergleich {sample_label}">
           <div class="layer layer-after"{a0_style}><span class="ba-label">{_esc(first[1])}</span></div>
           <div class="layer layer-before"{b0_style}><span class="ba-label">{_esc(first[0])}</span></div>
           <div class="handle" aria-hidden="true"></div>
@@ -1194,15 +1341,43 @@ def render_reputation_html(
     else:
         ba_block = """
     <div class="rep-block" id="rep-before-after" hidden>
-      <p class="rep-demo-chip">Before/After wird geladen · Demo</p>
+      <p class="rep-demo-chip">Before/After wird geladen · {sample_label}</p>
     </div>"""
+
+    niche = (pack.niche_id or "").strip().lower()
+    team_title = {
+        "dental": "Menschen hinter der Praxis",
+        "law": "Menschen hinter der Kanzlei",
+        "restaurant": "Menschen hinter der Küche",
+        "computer": "Menschen hinter dem Support",
+        "beauty": "Menschen hinter dem Atelier",
+        "fitness": "Menschen hinter dem Training",
+        "psychology": "Menschen hinter der Praxis",
+        "realestate": "Menschen hinter dem Maklerbüro",
+        "handwerk": "Menschen hinter dem Handwerk",
+        "dachreinigung": "Menschen hinter dem Handwerk",
+        "zaunbau": "Menschen hinter dem Handwerk",
+    }.get(niche, "Menschen hinter dem Unternehmen")
+    process_title = {
+        "dental": "So läuft Ihr Termin",
+        "law": "So läuft Ihr Mandat",
+        "restaurant": "So läuft Ihr Besuch",
+        "computer": "So läuft Ihr Auftrag",
+        "psychology": "So läuft Ihr Erstgespräch",
+    }.get(niche, "So läuft Ihr Auftrag")
+    equip_title = {
+        "dental": "Technik, die Vertrauen schafft",
+        "law": "Struktur, die Vertrauen schafft",
+        "restaurant": "Küche, die Vertrauen schafft",
+        "computer": "Werkzeug, das Vertrauen schafft",
+    }.get(niche, "Ausrüstung, die Vertrauen schafft")
 
     return f"""
   <section class="{_esc(section_class)} reputation-pack" id="reputation" data-ba-pairs="{ba_json}">
-    <p class="rep-demo-banner">{_esc(pack.disclaimer)}</p>
-    <p class="rep-kicker">Reputation</p>
+    {f'<p class="rep-demo-banner">{_esc(pack.disclaimer)}</p>' if not client_mode else ''}
+    <p class="rep-kicker">Nachweise</p>
     <h2>Nachweis statt Versprechen</h2>
-    <p class="muted">Warum {_esc(pack.brand_name)} wie ein reales Unternehmen wirkt — mit klarer Demo-Kennzeichnung.</p>
+    <p class="muted">{muted_intro}</p>
 
     <div class="rep-block" id="rep-portfolio">
       <p class="rep-kicker">01 · Portfolio</p>
@@ -1212,19 +1387,19 @@ def render_reputation_html(
 
     <div class="rep-block" id="rep-team">
       <p class="rep-kicker">02 · Team</p>
-      <h3>Menschen hinter dem Handwerk</h3>
+      <h3>{_esc(team_title)}</h3>
       <div class="rep-team-grid">{"".join(team_html)}</div>
     </div>
 
     <div class="rep-block" id="rep-equipment">
       <p class="rep-kicker">03 · Equipment</p>
-      <h3>Ausrüstung, die Vertrauen schafft</h3>
+      <h3>{_esc(equip_title)}</h3>
       <div class="rep-equip">{equip}</div>
     </div>
 
     <div class="rep-block" id="rep-process">
       <p class="rep-kicker">04 · Process</p>
-      <h3>So läuft Ihr Auftrag</h3>
+      <h3>{_esc(process_title)}</h3>
       <div class="rep-process-flow">{"".join(process_rows)}</div>
     </div>
 {ba_block}

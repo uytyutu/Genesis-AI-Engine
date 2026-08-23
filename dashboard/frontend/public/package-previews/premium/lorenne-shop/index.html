@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LORENNE Shop · Premium Gift Boxes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#0a0710; --ink:#f6f0f8; --muted:#c9bfd4; --accent:#c4a0e0; --line:rgba(255,255,255,.12); }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font-family:Outfit,system-ui,sans-serif; }
+    a { color:inherit; text-decoration:none; }
+    header { position:sticky; top:0; z-index:20; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+      padding:.85rem 1.1rem; background:rgba(10,7,16,.92); border-bottom:1px solid var(--line); backdrop-filter:blur(8px); }
+    header strong { font-family:"Cormorant Garamond",serif; font-size:1.25rem; }
+    .cta { border:0; border-radius:999px; padding:.65rem 1.1rem; background:linear-gradient(135deg,var(--accent),#e8d5f5); color:#1a1020; font-weight:600; cursor:pointer; font:inherit; min-height:44px; }
+    .hero { position:relative; min-height:70vh; display:grid; place-items:end start; padding:2rem 1.25rem 3rem;
+      background:url('../lorenne/assets/seq/f010.jpg') center/cover; }
+    .hero::after { content:""; position:absolute; inset:0; background:linear-gradient(to top,rgba(10,7,16,.92),rgba(10,7,16,.25)); }
+    .hero-inner { position:relative; z-index:1; max-width:40rem; }
+    .hero h1 { font-family:"Cormorant Garamond",serif; font-size:clamp(2.4rem,6vw,4rem); margin:0 0 .5rem; }
+    .hero p { color:var(--muted); font-size:1.1rem; line-height:1.6; }
+    .wrap { max-width:72rem; margin:0 auto; padding:2rem 1.25rem 4rem; }
+    .chips { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0 1.5rem; }
+    .chip { border:1px solid var(--line); background:transparent; color:var(--muted); border-radius:999px; padding:.45rem .85rem; cursor:pointer; font:inherit; }
+    .chip.on { color:#1a1020; background:var(--accent); border-color:transparent; }
+    .grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); }
+    .product { border:1px solid var(--line); border-radius:1rem; overflow:hidden; background:rgba(255,255,255,.03); display:flex; flex-direction:column; }
+    .product img { width:100%; aspect-ratio:1; object-fit:cover; }
+    .product .cat { margin:.7rem .85rem 0; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); }
+    .product h3 { margin:.35rem .85rem; font-size:1rem; }
+    .product .price { margin:0 .85rem .5rem; color:var(--accent); font-weight:600; }
+    .product .add { margin:.2rem .85rem 1rem; }
+    .cart { position:fixed; right:1rem; bottom:1rem; z-index:30; min-width:220px; border:1px solid var(--line); border-radius:1rem; padding:1rem; background:rgba(10,7,16,.95); }
+    .muted { color:var(--muted); font-size:.85rem; }
+    footer { border-top:1px solid var(--line); padding:1.5rem; text-align:center; color:var(--muted); font-size:.8rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>LORENNE Shop</strong>
+    <nav style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+      <a href="../lorenne/index.html">Website</a>
+      <a href="#catalog">Katalog</a>
+      <button type="button" class="cta" id="cartBtn">Warenkorb (<span id="cartCount">0</span>)</button>
+    </nav>
+  </header>
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="muted" style="letter-spacing:.2em;text-transform:uppercase;font-size:.7rem;color:var(--accent)">Desire → Product → Purchase</p>
+      <h1>Geschenkboxen mit Seele</h1>
+      <p>Premium Online-Shop — dieselben Boxen, dieselbe visuelle Welt wie die Website.</p>
+      <p style="margin-top:1rem"><a class="cta" href="#catalog">Katalog öffnen</a></p>
+    </div>
+  </section>
+  <main class="wrap" id="catalog">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:2rem;margin:0">Katalog · 21 Boxen</h2>
+    <div class="chips" id="chips"><button type="button" class="chip" data-cat="Alle">Alle</button><button type="button" class="chip" data-cat="Beauty Gifts">Beauty Gifts</button><button type="button" class="chip" data-cat="Birthday">Birthday</button><button type="button" class="chip" data-cat="Premium">Premium</button><button type="button" class="chip" data-cat="Romantic">Romantic</button><button type="button" class="chip" data-cat="Seasonal">Seasonal</button><button type="button" class="chip" data-cat="Self Care">Self Care</button><button type="button" class="chip" data-cat="Special Moments">Special Moments</button></div>
+    <div class="grid" id="grid"><article class="product" id="p1"><a href="#p1"><img src="assets/products/p01.jpg" alt="" /></a><p class="cat">Self Care</p><h3>Kraft Tanken Box</h3><p class="price">49 €</p><button type="button" class="cta add" data-name="Kraft Tanken Box" data-price="49.0">In den Warenkorb</button></article><article class="product" id="p2"><a href="#p2"><img src="assets/products/p02.jpg" alt="" /></a><p class="cat">Self Care</p><h3>Zeit für Dich Box</h3><p class="price">54 €</p><button type="button" class="cta add" data-name="Zeit für Dich Box" data-price="54.0">In den Warenkorb</button></article><article class="product" id="p3"><a href="#p3"><img src="assets/products/p03.jpg" alt="" /></a><p class="cat">Self Care</p><h3>Self Love Box</h3><p class="price">48 €</p><button type="button" class="cta add" data-name="Self Love Box" data-price="48.0">In den Warenkorb</button></article><article class="product" id="p4"><a href="#p4"><img src="assets/products/p04.jpg" alt="" /></a><p class="cat">Beauty Gifts</p><h3>Beauty Box</h3><p class="price">51 €</p><button type="button" class="cta add" data-name="Beauty Box" data-price="51.0">In den Warenkorb</button></article><article class="product" id="p5"><a href="#p5"><img src="assets/products/p05.jpg" alt="" /></a><p class="cat">Beauty Gifts</p><h3>Pink Glow Box</h3><p class="price">52 €</p><button type="button" class="cta add" data-name="Pink Glow Box" data-price="52.0">In den Warenkorb</button></article><article class="product" id="p6"><a href="#p6"><img src="assets/products/p06.jpg" alt="" /></a><p class="cat">Self Care</p><h3>Sunday Reset Box</h3><p class="price">55 €</p><button type="button" class="cta add" data-name="Sunday Reset Box" data-price="55.0">In den Warenkorb</button></article><article class="product" id="p7"><a href="#p7"><img src="assets/products/p07.jpg" alt="" /></a><p class="cat">Birthday</p><h3>Birthday Soft Box</h3><p class="price">46 €</p><button type="button" class="cta add" data-name="Birthday Soft Box" data-price="46.0">In den Warenkorb</button></article><article class="product" id="p8"><a href="#p8"><img src="assets/products/p08.jpg" alt="" /></a><p class="cat">Birthday</p><h3>Birthday Sparkle Box</h3><p class="price">58 €</p><button type="button" class="cta add" data-name="Birthday Sparkle Box" data-price="58.0">In den Warenkorb</button></article><article class="product" id="p9"><a href="#p9"><img src="assets/products/p09.jpg" alt="" /></a><p class="cat">Romantic</p><h3>Romantic Evening Box</h3><p class="price">59 €</p><button type="button" class="cta add" data-name="Romantic Evening Box" data-price="59.0">In den Warenkorb</button></article><article class="product" id="p10"><a href="#p10"><img src="assets/products/p10.jpg" alt="" /></a><p class="cat">Romantic</p><h3>For You Box</h3><p class="price">47 €</p><button type="button" class="cta add" data-name="For You Box" data-price="47.0">In den Warenkorb</button></article><article class="product" id="p11"><a href="#p11"><img src="assets/products/p11.jpg" alt="" /></a><p class="cat">Special Moments</p><h3>Open When… Collection</h3><p class="price">43 €</p><button type="button" class="cta add" data-name="Open When… Collection" data-price="43.0">In den Warenkorb</button></article><article class="product" id="p12"><a href="#p12"><img src="assets/products/p12.jpg" alt="" /></a><p class="cat">Special Moments</p><h3>Neuer Lebensabschnitt Box</h3><p class="price">52 €</p><button type="button" class="cta add" data-name="Neuer Lebensabschnitt Box" data-price="52.0">In den Warenkorb</button></article><article class="product" id="p13"><a href="#p13"><img src="assets/products/p13.jpg" alt="" /></a><p class="cat">Seasonal</p><h3>Movie Night Box</h3><p class="price">47 €</p><button type="button" class="cta add" data-name="Movie Night Box" data-price="47.0">In den Warenkorb</button></article><article class="product" id="p14"><a href="#p14"><img src="assets/products/p14.jpg" alt="" /></a><p class="cat">Seasonal</p><h3>Winter Warmth Box</h3><p class="price">53 €</p><button type="button" class="cta add" data-name="Winter Warmth Box" data-price="53.0">In den Warenkorb</button></article><article class="product" id="p15"><a href="#p15"><img src="assets/products/p15.jpg" alt="" /></a><p class="cat">Seasonal</p><h3>Sakura Moment Box</h3><p class="price">46 €</p><button type="button" class="cta add" data-name="Sakura Moment Box" data-price="46.0">In den Warenkorb</button></article><article class="product" id="p16"><a href="#p16"><img src="assets/products/p16.jpg" alt="" /></a><p class="cat">Premium</p><h3>Premium Atelier Box</h3><p class="price">79 €</p><button type="button" class="cta add" data-name="Premium Atelier Box" data-price="79.0">In den Warenkorb</button></article><article class="product" id="p17"><a href="#p17"><img src="assets/products/p17.jpg" alt="" /></a><p class="cat">Premium</p><h3>Signature Lilac Box</h3><p class="price">69 €</p><button type="button" class="cta add" data-name="Signature Lilac Box" data-price="69.0">In den Warenkorb</button></article><article class="product" id="p18"><a href="#p18"><img src="assets/products/p18.jpg" alt="" /></a><p class="cat">Special Moments</p><h3>Danke Box</h3><p class="price">39 €</p><button type="button" class="cta add" data-name="Danke Box" data-price="39.0">In den Warenkorb</button></article><article class="product" id="p19"><a href="#p19"><img src="assets/products/p19.jpg" alt="" /></a><p class="cat">Birthday</p><h3>Best Friends Box</h3><p class="price">45 €</p><button type="button" class="cta add" data-name="Best Friends Box" data-price="45.0">In den Warenkorb</button></article><article class="product" id="p20"><a href="#p20"><img src="assets/products/p20.jpg" alt="" /></a><p class="cat">Self Care</p><h3>Study Focus Box</h3><p class="price">42 €</p><button type="button" class="cta add" data-name="Study Focus Box" data-price="42.0">In den Warenkorb</button></article><article class="product" id="p21"><a href="#p21"><img src="assets/products/p21.jpg" alt="" /></a><p class="cat">Special Moments</p><h3>Mama Box</h3><p class="price">59 €</p><button type="button" class="cta add" data-name="Mama Box" data-price="59.0">In den Warenkorb</button></article></div>
+  </main>
+  <aside class="cart" id="cartPanel" hidden>
+    <strong>Warenkorb</strong>
+    <ul id="cartList" class="muted"></ul>
+    <p>Summe: <strong id="cartSum">0</strong> €</p>
+    <p class="muted">Checkout-Anbindung: Coming Soon / Connect im Workspace.</p>
+  </aside>
+  <footer>LORENNE Shop · DEMO Katalog · Virtus Core CreativeBusinessProject</footer>
+  <script>
+  (function(){
+    var cart = [];
+    var chips = document.querySelectorAll('.chip');
+    var products = document.querySelectorAll('.product');
+    chips.forEach(function(ch){
+      ch.addEventListener('click', function(){
+        chips.forEach(function(c){ c.classList.remove('on'); });
+        ch.classList.add('on');
+        var cat = ch.getAttribute('data-cat');
+        products.forEach(function(p){
+          var pc = p.querySelector('.cat').textContent;
+          p.style.display = (cat === 'Alle' || pc === cat) ? '' : 'none';
+        });
+      });
+    });
+    if (chips[0]) chips[0].classList.add('on');
+    function render(){
+      document.getElementById('cartCount').textContent = String(cart.length);
+      var list = document.getElementById('cartList');
+      list.innerHTML = cart.map(function(x){ return '<li>'+x.name+' · '+x.price+' €</li>'; }).join('');
+      var sum = cart.reduce(function(a,b){ return a + b.price; }, 0);
+      document.getElementById('cartSum').textContent = sum.toFixed(0);
+      document.getElementById('cartPanel').hidden = cart.length === 0;
+    }
+    document.querySelectorAll('.add').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        cart.push({ name: btn.getAttribute('data-name'), price: parseFloat(btn.getAttribute('data-price')) });
+        render();
+      });
+    });
+    document.getElementById('cartBtn').addEventListener('click', function(){
+      var p = document.getElementById('cartPanel');
+      p.hidden = !p.hidden && cart.length > 0 ? true : cart.length === 0;
+      if (cart.length) p.hidden = false;
+    });
+  })();
+  </script>
+</body>
+</html>

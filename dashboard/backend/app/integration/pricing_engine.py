@@ -38,11 +38,11 @@ REPAIR_PACKAGE_IDS: tuple[str, ...] = (
 # DE anchors — also used as fallback scale base.
 # standalone/connected kept as API aliases → Business / Premium amounts.
 _DE_SKUS: dict[str, int] = {
-    "basic": 199,
-    "business": 399,
-    "premium": 699,
-    "standalone": 399,  # alias → Business (Workspace)
-    "connected": 699,  # alias → Premium (Workspace + cinematic)
+    "basic": 299,
+    "business": 599,
+    "premium": 999,
+    "standalone": 599,  # alias → Business (Workspace)
+    "connected": 999,  # alias → Premium (Workspace + depth)
     "repair_lite": 199,
     "repair_standard": 349,
     "repair_complete": 499,
@@ -54,165 +54,165 @@ _PATH_A_SKUS: dict[str, dict[str, int]] = {
     "DE": dict(_DE_SKUS),
     "AT": dict(_DE_SKUS),
     "CH": {
-        "basic": 222,
-        "business": 442,
-        "premium": 786,
+        "basic": 334,
+        "business": 664,
+        "premium": 1123,
         "repair_lite": 229,
         "repair_standard": 399,
         "repair_complete": 569,
     },
     "US": {
-        "basic": 227,
-        "business": 460,
-        "premium": 815,
+        "basic": 341,
+        "business": 691,
+        "premium": 1165,
         "repair_lite": 229,
         "repair_standard": 399,
         "repair_complete": 569,
     },
     "CA": {
-        "basic": 227,
-        "business": 460,
-        "premium": 815,
+        "basic": 341,
+        "business": 691,
+        "premium": 1165,
         "repair_lite": 229,
         "repair_standard": 399,
         "repair_complete": 569,
     },
     "GB": {
-        "basic": 170,
-        "business": 337,
-        "premium": 582,
+        "basic": 255,
+        "business": 506,
+        "premium": 832,
         "repair_lite": 179,
         "repair_standard": 299,
         "repair_complete": 429,
     },
     # APAC
     "AU": {
-        "basic": 312,
-        "business": 613,
-        "premium": 1106,
+        "basic": 469,
+        "business": 920,
+        "premium": 1581,
         "repair_lite": 299,
         "repair_standard": 549,
         "repair_complete": 799,
     },
     "NZ": {
-        "basic": 312,
-        "business": 613,
-        "premium": 1106,
+        "basic": 469,
+        "business": 920,
+        "premium": 1581,
         "repair_lite": 299,
         "repair_standard": 549,
         "repair_complete": 799,
     },
     "JP": {
-        "basic": 31271,
-        "business": 60157,
-        "premium": 104850,
+        "basic": 46985,
+        "business": 90311,
+        "premium": 149850,
         "repair_lite": 35000,
         "repair_standard": 55000,
         "repair_complete": 78000,
     },
     "KR": {
-        "basic": 278600,
-        "business": 546323,
-        "premium": 932000,
+        "basic": 418600,
+        "business": 820169,
+        "premium": 1332000,
         "repair_lite": 290000,
         "repair_standard": 490000,
         "repair_complete": 690000,
     },
     "SG": {
-        "basic": 284,
-        "business": 552,
-        "premium": 990,
+        "basic": 427,
+        "business": 829,
+        "premium": 1415,
         "repair_lite": 279,
         "repair_standard": 479,
         "repair_complete": 699,
     },
     # Active EU / CIS desk — Basic anchors from Country Desk; tiers from DE ratio.
     "PL": {
-        "basic": 682,
-        "business": 1350,
-        "premium": 2388,
+        "basic": 1025,
+        "business": 2027,
+        "premium": 3413,
         "repair_lite": 700,
         "repair_standard": 1200,
         "repair_complete": 1700,
     },
     "CZ": {
-        "basic": 8529,
-        "business": 17188,
-        "premium": 29708,
+        "basic": 12815,
+        "business": 25804,
+        "premium": 42458,
         "repair_lite": 8500,
         "repair_standard": 15000,
         "repair_complete": 21000,
     },
     # Active EU / CIS desk — Basic anchors from Country Desk; tiers from DE ratio.
     "FR": {
-        "basic": 188,
-        "business": 374,
-        "premium": 658,
+        "basic": 282,
+        "business": 561,
+        "premium": 940,
         "repair_lite": 189,
         "repair_standard": 329,
         "repair_complete": 469,
     },
     "IT": {
-        "basic": 182,
-        "business": 365,
-        "premium": 641,
+        "basic": 273,
+        "business": 548,
+        "premium": 916,
         "repair_lite": 182,
         "repair_standard": 319,
         "repair_complete": 456,
     },
     "ES": {
-        "basic": 171,
-        "business": 344,
-        "premium": 600,
+        "basic": 257,
+        "business": 516,
+        "premium": 858,
         "repair_lite": 170,
         "repair_standard": 299,
         "repair_complete": 428,
     },
     "NL": {
-        "basic": 210,
-        "business": 420,
-        "premium": 740,
+        "basic": 316,
+        "business": 631,
+        "premium": 1058,
         "repair_lite": 210,
         "repair_standard": 369,
         "repair_complete": 528,
     },
     "BE": dict(_DE_SKUS),
     "PT": {
-        "basic": 154,
-        "business": 307,
-        "premium": 539,
+        "basic": 231,
+        "business": 461,
+        "premium": 770,
         "repair_lite": 154,
         "repair_standard": 269,
         "repair_complete": 385,
     },
     "RO": {
-        "basic": 114,
-        "business": 227,
-        "premium": 399,
+        "basic": 171,
+        "business": 341,
+        "premium": 570,
         "repair_lite": 114,
         "repair_standard": 199,
         "repair_complete": 285,
     },
     "SK": {
-        "basic": 125,
-        "business": 252,
-        "premium": 440,
+        "basic": 188,
+        "business": 378,
+        "premium": 629,
         "repair_lite": 125,
         "repair_standard": 219,
         "repair_complete": 314,
     },
     "UA": {
-        "basic": 4549,
-        "business": 9146,
-        "premium": 15960,
+        "basic": 6835,
+        "business": 13730,
+        "premium": 22810,
         "repair_lite": 4550,
         "repair_standard": 8000,
         "repair_complete": 11400,
     },
     "RU": {
-        "basic": 102,
-        "business": 206,
-        "premium": 358,
+        "basic": 153,
+        "business": 309,
+        "premium": 512,
         "repair_lite": 102,
         "repair_standard": 179,
         "repair_complete": 257,
@@ -296,6 +296,9 @@ def resolve_hub_catalog_prices(market_code: str) -> dict[str, Any]:
     from app.integration.market_registry import format_amount, get_market
 
     market = get_market(market_code)
+    basic = resolve_path_a_offer("basic", market.code)
+    business = resolve_path_a_offer("business", market.code)
+    premium = resolve_path_a_offer("premium", market.code)
     standalone = resolve_path_a_offer("standalone", market.code)
     connected = resolve_path_a_offer("connected", market.code)
     repair = resolve_path_a_offer("repair_lite", market.code)
@@ -306,14 +309,16 @@ def resolve_hub_catalog_prices(market_code: str) -> dict[str, Any]:
         "symbol": market.symbol,
         "landing_website": {
             "range_label": format_path_a_range(
-                standalone.amount, connected.amount, market.symbol
+                basic.amount, premium.amount, market.symbol
             ),
-            "basic_label": standalone.price_label,  # legacy key
-            "premium_label": connected.price_label,  # legacy key
+            "basic_label": basic.price_label,
+            "business_label": business.price_label,
+            "premium_label": premium.price_label,
             "standalone_label": standalone.price_label,
             "connected_label": connected.price_label,
-            "basic_amount": standalone.amount,
-            "premium_amount": connected.amount,
+            "basic_amount": basic.amount,
+            "business_amount": business.amount,
+            "premium_amount": premium.amount,
             "standalone_amount": standalone.amount,
             "connected_amount": connected.amount,
         },
@@ -641,11 +646,60 @@ def _bot_default_name(package_id: str) -> str:
     }.get(package_id, package_id)
 
 
+# ---------------------------------------------------------------------------
+# AI Employee Ladder SSOT (commercial + entitlements)
+#
+# What the customer actually buys today:
+#   Starter      → 1 AI employee + Telegram + Workspace
+#   Business     → up to 3 AI employees + Telegram + Workspace
+#   Professional → Fair Use AI employees + deeper onboarding/support
+#
+# Channels are NOT a tier differentiator. Live channels = Telegram + Website Chat.
+# WhatsApp / Instagram / Messenger stay Coming Soon until each connector
+# passes E2E and is flipped in BOT_CHANNELS_LIVE.
+#
+# Knowledge / languages guidance is NOT enforced in runtime — do not sell as
+# hard technical limits on the public vitrine.
+# ---------------------------------------------------------------------------
+
 # Package limit = number of independent AI-bots (not channel count).
 BOT_PACKAGE_MAX_BOTS: dict[str, int | None] = {
     "bot_starter": 1,
     "bot_business": 3,
-    "bot_professional": None,  # Fair Use
+    "bot_professional": None,  # Fair Use (soft cap elsewhere)
+}
+
+# Commercial channel ladder — flip to Live only after connector E2E PASS.
+BOT_CHANNELS_LIVE: tuple[str, ...] = ("Telegram", "Website Chat")
+BOT_CHANNELS_COMING_SOON: tuple[str, ...] = (
+    "WhatsApp",
+    "Instagram",
+    "Facebook Messenger",
+)
+
+# Soft product guidance (NOT runtime-enforced). Prefer omit on buyer cards.
+BOT_SOFT_GUIDANCE: dict[str, dict[str, Any]] = {
+    "bot_starter": {
+        "knowledge_sources_soft": 1,
+        "languages_soft": 1,
+        "analytics": "none",
+        "automation": "coming_soon",
+        "support": "standard",
+    },
+    "bot_business": {
+        "knowledge_sources_soft": 5,
+        "languages_soft": 3,
+        "analytics": "claim",
+        "automation": "coming_soon",
+        "support": "standard",
+    },
+    "bot_professional": {
+        "knowledge_sources_soft": None,
+        "languages_soft": None,
+        "analytics": "claim",
+        "automation": "coming_soon",
+        "support": "vip",
+    },
 }
 
 
@@ -657,73 +711,99 @@ def bot_package_max_bots(package_id: str) -> int | None:
 _BOT_PACKAGE_FEATURES: dict[str, dict[str, Any]] = {
     "bot_starter": {
         "tagline_ru": (
-            "Цифровой сотрудник на входе: отвечает 24/7 и собирает заявки, "
-            "пока вы заняты клиентами."
+            "Один AI-сотрудник + Telegram + Workspace — отвечает 24/7 и собирает заявки."
+        ),
+        "tagline_en": (
+            "One AI employee + Telegram + Workspace — answers 24/7 and captures leads."
         ),
         "max_bots": 1,
-        "max_bots_label": "1 AI-бот",
-        "knowledge_sources": "До 1 источника",
-        "languages": "1 язык",
-        "scenarios": "Базовые",
-        "dialog_history": "Базовая",
+        "max_bots_label": "1 AI employee",
+        "buy_promise_en": "One AI employee + Telegram + Workspace",
+        "extra_channels": "Telegram + Website Chat (live)",
+        "analytics": "none",
+        "automation": "coming_soon",
+        "support": "standard",
+        # Soft guidance only — not sold as hard limits on the vitrine.
+        "knowledge_sources": "soft:1 (not enforced)",
+        "languages": "soft:1 (not enforced)",
         "ai_analysis": False,
-        "training": "Базовое",
-        "extra_channels": "Website Chat + Telegram (live)",
-        "support": "Стандарт",
         "includes_ru": [
-            "Отвечает клиентам 24/7 — без ожидания менеджера",
-            "Собирает заявки и контакты автоматически",
-            "Снимает рутину с первого сотрудника на ресепшене",
-            "Внедрение под ваш бизнес (настройка + обучение базе)",
-            "Live сегодня: сайт-чат и Telegram (WhatsApp/Instagram — после Meta)",
+            "1 AI-сотрудник (enforced)",
+            "Live: Telegram + Client Workspace",
+            "Отвечает 24/7 и собирает заявки",
+            "Website Chat / WhatsApp / Instagram / Messenger — Coming Soon",
+            "Automation (календарь / CRM) — Coming Soon",
+        ],
+        "includes_en": [
+            "1 AI employee (enforced)",
+            "Live: Telegram + Client Workspace",
+            "Answers 24/7 and captures leads",
+            "Website Chat / WhatsApp / Instagram / Messenger — Coming Soon",
+            "Automation (booking / CRM) — Coming Soon",
         ],
     },
     "bot_business": {
         "tagline_ru": (
-            "Несколько цифровых сотрудников: запись, заявки и ответы в разных точках "
-            "контакта — экономия часов каждый день."
+            "До трёх независимых AI-сотрудников + Telegram + Workspace."
+        ),
+        "tagline_en": (
+            "Up to three independent AI employees + Telegram + Workspace."
         ),
         "max_bots": 3,
-        "max_bots_label": "До 3 AI-ботов",
-        "knowledge_sources": "До 5 источников",
-        "languages": "До 3 языков",
-        "scenarios": "Расширенные",
-        "dialog_history": "Расширенная",
-        "ai_analysis": True,
-        "training": "Регулярное",
-        "extra_channels": "Website Chat + Telegram (live)",
-        "support": "Стандарт",
+        "max_bots_label": "Up to 3 AI employees",
+        "buy_promise_en": "Up to 3 AI employees + Telegram + Workspace",
+        "extra_channels": "Telegram + Website Chat (live)",
+        "analytics": "claim",
+        "automation": "coming_soon",
+        "support": "standard",
+        "knowledge_sources": "soft:5 (not enforced)",
+        "languages": "soft:3 (not enforced)",
+        "ai_analysis": True,  # claim — not a connector gate
         "includes_ru": [
-            "Принимает запросы на запись и передаёт вам (календарь-модуль — скоро)",
-            "Собирает лиды без участия менеджера в смене",
-            "До 3 независимых сотрудников под разные задачи/локации",
-            "Экономит часы на переписке — команда фокусируется на оплачиваемой работе",
-            "AI-анализ обращений + регулярное обучение",
-            "Live сегодня: сайт-чат и Telegram",
+            "До 3 независимых AI-сотрудников (enforced)",
+            "Live: Telegram + Client Workspace",
+            "Разные задачи / точки контакта на одного владельца",
+            "Analytics — claim (углубление в процессе)",
+            "Website Chat / Meta — Coming Soon · Automation — Coming Soon",
+        ],
+        "includes_en": [
+            "Up to 3 independent AI employees (enforced)",
+            "Live: Telegram + Client Workspace",
+            "Different roles / contact points under one owner",
+            "Analytics — claim (depth grows in delivery)",
+            "Website Chat / Meta — Coming Soon · Automation — Coming Soon",
         ],
     },
     "bot_professional": {
         "tagline_ru": (
-            "Премиум-внедрение: команда цифровых сотрудников, Fair Use и VIP — "
-            "когда ИИ должен окупаться как штат, а не как виджет."
+            "Масштаб AI-сотрудников по Fair Use + более глубокое внедрение и VIP-поддержка."
+        ),
+        "tagline_en": (
+            "Fair Use AI employee scale + deeper onboarding and VIP support."
         ),
         "max_bots": None,
-        "max_bots_label": "Fair Use (без жёсткого лимита)",
-        "knowledge_sources": "Неограниченно",
-        "languages": "Неограниченно",
-        "scenarios": "Индивидуальные",
-        "dialog_history": "Полная аналитика",
-        "ai_analysis": True,
-        "training": "Приоритетное",
-        "extra_channels": "Website Chat + Telegram (live)",
-        "support": "VIP",
+        "max_bots_label": "Fair Use (soft cap 50)",
+        "buy_promise_en": "Fair Use AI employees + deeper onboarding/support",
+        "extra_channels": "Telegram + Website Chat (live)",
+        "analytics": "claim",
+        "automation": "coming_soon",
+        "support": "vip",
+        "knowledge_sources": "soft:unlimited (not enforced)",
+        "languages": "soft:unlimited (not enforced)",
+        "ai_analysis": True,  # claim
         "includes_ru": [
-            "Заменяет рутину целой линии поддержки / продаж",
-            "Индивидуальные сценарии под ваш процесс (не шаблон из коробки)",
-            "Полная аналитика: откуда заявки и где теряются клиенты",
-            "Fair Use — масштаб без искусственного лимита «на бота»",
-            "VIP-поддержка внедрения и приоритетные правки",
-            "Окупаемость: меньше ФОТ на ночные/выходные ответы",
+            "Fair Use AI-сотрудников (enforced soft cap)",
+            "Live: Telegram + Client Workspace",
+            "Более глубокое внедрение и VIP-поддержка",
+            "Analytics — claim",
+            "Website Chat / Meta — Coming Soon · Automation — Coming Soon",
+        ],
+        "includes_en": [
+            "Fair Use AI employees (enforced soft cap)",
+            "Live: Telegram + Client Workspace",
+            "Deeper onboarding and VIP support",
+            "Analytics — claim",
+            "Website Chat / Meta — Coming Soon · Automation — Coming Soon",
         ],
     },
 }
@@ -732,6 +812,52 @@ _BOT_PACKAGE_FEATURES: dict[str, dict[str, Any]] = {
 def bot_package_features(package_id: str) -> dict[str, Any]:
     pid = normalize_bot_package_id(package_id)
     return dict(_BOT_PACKAGE_FEATURES.get(pid) or _BOT_PACKAGE_FEATURES["bot_business"])
+
+
+def ai_employee_ladder_ssot() -> dict[str, Any]:
+    """Public SSOT snapshot for AI Digital Employee ladder (honesty + entitlements)."""
+    tiers = []
+    for pid in BOT_PACKAGE_IDS:
+        feat = bot_package_features(pid)
+        soft = dict(BOT_SOFT_GUIDANCE.get(pid) or {})
+        de = _DE_BOT_SKUS[pid]
+        tiers.append(
+            {
+                "package_id": pid,
+                "name": _bot_default_name(pid),
+                "setup_eur": de["setup"],
+                "monthly_eur": de["monthly"],
+                "max_bots": feat.get("max_bots"),
+                "max_bots_label": feat.get("max_bots_label"),
+                "buy_promise_en": feat.get("buy_promise_en"),
+                "telegram": "live",
+                "website_chat": "coming_soon",
+                "whatsapp": "coming_soon",
+                "instagram": "coming_soon",
+                "facebook_messenger": "coming_soon",
+                "workspace": "live",
+                "knowledge_soft": soft.get("knowledge_sources_soft"),
+                "languages_soft": soft.get("languages_soft"),
+                "knowledge_enforced": False,
+                "languages_enforced": False,
+                "analytics": soft.get("analytics"),
+                "automation": soft.get("automation"),
+                "support": soft.get("support"),
+            }
+        )
+    return {
+        "product_id": "prod_ai_business_bot",
+        "product_name": "AI Digital Employee",
+        "ssot_version": "ai_employee_ladder_v1",
+        "commercial_machine": (
+            "Website + AI Store + AI Employee → Stripe → Client Workspace → add-ons"
+        ),
+        "enforced_today": ["max_bots", "telegram_channel", "client_workspace"],
+        "not_enforced_today": ["knowledge_sources", "languages"],
+        "channels_live": list(BOT_CHANNELS_LIVE),
+        "channels_coming_soon": list(BOT_CHANNELS_COMING_SOON),
+        "tiers": tiers,
+    }
 
 
 def resolve_bot_offer(package_id: str, market_code: str) -> BotOffer:
@@ -755,7 +881,7 @@ def resolve_bot_offer(package_id: str, market_code: str) -> BotOffer:
 
 
 def list_bot_packages(market_code: str) -> dict[str, Any]:
-    """Catalog grid for Virtus Core Bots tab."""
+    """Catalog grid for Virtus Core Bots tab — honesty SSOT."""
     from app.integration.market_registry import get_market
 
     market = get_market(market_code)
@@ -764,38 +890,58 @@ def list_bot_packages(market_code: str) -> dict[str, Any]:
         offer = resolve_bot_offer(pid, market.code).as_dict()
         feat = bot_package_features(pid)
         offer["tagline_ru"] = feat["tagline_ru"]
+        offer["tagline_en"] = feat.get("tagline_en")
         offer["includes_ru"] = feat["includes_ru"]
+        offer["includes_en"] = feat.get("includes_en") or feat["includes_ru"]
+        offer["buy_promise_en"] = feat.get("buy_promise_en")
+        offer["max_bots"] = feat.get("max_bots")
+        offer["max_bots_label"] = feat.get("max_bots_label")
         offer["features"] = {
             "max_bots": feat.get("max_bots"),
             "max_bots_label": feat.get("max_bots_label"),
+            "buy_promise_en": feat.get("buy_promise_en"),
+            "extra_channels": feat["extra_channels"],
+            "analytics": feat.get("analytics"),
+            "automation": feat.get("automation"),
+            "support": feat.get("support"),
+            # Soft guidance kept for operators — not a sold technical limit.
             "knowledge_sources": feat["knowledge_sources"],
             "languages": feat["languages"],
-            "scenarios": feat["scenarios"],
-            "dialog_history": feat["dialog_history"],
+            "knowledge_enforced": False,
+            "languages_enforced": False,
             "ai_analysis": feat["ai_analysis"],
-            "training": feat["training"],
-            "extra_channels": feat["extra_channels"],
-            "support": feat["support"],
+            "ai_analysis_status": "claim" if feat["ai_analysis"] else "none",
         }
         packages.append(offer)
     return {
         "product_id": "prod_ai_business_bot",
         "product_name": "AI Digital Employee",
+        "ssot": ai_employee_ladder_ssot(),
         "packages": packages,
         "market_code": market.code,
         "currency": market.currency,
         "symbol": market.symbol,
-        "channels_available": ["Website Chat", "Telegram"],
-        "channels_coming_soon": ["WhatsApp", "Instagram", "Facebook Messenger"],
+        "channels_available": list(BOT_CHANNELS_LIVE),
+        "channels_coming_soon": list(BOT_CHANNELS_COMING_SOON),
         "channels_note_ru": (
-            "Вы платите за результат (ответы, заявки, меньше рутины), не за список приложений. "
-            "Сейчас live: Website Chat и Telegram. "
-            "WhatsApp / Instagram / Messenger — после OAuth Meta, не продаём как готовые. "
-            "Календарь записи / CRM — модули «Скоро», не входят в live как готовый продукт."
+            "Вы платите за число AI-сотрудников и внедрение — не за список приложений. "
+            "Live сегодня: Telegram + Website Chat + Client Workspace. "
+            "WhatsApp / Instagram / Messenger — Coming Soon. "
+            "Automation (календарь / CRM) — Coming Soon."
+        ),
+        "channels_note_en": (
+            "You pay for AI employee count and onboarding — not for messenger logos. "
+            "Live today: Telegram + Website Chat + Client Workspace. "
+            "WhatsApp / Instagram / Messenger — Coming Soon. "
+            "Automation (booking / CRM) — Coming Soon."
         ),
         "comparison_note_ru": (
-            "Разница тарифов — во внедрении и мощности: сколько цифровых сотрудников, "
-            "глубина сценариев, аналитика, VIP. Не в количестве логотипов мессенджеров."
+            "Разница тарифов: 1 → до 3 → Fair Use AI-сотрудников. "
+            "Каналы одинаковые на всех тарифах. Knowledge/languages — не hard limit."
+        ),
+        "comparison_note_en": (
+            "Tier difference: 1 → up to 3 → Fair Use AI employees. "
+            "Channels are the same on every tier. Knowledge/languages are not hard limits."
         ),
         "note": "Digital employee product — not included in Landing Website packages.",
     }

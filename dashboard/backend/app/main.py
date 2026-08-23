@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import io
 import os
@@ -4326,8 +4326,20 @@ def public_niches() -> dict:
     from app.factory.niche_profiles import known_niche_ids, resolve_niche_profile
     from app.factory.research_3d.visual_experience_registry import load_specialization_map
 
+    # Family Care / Familienpsychologie — removed from public order UI (not a sellable demo).
+    _PUBLIC_NICHE_BLOCKLIST = frozenset(
+        {
+            "family_psychology",
+            "family_care",
+            "familienpsychologie",
+            "psychology",
+        }
+    )
+
     niches = []
     for nid in known_niche_ids():
+        if nid in _PUBLIC_NICHE_BLOCKLIST or "family" in nid:
+            continue
         profile = resolve_niche_profile(nid)
         niches.append({"id": nid, "label_de": profile.label_de})
     specs = []
@@ -4447,6 +4459,22 @@ def client_me(request: Request) -> dict:
     return _customer_identity().me(str(payload["sub"]))
 
 
+@app.get("/api/client/vector-coaching")
+def client_vector_coaching(request: Request) -> dict:
+    """Ephemeral Vector coaching notifications — not a chat."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration.vector.coaching_notifications import coaching_payload_for_me
+
+    payload = require_client(request)
+    customer_id = str(payload["sub"])
+    me = _customer_identity().me(customer_id)
+    email = str(payload.get("email") or me.get("email") or "").strip()
+    orders = _ctx().sales.list_orders_for_customer(
+        customer_id=customer_id, email=email or None, limit=50
+    )
+    return {"ok": True, **coaching_payload_for_me(me, orders)}
+
+
 @app.get("/api/client/orders")
 def client_orders_list(request: Request) -> dict:
     """Cabinet: orders owned by the logged-in customer (by customer_id / email)."""
@@ -4513,12 +4541,15 @@ def client_bots_list(request: Request) -> dict:
     payload = require_client(request)
     cid = str(payload["sub"])
     mem = _memory_dir()
+    from app.integration.channel_engine.whatsapp_cloud import whatsapp_foundation_status
+
     return {
         "ok": True,
         "entitlements": wab.get_entitlements(mem, cid),
         "bots": wab.list_bots(mem, cid),
         "connections": wcc.list_connections(mem, cid),
         "meta_oauth_configured": meta_oauth_configured(),
+        "whatsapp_foundation": whatsapp_foundation_status(),
     }
 
 
@@ -4573,8 +4604,8 @@ def client_bots_order_draft_put(request: Request, body: ClientBotOrderDraftReque
 
 @app.post("/api/webhooks/telegram/{bot_id}")
 async def telegram_bot_webhook(bot_id: str, request: Request) -> dict:
-    """Inbound Telegram updates for paid AI Business Bots."""
-    from app.integration.workspace_bot_runtime import handle_telegram_update
+    """Inbound Telegram updates for paid AI Business Bots (Channel Engine → TelegramProvider)."""
+    from app.integration.channel_engine import get_provider
 
     try:
         update = await request.json()
@@ -4582,11 +4613,75 @@ async def telegram_bot_webhook(bot_id: str, request: Request) -> dict:
         raise HTTPException(status_code=400, detail="invalid_json") from None
     if not isinstance(update, dict):
         raise HTTPException(status_code=400, detail="invalid_update")
-    result = handle_telegram_update(_memory_dir(), bot_id, update)
+    provider = get_provider("telegram")
+    if provider is None:
+        raise HTTPException(status_code=503, detail="telegram_provider_unavailable")
+    result = provider.receive(_memory_dir(), bot_id, update)
     if result.get("reason") == "bot_not_found":
         raise HTTPException(status_code=404, detail="bot_not_found")
     # Always 200 to Telegram when bot exists but message ignored
-    return {"ok": True, **{k: v for k, v in result.items() if k != "reply_text"}}
+    safe = {
+        k: v
+        for k, v in result.items()
+        if k not in ("reply_text", "normalized")
+    }
+    return {"ok": True, **safe}
+
+
+@app.get("/api/webhooks/whatsapp")
+async def whatsapp_webhook_verify(
+    hub_mode: str | None = Query(None, alias="hub.mode"),
+    hub_verify_token: str | None = Query(None, alias="hub.verify_token"),
+    hub_challenge: str | None = Query(None, alias="hub.challenge"),
+) -> PlainTextResponse:
+    """Meta WhatsApp Cloud API subscription handshake (GET hub.verify_token)."""
+    from app.integration.channel_engine import whatsapp_cloud as wa
+
+    challenge = wa.verify_webhook_subscribe(
+        mode=hub_mode,
+        token=hub_verify_token,
+        challenge=hub_challenge,
+    )
+    if challenge is None:
+        raise HTTPException(status_code=403, detail="whatsapp_verify_failed")
+    return PlainTextResponse(content=challenge)
+
+
+@app.post("/api/webhooks/whatsapp")
+async def whatsapp_webhook_receive(request: Request) -> dict:
+    """WhatsApp Cloud API inbound — foundation ack only (no AI Employee Live)."""
+    import json
+
+    from app.integration.channel_engine import get_provider
+    from app.integration.channel_engine import whatsapp_cloud as wa
+
+    secret = wa.meta_app_secret()
+    if not secret:
+        raise HTTPException(status_code=503, detail="whatsapp_setup_required")
+    raw = await request.body()
+    signature = request.headers.get("X-Hub-Signature-256")
+    if not wa.verify_meta_signature(
+        app_secret=secret, raw_body=raw, header_value=signature
+    ):
+        raise HTTPException(status_code=403, detail="invalid_signature")
+    try:
+        payload = json.loads(raw.decode("utf-8") or "{}")
+    except Exception:
+        raise HTTPException(status_code=400, detail="invalid_json") from None
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="invalid_json")
+    provider = get_provider("whatsapp")
+    if provider is None:
+        raise HTTPException(status_code=503, detail="whatsapp_provider_unavailable")
+    result = provider.receive(_memory_dir(), "", payload)
+    return {
+        "ok": True,
+        "channel_type": "whatsapp",
+        "live": False,
+        "delivery": result.get("delivery") or "foundation_ack_only",
+        "status": result.get("status"),
+        "events": result.get("events"),
+    }
 
 
 @app.post("/api/client/bots/{bot_id}/chat")
@@ -4605,8 +4700,20 @@ def client_bot_chat_preview(request: Request, bot_id: str, body: dict | None = N
     message = str(data.get("message") or data.get("text") or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="message_required")
-    reply = generate_bot_reply(bot, message)
-    return {"ok": True, "bot_id": bot_id, "reply": reply.get("text"), "source": reply.get("source")}
+    reply = generate_bot_reply(
+        bot,
+        message,
+        memory_dir=_memory_dir(),
+        customer_id=cid,
+        session_key=f"cabinet:{cid}:{bot_id}",
+    )
+    return {
+        "ok": True,
+        "bot_id": bot_id,
+        "reply": reply.get("text"),
+        "source": reply.get("source"),
+        "intent": reply.get("intent"),
+    }
 
 
 @app.post("/api/client/bots/telegram/connect")
@@ -4633,6 +4740,168 @@ def client_bots_telegram_connect(
     return result
 
 
+@app.get("/api/client/bots/website-chat/status")
+def client_website_chat_status(request: Request) -> dict:
+    """Website Chat channel status — commercial Live when COMMERCIAL_LIVE=True."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+
+    require_client(request)
+    return wch.commercial_status()
+
+
+@app.post("/api/client/bots/{bot_id}/website-chat/connect")
+def client_website_chat_connect(request: Request, bot_id: str, body: dict | None = None) -> dict:
+    """Create Website Chat connection for owned bot (Live channel)."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+    from app.integration.workspace_bot_runtime import public_api_base
+
+    payload = require_client(request)
+    data = body if isinstance(body, dict) else {}
+    result = wch.create_website_channel(
+        _memory_dir(),
+        str(payload["sub"]),
+        bot_id=bot_id,
+        site_ref=str(data.get("site_ref") or "") or None,
+        site_label=str(data.get("site_label") or "") or None,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "connect_failed")
+    embed = result.get("embed") or {}
+    result["embed"] = wch.generate_embed_snippet(
+        str((result.get("connection") or {}).get("public_key") or ""),
+        api_base=public_api_base(),
+    ) or embed
+    return result
+
+
+@app.get("/api/client/bots/website-chat/connections")
+def client_website_chat_list(request: Request) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+
+    payload = require_client(request)
+    return {
+        "ok": True,
+        "commercial": wch.commercial_status(),
+        "connections": wch.list_connections(_memory_dir(), str(payload["sub"])),
+    }
+
+
+@app.post("/api/client/bots/website-chat/{connection_id}/disconnect")
+def client_website_chat_disconnect(request: Request, connection_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+
+    payload = require_client(request)
+    result = wch.disconnect_website_channel(
+        _memory_dir(), str(payload["sub"]), connection_id
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "disconnect_failed")
+    return result
+
+
+@app.post("/api/client/bots/website-chat/{connection_id}/reconnect")
+def client_website_chat_reconnect(request: Request, connection_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+    from app.integration.workspace_bot_runtime import public_api_base
+
+    payload = require_client(request)
+    result = wch.reconnect_website_channel(
+        _memory_dir(), str(payload["sub"]), connection_id
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "reconnect_failed")
+    key = str((result.get("connection") or {}).get("public_key") or "")
+    result["embed"] = wch.generate_embed_snippet(key, api_base=public_api_base())
+    return result
+
+
+@app.post("/api/public/website-chat/{public_key}/message")
+def public_website_chat_message(public_key: str, body: dict | None = None) -> dict:
+    """Public Website Chat widget inbound — Live when COMMERCIAL_LIVE=True."""
+    from app.integration import website_chat_connector as wch
+
+    data = body if isinstance(body, dict) else {}
+    result = wch.handle_website_chat_message(
+        _memory_dir(),
+        public_key,
+        str(data.get("message") or data.get("text") or ""),
+        visitor_id=str(data.get("visitor_id") or "") or None,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "chat_failed")
+    return {
+        "ok": True,
+        "reply": result.get("reply"),
+        "source": result.get("source"),
+        "commercial_live": result.get("commercial_live"),
+    }
+
+
+@app.get("/api/public/website-chat/widget.js")
+def public_website_chat_widget_js():
+    """Serve spike widget JS from frontend public (or embedded fallback)."""
+    from fastapi.responses import FileResponse, Response
+
+    candidates = [
+        _Path(__file__).resolve().parents[2] / "frontend" / "public" / "widget" / "website-chat.js",
+        _Path(__file__).resolve().parents[3] / "dashboard" / "frontend" / "public" / "widget" / "website-chat.js",
+    ]
+    for path in candidates:
+        if path.is_file():
+            return FileResponse(path, media_type="application/javascript; charset=utf-8")
+    return Response(
+        content="console.error('website-chat widget missing');",
+        media_type="application/javascript",
+        status_code=404,
+    )
+
+
+@app.get("/api/public/website-chat/harness")
+def public_website_chat_harness(key: str = "", label: str = "Demo website", tenant: str = ""):
+    """Browser E2E harness — not commercial Live."""
+    from fastapi.responses import HTMLResponse
+    from html import escape
+
+    key_safe = escape(str(key or "").strip())
+    label_safe = escape(str(label or "Demo website"))
+    tenant_safe = escape(str(tenant or ""))
+    html = f"""<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Website Chat Live · {label_safe}</title>
+  <style>
+    body{{margin:0;font-family:system-ui,Segoe UI,sans-serif;background:#071018;color:#e2e8f0}}
+    main{{max-width:720px;margin:0 auto;padding:48px 24px}}
+    .card{{border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:24px;background:rgba(255,255,255,.03)}}
+    .muted{{color:#94a3b8;font-size:14px}}
+    .ok{{color:#a7f3d0;font-size:12px}}
+    code{{font-size:12px;color:#64748b}}
+  </style>
+</head>
+<body>
+  <main>
+    <p class="muted">Virtus Website Chat · Live preview</p>
+    <h1>{label_safe}</h1>
+    <p class="muted">Open Chat and send a message. Telegram + Website Chat are Live.</p>
+    {"<p class='muted' data-testid='tenant-label'>Tenant: " + tenant_safe + "</p>" if tenant_safe else ""}
+    <div class="card">
+      <p class="ok">Commercial status: Live — WhatsApp / Instagram / Messenger remain Coming Soon.</p>
+      <p><code data-testid="public-key">{key_safe or "(missing key)"}</code></p>
+    </div>
+  </main>
+  {"<script src='/api/public/website-chat/widget.js' data-virtus-key='" + key_safe + "' data-endpoint='/api/public/website-chat/" + key_safe + "/message' async></script>" if key_safe else ""}
+</body>
+</html>"""
+    return HTMLResponse(html)
+
+
 @app.post("/api/client/bots/connections/{connection_id}/test")
 def client_bots_connection_test(request: Request, connection_id: str) -> dict:
     from app.integration.customer_identity.auth import require_client
@@ -4653,6 +4922,86 @@ def client_bots_connection_disconnect(
     result = wcc.disconnect(_memory_dir(), str(payload["sub"]), body.connection_id)
     if not result.get("ok"):
         raise HTTPException(status_code=400, detail=result.get("reason") or "disconnect_failed")
+    return result
+
+
+@app.get("/api/client/inbox/threads")
+def client_inbox_threads(
+    request: Request,
+    channel: str | None = None,
+    unread: str | None = None,
+    q: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict:
+    """Unified Inbox list — Telegram + Website Chat sessions for this workspace."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    return inbox.list_threads(
+        _memory_dir(),
+        str(payload["sub"]),
+        channel=channel,
+        unread_only=str(unread or "").strip().lower() in ("1", "true", "yes"),
+        q=q,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@app.get("/api/client/inbox/threads/{thread_id}")
+def client_inbox_thread_get(request: Request, thread_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    result = inbox.get_thread(_memory_dir(), str(payload["sub"]), thread_id)
+    if not result.get("ok"):
+        reason = str(result.get("reason") or "not_found")
+        status = 403 if reason == "forbidden" else 404
+        raise HTTPException(status_code=status, detail=reason)
+    return result
+
+
+@app.post("/api/client/inbox/threads/{thread_id}/read")
+def client_inbox_thread_read(request: Request, thread_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    result = inbox.mark_read(_memory_dir(), str(payload["sub"]), thread_id)
+    if not result.get("ok"):
+        reason = str(result.get("reason") or "not_found")
+        status = 403 if reason == "forbidden" else 404
+        raise HTTPException(status_code=status, detail=reason)
+    return result
+
+
+@app.post("/api/client/inbox/threads/{thread_id}/messages")
+async def client_inbox_thread_send(request: Request, thread_id: str) -> dict:
+    """Human reply via Channel Engine (Telegram). Website Chat push not supported yet."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    text = str(body.get("text") or body.get("message") or "")
+    result = inbox.send_reply(_memory_dir(), str(payload["sub"]), thread_id, text)
+    if not result.get("ok"):
+        reason = str(result.get("reason") or "send_failed")
+        if reason in ("forbidden",):
+            raise HTTPException(status_code=403, detail=reason)
+        if reason in ("not_found", "invalid_thread"):
+            raise HTTPException(status_code=404, detail=reason)
+        if reason == "CHANNEL_SEND_UNSUPPORTED":
+            raise HTTPException(status_code=409, detail=reason)
+        raise HTTPException(status_code=400, detail=reason)
     return result
 
 
@@ -4967,8 +5316,18 @@ def client_store_live(order_id: str, asset_path: str = "index.html"):
                 path.read_text(encoding="utf-8"), order_id
             )
             return HTMLResponse(content=html)
+        if path.suffix.lower() == ".css":
+            from pathlib import PurePosixPath
+
+            rel_dir = str(PurePosixPath(rel).parent)
+            if rel_dir == ".":
+                rel_dir = ""
+            css = path.read_text(encoding="utf-8", errors="replace")
+            css = factory.rewrite_live_urls(
+                css, order_id=order_id, relative_dir=rel_dir
+            )
+            return Response(content=css, media_type="text/css; charset=utf-8")
         media = {
-            ".css": "text/css; charset=utf-8",
             ".js": "application/javascript; charset=utf-8",
             ".json": "application/json; charset=utf-8",
             ".svg": "image/svg+xml",
@@ -5017,7 +5376,11 @@ async def store_admin_create_product(request: Request, order_id: str) -> dict:
         payload = await request.json()
         if not isinstance(payload, dict):
             raise ValueError("invalid_payload")
-        return _store_catalog().create_product(order_id, payload)
+        result = _store_catalog().create_product(order_id, payload)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -5031,6 +5394,36 @@ def store_admin_get_product(request: Request, order_id: str, product_id: str) ->
         raise _client_store_http_error(exc) from exc
 
 
+def _shop_product_dir_for_order(order_id: str):
+    from app.factory.store_factory.service import StoreFactoryService
+
+    order = _ctx().sales.get_order(order_id) or {}
+    product_id = str(order.get("product_id") or "").strip()
+    if not product_id:
+        return None, order
+    return StoreFactoryService(_memory_dir()).product_dir(product_id), order
+
+
+def _live_sync_shop_catalog(order_id: str) -> dict:
+    """Push catalog SSOT into published storefront HTML (honest Live Sync)."""
+    from app.integration.store_admin.shop_live_sync import sync_catalog_to_storefront
+
+    product_dir, _order = _shop_product_dir_for_order(order_id)
+    if product_dir is None or not product_dir.is_dir():
+        return {"ok": False, "live_sync": False, "reason": "product_dir_missing"}
+    catalog = _store_catalog()
+    products = catalog._load(order_id)  # noqa: SLF001
+    media_root = catalog._media._media  # noqa: SLF001
+    sync = sync_catalog_to_storefront(
+        product_dir, products, media_root=media_root
+    )
+    # Persist storefront_path back into catalog SSOT when materialize ran
+    updated = sync.get("catalog") if isinstance(sync, dict) else None
+    if isinstance(updated, list):
+        catalog._save(order_id, updated)  # noqa: SLF001
+    return {k: v for k, v in sync.items() if k != "catalog"}
+
+
 @app.patch("/api/client/stores/{order_id}/admin/products/{product_id}")
 async def store_admin_update_product(
     request: Request, order_id: str, product_id: str
@@ -5040,7 +5433,11 @@ async def store_admin_update_product(
         payload = await request.json()
         if not isinstance(payload, dict):
             raise ValueError("invalid_payload")
-        return _store_catalog().update_product(order_id, product_id, payload)
+        result = _store_catalog().update_product(order_id, product_id, payload)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -5051,7 +5448,11 @@ def store_admin_delete_product(
 ) -> dict:
     try:
         _assert_store_admin_access(request, order_id)
-        return _store_catalog().delete_product(order_id, product_id)
+        result = _store_catalog().delete_product(order_id, product_id)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -5097,7 +5498,18 @@ async def store_admin_upload_media(
         _assert_store_admin_access(request, order_id)
         if not files:
             raise ValueError("files_required")
-        return _store_catalog().add_images(order_id, product_id, list(files))
+        result = _store_catalog().add_images(order_id, product_id, list(files))
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+            # Refresh product with storefront_path after materialize
+            try:
+                refreshed = _store_catalog().get_product(order_id, product_id)
+                if isinstance(refreshed, dict) and refreshed.get("product"):
+                    result["product"] = refreshed["product"]
+            except ValueError:
+                pass
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -5111,7 +5523,11 @@ async def store_admin_update_media(
         payload = await request.json()
         if not isinstance(payload, dict):
             raise ValueError("invalid_payload")
-        return _store_catalog().update_images(order_id, product_id, payload)
+        result = _store_catalog().update_images(order_id, product_id, payload)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -5124,7 +5540,11 @@ def store_admin_delete_media(
 ) -> dict:
     try:
         _assert_store_admin_access(request, order_id)
-        return _store_catalog().delete_image(order_id, product_id, image_id)
+        result = _store_catalog().delete_image(order_id, product_id, image_id)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -6958,6 +7378,126 @@ def website_admin_serve_media(
         raise _client_store_http_error(exc) from exc
 
 
+@app.get("/api/client/control-capabilities")
+def client_control_capabilities_api(request: Request) -> dict:
+    """Honest Workspace capability map for Basic / Business / Premium (+ gift)."""
+    from app.integration.client_control_contract import client_control_capabilities
+
+    customer_id, _email = _client_store_identity(request)
+    me = _customer_identity().me(customer_id) if customer_id else {}
+    gift = bool(me.get("gift_unlimited") or me.get("unlimited"))
+    return client_control_capabilities(
+        "premium" if gift else None,
+        gift_unlimited=gift,
+    )
+
+
+@app.get("/api/client/websites/{order_id}/admin/cinematic")
+def website_admin_list_cinematic(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import (
+            ensure_control_point_original,
+            list_cinematic_scenes,
+        )
+
+        ensure_control_point_original(product_dir)
+        out = list_cinematic_scenes(product_dir)
+        from app.integration.client_control_contract import client_control_capabilities
+
+        caps = client_control_capabilities(
+            str(order.get("package_id") or ""),
+            gift_unlimited=False,
+        )
+        out["capabilities"] = caps.get("website")
+        return out
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/cinematic/{scene}/replace")
+async def website_admin_replace_cinematic(
+    request: Request, order_id: str, scene: int, file: UploadFile = File(...)
+) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import replace_cinematic_scene
+
+        data = await file.read()
+        result = replace_cinematic_scene(
+            product_dir, int(scene), data, filename=file.filename or "upload.jpg"
+        )
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/cinematic/{scene}/restore")
+def website_admin_restore_cinematic(
+    request: Request, order_id: str, scene: int
+) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import restore_cinematic_scene
+
+        return restore_cinematic_scene(product_dir, int(scene))
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/websites/{order_id}/admin/versions")
+def website_admin_list_versions(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import list_website_versions
+
+        return list_website_versions(product_dir)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/versions/restore-original")
+def website_admin_restore_original(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import restore_website_original
+
+        result = restore_website_original(product_dir)
+        _reapply_website_overlay(order_id, order)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/restore-original")
+def store_admin_restore_original(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        product_dir, _order = _shop_product_dir_for_order(order_id)
+        if product_dir is None:
+            raise ValueError("product_dir_missing")
+        from app.integration.store_admin.shop_live_sync import restore_shop_original
+
+        return restore_shop_original(product_dir)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
 @app.post("/api/client/websites/{order_id}/admin/ai-edit")
 async def website_admin_ai_edit(request: Request, order_id: str) -> dict:
     try:
@@ -7874,6 +8414,41 @@ def preview_factory_product(product_id: str) -> HTMLResponse:
     if not html:
         raise HTTPException(status_code=404, detail="Превью не найдено")
     return HTMLResponse(content=html)
+
+
+@app.get("/api/factory/products/{product_id}/preview/{asset_path:path}")
+def preview_factory_product_asset(product_id: str, asset_path: str):
+    """Serve sandbox assets for Website Admin live preview (relative HTML/CSS urls)."""
+    path = _ctx().factory.resolve_preview_asset(product_id, asset_path)
+    if path is None:
+        raise HTTPException(status_code=404, detail="asset_not_found")
+    media = "application/octet-stream"
+    suffix = path.suffix.lower()
+    if suffix in {".jpg", ".jpeg"}:
+        media = "image/jpeg"
+    elif suffix == ".png":
+        media = "image/png"
+    elif suffix == ".webp":
+        media = "image/webp"
+    elif suffix == ".gif":
+        media = "image/gif"
+    elif suffix == ".svg":
+        media = "image/svg+xml"
+    elif suffix == ".css":
+        media = "text/css; charset=utf-8"
+        from pathlib import PurePosixPath
+
+        rel_dir = str(PurePosixPath(asset_path).parent)
+        if rel_dir == ".":
+            rel_dir = ""
+        css = path.read_text(encoding="utf-8", errors="replace")
+        css = _ctx().factory.rewrite_asset_urls(
+            css, product_id=product_id, relative_dir=rel_dir
+        )
+        return Response(content=css, media_type=media)
+    elif suffix == ".js":
+        media = "application/javascript"
+    return FileResponse(path, media_type=media)
 
 
 @app.post("/api/factory/products/{product_id}/approve", response_model=FactoryProduct)

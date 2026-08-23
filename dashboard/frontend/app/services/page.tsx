@@ -14,6 +14,7 @@ import {
   type ServiceCategory,
 } from "../lib/pricingApi";
 import { BRAND_NAME } from "../lib/publicBrand";
+import { CONTACT_EMAIL } from "../lib/siteConfig";
 import { canonicalMarketForLang, uiLangForMarket } from "../lib/marketLang";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
@@ -369,7 +370,7 @@ export default function ServicesPage() {
 
       <Card className="mt-12 text-center" padding="md">
         <p className="text-sm text-genesis-muted">
-          Fragen zu Bestellung oder Status? Schreiben Sie an hello@virtuscore.com — auf Deutsch.
+          Fragen zu Bestellung oder Status? Schreiben Sie an {CONTACT_EMAIL} — auf Deutsch.
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <ButtonLink href="/order" variant="success" size="sm">
