@@ -87,6 +87,29 @@ def test_published_portfolio_artifact_integrity_on_disk() -> None:
         assert len(gallery_ok) >= need, f"{artifact_root}: insufficient gallery media"
 
 
+def test_portfolio_maps_integrity_on_disk() -> None:
+    """Business tier portfolio artifacts must ship #maps when package promises maps."""
+    pairs = [
+        ("sites/business/auto", "Autowerkstatt Nord", "Hamburg"),
+        ("sites/business/restaurant", "Trattoria Luna", "Köln"),
+    ]
+    for rel, business_name, city in pairs:
+        artifact = PUBLIC / "package-previews" / rel
+        meta_path = artifact / "meta.json"
+        index_path = artifact / "index.html"
+        assert meta_path.is_file(), f"missing meta: {meta_path}"
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        pkg = meta.get("package_delivery") or {}
+        legal = meta.get("client_legal") or {}
+        assert pkg.get("maps") or legal.get("uses_maps"), f"{rel}: maps not promised in meta"
+        html = index_path.read_text(encoding="utf-8")
+        assert 'id="maps"' in html, f"{rel}: missing #maps section"
+        assert "maps-frame" in html, f"{rel}: missing .maps-frame"
+        assert "maps.google.com/maps" in html, f"{rel}: missing Google embed iframe"
+        assert business_name in html, f"{rel}: business name missing from artifact"
+        assert city in html, f"{rel}: city missing from artifact"
+
+
 def test_portfolio_thumb_matches_live_hero_bytes() -> None:
     """Card thumb path must be the same file as the artifact hero (not another tier)."""
     pairs = [

@@ -396,3 +396,63 @@ def test_portfolio_browser_media_reality_summary(
             browser.close()
     assert len(results) == len(portfolio)
     print("Browser Media Reality PASS — " + "; ".join(results))
+
+
+_MAPS_PROBE_JS = """
+() => {
+  const maps = document.getElementById('maps');
+  if (!maps) return { ok: false, reason: 'no #maps' };
+  const frame = maps.querySelector('.maps-frame');
+  if (!frame) return { ok: false, reason: 'no .maps-frame' };
+  const iframe = frame.querySelector('iframe');
+  if (!iframe) return { ok: false, reason: 'no iframe' };
+  const src = iframe.getAttribute('src') || '';
+  if (!/maps\\.google\\.com\\/maps/i.test(src)) {
+    return { ok: false, reason: 'iframe src not google maps', src };
+  }
+  maps.scrollIntoView({ block: 'center' });
+  const r = frame.getBoundingClientRect();
+  const style = window.getComputedStyle(frame);
+  const visible =
+    style.display !== 'none' &&
+    style.visibility !== 'hidden' &&
+    parseFloat(style.opacity || '1') > 0 &&
+    r.width > 80 &&
+    r.height > 40;
+  return {
+    ok: visible,
+    reason: visible ? 'ok' : 'maps-frame not visible',
+    width: r.width,
+    height: r.height,
+    src: src.slice(0, 120),
+  };
+}
+"""
+
+
+@pytest.mark.parametrize("item_index", [0, 1], ids=["auto", "restaurant"])
+def test_portfolio_besuchen_maps_container_visible(
+    static_base: str,
+    portfolio: list[dict[str, str]],
+    chromium_ready: None,
+    item_index: int,
+) -> None:
+    """Maps Integrity — #maps iframe container visible in browser (Automotive + Restaurant)."""
+    from playwright.sync_api import sync_playwright
+
+    item = portfolio[item_index]
+    live_url = f"{static_base}{item['live']}"
+    label = item["artifact_id"]
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page(viewport={"width": 1440, "height": 900})
+        try:
+            page.goto(live_url, wait_until="domcontentloaded", timeout=60_000)
+            page.wait_for_timeout(400)
+            page.evaluate("window.location.hash = 'maps'")
+            page.wait_for_timeout(300)
+            probe = page.evaluate(_MAPS_PROBE_JS)
+            assert probe.get("ok"), f"{label}: maps probe failed — {probe}"
+        finally:
+            browser.close()
