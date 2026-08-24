@@ -2,6 +2,12 @@
 
 from app.integration.vector.business_setup import build_business_setup
 from app.integration.vector.capabilities import CAPABILITIES, action_for, is_live
+from app.integration.vector.companion_contracts import (
+    B4_ENGINE,
+    B4_SLICE_ORDER,
+    CONTEXT_ENGINE_REQUIRED,
+    ENTRY_SURFACE,
+)
 from app.integration.vector.dialog_wizard import (
     build_customer_dialog_stub,
     build_platform_dialog,
@@ -13,7 +19,11 @@ from app.integration.vector.ai_health import build_ai_health
 from app.integration.vector.website_tips import scan_website_tips
 
 __all__ = [
+    "B4_ENGINE",
+    "B4_SLICE_ORDER",
     "CAPABILITIES",
+    "CONTEXT_ENGINE_REQUIRED",
+    "ENTRY_SURFACE",
     "VectorContextService",
     "action_for",
     "is_live",
