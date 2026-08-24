@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Deploy Virtus Core to OVH Production (manual / CI).
-# Requires: GENESIS_OVH_SSH=user@host  GENESIS_OVH_REMOTE_PATH=/srv/genesis
+# Requires: GENESIS_OVH_SSH=user@host  GENESIS_OVH_REMOTE_PATH=/home/ubuntu/Genesis-AI-Engine
 set -euo pipefail
 
 TARGET="${GENESIS_OVH_SSH:?Set GENESIS_OVH_SSH=user@ovh-host}"
-REMOTE="${GENESIS_OVH_REMOTE_PATH:-/srv/genesis}"
+REMOTE="${GENESIS_OVH_REMOTE_PATH:-/home/ubuntu/Genesis-AI-Engine}"
 BRANCH="${GENESIS_OVH_BRANCH:-main}"
 
 echo "==> OVH deploy → $TARGET:$REMOTE ($BRANCH)"

@@ -529,6 +529,23 @@ export const PUBLIC_AGENCY_PORTFOLIO: PublicAgencyPortfolioItem[] = [
   },
 ];
 
+/** Public /site hero — real published shop artifact (not portfolio automotive). */
+export const PUBLIC_HERO_SHOWCASE = (() => {
+  const shop = PUBLIC_VITRINE_STORES_BUSINESS.find(
+    (d) => d.id === "shop-business-fashion" && d.showcaseStatus === "PUBLISHED",
+  );
+  if (!shop) {
+    throw new Error("PUBLIC_HERO_SHOWCASE: published shop-business-fashion missing");
+  }
+  return {
+    id: shop.id,
+    label: shop.fallback,
+    livePreviewUrl: shop.href,
+    previewImage: shop.thumb,
+    orderPath: "/order/shop",
+  } as const;
+})();
+
 /** Integrity: preview thumb must belong to the same artifact folder as live preview. */
 export function assertPortfolioArtifactIntegrity(item: PublicAgencyPortfolioItem): boolean {
   const root = portfolioArtifactRoot(item.livePreviewUrl);

@@ -9,7 +9,7 @@ import { formatLocalizedMoney } from "../../lib/formatEur";
 import { logCommerceEvent } from "../../lib/commerceFunnel";
 import { LANDING_PACKAGES_EUR } from "../../lib/commercialCatalog";
 import { CHATBOT_PRICE_TIERS } from "./modules";
-import { PUBLIC_VITRINE_THUMB_VERSION, PUBLIC_AGENCY_PORTFOLIO } from "../../lib/publicVitrineCatalog";
+import { PUBLIC_VITRINE_THUMB_VERSION, PUBLIC_AGENCY_PORTFOLIO, PUBLIC_HERO_SHOWCASE } from "../../lib/publicVitrineCatalog";
 import {
   agencyCardSurface,
   agencyTierPill,
@@ -134,10 +134,12 @@ function IconExternal({ className }: { className?: string }) {
 
 function BrowserFrame({
   src,
+  iframeSrc,
   alt,
   className = "",
 }: {
   src: string;
+  iframeSrc?: string;
   alt: string;
   className?: string;
 }) {
@@ -151,13 +153,23 @@ function BrowserFrame({
         <span className="h-2 w-2 rounded-full bg-white/20" />
         <span className="ml-2 h-1.5 flex-1 rounded-full bg-white/8" />
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={alt}
-        className="aspect-[16/10] w-full object-cover"
-        loading="lazy"
-      />
+      {iframeSrc ? (
+        <iframe
+          src={iframeSrc}
+          title={alt}
+          className="pointer-events-none aspect-[16/10] w-full border-0 bg-[#0a0a0b]"
+          loading="lazy"
+          tabIndex={-1}
+        />
+      ) : (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={src}
+          alt={alt}
+          className="aspect-[16/10] w-full object-cover"
+          loading="lazy"
+        />
+      )}
     </div>
   );
 }
@@ -323,7 +335,10 @@ export function CommercialAgencyHub({
     },
   ];
 
-  const heroThumb = PORTFOLIO[0]?.thumb;
+  const heroShowcase = PUBLIC_HERO_SHOWCASE;
+  const heroThumb = `${heroShowcase.previewImage}?v=${THUMB_V}`;
+  const heroPreviewHref = heroShowcase.livePreviewUrl;
+  const shopOrderHref = `${heroShowcase.orderPath}?market=${encodeURIComponent(market)}`;
 
   return (
     <div className="agency-hub relative space-y-16 sm:space-y-24">
@@ -331,29 +346,37 @@ export function CommercialAgencyHub({
       <section className="agency-hub__hero relative grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
         <div className="relative z-10 space-y-6 text-left">
           <p className="inline-flex items-center rounded-full border border-violet-400/35 bg-violet-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-200">
-            {t(`${ns}.hero.badge`, { defaultValue: "Digital Solutions" })}
+            {t(`${ns}.hero.badge`, { defaultValue: "Online-Shop" })}
           </p>
           <div>
             <p className="text-sm font-semibold tracking-[0.28em] text-white/70">
               {BRAND_NAME.toUpperCase()}
             </p>
             <h1 className="mt-3 max-w-[18ch] text-[2.15rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white sm:text-5xl lg:text-[3.25rem]">
-              {t(`${ns}.hero.title`, {
-                defaultValue: "Digitale Lösungen für Ihr Business",
-              })}
+              <span className="block">
+                {t(`${ns}.hero.titleLine1`, {
+                  defaultValue: "Dein Online-Shop.",
+                })}
+              </span>
+              <span className="block">
+                {t(`${ns}.hero.titleLine2`, {
+                  defaultValue: "Gebaut für dein Business.",
+                })}
+              </span>
             </h1>
           </div>
           <p className="max-w-md text-base leading-relaxed text-zinc-300 sm:text-lg">
             {t(`${ns}.hero.sub`, {
-              defaultValue: "Websites, Online-Shops & AI Business Assistant.",
+              defaultValue:
+                "Moderne Online-Shops, Websites und digitale Lösungen — individuell für dein Unternehmen.",
             })}
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link
-              href="#produkte"
+              href={shopOrderHref}
               className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-violet-600 px-7 py-3.5 text-sm font-semibold text-white shadow-[0_12px_40px_-12px_rgba(124,58,237,0.9)] transition hover:bg-violet-500"
             >
-              {t(`${ns}.hero.cta`, { defaultValue: "Projekt starten" })}
+              {t(`${ns}.hero.cta`, { defaultValue: "Online-Shop erstellen →" })}
             </Link>
             <a
               href="#projekte"
@@ -380,15 +403,24 @@ export function CommercialAgencyHub({
             aria-hidden
           />
           <div className="relative">
-            {heroThumb ? (
+            <a
+              href={heroPreviewHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block transition hover:brightness-105"
+              aria-label={t(`${ns}.hero.mockOpen`, {
+                defaultValue: "Shop-Demo öffnen",
+              })}
+            >
               <BrowserFrame
                 src={heroThumb}
+                iframeSrc={heroPreviewHref}
                 alt={t(`${ns}.hero.mockAlt`, {
-                  defaultValue: "Beispiel einer generierten Website",
+                  defaultValue: "Premium Online-Shop — Fashion Store Demo",
                 })}
                 className="agency-hub__float relative z-10"
               />
-            ) : null}
+            </a>
             <div className="agency-hub__orb absolute -left-3 top-8 z-20 sm:-left-6" aria-hidden>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-violet-400/40 bg-[#12101a] text-violet-200 shadow-lg sm:h-14 sm:w-14">
                 <IconGlobe className="h-6 w-6" />
