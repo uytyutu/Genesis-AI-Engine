@@ -6933,6 +6933,51 @@ def client_vector_ai_health(request: Request) -> dict:
     ).ai_health_for_customer(customer_id=customer_id, email=email)
 
 
+@app.get("/api/client/analytics/overview")
+def client_analytics_overview(request: Request, period: str = "30d") -> dict:
+    """B3 Analytics Foundation — MetricContract overview (no fake KPIs)."""
+    customer_id, email = _client_store_identity(request)
+    from app.integration.client_analytics import ClientAnalyticsService
+
+    allowed = {"today", "7d", "30d", "12m"}
+    p = period if period in allowed else "30d"
+    return ClientAnalyticsService(_memory_dir(), sales=_ctx().sales).overview(
+        customer_id=customer_id, email=email, period=p  # type: ignore[arg-type]
+    )
+
+
+@app.post("/api/client/analytics/connect")
+def client_analytics_connect(request: Request) -> dict:
+    """Honest connect gate — external traffic tracker not available yet."""
+    customer_id, _email = _client_store_identity(request)
+    from app.integration.client_analytics import ClientAnalyticsService
+
+    return ClientAnalyticsService(_memory_dir(), sales=_ctx().sales).connect_traffic(
+        customer_id=customer_id
+    )
+
+
+@app.get("/api/client/context")
+def client_business_context(request: Request, period: str = "30d") -> dict:
+    """Unified Client Context SSOT for BCC + future Vector (same Analytics data)."""
+    customer_id, email = _client_store_identity(request)
+    from app.integration.client_analytics import ClientAnalyticsService
+
+    me: dict = {}
+    try:
+        me = _customer_identity().me(customer_id)
+    except Exception:
+        me = {}
+    allowed = {"today", "7d", "30d", "12m"}
+    p = period if period in allowed else "30d"
+    return ClientAnalyticsService(_memory_dir(), sales=_ctx().sales).client_context(
+        customer_id=customer_id,
+        email=email or str(me.get("email") or "") or None,
+        me=me,
+        period=p,  # type: ignore[arg-type]
+    )
+
+
 @app.get("/api/client/vector/business-bundle")
 def client_vector_business_bundle(request: Request) -> dict:
     """Business Ready + AI Health in one payload."""

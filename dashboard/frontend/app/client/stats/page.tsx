@@ -1,13 +1,4 @@
 "use client";
 
-import { WorkspaceSectionStub } from "../../components/WorkspaceSectionStub";
-
-export default function Page() {
-  return (
-    <WorkspaceSectionStub
-      title='Базовая статистика'
-      subtitle='Просмотры и заявки (Standalone).'
-      why='Даже базовая статистика показывает, работает ли сайт.'
-    />
-  );
-}
+/** Standalone Statistik → same Analytics empty shell (BCC 2.0). */
+export { default } from "../analytics/page";
