@@ -1,17 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale } from "../context/LocaleContext";
 import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
 import {
-  filterWorkspaceNav,
   lockedConnectedTeasers,
+  resolveBccLocationTrail,
   type CommerceMode,
 } from "../lib/workspaceNav";
+import { BccLocationTrail } from "../lib/clientUi";
 import { workspaceCopy, workspaceUiLang } from "../lib/workspaceCopy";
 import type { UiLocale } from "../lib/locale/types";
+import { usePathname } from "next/navigation";
 
 const THEME_KEY = "virtus_client_theme_v1";
 const BG_KEY = "virtus_client_bg_v1";
@@ -24,15 +25,14 @@ const THEMES: {
   label: string;
   vars: Record<string, string>;
   shellClass: string;
-  /** Opaque fill — never rely on /site StorefrontAtmosphere portal (ghost layers). */
   shellBg: string;
 }[] = [
   {
     id: "virtus_dark",
     label: "Virtus Dark",
     vars: {
-      "--client-panel": "rgba(255,255,255,0.03)",
-      "--client-border": "rgba(255,255,255,0.1)",
+      "--client-panel": "rgba(255,255,255,0.04)",
+      "--client-border": "rgba(139,92,246,0.22)",
       "--client-text": "#f4f4f5",
       "--client-muted": "#a1a1aa",
     },
@@ -65,13 +65,6 @@ const THEMES: {
   },
 ];
 
-/** @deprecated use WORKSPACE_NAV / filterWorkspaceNav — kept for older imports */
-export const CLIENT_WORKSPACE_LINKS = filterWorkspaceNav({
-  commerceMode: "connected",
-  hasStore: true,
-  ecosystem: true,
-}).map((i) => ({ href: i.href, label: i.label, match: i.match }));
-
 function readTheme(): ClientThemeId {
   if (typeof window === "undefined") return "virtus_dark";
   const v = window.localStorage.getItem(THEME_KEY);
@@ -90,13 +83,19 @@ function readMode(): CommerceMode {
   return v === "connected" ? "connected" : "standalone";
 }
 
+/**
+ * Inner page chrome for /client hubs.
+ * Navigation lives in AppShell (sidebar + mobile tabs) — single BCC chrome.
+ */
 export function ClientWorkspaceShell({
   children,
   title,
   subtitle,
   commerceMode,
-  hasStore,
+  hasStore: _hasStore,
   ecosystem,
+  /** Dashboard: trail + micro-label only — page owns the H1 greeting. */
+  compactChrome = false,
 }: {
   children: React.ReactNode;
   title: string;
@@ -104,8 +103,11 @@ export function ClientWorkspaceShell({
   commerceMode?: CommerceMode | string | null;
   hasStore?: boolean;
   ecosystem?: boolean;
+  compactChrome?: boolean;
 }) {
+  void _hasStore;
   const pathname = usePathname() ?? "/client";
+  const trail = resolveBccLocationTrail(pathname);
   const { uiLocale, applyUiLocale } = useLocale();
   const copy = workspaceCopy(workspaceUiLang(uiLocale));
   const [themeId, setThemeId] = useState<ClientThemeId>("virtus_dark");
@@ -121,20 +123,7 @@ export function ClientWorkspaceShell({
 
   const mode = (commerceMode as CommerceMode) || localMode;
   const eco = ecosystem ?? mode === "connected";
-
-  const links = useMemo(
-    () =>
-      filterWorkspaceNav({
-        commerceMode: mode,
-        // Prefer explicit prop; default false until parent knows (avoids chip flash).
-        hasStore: hasStore ?? false,
-        ecosystem: eco,
-      }),
-    [mode, hasStore, eco],
-  );
-
   const locked = !eco ? lockedConnectedTeasers() : [];
-
   const theme = THEMES.find((t) => t.id === themeId) || THEMES[0];
 
   useEffect(() => {
@@ -167,38 +156,51 @@ export function ClientWorkspaceShell({
         bgUrl
           ? {
               backgroundColor: theme.shellBg,
-              backgroundImage: `linear-gradient(rgba(9,9,11,0.72), rgba(9,9,11,0.88)), url(${bgUrl})`,
+              backgroundImage: `linear-gradient(rgba(5,5,8,0.78), rgba(5,5,8,0.92)), url(${bgUrl})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }
           : { backgroundColor: theme.shellBg }
       }
     >
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(124,58,237,0.09),transparent_58%)]"
+        aria-hidden
+      />
       <div className="relative z-10 mx-auto min-h-full max-w-5xl overflow-x-hidden px-4 py-4 sm:px-6 sm:py-8 md:py-6">
-        <header className="border-b border-white/10 pb-4 sm:pb-5">
+        <header className="border-b border-violet-500/12 pb-4 sm:pb-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-genesis-accent">
-                {BRAND_NAME} · {copy.brandLine} ·{" "}
-                {eco ? copy.connected : copy.standalone}
-              </p>
-              <h1 className="mt-2 text-xl font-semibold tracking-tight text-white sm:text-3xl">
-                {title}
-              </h1>
-              {subtitle ? (
-                <p className="mt-2 max-w-2xl text-sm text-zinc-400">{subtitle}</p>
-              ) : null}
+              {compactChrome ? (
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-violet-300/70">
+                  {eco ? copy.connected : copy.standalone}
+                </p>
+              ) : (
+                <>
+                  <BccLocationTrail crumbs={trail} className="mb-2" />
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-violet-300/75">
+                    {BRAND_NAME} · {copy.brandLine} ·{" "}
+                    {eco ? copy.connected : copy.standalone}
+                  </p>
+                  <h1 className="mt-2 text-xl font-semibold tracking-tight text-white sm:text-3xl">
+                    {title}
+                  </h1>
+                  {subtitle ? (
+                    <p className="mt-2 max-w-2xl text-sm text-zinc-400">{subtitle}</p>
+                  ) : null}
+                </>
+              )}
             </div>
             <button
               type="button"
               onClick={() => setPrefsOpen((v) => !v)}
-              className="shrink-0 rounded-xl border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5"
+              className="shrink-0 rounded-xl border border-white/15 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-300 hover:border-violet-400/40 hover:bg-violet-500/10"
             >
               {copy.themePrefs}
             </button>
           </div>
           {prefsOpen ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-4">
+            <div className="mt-4 rounded-2xl border border-violet-500/20 bg-black/40 p-4 backdrop-blur-sm">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
                 {copy.language}
               </p>
@@ -216,7 +218,7 @@ export function ClientWorkspaceShell({
                     onClick={() => applyUiLocale(code as UiLocale)}
                     className={`rounded-lg px-3 py-1.5 text-sm ${
                       workspaceUiLang(uiLocale) === code
-                        ? "border border-emerald-400/40 bg-emerald-500/15 text-white"
+                        ? "border border-violet-400/40 bg-violet-500/15 text-white"
                         : "border border-white/10 text-zinc-400 hover:bg-white/5"
                     }`}
                   >
@@ -235,7 +237,7 @@ export function ClientWorkspaceShell({
                     onClick={() => applyMode(m)}
                     className={`rounded-lg px-3 py-1.5 text-sm ${
                       mode === m
-                        ? "border border-emerald-400/40 bg-emerald-500/15 text-white"
+                        ? "border border-violet-400/40 bg-violet-500/15 text-white"
                         : "border border-white/10 text-zinc-400 hover:bg-white/5"
                     }`}
                   >
@@ -244,7 +246,7 @@ export function ClientWorkspaceShell({
                 ))}
               </div>
               <p className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                Theme
+                Design
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {THEMES.map((t) => (
@@ -254,7 +256,7 @@ export function ClientWorkspaceShell({
                     onClick={() => applyTheme(t.id)}
                     className={`rounded-lg px-3 py-1.5 text-sm ${
                       themeId === t.id
-                        ? "border border-emerald-400/40 bg-emerald-500/15 text-white"
+                        ? "border border-violet-400/40 bg-violet-500/15 text-white"
                         : "border border-white/10 text-zinc-400 hover:bg-white/5"
                     }`}
                   >
@@ -263,7 +265,7 @@ export function ClientWorkspaceShell({
                 ))}
               </div>
               <p className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                Background URL
+                Hintergrund-URL
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <input
@@ -276,68 +278,30 @@ export function ClientWorkspaceShell({
                 <button
                   type="button"
                   onClick={() => applyBg(bgUrl)}
-                  className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-black"
+                  className="rounded-xl bg-violet-600 px-3 py-2 text-sm font-semibold text-white"
                 >
-                  Apply
+                  Übernehmen
                 </button>
                 <button
                   type="button"
                   onClick={() => applyBg("")}
                   className="rounded-xl border border-white/15 px-3 py-2 text-sm text-zinc-300"
                 >
-                  Clear
+                  Löschen
                 </button>
               </div>
             </div>
           ) : null}
-          {/* Desktop/tablet chip nav only — mobile uses AppShell ClientMobileNav (single chrome). */}
-          <nav
-            className="mt-5 hidden flex-wrap gap-2 md:flex"
-            aria-label="Virtus AI Workspace"
-          >
-            {links.map((link) => {
-              const active = link.match(pathname);
-              const soon = Boolean(link.comingSoon);
-              return (
-                <Link
-                  key={link.id}
-                  href={link.href}
-                  className={`rounded-lg px-3 py-1.5 text-sm transition ${
-                    soon
-                      ? active
-                        ? "border border-dashed border-zinc-600/50 bg-zinc-900/40 text-zinc-500"
-                        : "border border-dashed border-zinc-700/40 text-zinc-600 hover:border-zinc-600/50 hover:bg-zinc-900/30 hover:text-zinc-500"
-                      : active
-                        ? "border border-genesis-accent/40 bg-genesis-accent/15 text-white"
-                        : "border border-transparent text-zinc-400 hover:border-white/10 hover:bg-white/5 hover:text-white"
-                  }`}
-                  aria-label={
-                    soon
-                      ? `${copy.nav[link.id] || link.label} — Coming Soon`
-                      : undefined
-                  }
-                >
-                  {copy.nav[link.id] || link.label}
-                  {soon ? (
-                    <span className="ml-1.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-                      · Soon
-                    </span>
-                  ) : null}
-                </Link>
-              );
-            })}
-          </nav>
           {locked.length ? (
-            <p className="mt-3 hidden text-xs text-zinc-500 md:block">
-              Connected:{" "}
-              {locked.map((l) => l.label).join(" · ")} —{" "}
-              <Link href="/client/shop" className="text-emerald-300/90 underline">
-                открыть в Marketplace
+            <p className="mt-3 text-xs text-zinc-500">
+              Connected: {locked.map((l) => l.label).join(" · ")} —{" "}
+              <Link href="/client/shop" className="text-violet-300/90 underline">
+                Marketplace
               </Link>
             </p>
           ) : null}
-          <p className="mt-2 hidden text-[11px] text-zinc-600 md:block">
-            {ASSISTANT_NAME} управляет только купленными продуктами · одна панель
+          <p className="mt-2 text-[11px] text-zinc-600">
+            {ASSISTANT_NAME} · nur gekaufte Produkte · eine Steuerung
           </p>
         </header>
         <main id="main-content" className="py-4 sm:py-6">

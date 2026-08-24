@@ -29,8 +29,8 @@ type ProductRow = {
 };
 
 function badgeLabel(b: MarketplaceBadge): string {
-  if (b === "active") return "Active";
-  if (b === "activate") return "Activate";
+  if (b === "active") return "Aktiv";
+  if (b === "activate") return "Nicht aktiviert";
   return "Coming Soon";
 }
 
@@ -44,9 +44,9 @@ function badgeClass(b: MarketplaceBadge): string {
 
 function ctaLabel(badge: MarketplaceBadge, def: MarketplaceServiceDef): string {
   if (badge === "coming_soon") return "Coming Soon";
-  if (badge === "active") return "Открыть →";
-  if (def.ctaKind === "order") return "Заказать →";
-  return "Activate →";
+  if (badge === "active") return "Verwalten →";
+  if (def.ctaKind === "order") return "Hinzufügen →";
+  return "Hinzufügen →";
 }
 
 function ServiceRow({
@@ -162,17 +162,16 @@ export default function ClientShopPage() {
   return (
     <ClientWorkspaceShell
       title="Service Marketplace"
-      subtitle="Витрина услуг Virtus Core — подключайте по мере роста. CRM и Gen2 — Coming Soon."
+      subtitle="Nur Module mit echtem Bestellweg — sonst Coming Soon, kein Fake-Aktivieren."
     >
       <p className="mb-6 max-w-2xl text-sm text-zinc-400">
-        После сайта можно подключить магазин, аналитику, SEO, Digital Employee и
-        другие сервисы. Activate ведёт на заказ или настройку. Coming Soon — после
-        Public Launch (Gen2).
+        Aktiv → Verwalten. Nicht aktiviert → Hinzufügen (echte Bestellung). Coming Soon =
+        Produkt noch nicht lieferbar.
       </p>
 
       <section className="mb-10">
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300/80">
-          Services
+          Verfügbare Services
         </h2>
         <ul className="grid gap-4 sm:grid-cols-2">
           {liveRows.map(({ def, badge }) => (
@@ -183,7 +182,7 @@ export default function ClientShopPage() {
 
       <section>
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500">
-          Coming Soon · Gen2
+          Coming Soon
         </h2>
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {MARKETPLACE_SOON.map((def) => (

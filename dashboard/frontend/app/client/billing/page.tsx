@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ClientWorkspaceShell } from "../../components/ClientWorkspaceShell";
 import { PortalApiError, portalFetch } from "../../lib/portalApi";
+import { BccPanel, BccSectionHeader } from "../../lib/clientUi";
 
 type BillingRow = {
   transaction_id?: string;
@@ -40,23 +41,26 @@ export default function ClientBillingPage() {
   return (
     <ClientWorkspaceShell
       title="Abrechnung"
-      subtitle="Zahlungsverlauf Ihres Kontos — Abo-Verwaltung folgt separat."
+      subtitle="Zahlungsverlauf · Self-Service-Portal folgt."
     >
-      <section className="mb-6 rounded-2xl border border-dashed border-amber-400/25 bg-amber-500/[0.05] p-5">
+      <BccPanel className="mb-6 border-dashed border-amber-400/25 bg-amber-500/[0.05] p-5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-300/85">
-          Stripe Kundenportal — Coming Soon
+          Stripe-Kundenportal — Demnächst
         </p>
         <p className="mt-2 text-sm text-zinc-400">
-          Rechnungen herunterladen, Zahlungsmethode ändern und Abos verwalten — über
-          das Stripe Customer Portal. In Gen1 sehen Sie zuerst den Zahlungsverlauf;
-          Self-Service-Portal wird angebunden, sobald es produktiv freigeschaltet ist.
+          Rechnungen herunterladen, Zahlungsmethode ändern und Abos verwalten —
+          über das Stripe Customer Portal. Aktuell sehen Sie den echten
+          Zahlungsverlauf; Self-Service wird angebunden, sobald produktiv
+          freigeschaltet.
         </p>
-      </section>
+      </BccPanel>
 
-      <section aria-label="Zahlungsverlauf">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-zinc-500">
-          Zahlungsverlauf
-        </h2>
+      <BccPanel className="p-5">
+        <BccSectionHeader
+          title="Zahlungsverlauf"
+          actionHref="/client/orders"
+          actionLabel="Bestellungen →"
+        />
         {error ? <p className="mt-3 text-sm text-rose-200">{error}</p> : null}
         {rows === null ? (
           <p className="mt-3 text-sm text-zinc-500">Laden…</p>
@@ -68,7 +72,7 @@ export default function ClientBillingPage() {
               Abo-Steuerung.
             </p>
             <Link
-              href="/order"
+              href="/order?form=1"
               className="mt-4 inline-flex text-violet-300 hover:underline"
             >
               Website bestellen →
@@ -79,9 +83,11 @@ export default function ClientBillingPage() {
             {rows.map((row, i) => (
               <li
                 key={row.transaction_id || String(i)}
-                className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-zinc-200"
+                className="rounded-xl border border-white/10 bg-black/25 px-3 py-3 text-sm text-zinc-200"
               >
-                {row.product_id || row.transaction_id || "Transaktion"}
+                <span className="font-medium text-white">
+                  {row.product_id || row.transaction_id || "Transaktion"}
+                </span>
                 {row.amount != null ? (
                   <span className="text-zinc-400">
                     {" "}
@@ -93,11 +99,31 @@ export default function ClientBillingPage() {
                 ) : (
                   <span className="text-zinc-600"> · Unknown</span>
                 )}
+                {row.created_at ? (
+                  <span className="mt-1 block text-xs text-zinc-600">
+                    {row.created_at}
+                  </span>
+                ) : null}
               </li>
             ))}
           </ul>
         )}
-      </section>
+      </BccPanel>
+
+      <div className="mt-4 flex flex-wrap gap-3 text-sm">
+        <Link
+          href="/client/downloads"
+          className="rounded-xl border border-white/15 px-3 py-2 text-zinc-300 hover:bg-white/5"
+        >
+          Downloads / ZIP
+        </Link>
+        <Link
+          href="/client/support"
+          className="rounded-xl border border-white/15 px-3 py-2 text-zinc-300 hover:bg-white/5"
+        >
+          Support bei Zahlungsfragen
+        </Link>
+      </div>
     </ClientWorkspaceShell>
   );
 }

@@ -56,7 +56,7 @@ function RegisterForm() {
           name: name.trim(),
           email: email.trim(),
           password,
-          locale: (navigator.language || "en").slice(0, 2),
+          locale: "de",
         }),
       });
       const body = (await res.json().catch(() => ({}))) as StartResponse;
@@ -108,23 +108,23 @@ function RegisterForm() {
 
   return (
     <ClientAuthShell
-      title="Создать аккаунт"
-      subtitle="Необязательно. Сайт, магазин или AI Assistant можно купить без регистрации. Аккаунт нужен для кабинета — проекты, боты, апгрейды."
+      title="Konto erstellen"
+      subtitle="Optional. Website, Shop oder AI Assistant können Sie ohne Registrierung kaufen. Ein Konto braucht es fürs Kabinett — Projekte, Bots, Upgrades."
       footer={
         <>
           <p>
-            Купить без аккаунта?{" "}
+            Ohne Konto kaufen?{" "}
             <Link href="/order" className="text-emerald-300 hover:underline">
-              Гостевой заказ
+              Gastbestellung
             </Link>
           </p>
           <p>
-            Уже есть аккаунт?{" "}
+            Bereits ein Konto?{" "}
             <Link
               href={`/client/login${nextPath !== "/client" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
               className="text-emerald-300 hover:underline"
             >
-              Войти
+              Anmelden
             </Link>
           </p>
         </>
@@ -133,7 +133,7 @@ function RegisterForm() {
       {step === "form" ? (
         <form onSubmit={onStart} className="space-y-4">
           <label className="block text-sm text-zinc-300">
-            Имя
+            Name
             <input
               className={inputClass}
               value={name}
@@ -145,7 +145,7 @@ function RegisterForm() {
             />
           </label>
           <label className="block text-sm text-zinc-300">
-            Email
+            E-Mail
             <input
               className={inputClass}
               type="email"
@@ -157,7 +157,7 @@ function RegisterForm() {
             />
           </label>
           <label className="block text-sm text-zinc-300">
-            Пароль (мин. 8 символов)
+            Passwort (min. 8 Zeichen)
             <input
               className={inputClass}
               type="password"
@@ -178,14 +178,15 @@ function RegisterForm() {
             disabled={busy}
             className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-50"
           >
-            {busy ? "Отправка кода…" : "Получить код подтверждения"}
+            {busy ? "Code wird gesendet…" : "Bestätigungscode anfordern"}
           </button>
         </form>
       ) : (
         <form onSubmit={onConfirm} className="space-y-4">
           <p className="text-sm text-zinc-300">
-            Код отправлен на{" "}
-            <span className="text-white">{email.trim()}</span>. Введите его ниже.
+            Code gesendet an{" "}
+            <span className="text-white">{email.trim()}</span>. Bitte unten
+            eingeben.
           </p>
           {devCode ? (
             <p className="rounded-lg border border-amber-500/30 bg-amber-950/40 px-3 py-2 text-sm text-amber-100">
@@ -194,13 +195,15 @@ function RegisterForm() {
             </p>
           ) : null}
           <label className="block text-sm text-zinc-300">
-            Код подтверждения
+            Bestätigungscode
             <input
               className={`${inputClass} text-center text-xl tracking-[0.35em]`}
               inputMode="numeric"
               autoComplete="one-time-code"
               value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 8))}
+              onChange={(e) =>
+                setCode(e.target.value.replace(/\D/g, "").slice(0, 8))
+              }
               minLength={4}
               required
             />
@@ -215,7 +218,7 @@ function RegisterForm() {
             disabled={busy}
             className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-50"
           >
-            {busy ? "Создание…" : "Подтвердить и открыть кабинет"}
+            {busy ? "Wird erstellt…" : "Bestätigen und Kabinett öffnen"}
           </button>
           <button
             type="button"
@@ -227,7 +230,7 @@ function RegisterForm() {
             }}
             className="w-full text-sm text-zinc-400 hover:text-white"
           >
-            ← Изменить email или пароль
+            ← E-Mail oder Passwort ändern
           </button>
         </form>
       )}
@@ -240,7 +243,7 @@ export default function ClientRegisterPage() {
     <Suspense
       fallback={
         <div className="mx-auto max-w-md px-4 py-20 text-sm text-zinc-400">
-          Loading…
+          Laden…
         </div>
       }
     >

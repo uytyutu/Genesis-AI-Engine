@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { BRAND_NAME } from "../lib/publicBrand";
+import { BccLocationTrail } from "../lib/clientUi";
+import { resolveBccLocationTrail } from "../lib/workspaceNav";
 
 export type WebsiteAdminSectionId =
   | "dashboard"
@@ -159,7 +161,16 @@ export function WebsiteAdminShell({
               Menu
             </button>
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-base font-semibold capitalize">{section}</h1>
+              <BccLocationTrail
+                crumbs={[
+                  ...resolveBccLocationTrail(`/client/websites/${orderId}/admin`),
+                  { label: NAV.find((n) => n.id === section)?.label || section },
+                ]}
+                className="mb-1"
+              />
+              <h1 className="truncate text-base font-semibold capitalize">
+                {NAV.find((n) => n.id === section)?.label || section}
+              </h1>
               <p className="text-[11px] text-zinc-500">
                 Edit live — changes apply to your website preview
               </p>

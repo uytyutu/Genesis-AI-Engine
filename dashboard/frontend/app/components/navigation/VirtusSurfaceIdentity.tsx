@@ -13,8 +13,17 @@ type Props = {
 
 export function VirtusSurfaceIdentity({ surface, homeHref = "/" }: Props) {
   const { t } = useTranslation("common");
-  const roleKey =
-    surface === "public" ? "surface.public" : surface === "client" ? "surface.client" : "surface.ceo";
+  // Client BCC chrome is DE market SSOT — never follow UI locale for sidebar brand line.
+  const roleLabel =
+    surface === "client"
+      ? "Mein Unternehmen"
+      : surface === "public"
+        ? t("surface.public")
+        : t("surface.ceo");
+  const workingWith =
+    surface === "client"
+      ? `${ASSISTANT_NAME} hilft Ihnen gerne`
+      : t("surface.workingWith", { name: ASSISTANT_NAME });
 
   return (
     <div className="virtus-surface-identity">
@@ -27,14 +36,14 @@ export function VirtusSurfaceIdentity({ surface, homeHref = "/" }: Props) {
         <div className="min-w-0">
           <p className="virtus-surface-identity__name">{BRAND_NAME}</p>
           <p className="virtus-surface-identity__tag" suppressHydrationWarning>
-            {surface === "public" ? t(roleKey) : `${ASSISTANT_NAME} · ${t(roleKey)}`}
+            {surface === "public" ? roleLabel : `${ASSISTANT_NAME} · ${roleLabel}`}
           </p>
         </div>
       </Link>
       {surface !== "public" ? (
         <p className="virtus-surface-identity__vector" suppressHydrationWarning>
           <span className="virtus-surface-identity__dot" aria-hidden />
-          {t("surface.workingWith", { name: ASSISTANT_NAME })}
+          {workingWith}
         </p>
       ) : null}
     </div>

@@ -332,6 +332,26 @@
     color: #52525b;
   }
 
+  /* Client BCC: shell owns page title — hide AppShell topbar (desktop + mobile).
+     Mobile first paint = greeting + product cards; nav = bottom bar. */
+  .virtus-surface-client .genesis-topbar {
+    display: none !important;
+  }
+
+  @media (max-width: 900px) {
+    .virtus-surface-client .genesis-sidebar {
+      display: none !important;
+    }
+
+    .virtus-surface-client .genesis-app-main {
+      border-left: 0;
+    }
+
+    .virtus-surface-client .genesis-app-content {
+      padding-top: 0.75rem;
+    }
+  }
+
   .virtus-surface-identity__brand {
     display: flex;
     align-items: center;

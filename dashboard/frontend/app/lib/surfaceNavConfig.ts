@@ -121,31 +121,16 @@ export type PublicNavLink = {
 
 export const PUBLIC_NAV_LINKS: readonly PublicNavLink[] = [];
 
+/** BCC sidebar — single chrome with ClientMobileNav (no duplicate shell chips). */
 export const CLIENT_NAV_LINKS = [
-  { href: "/client", label: "Dashboard", hint: "Übersicht · Produkte · nächster Schritt" },
-  { href: "/client/products", label: "Meine Produkte", hint: "Website · AI Store · Status" },
-  { href: "/client/orders", label: "Bestellungen", hint: "Status · Download" },
-  { href: "/client/shop", label: "Marketplace", hint: "Weitere Services bestellen" },
-  {
-    href: "/client/bots",
-    label: "KI-Mitarbeiter",
-    hint: "Setup · Kanäle · ehrlicher Status",
-  },
-  {
-    href: "/client/billing",
-    label: "Abrechnung",
-    hint: "Zahlungsverlauf · Portal Soon",
-  },
-  {
-    href: "/client/support",
-    label: "Support",
-    hint: "E-Mail · Tickets Soon",
-  },
-  {
-    href: "/client/privacy",
-    label: "Privacy",
-    hint: "Cookies · Einwilligung",
-  },
+  { href: "/client", label: "Übersicht", hint: "Ihr Kabinett" },
+  { href: "/client/products", label: "Meine Produkte", hint: "Website · Shop · Status" },
+  { href: "/client/site", label: "Website", hint: "Preview · Admin" },
+  { href: "/client/shop", label: "Shop", hint: "Store Admin · Marketplace" },
+  { href: "/client/bots", label: "AI", hint: "KI-Mitarbeiter · Inbox" },
+  { href: "/client/settings", label: "Business", hint: "Profil · Branding · Coming Soon" },
+  { href: "/client/billing", label: "Abrechnung", hint: "Zahlungsverlauf · Portal Demnächst" },
+  { href: "/client/support", label: "Support", hint: "E-Mail · Tickets Demnächst" },
 ] as const;
 
 export const CEO_PRIMARY_LINKS = [

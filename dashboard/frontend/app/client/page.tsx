@@ -15,6 +15,22 @@ import {
 import { ASSISTANT_NAME } from "../lib/publicBrand";
 import { clientAuthHeaders, getClientToken } from "../lib/clientAuth";
 import { publicApiBase } from "../lib/publicApiBase";
+import {
+  resolveOrderHonestStatus,
+} from "../lib/clientProductStatus";
+import {
+  resolveBccPrimaryCards,
+  type BccModuleCardModel,
+} from "../lib/bccModuleCatalog";
+import { signalsFromOrdersAndProducts } from "../lib/clientServiceMarketplace";
+import {
+  BccPanel,
+  BccPrimaryButton,
+  BccQuickLink,
+  BccSectionHeader,
+  BccStatusPill,
+  toneFromHonest,
+} from "../lib/clientUi";
 
 type MyProduct = {
   product_id: string;
@@ -44,18 +60,7 @@ type ClientOrder = {
   quality_state?: string;
 };
 
-type CardTone = "active" | "pending" | "inactive" | "soon";
-
-type ProductCardModel = {
-  id: string;
-  icon: string;
-  title: string;
-  packageLine: string | null;
-  statusLabel: string;
-  tone: CardTone;
-  ctaLabel: string;
-  ctaHref: string;
-};
+type ProductCardModel = BccModuleCardModel;
 
 function isWebsiteProduct(p: MyProduct) {
   return p.product_type === "website" || p.product_id === "prod_website";
@@ -107,78 +112,38 @@ function packageTierLabel(packageId: string | undefined, packageName?: string): 
   return name || "Paket";
 }
 
-function orderLooksReady(o: ClientOrder): boolean {
-  if (o.download_ready) return true;
-  const st = String(o.status || "").toLowerCase();
-  return ["ready", "completed", "delivered", "active", "done"].includes(st);
-}
-
-function orderLooksPending(o: ClientOrder): boolean {
-  return Boolean(o.order_id) && !orderLooksReady(o);
-}
-
-const TONE_PILL: Record<CardTone, string> = {
-  active: "border-emerald-400/35 bg-emerald-500/15 text-emerald-100",
-  pending: "border-amber-400/35 bg-amber-500/15 text-amber-100",
-  inactive: "border-white/15 bg-white/[0.04] text-zinc-400",
-  soon: "border-violet-400/25 bg-violet-500/10 text-violet-200/90",
-};
-
 function ProductCard({ card }: { card: ProductCardModel }) {
-  const activeSurface =
-    card.tone === "active"
-      ? "border-violet-500/40 bg-gradient-to-b from-violet-950/40 to-[#0c0a12] shadow-[0_0_40px_-18px_rgba(124,58,237,0.45)]"
-      : "border-white/10 bg-white/[0.03]";
-
+  const tone = toneFromHonest(card.status.key);
   return (
-    <article
-      className={`flex h-full flex-col rounded-2xl border p-5 ${activeSurface}`}
-    >
+    <BccPanel active={tone === "active"} className="flex h-full flex-col p-5">
       <div className="flex items-start justify-between gap-3">
         <p className="text-2xl" aria-hidden>
           {card.icon}
         </p>
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${TONE_PILL[card.tone]}`}
-        >
-          <span
-            className={`h-1.5 w-1.5 rounded-full ${
-              card.tone === "active"
-                ? "bg-emerald-400"
-                : card.tone === "pending"
-                  ? "bg-amber-400"
-                  : card.tone === "soon"
-                    ? "bg-violet-400"
-                    : "bg-zinc-500"
-            }`}
-            aria-hidden
-          />
-          {card.statusLabel}
-        </span>
+        <BccStatusPill tone={tone} label={card.status.label} />
       </div>
       <h3 className="mt-4 text-lg font-semibold tracking-tight text-white">
         {card.title}
       </h3>
       {card.packageLine ? (
         <p className="mt-1 text-sm text-violet-200/90">{card.packageLine}</p>
+      ) : card.priceHint ? (
+        <p className="mt-1 text-sm text-zinc-500">{card.priceHint}</p>
       ) : (
         <p className="mt-1 text-sm text-zinc-500">Noch nicht in Ihrem Workspace</p>
       )}
       <div className="mt-auto pt-6">
-        <Link
-          href={card.ctaHref}
-          className={`inline-flex min-h-[44px] w-full items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
-            card.tone === "active"
-              ? "bg-violet-600 text-white shadow-[0_12px_32px_-14px_rgba(124,58,237,0.85)] hover:bg-violet-500"
-              : card.tone === "pending"
-                ? "border border-amber-400/40 bg-amber-500/15 text-amber-50 hover:bg-amber-500/25"
-                : "border border-white/15 bg-white/[0.04] text-zinc-100 hover:border-violet-400/40 hover:bg-violet-500/10"
-          }`}
-        >
-          {card.ctaLabel}
-        </Link>
+        {card.cta.actionable && card.ctaHref ? (
+          <BccPrimaryButton href={card.ctaHref} tone={tone}>
+            {card.cta.label}
+          </BccPrimaryButton>
+        ) : (
+          <span className="inline-flex min-h-[44px] items-center rounded-xl border border-white/10 px-4 text-sm text-zinc-500">
+            {card.cta.label || "Coming Soon"}
+          </span>
+        )}
       </div>
-    </article>
+    </BccPanel>
   );
 }
 
@@ -273,143 +238,36 @@ export default function ClientDashboardPage() {
     Boolean(botOrder) || (products ?? []).some(isChatbotProduct);
 
   const cards: ProductCardModel[] = useMemo(() => {
-    const website: ProductCardModel = (() => {
-      if (webOrder && orderLooksReady(webOrder)) {
-        return {
-          id: "website",
-          icon: "🌐",
-          title: "Website",
-          packageLine: packageTierLabel(webOrder.package_id, webOrder.package_name),
-          statusLabel: "Aktiv",
-          tone: "active",
-          ctaLabel: "Verwalten →",
-          ctaHref: `/client/websites/${webOrder.order_id}/admin`,
-        };
-      }
-      if (webOrder && orderLooksPending(webOrder)) {
-        return {
-          id: "website",
-          icon: "🌐",
-          title: "Website",
-          packageLine: packageTierLabel(webOrder.package_id, webOrder.package_name),
-          statusLabel: "In Bearbeitung",
-          tone: "pending",
-          ctaLabel: "Öffnen →",
-          ctaHref: `/client/websites/${webOrder.order_id}/admin`,
-        };
-      }
-      if (hasWebsite && webOrder) {
-        return {
-          id: "website",
-          icon: "🌐",
-          title: "Website",
-          packageLine: packageTierLabel(webOrder.package_id, webOrder.package_name),
-          statusLabel: "Aktiv",
-          tone: "active",
-          ctaLabel: "Verwalten →",
-          ctaHref: `/client/websites/${webOrder.order_id}/admin`,
-        };
-      }
-      if (hasWebsite) {
-        return {
-          id: "website",
-          icon: "🌐",
-          title: "Website",
-          packageLine: "Im Workspace",
-          statusLabel: "Aktiv",
-          tone: "active",
-          ctaLabel: "Verwalten →",
-          ctaHref: "/client/products",
-        };
-      }
-      return {
-        id: "website",
-        icon: "🌐",
-        title: "Website",
-        packageLine: null,
-        statusLabel: "Nicht aktiviert",
-        tone: "inactive",
-        ctaLabel: "Entdecken →",
-        ctaHref: "/order?form=1",
-      };
-    })();
-
-    const shop: ProductCardModel = (() => {
-      if (shopOrder && orderLooksReady(shopOrder)) {
-        return {
-          id: "shop",
-          icon: "🛒",
-          title: "Online Shop",
-          packageLine: packageTierLabel(shopOrder.package_id, shopOrder.package_name),
-          statusLabel: "Aktiv",
-          tone: "active",
-          ctaLabel: "Verwalten →",
-          ctaHref: `/client/stores/${shopOrder.order_id}/admin`,
-        };
-      }
-      if (shopOrder && orderLooksPending(shopOrder)) {
-        return {
-          id: "shop",
-          icon: "🛒",
-          title: "Online Shop",
-          packageLine: packageTierLabel(shopOrder.package_id, shopOrder.package_name),
-          statusLabel: "In Bearbeitung",
-          tone: "pending",
-          ctaLabel: "Öffnen →",
-          ctaHref: `/client/stores/${shopOrder.order_id}/admin`,
-        };
-      }
-      if (hasShop && shopOrder) {
-        return {
-          id: "shop",
-          icon: "🛒",
-          title: "Online Shop",
-          packageLine: packageTierLabel(shopOrder.package_id, shopOrder.package_name),
-          statusLabel: "Aktiv",
-          tone: "active",
-          ctaLabel: "Verwalten →",
-          ctaHref: `/client/stores/${shopOrder.order_id}/admin`,
-        };
-      }
-      return {
-        id: "shop",
-        icon: "🛒",
-        title: "Online Shop",
-        packageLine: null,
-        statusLabel: "Nicht aktiviert",
-        tone: "inactive",
-        ctaLabel: "Entdecken →",
-        ctaHref: "/order/shop",
-      };
-    })();
-
-    const ai: ProductCardModel = (() => {
-      if (hasAi) {
-        return {
-          id: "ai",
-          icon: "🤖",
-          title: "AI Assistant",
-          packageLine: ASSISTANT_NAME,
-          statusLabel: "Aktiv",
-          tone: "active",
-          ctaLabel: "Öffnen →",
-          ctaHref: "/client/bots",
-        };
-      }
-      return {
-        id: "ai",
-        icon: "🤖",
-        title: "AI Assistant",
-        packageLine: null,
-        statusLabel: "Nicht aktiviert",
-        tone: "inactive",
-        ctaLabel: "Entdecken →",
-        ctaHref: "/order/bot",
-      };
-    })();
-
-    return [website, shop, ai];
-  }, [webOrder, shopOrder, hasWebsite, hasShop, hasAi]);
+    const signals = signalsFromOrdersAndProducts({
+      orders,
+      products: products ?? [],
+    });
+    return resolveBccPrimaryCards({
+      signals,
+      websiteOrder: webOrder,
+      shopOrder,
+      botOrder,
+      websiteManageHref: webOrder
+        ? `/client/websites/${webOrder.order_id}/admin`
+        : hasWebsite
+          ? "/client/products"
+          : null,
+      shopManageHref: shopOrder
+        ? `/client/stores/${shopOrder.order_id}/admin`
+        : null,
+      packageLine: {
+        website: webOrder
+          ? packageTierLabel(webOrder.package_id, webOrder.package_name)
+          : hasWebsite
+            ? "Im Workspace"
+            : null,
+        shop: shopOrder
+          ? packageTierLabel(shopOrder.package_id, shopOrder.package_name)
+          : null,
+        ai: hasAi ? ASSISTANT_NAME : null,
+      },
+    });
+  }, [webOrder, shopOrder, botOrder, hasWebsite, hasAi, orders, products]);
 
   const recentOrders = orders.slice(0, 4);
   const todayLabel = new Date().toLocaleDateString("de-DE", {
@@ -417,13 +275,21 @@ export default function ClientDashboardPage() {
     day: "numeric",
     month: "short",
   });
-  const greetingName = displayName.trim() || "Ihr Unternehmen";
-  const showSetup = !hasWebsite || !displayName;
+  const rawName = displayName.trim();
+  const placeholderNames = new Set([
+    "моя компания",
+    "mein unternehmen",
+    "my company",
+  ]);
+  const hasRealCompanyName =
+    Boolean(rawName) && !placeholderNames.has(rawName.toLowerCase());
+  const greetingName = hasRealCompanyName ? rawName : "Ihr Unternehmen";
+  const showSetup = !hasWebsite || !hasRealCompanyName;
 
   return (
     <ClientWorkspaceShell
-      title="Virtus Core Workspace"
-      subtitle={`Business Control Center · ${todayLabel}`}
+      title="Übersicht"
+      compactChrome
       hasStore={hasShop}
     >
       {error ? (
@@ -432,7 +298,7 @@ export default function ClientDashboardPage() {
         </p>
       ) : null}
 
-      {!displayName ? (
+      {!hasRealCompanyName ? (
         <div className="mb-5 rounded-xl border border-amber-400/25 bg-amber-500/10 px-3 py-3 text-sm text-amber-100/90">
           Unternehmensprofil vervollständigen — dann kann Virtus Core passgenau
           arbeiten.{" "}
@@ -443,15 +309,14 @@ export default function ClientDashboardPage() {
       ) : null}
 
       <header className="mb-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-200/80">
-          Workspace
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
           Guten Tag, {greetingName}
         </h1>
         <p className="mt-1 text-sm text-zinc-400">
           Ihr Business auf einen Blick
-          {giftUnlimited ? " · Unlimited Workspace" : ""}
+          {giftUnlimited ? " · Unbegrenzter Workspace" : ""}
+          {" · "}
+          {todayLabel}
         </p>
       </header>
 
@@ -481,120 +346,82 @@ export default function ClientDashboardPage() {
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-zinc-500">
-              Letzte Bestellungen
-            </h2>
-            <Link
-              href="/client/orders"
-              className="text-sm font-medium text-violet-300 hover:text-violet-100"
-            >
-              Alle →
-            </Link>
-          </div>
+        <BccPanel className="p-5">
+          <BccSectionHeader
+            title="Letzte Bestellungen"
+            actionHref="/client/orders"
+            actionLabel="Alle →"
+          />
           {recentOrders.length === 0 ? (
             <p className="mt-4 text-sm text-zinc-500">
               Noch keine Bestellungen. Starten Sie mit Website oder Shop.
             </p>
           ) : (
             <ul className="mt-4 space-y-2">
-              {recentOrders.map((o) => (
-                <li key={o.order_id}>
-                  <Link
-                    href={
-                      isShopOrder(o)
-                        ? `/client/stores/${o.order_id}/admin`
-                        : isBotOrder(o)
-                          ? "/client/bots"
-                          : `/client/websites/${o.order_id}/admin`
-                    }
-                    className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/25 px-3 py-3 transition hover:border-violet-400/35"
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium text-white">
-                        {o.business_name || o.package_name || o.order_id}
-                      </span>
-                      <span className="mt-0.5 block text-xs text-zinc-500">
-                        {packageTierLabel(o.package_id, o.package_name)}
-                        {o.status_label ? ` · ${o.status_label}` : ""}
-                      </span>
-                    </span>
-                    <span
-                      className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase ${
-                        orderLooksReady(o)
-                          ? TONE_PILL.active
-                          : TONE_PILL.pending
-                      }`}
+              {recentOrders.map((o) => {
+                const status = resolveOrderHonestStatus(o);
+                return (
+                  <li key={o.order_id}>
+                    <Link
+                      href={
+                        isShopOrder(o)
+                          ? `/client/stores/${o.order_id}/admin`
+                          : isBotOrder(o)
+                            ? "/client/bots"
+                            : `/client/websites/${o.order_id}/admin`
+                      }
+                      className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/25 px-3 py-3 transition hover:border-violet-400/35"
                     >
-                      {orderLooksReady(o) ? "Bereit" : "Laufend"}
-                    </span>
-                  </Link>
-                </li>
-              ))}
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium text-white">
+                          {o.business_name || o.package_name || o.order_id}
+                        </span>
+                        <span className="mt-0.5 block text-xs text-zinc-500">
+                          {packageTierLabel(o.package_id, o.package_name)}
+                        </span>
+                      </span>
+                      <BccStatusPill
+                        tone={toneFromHonest(status.key)}
+                        label={status.label}
+                      />
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
-        </section>
+        </BccPanel>
 
-        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-zinc-500">
-            Schnellzugriff
-          </h2>
+        <BccPanel className="p-5">
+          <BccSectionHeader title="Schnellzugriff" />
           <ul className="mt-4 space-y-2 text-sm">
             <li>
-              <Link
-                href="/client/support"
-                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-violet-400/35"
-              >
-                <span>Support</span>
-                <span className="text-zinc-500">→</span>
-              </Link>
+              <BccQuickLink href="/client/support" label="Support" />
             </li>
             <li>
-              <Link
-                href="/client/downloads"
-                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-violet-400/35"
-              >
-                <span>Downloads / ZIP</span>
-                <span className="text-zinc-500">→</span>
-              </Link>
+              <BccQuickLink href="/client/downloads" label="Downloads / ZIP" />
             </li>
             <li>
-              <Link
-                href="/client/billing"
-                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-violet-400/35"
-              >
-                <span>Billing</span>
-                <span className="text-zinc-500">→</span>
-              </Link>
+              <BccQuickLink href="/client/billing" label="Abrechnung" />
             </li>
             <li>
-              <Link
-                href="/client/shop"
-                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-violet-400/35"
-              >
-                <span>Marketplace</span>
-                <span className="text-zinc-500">→</span>
-              </Link>
+              <BccQuickLink href="/client/shop" label="Marketplace" />
             </li>
             {hasAi ? (
               <li>
-                <Link
+                <BccQuickLink
                   href="/client/inbox"
-                  className="flex min-h-[44px] items-center justify-between rounded-xl border border-violet-400/25 bg-violet-500/10 px-3 py-2.5 text-violet-50 hover:bg-violet-500/15"
-                >
-                  <span>
-                    Inbox
-                    {openConversations > 0
-                      ? ` · ${openConversations} offen`
-                      : ""}
-                  </span>
-                  <span className="text-violet-300">→</span>
-                </Link>
+                  label={
+                    openConversations > 0
+                      ? `Inbox · ${openConversations} offen`
+                      : "Inbox"
+                  }
+                  highlight
+                />
               </li>
             ) : null}
           </ul>
-        </section>
+        </BccPanel>
       </div>
 
       <VectorCoachingToasts />

@@ -262,7 +262,7 @@ class CustomerIdentityService:
             "headline": headline_ready(),
             "welcome": welcome_payload(welcome, name=account.name) if welcome else None,
             "platform_visitor_id": card.platform_visitor_id if card else None,
-            "gift_account": bool(card.gift_account) if card else False,
+            "gift_account": bool(getattr(card, "gift_account", False)) if card else False,
             "gift_unlimited": bool(getattr(card, "gift_unlimited", False) or getattr(card, "unlimited", False))
             if card
             else False,
@@ -405,7 +405,7 @@ class CustomerIdentityService:
             "headline": headline_ready(),
             "welcome": welcome_payload(welcome, name=account.name),
             "company": {
-                "name": company.name if company else "Моя компания",
+                "name": company.name if company else "Mein Unternehmen",
                 "project": project_state,
             },
             "platform_visitor_id": card.platform_visitor_id if card else None,

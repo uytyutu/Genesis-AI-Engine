@@ -1,4 +1,12 @@
-/** Honest client product status — no decorative Active/Live fallbacks. */
+/** Honest client product status — no decorative Active/Live fallbacks.
+
+BCC 2.0 CTA law:
+  Aktiv → Verwalten
+  Nicht aktiviert → Hinzufügen (only if purchase path exists)
+  In Bearbeitung → Öffnen
+  Coming Soon → Coming Soon (disabled)
+  Unbekannt → no commercial CTA
+*/
 
 export type HonestProductStatus =
   | "active"
@@ -13,12 +21,21 @@ export type HonestStatusDisplay = {
   toneClass: string;
 };
 
+export type HonestCtaKind = "manage" | "add" | "open" | "coming_soon" | "none";
+
+export type HonestCta = {
+  kind: HonestCtaKind;
+  label: string;
+  /** False → render as disabled / no link */
+  actionable: boolean;
+};
+
 const LABEL: Record<HonestProductStatus, string> = {
-  active: "Active",
-  pending: "Pending",
-  not_activated: "Not activated",
+  active: "Aktiv",
+  pending: "In Bearbeitung",
+  not_activated: "Nicht aktiviert",
   coming_soon: "Coming Soon",
-  unknown: "Unknown",
+  unknown: "Unbekannt",
 };
 
 const TONE: Record<HonestProductStatus, string> = {
@@ -129,4 +146,33 @@ export function resolvePortalProductHonestStatus(
   if (hit) return display(hit);
   if (String(product.status || "").trim()) return display("unknown");
   return display("unknown");
+}
+
+/** BCC 2.0 commercial CTA from honest status. */
+export function resolveHonestCta(
+  status: HonestProductStatus,
+  opts?: { purchaseLabel?: "Hinzufügen" | "Kaufen" },
+): HonestCta {
+  switch (status) {
+    case "active":
+      return { kind: "manage", label: "Verwalten →", actionable: true };
+    case "pending":
+      return { kind: "open", label: "Öffnen →", actionable: true };
+    case "not_activated":
+      return {
+        kind: "add",
+        label: `${opts?.purchaseLabel || "Hinzufügen"} →`,
+        actionable: true,
+      };
+    case "coming_soon":
+      return { kind: "coming_soon", label: "Coming Soon", actionable: false };
+    default:
+      return { kind: "none", label: "", actionable: false };
+  }
+}
+
+export function honestStatusDisplay(
+  key: HonestProductStatus,
+): HonestStatusDisplay {
+  return display(key);
 }

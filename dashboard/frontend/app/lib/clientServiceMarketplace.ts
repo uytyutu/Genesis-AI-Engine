@@ -1,6 +1,7 @@
 /**
  * Gen2 Stage 0 — Service Marketplace catalog (vitrine only).
- * Active / Activate / Coming Soon — no CRM, no fake Connect for unfinished Gen2.
+ * BCC 2.0: live = real order/delivery path; everything else = Coming Soon.
+ * No fake Activate loops to /client/shop stubs.
  */
 
 export type MarketplaceBadge = "active" | "activate" | "coming_soon";
@@ -15,11 +16,8 @@ export type MarketplaceServiceDef = {
   activateHref?: string;
   openHref?: string;
   priceHint?: string;
-  /** Value bullets — why buy / what you get */
   includes?: string[];
-  /** CTA when activate: "order" | "activate" */
   ctaKind?: "order" | "activate";
-  /** How to detect Active from client orders / portal products */
   detect?:
     | "website"
     | "store"
@@ -35,23 +33,24 @@ export type MarketplaceServiceDef = {
     | "backup";
 };
 
-/** Services Virtus can sell or partially deliver today — Activate. */
+/** Truly purchasable / usable today. */
 export const MARKETPLACE_LIVE: MarketplaceServiceDef[] = [
   {
     id: "website",
     icon: "🌐",
     name: "Website",
-    blurb: "Цифровое лицо компании — путь к звонку или заявке. Workspace включён.",
+    blurb:
+      "Digitale Visitenkarte Ihres Unternehmens — Weg zu Anruf oder Anfrage. Workspace inklusive.",
     badge: "activate",
     activateHref: "/order?form=1",
     openHref: "/client/site",
-    priceHint: "499 € Standalone",
+    priceHint: "Ab 199 €",
     ctaKind: "order",
     includes: [
-      "Сайт под нишу · Virtus AI Workspace",
-      "Страницы · медиа · тексты · контакты",
-      "Базовое SEO · формы · Impressum",
-      "Без подписки (Standalone)",
+      "Website nach Branche · Virtus AI Workspace",
+      "Seiten · Medien · Texte · Kontakte",
+      "Basis-SEO · Formulare · Impressum",
+      "Ohne Abo (Standalone)",
     ],
     detect: "website",
   },
@@ -59,17 +58,18 @@ export const MARKETPLACE_LIVE: MarketplaceServiceDef[] = [
     id: "ai_store",
     icon: "🛒",
     name: "Online Store",
-    blurb: "Каталог, корзина и заказы в том же Workspace — без нового сайта.",
+    blurb:
+      "Katalog, Warenkorb und Bestellungen im selben Workspace — ohne neue Website.",
     badge: "activate",
     activateHref: "/order/shop",
     openHref: "/client/products",
-    priceHint: "299 €",
+    priceHint: "Ab 799 €",
     ctaKind: "order",
     includes: [
-      "Интернет-магазин под нишу",
-      "Товары · категории · заказы",
-      "Store Admin в /client",
-      "Интеграция с существующим проектом",
+      "Onlineshop nach Branche",
+      "Produkte · Kategorien · Bestellungen",
+      "Store Admin unter /client",
+      "Integration in bestehendes Projekt",
     ],
     detect: "store",
   },
@@ -77,161 +77,127 @@ export const MARKETPLACE_LIVE: MarketplaceServiceDef[] = [
     id: "digital_employee",
     icon: "🤖",
     name: "AI Chatbot",
-    blurb: "Диалоги с клиентами на сайте и в мессенджерах.",
+    blurb: "Kundendialoge auf der Website und in Messengern.",
     badge: "activate",
     activateHref: "/order/bot",
     openHref: "/client/bots",
-    priceHint: "99 €",
+    priceHint: "Ab 499 €",
     ctaKind: "order",
-    includes: ["Ответы 24/7", "Сбор заявок", "Telegram", "Кабинет настройки"],
+    includes: ["Antworten 24/7", "Lead-Erfassung", "Telegram", "Setup-Bereich"],
     detect: "bot",
-  },
-  {
-    id: "booking",
-    icon: "📅",
-    name: "Booking System",
-    blurb: "Календарь и формы записи — автоматически на вашем сайте.",
-    badge: "activate",
-    activateHref: "/client/shop",
-    openHref: "/client/booking",
-    priceHint: "79 €",
-    ctaKind: "activate",
-    includes: ["Календарь / слоты", "Формы записи", "Интеграция с сайтом"],
-  },
-  {
-    id: "whatsapp_auto",
-    icon: "📱",
-    name: "WhatsApp Automation",
-    blurb: "Уведомления и диалоги в WhatsApp.",
-    badge: "activate",
-    activateHref: "/client/shop",
-    openHref: "/client/whatsapp",
-    priceHint: "59 €",
-    ctaKind: "activate",
-    includes: ["Кнопка на сайте", "Уведомления о заявках", "Сценарии Connected"],
-    detect: "social",
-  },
-  {
-    id: "email_automation",
-    icon: "📧",
-    name: "Email Automation",
-    blurb: "Письма и последовательности для клиентов.",
-    badge: "activate",
-    activateHref: "/client/shop",
-    openHref: "/client/email",
-    priceHint: "69 €",
-    ctaKind: "activate",
-    includes: ["SMTP / шаблоны", "Последовательности", "Связка с заявками"],
-    detect: "email",
-  },
-  {
-    id: "automation",
-    icon: "⚡",
-    name: "Automation",
-    blurb: "Сценарии между сайтом, заявками и уведомлениями.",
-    badge: "activate",
-    activateHref: "/order/service/business_automation?form=1",
-    openHref: "/client/automations",
-    priceHint: "от 69 €",
-    ctaKind: "activate",
-    includes: ["Бриф и сценарии", "Интеграции", "План внедрения"],
-    detect: "automation",
   },
   {
     id: "website_auditor",
     icon: "🔍",
     name: "Website Auditor",
-    blurb: "Проверка сайта и понятный план улучшений.",
+    blurb: "Website-Check und klarer Verbesserungsplan.",
     badge: "activate",
     activateHref: "/site?service=analysis",
     openHref: "/client/analyses",
-    priceHint: "от 149 €",
-    ctaKind: "activate",
-    includes: ["HTTPS / mobile / SEO", "Контакты и формы", "План ремонта"],
+    priceHint: "Kostenloser Check",
+    ctaKind: "order",
+    includes: ["HTTPS / Mobile / SEO", "Kontakte und Formulare", "Reparaturplan"],
     detect: "auditor",
-  },
-  {
-    id: "seo",
-    icon: "📈",
-    name: "SEO Optimization",
-    blurb: "Оптимизация сайта для поисковых систем.",
-    badge: "activate",
-    activateHref: "/order/service/seo_audit?form=1",
-    priceHint: "От 249 €",
-    ctaKind: "activate",
-    includes: ["Title · Description · H1", "robots / sitemap", "План правок"],
-    detect: "seo",
-  },
-  {
-    id: "domains_ssl",
-    icon: "🌍",
-    name: "Domains & SSL",
-    blurb: "Домен и HTTPS при публикации.",
-    badge: "activate",
-    activateHref: "/client/domain",
-    openHref: "/client/domain",
-    priceHint: "С Website",
-    ctaKind: "activate",
-    includes: ["Помощь с доменом", "SSL / HTTPS", "Публикация"],
-    detect: "domain",
   },
   {
     id: "backup",
     icon: "💾",
     name: "Cloud Backup",
-    blurb: "Резервные копии проекта.",
+    blurb: "ZIP und Sicherungen Ihres Projekts im Workspace.",
     badge: "activate",
     activateHref: "/client/downloads",
     openHref: "/client/downloads",
-    priceHint: "В Workspace",
+    priceHint: "Im Workspace",
     ctaKind: "activate",
-    includes: ["Скачать ZIP", "Сопровождение", "Снижение риска потери данных"],
+    includes: [
+      "ZIP herunterladen",
+      "Begleitung",
+      "Weniger Risiko durch Datenverlust",
+    ],
     detect: "backup",
   },
 ];
 
-/** Gen2 / Connected — shelf with honest prices; Coming Soon where not live. */
+/** Not deliverable yet — Coming Soon (no Hinzufügen / Aktivieren). */
 export const MARKETPLACE_SOON: MarketplaceServiceDef[] = [
+  {
+    id: "booking",
+    icon: "📅",
+    name: "Booking System",
+    blurb: "Kalender und Buchungsformulare auf Ihrer Website.",
+    badge: "coming_soon",
+  },
+  {
+    id: "whatsapp_auto",
+    icon: "📱",
+    name: "WhatsApp Automation",
+    blurb: "Benachrichtigungen und Dialoge in WhatsApp.",
+    badge: "coming_soon",
+  },
+  {
+    id: "email_automation",
+    icon: "📧",
+    name: "Email Automation",
+    blurb: "E-Mails und Sequenzen für Ihre Kunden.",
+    badge: "coming_soon",
+  },
+  {
+    id: "automation",
+    icon: "⚡",
+    name: "Automation",
+    blurb: "Abläufe zwischen Website, Anfragen und Benachrichtigungen.",
+    badge: "coming_soon",
+  },
+  {
+    id: "seo",
+    icon: "📈",
+    name: "SEO Optimization",
+    blurb: "Optimierung Ihrer Website für Suchmaschinen.",
+    badge: "coming_soon",
+  },
+  {
+    id: "domains_ssl",
+    icon: "🌍",
+    name: "Domains & SSL",
+    blurb: "Eigene Domain und HTTPS bei der Veröffentlichung.",
+    badge: "coming_soon",
+  },
   {
     id: "crm",
     icon: "👥",
     name: "CRM",
-    blurb: "Заявки, клиенты и история в одном месте — интегрируется с сайтом.",
+    blurb:
+      "Anfragen, Kunden und Historie an einem Ort — verbunden mit der Website.",
     badge: "coming_soon",
-    priceHint: "149 €",
-    includes: ["Контакты и сделки", "Воронка", "Связка с формами сайта"],
   },
   {
     id: "connected",
     icon: "🔗",
     name: "Virtus Core Connected",
-    blurb: "Экосистема: CRM, AI, автоматизации, аналитика в том же Workspace.",
+    blurb:
+      "Ökosystem: CRM, AI, Automation, Analytics im selben Workspace.",
     badge: "coming_soon",
-    priceHint: "499 € + 99 €/мес",
-    includes: ["Все модули в одной панели", "Без миграции сайта", "Virtus AI глубже"],
   },
   {
     id: "ai_marketing",
     icon: "🎥",
     name: "AI Campaign Studio",
-    blurb: "Кампании и креативы — Coming Soon.",
+    blurb: "Kampagnen und Creatives.",
     badge: "coming_soon",
-    priceHint: "Coming Soon",
   },
   {
     id: "inventory",
     icon: "📦",
     name: "Inventory",
-    blurb: "Склад и остатки товаров.",
+    blurb: "Lager und Bestände für Produkte.",
     badge: "coming_soon",
   },
   {
     id: "analytics_pro",
     icon: "📊",
-    name: "Analytics Pro",
-    blurb: "Глубокая аналитика Connected.",
+    name: "Analytics",
+    blurb: "Echte Besucher- und Umsatzdaten nach angebundener Quelle.",
     badge: "coming_soon",
-    priceHint: "В Connected",
   },
 ];
 
@@ -281,7 +247,7 @@ export function resolveMarketplaceBadge(
     case "domain":
       return owned.hasDomainPublished || owned.hasWebsite ? "active" : "activate";
     case "backup":
-      return owned.hasBackup ? "active" : "activate";
+      return owned.hasBackup || owned.hasWebsite ? "active" : "activate";
     default:
       return def.badge;
   }
@@ -297,7 +263,12 @@ export function marketplaceHref(
 }
 
 export function signalsFromOrdersAndProducts(input: {
-  orders?: { package_id?: string; product_kind?: string; status?: string; published_at?: string }[];
+  orders?: {
+    package_id?: string;
+    product_kind?: string;
+    status?: string;
+    published_at?: string;
+  }[];
   products?: { product_type?: string; product_id?: string }[];
 }): OwnedSignals {
   const orders = input.orders || [];
@@ -348,7 +319,7 @@ export function signalsFromOrdersAndProducts(input: {
     hasSocial: pkg("social") || pkg("ai_social"),
     hasAuditor: pkg("analysis") || pkg("auditor"),
     hasEmailCommerce: hasStore,
-    hasAnalyticsSurface: hasWebsite || hasStore,
+    hasAnalyticsSurface: false,
     hasDomainPublished: orders.some((o) => Boolean(o.published_at)),
     hasBackup: pkg("maintenance") || pkg("backup"),
   };

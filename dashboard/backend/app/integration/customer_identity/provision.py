@@ -87,7 +87,7 @@ class CustomerProvisioner:
         company = DigitalCompany(
             company_id=company_id,
             customer_id=customer_id,
-            name="Моя компания",
+            name="Mein Unternehmen",
             platform_visitor_id=vid,
             document_vault_id=f"vault-{customer_id[:8]}",
             settings_id=f"settings-{customer_id[:8]}",
@@ -96,7 +96,7 @@ class CustomerProvisioner:
 
         project = self._projects.activate_project(
             vid,
-            title="Моя компания",
+            title="Mein Unternehmen",
             service_id="website",
         )
         proj = project.get("project") or {}

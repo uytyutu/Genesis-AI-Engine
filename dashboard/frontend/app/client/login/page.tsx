@@ -57,22 +57,22 @@ function LoginForm() {
 
   return (
     <ClientAuthShell
-      title="Вход в кабинет"
-      subtitle="Личный кабинет для проектов, ботов и автоматизации. Покупка сайта или AI Assistant не требует входа."
+      title="Anmelden"
+      subtitle="Ihr Kabinett für Projekte, Bots und Automatisierung. Website oder AI Assistant können Sie auch ohne Login kaufen."
       footer={
         <>
           <p>
-            Нет аккаунта?{" "}
+            Noch kein Konto?{" "}
             <Link
               href={`/client/register${nextPath !== "/client" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
               className="font-semibold text-emerald-300 hover:underline"
             >
-              Создать аккаунт
+              Konto erstellen
             </Link>
           </p>
           <p>
             <Link href="/site" className="text-emerald-300 hover:underline">
-              ← Купить без аккаунта
+              ← Ohne Konto kaufen
             </Link>
           </p>
         </>
@@ -80,7 +80,7 @@ function LoginForm() {
     >
       <form onSubmit={onSubmit} className="space-y-4">
         <label className="block text-sm text-zinc-300">
-          Email
+          E-Mail
           <input
             className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white outline-none ring-emerald-400/0 transition focus:border-emerald-400/40 focus:ring-2 focus:ring-emerald-400/20"
             type="email"
@@ -92,7 +92,7 @@ function LoginForm() {
           />
         </label>
         <label className="block text-sm text-zinc-300">
-          Пароль
+          Passwort
           <input
             className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white outline-none ring-emerald-400/0 transition focus:border-emerald-400/40 focus:ring-2 focus:ring-emerald-400/20"
             type="password"
@@ -112,7 +112,7 @@ function LoginForm() {
           disabled={busy}
           className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-50"
         >
-          {busy ? "Вход…" : "Войти"}
+          {busy ? "Anmeldung…" : "Anmelden"}
         </button>
       </form>
     </ClientAuthShell>
@@ -124,7 +124,7 @@ export default function ClientLoginPage() {
     <Suspense
       fallback={
         <div className="mx-auto max-w-md px-4 py-20 text-sm text-zinc-400">
-          Loading…
+          Laden…
         </div>
       }
     >

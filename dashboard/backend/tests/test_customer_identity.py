@@ -63,9 +63,9 @@ def test_register_creates_company(svc: CustomerIdentityService):
     assert out["headline"] == "Ваша цифровая компания готова."
     assert out["welcome"]["phase"] == "greeting"
     assert "Vector" in (out["welcome"]["message"] or "")
-    assert out["company"]["name"] == "Моя компания"
+    assert out["company"]["name"] == "Mein Unternehmen"
     assert out["platform_visitor_id"].startswith("vc-")
-    assert out["company"]["project"]["project"]["title"] == "Моя компания"
+    assert out["company"]["project"]["project"]["title"] == "Mein Unternehmen"
 
 
 def test_register_duplicate_email(svc: CustomerIdentityService):
