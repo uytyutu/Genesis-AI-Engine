@@ -2,6 +2,10 @@
 
 from app.integration.vector.business_setup import build_business_setup
 from app.integration.vector.capabilities import CAPABILITIES, action_for, is_live
+from app.integration.vector.companion_context import (
+    COMPANION_CONTEXT_PATH,
+    CompanionContextService,
+)
 from app.integration.vector.companion_contracts import (
     B4_ENGINE,
     B4_SLICE_ORDER,
@@ -22,7 +26,9 @@ __all__ = [
     "B4_ENGINE",
     "B4_SLICE_ORDER",
     "CAPABILITIES",
+    "COMPANION_CONTEXT_PATH",
     "CONTEXT_ENGINE_REQUIRED",
+    "CompanionContextService",
     "ENTRY_SURFACE",
     "VectorContextService",
     "action_for",

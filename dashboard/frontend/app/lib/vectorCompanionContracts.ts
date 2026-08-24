@@ -8,6 +8,9 @@
 export const B4_ENGINE = "b4_vector_companion_v1" as const;
 export const CONTEXT_ENGINE_REQUIRED = "b3_client_context_v1" as const;
 export const CONTEXT_PATH = "/api/client/context" as const;
+/** B4.1 — tenant-safe companion context (auth → Context SSOT). */
+export const COMPANION_CONTEXT_PATH =
+  "/api/client/vector/companion-context" as const;
 
 export const B4_SLICE_ORDER = [
   "B4.0",

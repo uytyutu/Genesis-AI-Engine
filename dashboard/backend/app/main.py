@@ -6978,6 +6978,37 @@ def client_business_context(request: Request, period: str = "30d") -> dict:
     )
 
 
+@app.get("/api/client/vector/companion-context")
+def client_vector_companion_context(
+    request: Request,
+    period: str = "30d",
+    page_path: str | None = None,
+    customer_id: str | None = None,
+) -> dict:
+    """B4.1 — auth customer → Client Context SSOT (tenant-safe, no LLM/ACTION).
+
+    Optional ``customer_id`` query must match the bearer subject or returns 403.
+    """
+    auth_customer_id, email = _client_store_identity(request)
+    from app.integration.vector.companion_context import CompanionContextService
+
+    me: dict = {}
+    try:
+        me = _customer_identity().me(auth_customer_id)
+    except Exception:
+        me = {}
+    allowed = {"today", "7d", "30d", "12m"}
+    p = period if period in allowed else "30d"
+    return CompanionContextService(_memory_dir(), sales=_ctx().sales).load_for_session(
+        auth_customer_id=auth_customer_id,
+        auth_email=email or str(me.get("email") or "") or None,
+        me=me,
+        period=p,
+        page_path=page_path,
+        requested_customer_id=customer_id,
+    )
+
+
 @app.get("/api/client/vector/business-bundle")
 def client_vector_business_bundle(request: Request) -> dict:
     """Business Ready + AI Health in one payload."""
