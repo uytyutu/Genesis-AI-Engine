@@ -7009,6 +7009,38 @@ def client_vector_companion_context(
     )
 
 
+@app.post("/api/client/vector/companion-turn")
+def client_vector_companion_turn(request: Request, body: dict) -> dict:
+    """B4.2 — READ Business Companion turn (Context-grounded, tenant-safe).
+
+    No ACTION, Web Research, or data mutation. Optional LLM only for unknown intents.
+    """
+    auth_customer_id, email = _client_store_identity(request)
+    from app.integration.vector.companion_read import CompanionReadService
+
+    me: dict = {}
+    try:
+        me = _customer_identity().me(auth_customer_id)
+    except Exception:
+        me = {}
+    payload = dict(body or {})
+    msg = str(payload.get("message") or "").strip()
+    page_path = str(payload.get("page_path") or "").strip() or None
+    period = str(payload.get("period") or "30d").strip()
+    req_cid = str(payload.get("customer_id") or "").strip() or None
+    allowed = {"today", "7d", "30d", "12m"}
+    p = period if period in allowed else "30d"
+    return CompanionReadService(_memory_dir(), sales=_ctx().sales).turn(
+        auth_customer_id=auth_customer_id,
+        auth_email=email or str(me.get("email") or "") or None,
+        me=me,
+        message=msg or "__welcome__",
+        page_path=page_path,
+        period=p,
+        requested_customer_id=req_cid,
+    )
+
+
 @app.get("/api/client/vector/business-bundle")
 def client_vector_business_bundle(request: Request) -> dict:
     """Business Ready + AI Health in one payload."""

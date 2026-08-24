@@ -11,6 +11,8 @@ export const CONTEXT_PATH = "/api/client/context" as const;
 /** B4.1 — tenant-safe companion context (auth → Context SSOT). */
 export const COMPANION_CONTEXT_PATH =
   "/api/client/vector/companion-context" as const;
+/** B4.2 — READ conversation turn (Context-grounded). */
+export const COMPANION_TURN_PATH = "/api/client/vector/companion-turn" as const;
 
 export const B4_SLICE_ORDER = [
   "B4.0",

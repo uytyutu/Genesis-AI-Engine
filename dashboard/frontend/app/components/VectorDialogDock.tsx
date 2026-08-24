@@ -5,6 +5,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   loadVectorLearningMode,
   saveVectorLearningMode,
@@ -14,6 +15,7 @@ import {
 import { clientAuthHeaders, getClientToken } from "../lib/clientAuth";
 import { publicApiBase } from "../lib/publicApiBase";
 import { ASSISTANT_NAME } from "../lib/publicBrand";
+import { COMPANION_TURN_PATH } from "../lib/vectorCompanionContracts";
 
 const API = publicApiBase();
 
@@ -52,6 +54,30 @@ export function VectorDialogDock({
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [quick, setQuick] = useState<QuickAction[]>([]);
+  const pathname = usePathname();
+  const useCompanionRead = surface === "customer";
+
+  const companionTurn = useCallback(
+    async (message: string) => {
+      const res = await fetch(`${API}${COMPANION_TURN_PATH}`, {
+        method: "POST",
+        headers: {
+          ...clientAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message,
+          page_path: pathname || "/client",
+        }),
+      });
+      if (!res.ok) return null;
+      return (await res.json()) as {
+        reply?: string;
+        clarify_question?: string | null;
+      };
+    },
+    [pathname],
+  );
 
   useEffect(() => {
     setLearning(loadVectorLearningMode(surface));
@@ -79,38 +105,62 @@ export function VectorDialogDock({
       if (res.ok) {
         setPayload((await res.json()) as VectorDialogPayload);
       }
-      // Welcome from Virtus AI orchestrator
-      const turn = await fetch(`${API}/api/client/virtus-ai/turn`, {
-        method: "POST",
-        headers: {
-          ...clientAuthHeaders(),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: "__welcome__",
-          commerce_mode: commerceMode,
-          context: { has_store: Boolean(hasStore) },
-          products: hasStore
-            ? [{ product_type: "website" }, { product_type: "store" }]
-            : [{ product_type: "website" }],
-        }),
-      });
-      if (turn.ok) {
-        const body = (await turn.json()) as {
-          reply?: string;
-          quick_actions?: QuickAction[];
-        };
-        if (body.reply) {
+      if (useCompanionRead) {
+        const body = await companionTurn("__welcome__");
+        if (body?.reply) {
           setChat([{ role: "assistant", text: body.reply }]);
         }
-        if (body.quick_actions?.length) setQuick(body.quick_actions);
+        setQuick([
+          {
+            id: "connected",
+            label: "Was ist verbunden?",
+            message: "Was ist bei mir gerade verbunden?",
+          },
+          {
+            id: "analytics",
+            label: "Analytics?",
+            message: "Warum brauche ich Analytics?",
+          },
+          {
+            id: "next",
+            label: "Nächster Schritt",
+            message: "Was soll ich als Nächstes tun?",
+          },
+        ]);
+      } else {
+        // Welcome from Virtus AI orchestrator (store / website admin surfaces)
+        const turn = await fetch(`${API}/api/client/virtus-ai/turn`, {
+          method: "POST",
+          headers: {
+            ...clientAuthHeaders(),
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: "__welcome__",
+            commerce_mode: commerceMode,
+            context: { has_store: Boolean(hasStore) },
+            products: hasStore
+              ? [{ product_type: "website" }, { product_type: "store" }]
+              : [{ product_type: "website" }],
+          }),
+        });
+        if (turn.ok) {
+          const body = (await turn.json()) as {
+            reply?: string;
+            quick_actions?: QuickAction[];
+          };
+          if (body.reply) {
+            setChat([{ role: "assistant", text: body.reply }]);
+          }
+          if (body.quick_actions?.length) setQuick(body.quick_actions);
+        }
       }
     } catch {
       /* optional */
     } finally {
       setLoading(false);
     }
-  }, [surface, orderId, learning, stepId, commerceMode, hasStore]);
+  }, [surface, orderId, learning, stepId, commerceMode, hasStore, useCompanionRead, companionTurn]);
 
   useEffect(() => {
     void load();
@@ -123,40 +173,58 @@ export function VectorDialogDock({
     setChat((c) => [...c, { role: "user", text: msg }]);
     setDraft("");
     try {
-      const res = await fetch(`${API}/api/client/virtus-ai/turn`, {
-        method: "POST",
-        headers: {
-          ...clientAuthHeaders(),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: msg,
-          commerce_mode: commerceMode,
-          context: { has_store: Boolean(hasStore) },
-          products: hasStore
-            ? [{ product_type: "website" }, { product_type: "store" }]
-            : [{ product_type: "website" }],
-        }),
-      });
-      if (res.ok) {
-        const body = (await res.json()) as {
-          reply?: string;
-          quick_actions?: QuickAction[];
-          deep_link?: string;
-          upsell?: { cta?: { href?: string; label?: string } };
-        };
-        if (body.reply) {
-          setChat((c) => [...c, { role: "assistant", text: body.reply || "" }]);
+      if (useCompanionRead) {
+        const body = await companionTurn(msg);
+        if (body?.reply) {
+          const text = body.clarify_question
+            ? `${body.reply}\n\n${body.clarify_question}`
+            : body.reply;
+          setChat((c) => [...c, { role: "assistant", text }]);
+        } else {
+          setChat((c) => [
+            ...c,
+            {
+              role: "assistant",
+              text: "Ich kann gerade keine Context-Daten laden. Bitte Seite aktualisieren.",
+            },
+          ]);
         }
-        if (body.quick_actions?.length) setQuick(body.quick_actions);
       } else {
-        setChat((c) => [
-          ...c,
-          {
-            role: "assistant",
-            text: "Сейчас не могу связаться с сервером. Обновите страницу или откройте чек-лист на Dashboard.",
+        const res = await fetch(`${API}/api/client/virtus-ai/turn`, {
+          method: "POST",
+          headers: {
+            ...clientAuthHeaders(),
+            "Content-Type": "application/json",
           },
-        ]);
+          body: JSON.stringify({
+            message: msg,
+            commerce_mode: commerceMode,
+            context: { has_store: Boolean(hasStore) },
+            products: hasStore
+              ? [{ product_type: "website" }, { product_type: "store" }]
+              : [{ product_type: "website" }],
+          }),
+        });
+        if (res.ok) {
+          const body = (await res.json()) as {
+            reply?: string;
+            quick_actions?: QuickAction[];
+            deep_link?: string;
+            upsell?: { cta?: { href?: string; label?: string } };
+          };
+          if (body.reply) {
+            setChat((c) => [...c, { role: "assistant", text: body.reply || "" }]);
+          }
+          if (body.quick_actions?.length) setQuick(body.quick_actions);
+        } else {
+          setChat((c) => [
+            ...c,
+            {
+              role: "assistant",
+              text: "Сейчас не могу связаться с сервером. Обновите страницу или откройте чек-лист на Dashboard.",
+            },
+          ]);
+        }
       }
     } catch {
       setChat((c) => [

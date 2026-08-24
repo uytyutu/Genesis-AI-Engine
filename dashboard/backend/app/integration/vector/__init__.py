@@ -6,6 +6,10 @@ from app.integration.vector.companion_context import (
     COMPANION_CONTEXT_PATH,
     CompanionContextService,
 )
+from app.integration.vector.companion_read import (
+    COMPANION_TURN_PATH,
+    CompanionReadService,
+)
 from app.integration.vector.companion_contracts import (
     B4_ENGINE,
     B4_SLICE_ORDER,
@@ -27,8 +31,10 @@ __all__ = [
     "B4_SLICE_ORDER",
     "CAPABILITIES",
     "COMPANION_CONTEXT_PATH",
+    "COMPANION_TURN_PATH",
     "CONTEXT_ENGINE_REQUIRED",
     "CompanionContextService",
+    "CompanionReadService",
     "ENTRY_SURFACE",
     "VectorContextService",
     "action_for",
