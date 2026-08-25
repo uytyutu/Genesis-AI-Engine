@@ -152,6 +152,14 @@ def test_farm_runtime_is_public_for_rapidapi_upstream():
     assert not is_public_api_path("/api/farm/rapidapi/status", "GET")
 
 
+def test_giveaway_public_status_allowed_in_production_gate():
+    """Stream link GET must pass OVH production allowlist (redeem stays under /api/client/)."""
+    assert is_public_api_path("/api/giveaway/virtus-stream-basic", "GET")
+    assert production_api_allowed("/api/giveaway/virtus-stream-basic", "GET")
+    assert is_public_api_path("/api/client/giveaway/virtus-stream-basic/redeem", "POST")
+    assert production_api_allowed("/api/client/giveaway/virtus-stream-basic/redeem", "POST")
+
+
 def test_support_role_has_no_portal_admin_and_no_silent_portal_commerce():
     """Support is not a portal Account role — commerce APIs stay own_only/deny for guests."""
     assert support_admin_denied()

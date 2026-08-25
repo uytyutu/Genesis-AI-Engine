@@ -44,12 +44,13 @@ _PUBLIC_EXACT = frozenset({"/health", "/status", "/api/status"})
 _PUBLIC_PREFIXES = (
     "/api/public/",
     "/api/client/",
+    "/api/giveaway/",
     "/api/v1/",
     # RapidAPI Hub upstream — Farm product runtimes only (not bounty / MC farm admin)
     "/api/farm/runtime",
     "/api/sales/packages",
-    "/api/sales/payment-status",
     "/api/sales/email-status",
+    "/api/sales/payment-status",
     "/api/webhooks/",
     "/webhooks/",
 )
