@@ -4468,6 +4468,39 @@ def client_business_profile(request: Request) -> dict:
     return _customer_identity().business_profile_read(str(payload["sub"]))
 
 
+@app.put("/api/client/business-profile")
+@app.patch("/api/client/business-profile")
+def client_business_profile_upsert(request: Request, body: dict | None = None) -> dict:
+    """Business Profile SSOT — Workspace write-back (Slice 4)."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration.customer_identity.profile_writeback import (
+        sync_profile_contacts_to_website_orders,
+    )
+
+    payload = require_client(request)
+    customer_id = str(payload["sub"])
+    patch = body if isinstance(body, dict) else {}
+    profile = _customer_identity().upsert_business_profile(
+        customer_id, patch, source="workspace"
+    )
+    synced = 0
+    try:
+        synced = sync_profile_contacts_to_website_orders(
+            memory_dir=_memory_dir(),
+            customer_id=customer_id,
+            profile=profile,
+        )
+    except Exception:
+        synced = 0
+    return {
+        "ok": True,
+        "has_profile": True,
+        "profile": profile,
+        "ssot": "customer_identity.business_profile",
+        "websites_synced": synced,
+    }
+
+
 @app.get("/api/client/vector-coaching")
 def client_vector_coaching(request: Request) -> dict:
     """Ephemeral Vector coaching notifications — not a chat."""
@@ -7321,6 +7354,30 @@ async def website_admin_update_content(request: Request, order_id: str) -> dict:
         order_id, payload, seed_meta=meta
     )
     _reapply_website_overlay(order_id, order)
+    # Slice 4 — Kontakte / company facts write back to Business Profile SSOT
+    try:
+        from app.integration.customer_identity.auth import require_client
+        from app.integration.customer_identity.profile_writeback import (
+            writeback_website_contacts,
+        )
+
+        client = require_client(request)
+        content = result.get("content") if isinstance(result.get("content"), dict) else {}
+        contacts = content.get("contacts") if isinstance(content.get("contacts"), dict) else {}
+        hero = content.get("hero") if isinstance(content.get("hero"), dict) else {}
+        company = str(hero.get("title") or order.get("business_name") or "").strip() or None
+        if contacts or company:
+            wb = writeback_website_contacts(
+                memory_dir=_memory_dir(),
+                customer_id=str(client.get("sub") or order.get("customer_id") or ""),
+                contacts=contacts,
+                company_name=company,
+            )
+            result["business_profile_writeback"] = bool(wb)
+            if isinstance(wb, dict):
+                result["business_profile_id"] = wb.get("profile_id")
+    except Exception:
+        result["business_profile_writeback"] = False
     return result
 
 

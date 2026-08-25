@@ -12,7 +12,7 @@ const BUSINESS_SECTIONS: {
 }[] = [
   {
     title: "Unternehmensprofil",
-    hint: "Business Profile SSOT — Firmenname, Nische, Kontakte, Leistungen (read-only)",
+    hint: "Business Profile SSOT — Firmenname, Nische, Kontakte, Leistungen (bearbeiten & speichern)",
     href: "/client/business-profile",
   },
   {
