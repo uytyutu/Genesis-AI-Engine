@@ -1,0 +1,31 @@
+{
+  "checkout": {
+    "title": "Заказ",
+    "subtitle": "Выберите пакет и оформите заказ.",
+    "continue": "Далее",
+    "pay": "Оплатить",
+    "back": "Назад",
+    "secure": "Безопасная оплата"
+  },
+  "packages": {
+    "website": "Website",
+    "shop": "Online-Shop",
+    "ai": "AI Assistant",
+    "fromPrice": "от {{price}}"
+  },
+  "form": {
+    "businessName": "Название компании",
+    "email": "Email",
+    "phone": "Телефон",
+    "submit": "Отправить заказ"
+  },
+  "success": {
+    "title": "Оплата получена",
+    "next": "Перейти в Client Workspace",
+    "openClient": "Открыть кабинет"
+  },
+  "errors": {
+    "generic": "Не удалось начать заказ. Попробуйте ещё раз.",
+    "payment": "Оплата не прошла. Попробуйте ещё раз."
+  }
+}

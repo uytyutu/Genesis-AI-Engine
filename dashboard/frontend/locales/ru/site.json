@@ -63,7 +63,8 @@
     "repairMvpDisclaimer": "Мы не обещаем «починить любой сайт одной кнопкой». После анализа — понятная смета (лёгкий / стандарт / полный ремонт), дальше работает команда.",
     "onetimeRepairBody": "Ремонт начинается с бесплатного анализа выше — если он выгоднее нового сайта. Миграция, Google Business и крупные SEO-проекты — отдельно.",
     "analysisFirstCta": "Сначала анализ →",
-    "priceFrom": "от"
+    "priceFrom": "от",
+    "botsChannelsHint": "Live jetzt: Telegram + Website-Chat. WhatsApp / Instagram / Messenger — demnächst."
   },
   "pathA": {
     "eyebrow": "{{brand}}",
@@ -531,7 +532,10 @@
     "checkoutAfterEmail": "Вы получите письмо с дальнейшими шагами",
     "checkoutConfirmLabel": "Я проверил введённые данные.",
     "checkoutConfirmHint": "Подтвердите сводку, чтобы открыть оплату.",
-    "checkoutPayCta": "Оплатить {{price}}"
+    "checkoutPayCta": "Оплатить {{price}}",
+    "previewPrev": "Previous example",
+    "previewNext": "Next example",
+    "previewSlide": "Example {{n}}"
   },
   "pay": {
     "heading": "Оплата заказа",
@@ -1044,10 +1048,10 @@
     "tierBusinessPrice": "Preis folgt / TBD",
     "tierBusinessDesc": "Магазин + Virtus Workspace — управление, развитие, доп. услуги. Пока не продаётся.",
     "tierBusinessBadge": "Coming Soon",
-    "tierPremiumName": "",
-    "tierPremiumPrice": "",
-    "tierPremiumDesc": "",
-    "tierPremiumBadge": "",
+    "tierPremiumName": "Business Store",
+    "tierPremiumPrice": "Coming Soon",
+    "tierPremiumDesc": "Coming Soon",
+    "tierPremiumBadge": "Coming Soon",
     "title": "Заказать AI Store Basic / Start",
     "intro": "799 € один раз · профессиональный интернет-магазин для вашего бизнеса в Германии.",
     "back": "← {{brand}} витрина",
@@ -1169,6 +1173,10 @@
       "hosting_to": {
         "label": "Целевой хостинг (если известен)",
         "placeholder": "Оставьте пустым — подскажем"
+      },
+      "goalRepair": {
+        "label": "Was muss behoben werden?",
+        "placeholder": "Kaputtes Mobilmenü, langsame Bilder, Kontaktformular…"
       }
     }
   },
@@ -1467,7 +1475,13 @@
       "compareVal_designPremium": "Premium Visual",
       "compareVal_motionBasic": "Базовые",
       "compareVal_motionRich": "Расширенные",
-      "compareVal_motionPremium": "Premium + 3D/Video*"
+      "compareVal_motionPremium": "Premium + 3D/Video*",
+      "compareModern": "Moderner Website",
+      "comparePresentation": "Präsentationsniveau (Business-Qualität)",
+      "compareExtendedControl": "Erweiterte Steuerung (Ausbau)",
+      "compareDeepStructure": "Tiefere Struktur (Ausbau)",
+      "compareExtendedForms": "Erweiterte Formulare (Ausbau)",
+      "compareAdvancedMgmt": "Fortgeschrittenes Management (Ausbau)"
     },
     "why": {
       "title": "Почему мы дешевле агентств?",

@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "products": "My products",
+    "orders": "Orders",
+    "settings": "Settings",
+    "billing": "Billing",
+    "support": "Support",
+    "downloads": "Downloads",
+    "analytics": "Analytics",
+    "shop": "Marketplace",
+    "inbox": "Inbox"
+  },
+  "dashboard": {
+    "greeting": "Hello, {{name}}",
+    "subtitle": "Your business at a glance",
+    "noProductTitle": "No product activated yet",
+    "noProductBody": "What do you want to build? Start with a digital solution for your business.",
+    "recommended": "Recommended",
+    "discover": "Explore",
+    "createWebsite": "Create Website",
+    "createShop": "Create Online-Shop",
+    "addAi": "Add AI Assistant",
+    "myProducts": "My products",
+    "recentOrders": "Recent orders",
+    "noOrders": "No orders yet. Start with Website or Shop.",
+    "quickAccess": "Quick access"
+  },
+  "status": {
+    "active": "Active",
+    "pending": "In progress",
+    "notActivated": "Not activated",
+    "comingSoon": "Coming soon",
+    "unknown": "Unknown"
+  },
+  "cta": {
+    "manage": "Manage",
+    "add": "Add",
+    "open": "Open",
+    "buy": "Buy"
+  },
+  "products": {
+    "website": "Website",
+    "shop": "Online-Shop",
+    "ai": "AI Assistant",
+    "analytics": "Analytics",
+    "priceFrom": "from {{price}}"
+  },
+  "websiteControl": {
+    "title": "Website Control",
+    "subtitle": "Manage your website in one place.",
+    "overview": "Overview",
+    "settings": "Settings",
+    "design": "Design",
+    "media": "Media",
+    "files": "Files",
+    "cinematic": "Cinematic",
+    "ai": "AI Assistant",
+    "support": "Support",
+    "extensions": "Extensions"
+  }
+}

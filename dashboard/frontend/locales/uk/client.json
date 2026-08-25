@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "overview": "Огляд",
+    "products": "Мої продукти",
+    "orders": "Замовлення",
+    "settings": "Налаштування",
+    "billing": "Оплата",
+    "support": "Підтримка",
+    "downloads": "Завантаження",
+    "analytics": "Analytics",
+    "shop": "Marketplace",
+    "inbox": "Вхідні"
+  },
+  "dashboard": {
+    "greeting": "Вітаємо, {{name}}",
+    "subtitle": "Ваш бізнес одним поглядом",
+    "noProductTitle": "Ще немає активного продукту",
+    "noProductBody": "Що хочете створити? Почніть із цифрового рішення для вашого бізнесу.",
+    "recommended": "Рекомендуємо",
+    "discover": "Переглянути",
+    "createWebsite": "Створити Website",
+    "createShop": "Створити Online-Shop",
+    "addAi": "Додати AI Assistant",
+    "myProducts": "Мої продукти",
+    "recentOrders": "Останні замовлення",
+    "noOrders": "Замовлень ще немає. Почніть із Website або Shop.",
+    "quickAccess": "Швидкий доступ"
+  },
+  "status": {
+    "active": "Активно",
+    "pending": "В роботі",
+    "notActivated": "Не активовано",
+    "comingSoon": "Незабаром",
+    "unknown": "Невідомо"
+  },
+  "cta": {
+    "manage": "Керувати",
+    "add": "Додати",
+    "open": "Відкрити",
+    "buy": "Купити"
+  },
+  "products": {
+    "website": "Website",
+    "shop": "Online-Shop",
+    "ai": "AI Assistant",
+    "analytics": "Analytics",
+    "priceFrom": "від {{price}}"
+  },
+  "websiteControl": {
+    "title": "Website Control",
+    "subtitle": "Керуйте сайтом в одному місці.",
+    "overview": "Огляд",
+    "settings": "Налаштування",
+    "design": "Дизайн",
+    "media": "Медіа",
+    "files": "Файли",
+    "cinematic": "Cinematic",
+    "ai": "AI Assistant",
+    "support": "Підтримка",
+    "extensions": "Розширення"
+  }
+}

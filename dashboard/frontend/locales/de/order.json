@@ -1,0 +1,31 @@
+{
+  "checkout": {
+    "title": "Bestellung",
+    "subtitle": "Wählen Sie Ihr Paket und schließen Sie die Bestellung ab.",
+    "continue": "Weiter",
+    "pay": "Jetzt bezahlen",
+    "back": "Zurück",
+    "secure": "Sichere Zahlung"
+  },
+  "packages": {
+    "website": "Website",
+    "shop": "Online-Shop",
+    "ai": "AI Assistant",
+    "fromPrice": "ab {{price}}"
+  },
+  "form": {
+    "businessName": "Firmenname",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "submit": "Bestellung absenden"
+  },
+  "success": {
+    "title": "Zahlung erhalten",
+    "next": "Weiter zum Client Workspace",
+    "openClient": "Mein Kabinett öffnen"
+  },
+  "errors": {
+    "generic": "Bestellung konnte nicht gestartet werden. Bitte erneut versuchen.",
+    "payment": "Zahlung fehlgeschlagen. Bitte erneut versuchen."
+  }
+}

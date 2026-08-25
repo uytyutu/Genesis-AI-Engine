@@ -1,0 +1,31 @@
+{
+  "checkout": {
+    "title": "Замовлення",
+    "subtitle": "Оберіть пакет і оформіть замовлення.",
+    "continue": "Далі",
+    "pay": "Оплатити",
+    "back": "Назад",
+    "secure": "Безпечна оплата"
+  },
+  "packages": {
+    "website": "Website",
+    "shop": "Online-Shop",
+    "ai": "AI Assistant",
+    "fromPrice": "від {{price}}"
+  },
+  "form": {
+    "businessName": "Назва компанії",
+    "email": "Email",
+    "phone": "Телефон",
+    "submit": "Надіслати замовлення"
+  },
+  "success": {
+    "title": "Оплату отримано",
+    "next": "Перейти до Client Workspace",
+    "openClient": "Відкрити кабінет"
+  },
+  "errors": {
+    "generic": "Не вдалося почати замовлення. Спробуйте ще раз.",
+    "payment": "Оплата не пройшла. Спробуйте ще раз."
+  }
+}

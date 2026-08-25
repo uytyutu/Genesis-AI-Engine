@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "overview": "Обзор",
+    "products": "Мои продукты",
+    "orders": "Заказы",
+    "settings": "Настройки",
+    "billing": "Оплата",
+    "support": "Поддержка",
+    "downloads": "Загрузки",
+    "analytics": "Analytics",
+    "shop": "Marketplace",
+    "inbox": "Входящие"
+  },
+  "dashboard": {
+    "greeting": "Здравствуйте, {{name}}",
+    "subtitle": "Ваш бизнес одним взглядом",
+    "noProductTitle": "Пока нет активного продукта",
+    "noProductBody": "Что хотите создать? Начните с цифрового решения для вашего бизнеса.",
+    "recommended": "Рекомендуем",
+    "discover": "Смотреть",
+    "createWebsite": "Создать Website",
+    "createShop": "Создать Online-Shop",
+    "addAi": "Добавить AI Assistant",
+    "myProducts": "Мои продукты",
+    "recentOrders": "Последние заказы",
+    "noOrders": "Заказов пока нет. Начните с Website или Shop.",
+    "quickAccess": "Быстрый доступ"
+  },
+  "status": {
+    "active": "Активно",
+    "pending": "В работе",
+    "notActivated": "Не активировано",
+    "comingSoon": "Скоро",
+    "unknown": "Неизвестно"
+  },
+  "cta": {
+    "manage": "Управлять",
+    "add": "Добавить",
+    "open": "Открыть",
+    "buy": "Купить"
+  },
+  "products": {
+    "website": "Website",
+    "shop": "Online-Shop",
+    "ai": "AI Assistant",
+    "analytics": "Analytics",
+    "priceFrom": "от {{price}}"
+  },
+  "websiteControl": {
+    "title": "Website Control",
+    "subtitle": "Управляйте сайтом в одном месте.",
+    "overview": "Обзор",
+    "settings": "Настройки",
+    "design": "Дизайн",
+    "media": "Медиа",
+    "files": "Файлы",
+    "cinematic": "Cinematic",
+    "ai": "AI Assistant",
+    "support": "Поддержка",
+    "extensions": "Расширения"
+  }
+}

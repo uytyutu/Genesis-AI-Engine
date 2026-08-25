@@ -1,0 +1,31 @@
+{
+  "checkout": {
+    "title": "Order",
+    "subtitle": "Choose your package and complete the order.",
+    "continue": "Continue",
+    "pay": "Pay now",
+    "back": "Back",
+    "secure": "Secure payment"
+  },
+  "packages": {
+    "website": "Website",
+    "shop": "Online-Shop",
+    "ai": "AI Assistant",
+    "fromPrice": "from {{price}}"
+  },
+  "form": {
+    "businessName": "Business name",
+    "email": "Email",
+    "phone": "Phone",
+    "submit": "Submit order"
+  },
+  "success": {
+    "title": "Payment received",
+    "next": "Continue to Client Workspace",
+    "openClient": "Open my cabinet"
+  },
+  "errors": {
+    "generic": "Could not start the order. Please try again.",
+    "payment": "Payment failed. Please try again."
+  }
+}

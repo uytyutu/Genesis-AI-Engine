@@ -7,7 +7,8 @@
     "dev": "next dev -H 127.0.0.1 -p 3000",
     "build": "next build",
     "start": "next start -H 127.0.0.1 -p 3000",
-    "lint": "next lint"
+    "lint": "next lint",
+    "locale:coverage": "py -3.12 ../../scripts/locale_coverage_gate.py"
   },
   "dependencies": {
     "framer-motion": "^11.18.2",

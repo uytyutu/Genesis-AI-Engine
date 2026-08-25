@@ -63,7 +63,8 @@
     "repairMvpDisclaimer": "We do not promise a one-click fix for every website platform. After the analysis you get a clear quote (light / standard / complete repair) — then our team does the work.",
     "onetimeRepairBody": "Website repair starts with the free analysis above — when repair makes more sense than a new site. Migration, Google Business, and larger SEO projects are separate.",
     "analysisFirstCta": "Start with analysis →",
-    "priceFrom": "from"
+    "priceFrom": "from",
+    "botsChannelsHint": "Live jetzt: Telegram + Website-Chat. WhatsApp / Instagram / Messenger — demnächst."
   },
   "pathA": {
     "eyebrow": "{{brand}}",
@@ -1047,10 +1048,10 @@
     "tierBusinessPrice": "Price TBD",
     "tierBusinessDesc": "Shop + Virtus Workspace — manage, grow, add-ons. Not for sale yet.",
     "tierBusinessBadge": "Coming soon",
-    "tierPremiumName": "",
-    "tierPremiumPrice": "",
-    "tierPremiumDesc": "",
-    "tierPremiumBadge": "",
+    "tierPremiumName": "Business Store",
+    "tierPremiumPrice": "Coming Soon",
+    "tierPremiumDesc": "Coming Soon",
+    "tierPremiumBadge": "Coming Soon",
     "title": "Order AI Store Basic / Start",
     "intro": "799 € once · professional online shop for your business in Germany.",
     "back": "← {{brand}} storefront",
@@ -1172,6 +1173,10 @@
       "hosting_to": {
         "label": "Target hosting (if known)",
         "placeholder": "Leave blank if we should advise"
+      },
+      "goalRepair": {
+        "label": "Was muss behoben werden?",
+        "placeholder": "Kaputtes Mobilmenü, langsame Bilder, Kontaktformular…"
       }
     }
   },
@@ -1505,7 +1510,13 @@
       "compareVal_designPremium": "Premium Visual",
       "compareVal_motionBasic": "Basic",
       "compareVal_motionRich": "Extended",
-      "compareVal_motionPremium": "Premium + 3D/Video*"
+      "compareVal_motionPremium": "Premium + 3D/Video*",
+      "compareModern": "Moderner Website",
+      "comparePresentation": "Präsentationsniveau (Business-Qualität)",
+      "compareExtendedControl": "Erweiterte Steuerung (Ausbau)",
+      "compareDeepStructure": "Tiefere Struktur (Ausbau)",
+      "compareExtendedForms": "Erweiterte Formulare (Ausbau)",
+      "compareAdvancedMgmt": "Fortgeschrittenes Management (Ausbau)"
     },
     "why": {
       "title": "Why cheaper than agencies?",

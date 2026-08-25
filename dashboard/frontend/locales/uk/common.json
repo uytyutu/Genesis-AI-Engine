@@ -7,7 +7,9 @@
     "studio": "Studio",
     "order": "Замовити",
     "menu": "Меню",
-    "close": "Закрити"
+    "close": "Закрити",
+    "signIn": "Sign in",
+    "register": "Register"
   },
   "language": {
     "title": "Мова",

@@ -1,0 +1,29 @@
+{
+  "name": "Vector",
+  "role": "Business Assistant",
+  "dock": {
+    "title": "Vector",
+    "subtitle": "Your Business Assistant",
+    "placeholder": "Ask about your business, Website, or next steps…",
+    "send": "Send",
+    "open": "Talk to Vector",
+    "minimize": "Minimize"
+  },
+  "entry": {
+    "eyebrow": "Vector",
+    "title": "Your Business Assistant",
+    "body": "Ask me about your business, Website, Analytics, or next steps.",
+    "cta": "Talk to Vector",
+    "teaserTitle": "Meet Vector",
+    "teaserBody": "Your Business Assistant helps you choose what to build next."
+  },
+  "quick": {
+    "connected": "What's connected?",
+    "analytics": "Analytics?",
+    "next": "Next step"
+  },
+  "errors": {
+    "context": "I can't load Context data right now. Please refresh the page.",
+    "offline": "No connection to the backend. Start Genesis.exe and try again."
+  }
+}

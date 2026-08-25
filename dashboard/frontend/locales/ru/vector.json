@@ -1,0 +1,29 @@
+{
+  "name": "Vector",
+  "role": "Business Assistant",
+  "dock": {
+    "title": "Vector",
+    "subtitle": "Ваш Business Assistant",
+    "placeholder": "Спросите о бизнесе, Website или следующих шагах…",
+    "send": "Отправить",
+    "open": "Говорить с Vector",
+    "minimize": "Свернуть"
+  },
+  "entry": {
+    "eyebrow": "Vector",
+    "title": "Ваш Business Assistant",
+    "body": "Спросите меня о компании, Website, Analytics или следующих шагах.",
+    "cta": "Говорить с Vector",
+    "teaserTitle": "Познакомиться с Vector",
+    "teaserBody": "Ваш Business Assistant поможет выбрать, что подключить дальше."
+  },
+  "quick": {
+    "connected": "Что подключено?",
+    "analytics": "Analytics?",
+    "next": "Следующий шаг"
+  },
+  "errors": {
+    "context": "Не могу загрузить Context. Обновите страницу.",
+    "offline": "Нет связи с backend. Запустите Genesis.exe и повторите."
+  }
+}
