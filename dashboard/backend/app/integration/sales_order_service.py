@@ -1298,10 +1298,10 @@ class SalesOrderService:
         out.update(demo_public_flags(order, ui_lang=ui_lang))
         return out
 
-    def list_orders(self, limit: int = 20) -> list[dict]:
+    def list_orders(self, limit: int = 50) -> list[dict]:
         orders = self._load_all()
         orders.sort(key=lambda o: o.get("created_at", ""), reverse=True)
-        return [self._summary(o) for o in orders[:limit]]
+        return [self._summary(o) for o in orders[: max(1, min(int(limit or 50), 200))]]
 
     def attach_customer_by_email(self, *, customer_id: str, email: str) -> int:
         """Link *guest* orders (no customer_id yet) to this account by email.
@@ -3119,7 +3119,11 @@ class SalesOrderService:
             "city": order.get("city", ""),
             "phone": order.get("phone", ""),
             "whatsapp": order.get("whatsapp", ""),
+            "email": str(order.get("email") or ""),
+            "customer_id": order.get("customer_id") or None,
             "package_name": order["package_name"],
+            "package_id": order.get("package_id"),
+            "product_kind": order.get("product_kind"),
             "price_eur": order["price_eur"],
             "created_at": order["created_at"],
             "product_id": order.get("product_id"),
@@ -3129,6 +3133,7 @@ class SalesOrderService:
             "paid": order.get("status") in ("paid", "in_production", "ready", "delivered"),
             "paid_at": order.get("paid_at"),
             "estimated_delivery_at": order.get("estimated_delivery_at"),
+            "download_ready": bool(self._client_download_ready(order)),
         }
 
     def _orders_path(self) -> Path:

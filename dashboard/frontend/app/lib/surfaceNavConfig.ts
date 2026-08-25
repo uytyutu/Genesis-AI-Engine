@@ -63,6 +63,7 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
   const mc = [
     "/finance",
     "/payout",
+    "/farm",
     "/farm-engine",
     "/income-engine",
     "/alpha-hunter",
@@ -75,6 +76,8 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
     "/dev",
     "/check",
     "/create",
+    "/factory",
+    "/orders",
     "/settings",
     "/setup",
     "/launch",
@@ -92,6 +95,7 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
     "/ceo-site",
     "/global-analytics",
     "/executive",
+    "/executive-legacy",
   ];
   if (mc.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return "ceo";
@@ -133,48 +137,40 @@ export const CLIENT_NAV_LINKS = [
   { href: "/client/support", label: "Support", hint: "E-Mail · Tickets Demnächst" },
 ] as const;
 
+/** MC 2.0 primary — только коммерческий Virtus (без Farm). Язык оболочки: RU. */
 export const CEO_PRIMARY_LINKS = [
-  { href: "/executive", label: "CEO Dashboard", hint: "Утро · Virtus + Farm · Today Focus" },
-  { href: "/business", label: "Бизнес", hint: "Mission 2 · KPI" },
-  { href: "/acquisition", label: "Поиск лидов", hint: "Country Desk · все рынки · Path A" },
-  { href: "/opportunities", label: "Возможности", hint: "Affiliate · Report · API · ROI сегодня" },
-  { href: "/client/bots", label: "Боты", hint: "AI bots · цены по странам · отдельный продукт" },
-  { href: "/support", label: "Поддержка", hint: "Inbox · автоответы · шаблоны" },
-  { href: "/clients", label: "Клиенты", hint: "Business ID · Client Card · таймлайн" },
-  { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
-  { href: "/", label: "Ферма", hint: "Разметка · Toloka Spend (не Desk)" },
-  { href: "/farm-engine", label: "Farm Engine", hint: "Opire · Approve · Reward Protection" },
-  {
-    href: "/income-engine",
-    label: "Alpha Hunter",
-    hint: "Opportunity Discovery Engine · рынки · adapters · OWNER",
-  },
-  { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
-  { href: "/revenue", label: "Доход", hint: "Lab · Work Farm · ключи · API" },
-  { href: "/payout", label: "Вывод", hint: "Payout Manager · REAL → банк" },
-  { href: "/finance", label: "Финансы и налоги", hint: "Доходы · чеки · экспорт" },
+  { href: "/executive", label: "Обзор", hint: "Клиенты · заказы · выручка" },
+  { href: "/clients", label: "Клиенты", hint: "Поиск · карточка клиента" },
+  { href: "/orders", label: "Заказы", hint: "Оплата · Factory · ZIP" },
+  { href: "/factory", label: "Продукты", hint: "Website · Shop · AI" },
+  { href: "/acquisition", label: "Продажи", hint: "Country Desk · лиды" },
+  { href: "/support", label: "Поддержка", hint: "Обращения · ответы" },
+  { href: "/finance", label: "Финансы", hint: "Реальная выручка" },
+  { href: "/ai", label: "Vector", hint: "AI для владельца" },
 ] as const;
 
+/** Studios / Labs — свёрнуты, не ежедневный путь. */
 export const CEO_STUDIO_LINKS = [
-  { href: "/cursor", label: "Разработка", hint: "Cursor · код" },
-  { href: "/acquisition", label: "Country Desk", hint: "Все рынки · снайпер · Outbox" },
-  { href: "/support", label: "Support", hint: "Inbox · Auto Rules · Templates" },
-  { href: "/clients", label: "Clients", hint: "Business ID · Client Card · timeline" },
-  { href: "/ceo-site", label: "Сайт клиентов", hint: "Как видит покупатель" },
-  { href: "/tiktok-horizon", label: "TikTok Horizon", hint: "INTERNAL OWNER · OAuth · kill switch" },
-  {
-    href: "/horizon",
-    label: "Horizon Studio",
-    hint: "Media Engine · Creative Director · Internal Only",
-  },
-  { href: "/#lost-archive", label: "Архив отказов", hint: "lost_reasons · не удалять" },
-  { href: "/create", label: "Фабрика", hint: "Сборка Landing" },
-  { href: "/ai", label: "AI Hub", hint: "Помощник CEO" },
-  { href: "/growth", label: "Аналитика", hint: "Mission 2 · Конверсия" },
+  { href: "/farm", label: "Ферма", hint: "Архив · Toloka · разметка" },
+  { href: "/farm-engine", label: "Farm Engine", hint: "Архив · Opire" },
+  { href: "/income-engine", label: "Alpha Hunter", hint: "Архив · lab" },
+  { href: "/revenue", label: "Revenue Lab", hint: "Архив" },
+  { href: "/payout", label: "Вывод Farm", hint: "Архив · не Stripe" },
+  { href: "/opportunities", label: "Earn Marketplace", hint: "Архив" },
+  { href: "/journal", label: "Журнал Farm", hint: "Архив" },
+  { href: "/tiktok-horizon", label: "TikTok", hint: "Студия" },
+  { href: "/horizon", label: "Horizon", hint: "Студия" },
+  { href: "/create", label: "Factory Wizard", hint: "Сборка" },
+  { href: "/executive-legacy", label: "Старый CEO Dashboard", hint: "Архив экрана" },
+  { href: "/ceo-site", label: "Публичный сайт", hint: "/site · /order" },
+  { href: "/cursor", label: "Разработка", hint: "Cursor" },
+  { href: "/business", label: "Business Health", hint: "Mission 2" },
+  { href: "/growth", label: "Аналитика M2", hint: "Конверсия" },
 ] as const;
 
 export const CEO_SYSTEM_LINKS = [
-  { href: "/launch", label: "Запуск", hint: "Сервисы" },
-  { href: "/check", label: "Разработчик", hint: "Диагностика" },
+  { href: "/launch", label: "Запуск", hint: "Checklist" },
+  { href: "/check", label: "Здоровье", hint: "System check" },
+  { href: "/monitor", label: "Монитор", hint: "Модули" },
   { href: "/settings", label: "Настройки", hint: "Профиль" },
 ] as const;

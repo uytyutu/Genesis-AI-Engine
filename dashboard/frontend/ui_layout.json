@@ -1,8 +1,8 @@
 {
-  "mode": "master",
-  "label": "Мастерская",
-  "compact_sidebar": true,
-  "sidebar_width_px": 180,
-  "hide_link_hints": true,
-  "home_label": "Цифровая ферма"
+  "mode": "ceo",
+  "label": "Mission Control",
+  "compact_sidebar": false,
+  "sidebar_width_px": 240,
+  "hide_link_hints": false,
+  "home_label": "Обзор"
 }

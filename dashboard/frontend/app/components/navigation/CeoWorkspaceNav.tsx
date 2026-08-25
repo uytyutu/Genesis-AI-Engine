@@ -2,66 +2,81 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { VirtusSurfaceIdentity } from "./VirtusSurfaceIdentity";
 import {
   CEO_PRIMARY_LINKS,
   CEO_STUDIO_LINKS,
   CEO_SYSTEM_LINKS,
 } from "../../lib/surfaceNavConfig";
-import { UI_LAYOUT, isMasterWorkshop } from "../../lib/uiLayout";
+import { UI_LAYOUT } from "../../lib/uiLayout";
 
 function isActive(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
+  if (href === "/executive") {
+    return pathname === "/executive" || pathname === "/";
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** Clean Owner Mission Control shell — commercial Virtus only. */
 export function CeoWorkspaceNav() {
   const pathname = usePathname() ?? "";
-  const master = isMasterWorkshop();
-
-  const primary = master
-    ? CEO_PRIMARY_LINKS.map((item) =>
-        item.href === "/" ? { ...item, label: UI_LAYOUT.home_label, hint: "DRY RUN · local" } : item,
-      ).filter((item) =>
-        [
-          "/business",
-          "/acquisition",
-          "/opportunities",
-          "/support",
-          "/",
-          "/journal",
-          "/revenue",
-          "/finance",
-          "/settings",
-        ].includes(item.href),
-      )
-    : CEO_PRIMARY_LINKS;
-
-  const sections = master
-    ? [
-        { title: "Мастерская", items: primary },
-        { title: "Система", items: CEO_SYSTEM_LINKS.filter((i) => i.href === "/settings") },
-      ]
-    : [
-        { title: "Решения", items: CEO_PRIMARY_LINKS },
-        { title: "Студии", items: CEO_STUDIO_LINKS },
-        { title: "Система", items: CEO_SYSTEM_LINKS },
-      ];
+  const studioOpenDefault = CEO_STUDIO_LINKS.some((item) =>
+    isActive(pathname, item.href),
+  );
+  const [studiosOpen, setStudiosOpen] = useState(studioOpenDefault);
 
   return (
     <aside
       className={`genesis-sidebar virtus-surface-ceo${UI_LAYOUT.compact_sidebar ? " genesis-sidebar--compact" : ""}`}
-      aria-label="CEO navigation"
-      style={UI_LAYOUT.compact_sidebar ? { width: UI_LAYOUT.sidebar_width_px } : undefined}
+      aria-label="Mission Control"
+      style={
+        UI_LAYOUT.compact_sidebar
+          ? { width: UI_LAYOUT.sidebar_width_px }
+          : undefined
+      }
     >
-      <VirtusSurfaceIdentity surface="ceo" homeHref="/" />
+      <VirtusSurfaceIdentity surface="ceo" homeHref="/executive" />
 
       <nav className="genesis-sidebar__nav">
-        {sections.map((section) => (
-          <div key={section.title} className="genesis-sidebar__section">
-            <p className="genesis-sidebar__section-title">{section.title}</p>
+        <div className="genesis-sidebar__section">
+          <p className="genesis-sidebar__section-title">Компания</p>
+          <ul className="genesis-sidebar__list">
+            {CEO_PRIMARY_LINKS.map((item) => {
+              const active = isActive(pathname, item.href);
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`genesis-sidebar__link${active ? " is-active" : ""}`}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    <span className="genesis-sidebar__link-label">{item.label}</span>
+                    {!UI_LAYOUT.hide_link_hints && item.hint ? (
+                      <span className="genesis-sidebar__link-hint">{item.hint}</span>
+                    ) : null}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        <div className="genesis-sidebar__section">
+          <button
+            type="button"
+            className="genesis-sidebar__section-title flex w-full items-center justify-between text-left"
+            onClick={() => setStudiosOpen((v) => !v)}
+            aria-expanded={studiosOpen}
+          >
+            <span>Студии</span>
+            <span className="text-[10px] font-normal text-zinc-500">
+              {studiosOpen ? "▾" : "▸"} Labs
+            </span>
+          </button>
+          {studiosOpen ? (
             <ul className="genesis-sidebar__list">
-              {section.items.map((item) => {
+              {CEO_STUDIO_LINKS.map((item) => {
                 const active = isActive(pathname, item.href);
                 return (
                   <li key={item.href}>
@@ -70,20 +85,51 @@ export function CeoWorkspaceNav() {
                       className={`genesis-sidebar__link${active ? " is-active" : ""}`}
                       aria-current={active ? "page" : undefined}
                     >
-                      <span className="genesis-sidebar__link-label">{item.label}</span>
-                      {item.hint && !UI_LAYOUT.hide_link_hints ? (
-                        <span className="genesis-sidebar__link-hint">{item.hint}</span>
+                      <span className="genesis-sidebar__link-label">
+                        {item.label}
+                      </span>
+                      {!UI_LAYOUT.hide_link_hints && item.hint ? (
+                        <span className="genesis-sidebar__link-hint">
+                          {item.hint}
+                        </span>
                       ) : null}
                     </Link>
                   </li>
                 );
               })}
             </ul>
-          </div>
-        ))}
+          ) : (
+            <p className="px-3 pb-2 text-[10px] leading-snug text-zinc-600">
+              Ферма, Alpha Hunter и старые labs — здесь, не на главной.
+            </p>
+          )}
+        </div>
+
+        <div className="genesis-sidebar__section">
+          <p className="genesis-sidebar__section-title">Система</p>
+          <ul className="genesis-sidebar__list">
+            {CEO_SYSTEM_LINKS.map((item) => {
+              const active = isActive(pathname, item.href);
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`genesis-sidebar__link${active ? " is-active" : ""}`}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    <span className="genesis-sidebar__link-label">{item.label}</span>
+                    {!UI_LAYOUT.hide_link_hints && item.hint ? (
+                      <span className="genesis-sidebar__link-hint">{item.hint}</span>
+                    ) : null}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </nav>
 
-      <p className="genesis-sidebar__footer">{UI_LAYOUT.label} · Vector</p>
+      <p className="genesis-sidebar__footer">Virtus Core · Mission Control</p>
     </aside>
   );
 }

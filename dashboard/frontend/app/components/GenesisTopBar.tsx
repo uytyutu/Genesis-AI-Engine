@@ -5,29 +5,24 @@ import { usePathname } from "next/navigation";
 import { BRAND_NAME } from "../lib/publicBrand";
 
 const TITLES: Record<string, string> = {
-  "/business": "Здоровье бизнеса",
-  "/business/kpi": "Mission 2 · KPI",
-  "/": "Ферма разметки",
-  "/journal": "Журнал",
-  "/revenue": "Доход · Revenue Lab",
-  "/company": "Компания",
-  "/finance": "Финансы и налоги",
-  "/projects": "Проекты",
-  "/cursor": "Студия разработки",
-  "/acquisition": "Country Desk · рынки",
-  "/ceo-site": "Сайт клиентов",
-  "/tiktok-horizon": "TikTok Horizon",
-  "/horizon": "Horizon Studio",
-  "/ai": "AI Hub",
-  "/growth": "Mission 2 · Конверсия",
+  "/executive": "Обзор",
+  "/executive-legacy": "Старый CEO Dashboard",
+  "/orders": "Заказы",
+  "/factory": "Продукты",
+  "/clients": "Клиенты",
+  "/support": "Поддержка",
+  "/finance": "Финансы",
+  "/acquisition": "Продажи · Country Desk",
+  "/farm": "Студия · Ферма",
+  "/farm-engine": "Студия · Farm Engine",
+  "/ai": "Vector",
   "/launch": "Запуск",
-  "/order": "Заказ",
-  "/check": "Разработчик",
+  "/check": "Здоровье системы",
+  "/monitor": "Монитор",
   "/settings": "Настройки",
-  "/create": "Фабрика",
-  "/opportunities": "Возможности · заработок",
-  "/monitor": "Мониторинг",
-  "/tasks": "Задачи",
+  "/ceo-site": "Публичный сайт",
+  "/create": "Factory Wizard",
+  "/": "Обзор",
 };
 
 function titleForPath(pathname: string): string {
@@ -36,6 +31,7 @@ function titleForPath(pathname: string): string {
   return TITLES[base] ?? BRAND_NAME;
 }
 
+/** Quiet owner topbar — no Farm CTAs. */
 export function GenesisTopBar() {
   const pathname = usePathname() ?? "/";
   const title = titleForPath(pathname);
@@ -43,18 +39,18 @@ export function GenesisTopBar() {
   return (
     <header className="genesis-topbar">
       <div>
-        <p className="genesis-topbar__eyebrow">{BRAND_NAME}</p>
+        <p className="genesis-topbar__eyebrow">{BRAND_NAME} · Mission Control</p>
         <h1 className="genesis-topbar__title">{title}</h1>
       </div>
       <div className="genesis-topbar__actions">
-        <Link href="/ceo-site" className="genesis-topbar__link">
-          Сайт клиентов
+        <Link href="/clients" className="genesis-topbar__link">
+          Клиенты
         </Link>
-        <Link href="/acquisition" className="genesis-topbar__link">
-          Country Desk
+        <Link href="/orders" className="genesis-topbar__link">
+          Заказы
         </Link>
-        <Link href="/order?form=1" className="genesis-topbar__cta">
-          /order
+        <Link href="/executive" className="genesis-topbar__cta">
+          Обзор
         </Link>
       </div>
     </header>

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
 import { VirtusMark } from "../VirtusMark";
 import { ASSISTANT_NAME, BRAND_NAME } from "../../lib/publicBrand";
 import type { SurfaceTarget } from "../../lib/surfaceRegistry";
@@ -12,25 +11,25 @@ type Props = {
 };
 
 export function VirtusSurfaceIdentity({ surface, homeHref = "/" }: Props) {
-  const { t } = useTranslation("common");
-  // Client BCC chrome is DE market SSOT — never follow UI locale for sidebar brand line.
+  // Mission Control = fixed RU chrome (не смешивать с Client i18n DE/EN).
   const roleLabel =
     surface === "client"
       ? "Mein Unternehmen"
       : surface === "public"
-        ? t("surface.public")
-        : t("surface.ceo");
+        ? "Virtus Core"
+        : "Mission Control";
   const workingWith =
     surface === "client"
       ? `${ASSISTANT_NAME} hilft Ihnen gerne`
-      : t("surface.workingWith", { name: ASSISTANT_NAME });
+      : surface === "ceo"
+        ? "Управление компанией"
+        : `${ASSISTANT_NAME}`;
 
   return (
     <div className="virtus-surface-identity">
       <Link href={homeHref} className="virtus-surface-identity__brand">
         <VirtusMark
           className="h-10 w-10 shrink-0 shadow-glow"
-          /* Public header: static mark — Framer Motion hydrate re-animates and flickers the logo on mobile. */
           animate={surface !== "public"}
         />
         <div className="min-w-0">

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { BRAND_NAME } from "../lib/publicBrand";
 
 const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
@@ -35,6 +36,7 @@ type ClientCard = {
 };
 
 export default function ClientsSupportPage() {
+  const searchParams = useSearchParams();
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<LookupHit[]>([]);
   const [card, setCard] = useState<ClientCard | null>(null);
@@ -42,25 +44,6 @@ export default function ClientsSupportPage() {
   const [ticketSubject, setTicketSubject] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
-  const search = useCallback(async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch(
-        `${API}/api/owner/clients/lookup?q=${encodeURIComponent(q.trim())}&limit=20`,
-        { cache: "no-store" },
-      );
-      const body = await res.json().catch(() => null);
-      if (!res.ok) throw new Error(body?.detail || "Lookup failed");
-      setHits(Array.isArray(body?.results) ? body.results : []);
-      if (!body?.results?.length) setCard(null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Lookup failed");
-    } finally {
-      setBusy(false);
-    }
-  }, [q]);
 
   const openCard = useCallback(async (customerId: string) => {
     setBusy(true);
@@ -78,6 +61,48 @@ export default function ClientsSupportPage() {
       setBusy(false);
     }
   }, []);
+
+  const search = useCallback(
+    async (query?: string) => {
+      const term = (query ?? q).trim();
+      if (!term) return;
+      setBusy(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `${API}/api/owner/clients/lookup?q=${encodeURIComponent(term)}&limit=20`,
+          { cache: "no-store" },
+        );
+        const body = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(body?.detail || "Lookup failed");
+        const results: LookupHit[] = Array.isArray(body?.results)
+          ? body.results
+          : [];
+        setHits(results);
+        if (!results.length) {
+          setCard(null);
+          return;
+        }
+        if (results.length === 1) {
+          await openCard(results[0].customer_id);
+        }
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Lookup failed");
+      } finally {
+        setBusy(false);
+      }
+    },
+    [q, openCard],
+  );
+
+  useEffect(() => {
+    const initial = (searchParams.get("q") || "").trim();
+    if (!initial) return;
+    setQ(initial);
+    void search(initial);
+    // One-shot deep link from Orders / Products
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const copyId = async () => {
     if (!card?.business_id) return;
@@ -275,7 +300,18 @@ export default function ClientsSupportPage() {
                   ) : (
                     (card.products || []).map((pr) => (
                       <li key={`${pr.order_id}-${pr.label}`}>
-                        {pr.label} · {pr.status} · {pr.package}
+                        {pr.order_id ? (
+                          <Link
+                            href={`/orders#${pr.order_id}`}
+                            className="text-emerald-300 hover:underline"
+                          >
+                            {pr.label} · {pr.status} · {pr.package}
+                          </Link>
+                        ) : (
+                          <>
+                            {pr.label} · {pr.status} · {pr.package}
+                          </>
+                        )}
                       </li>
                     ))
                   )}

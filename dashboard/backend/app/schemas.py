@@ -467,7 +467,11 @@ class SalesOrderSummary(BaseModel):
     city: str = ""
     phone: str = ""
     whatsapp: str = ""
+    email: str = ""
+    customer_id: str | None = None
     package_name: str
+    package_id: str | None = None
+    product_kind: str | None = None
     price_eur: float
     created_at: str
     product_id: str | None = None
@@ -475,6 +479,7 @@ class SalesOrderSummary(BaseModel):
     paid: bool = False
     paid_at: str | None = None
     estimated_delivery_at: str | None = None
+    download_ready: bool = False
 
 
 class OrderTimelineStep(BaseModel):

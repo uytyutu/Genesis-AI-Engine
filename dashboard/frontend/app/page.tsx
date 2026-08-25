@@ -1,13 +1,6 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { FarmDashboard } from "./components/FarmDashboard";
-import { MissionControlRecoverBoundary } from "./components/MissionControlRecoverBoundary";
-
-/** Virtus Core — цифровая ферма микро-комбайнов. */
+/** MC 2.0 — Virtus morning screen is Overview, not Farm. */
 export default function HomePage() {
-  return (
-    <MissionControlRecoverBoundary>
-      <FarmDashboard />
-    </MissionControlRecoverBoundary>
-  );
+  redirect("/executive");
 }
