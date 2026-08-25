@@ -9,6 +9,7 @@ from pathlib import Path
 
 from app.integration.customer_identity.business_id import normalize_business_id
 from app.integration.customer_identity.schema import (
+    BusinessProfile,
     CustomerAccount,
     CustomerCard,
     DigitalCompany,
@@ -26,9 +27,17 @@ class CustomerIdentityStore:
         self._accounts = self._root / "accounts"
         self._cards = self._root / "cards"
         self._companies = self._root / "companies"
+        self._profiles = self._root / "business_profiles"
         self._welcome = self._root / "welcome"
         self._index = self._root / "index"
-        for d in (self._accounts, self._cards, self._companies, self._welcome, self._index):
+        for d in (
+            self._accounts,
+            self._cards,
+            self._companies,
+            self._profiles,
+            self._welcome,
+            self._index,
+        ):
             d.mkdir(parents=True, exist_ok=True)
 
     @property
@@ -160,6 +169,60 @@ class CustomerIdentityStore:
                 continue
             if data.get("customer_id") == customer_id:
                 return DigitalCompany(**data)
+        return None
+
+    def profile_index_path(self, customer_id: str) -> Path:
+        safe = _ID_SAFE.sub("_", str(customer_id or "").strip())[:80]
+        return self._index / f"profile_primary_{safe}.txt"
+
+    def bind_primary_profile(self, customer_id: str, profile_id: str) -> None:
+        cid = str(customer_id or "").strip()
+        pid = str(profile_id or "").strip()
+        if not cid or not pid:
+            return
+        self.profile_index_path(cid).write_text(pid, encoding="utf-8")
+
+    def primary_profile_id(self, customer_id: str) -> str | None:
+        path = self.profile_index_path(customer_id)
+        if not path.is_file():
+            return None
+        return path.read_text(encoding="utf-8").strip() or None
+
+    def save_business_profile(self, profile: BusinessProfile) -> None:
+        path = self._profiles / f"{profile.profile_id}.json"
+        path.write_text(
+            json.dumps(profile.to_dict(), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        self.bind_primary_profile(profile.customer_id, profile.profile_id)
+
+    def load_business_profile(self, profile_id: str) -> BusinessProfile | None:
+        path = self._profiles / f"{profile_id}.json"
+        if not path.is_file():
+            return None
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return None
+        return BusinessProfile.from_dict(data)
+
+    def load_business_profile_by_customer(self, customer_id: str) -> BusinessProfile | None:
+        pid = self.primary_profile_id(customer_id)
+        if pid:
+            profile = self.load_business_profile(pid)
+            if profile and profile.customer_id == customer_id:
+                return profile
+        # Fallback scan (legacy / missing index)
+        for path in self._profiles.glob("*.json"):
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                continue
+            if data.get("customer_id") == customer_id:
+                profile = BusinessProfile.from_dict(data)
+                if profile:
+                    self.bind_primary_profile(customer_id, profile.profile_id)
+                    return profile
         return None
 
     def save_welcome(self, session: WelcomeSession) -> None:

@@ -16,7 +16,15 @@ from app.integration.customer_identity.auth import (
 )
 from app.integration.customer_identity.merge import merge_visitor_identity
 from app.integration.customer_identity.provision import CustomerProvisioner
-from app.integration.customer_identity.schema import WelcomeSession
+from app.integration.customer_identity.schema import (
+    BusinessAddress,
+    BusinessContact,
+    BusinessMediaRefs,
+    BusinessProfile,
+    BusinessServiceItem,
+    BusinessSocials,
+    WelcomeSession,
+)
 from app.integration.customer_identity.store import CustomerIdentityStore
 from app.integration.customer_identity.welcome import (
     advance_welcome,
@@ -362,6 +370,149 @@ class CustomerIdentityService:
             "platform_visitor_id": card.platform_visitor_id,
             "merge": result,
         }
+
+    def get_business_profile(self, customer_id: str) -> dict[str, Any] | None:
+        """Business Profile SSOT — read primary profile for this User (or None)."""
+        if not self._store.load_account(customer_id):
+            raise HTTPException(status_code=404, detail="customer_not_found")
+        profile = self._store.load_business_profile_by_customer(customer_id)
+        return profile.to_dict() if profile else None
+
+    def ensure_business_profile(self, customer_id: str) -> dict[str, Any]:
+        """Idempotent: one primary Business Profile per User (Giveaway + Order share it)."""
+        existing = self.get_business_profile(customer_id)
+        if existing:
+            return existing
+
+        import uuid
+
+        company = self._store.load_company_by_customer(customer_id)
+        card = self._store.load_card(customer_id)
+        account = self._store.load_account(customer_id)
+        now = _utc_now()
+        name = (
+            (card.company_display_name if card else "")
+            or (company.name if company else "")
+            or ""
+        )
+        profile = BusinessProfile(
+            profile_id=str(uuid.uuid4()),
+            customer_id=customer_id,
+            company_name=name,
+            niche=str(getattr(card, "primary_niche", "") or "") if card else "",
+            contacts=BusinessContact(
+                email=(account.email if account else "") or "",
+                phone=(card.phone if card else "") or "",
+            ),
+            language=(account.locale if account and account.locale else "de")[:16] or "de",
+            market=(account.country if account and account.country else "DE")[:8] or "DE",
+            digital_company_id=company.company_id if company else "",
+            created_at=now,
+            updated_at=now,
+            source="ensure",
+        )
+        self._store.save_business_profile(profile)
+        return profile.to_dict()
+
+    def upsert_business_profile(
+        self,
+        customer_id: str,
+        patch: dict[str, Any] | None = None,
+        *,
+        source: str = "",
+    ) -> dict[str, Any]:
+        """Merge patch into primary Business Profile. Enter once → use everywhere."""
+        data = self.ensure_business_profile(customer_id)
+        profile = BusinessProfile.from_dict(data)
+        if not profile:
+            raise HTTPException(status_code=500, detail="business_profile_corrupt")
+
+        body = patch if isinstance(patch, dict) else {}
+
+        if "company_name" in body:
+            profile.company_name = str(body.get("company_name") or "").strip()[:200]
+        if "niche" in body:
+            profile.niche = str(body.get("niche") or "").strip()[:120]
+        if "description" in body:
+            profile.description = str(body.get("description") or "").strip()[:8000]
+        if "language" in body:
+            profile.language = str(body.get("language") or profile.language).strip()[:16] or profile.language
+        if "market" in body:
+            profile.market = str(body.get("market") or profile.market).strip()[:8] or profile.market
+        if "digital_company_id" in body:
+            profile.digital_company_id = str(body.get("digital_company_id") or "").strip()[:80]
+
+        if isinstance(body.get("contacts"), dict):
+            c = body["contacts"]
+            profile.contacts = BusinessContact(
+                phone=str(c.get("phone", profile.contacts.phone) or "")[:64],
+                email=str(c.get("email", profile.contacts.email) or "")[:200],
+                whatsapp=str(c.get("whatsapp", profile.contacts.whatsapp) or "")[:64],
+                website=str(c.get("website", profile.contacts.website) or "")[:300],
+            )
+        if isinstance(body.get("address"), dict):
+            a = body["address"]
+            profile.address = BusinessAddress(
+                street=str(a.get("street", profile.address.street) or "")[:200],
+                city=str(a.get("city", profile.address.city) or "")[:120],
+                postal_code=str(a.get("postal_code", profile.address.postal_code) or "")[:32],
+                country=str(a.get("country", profile.address.country) or "")[:8],
+            )
+        if "services" in body and isinstance(body.get("services"), list):
+            services: list[BusinessServiceItem] = []
+            for item in body["services"][:40]:
+                if isinstance(item, dict):
+                    services.append(
+                        BusinessServiceItem(
+                            name=str(item.get("name") or "").strip()[:160],
+                            description=str(item.get("description") or "").strip()[:2000],
+                            price_hint=str(item.get("price_hint") or "").strip()[:80],
+                        )
+                    )
+                elif isinstance(item, str) and item.strip():
+                    services.append(BusinessServiceItem(name=item.strip()[:160]))
+            profile.services = [s for s in services if s.name]
+        if isinstance(body.get("socials"), dict):
+            s = body["socials"]
+            other = s.get("other", profile.socials.other)
+            if not isinstance(other, dict):
+                other = {}
+            profile.socials = BusinessSocials(
+                instagram=str(s.get("instagram", profile.socials.instagram) or "")[:200],
+                facebook=str(s.get("facebook", profile.socials.facebook) or "")[:200],
+                linkedin=str(s.get("linkedin", profile.socials.linkedin) or "")[:200],
+                tiktok=str(s.get("tiktok", profile.socials.tiktok) or "")[:200],
+                youtube=str(s.get("youtube", profile.socials.youtube) or "")[:200],
+                other={str(k)[:64]: str(v)[:300] for k, v in list(other.items())[:20]},
+            )
+        if isinstance(body.get("media"), dict):
+            m = body["media"]
+            heroes = m.get("hero_refs", profile.media.hero_refs)
+            gallery = m.get("gallery_refs", profile.media.gallery_refs)
+            if not isinstance(heroes, list):
+                heroes = profile.media.hero_refs
+            if not isinstance(gallery, list):
+                gallery = profile.media.gallery_refs
+            profile.media = BusinessMediaRefs(
+                logo_path=str(m.get("logo_path", profile.media.logo_path) or "")[:500],
+                hero_refs=[str(x)[:500] for x in heroes[:12]],
+                gallery_refs=[str(x)[:500] for x in gallery[:40]],
+            )
+
+        if source:
+            profile.source = str(source)[:40]
+        profile.updated_at = _utc_now()
+        self._store.save_business_profile(profile)
+
+        # Mirror display name onto support card — not a second SSOT, just Owner search hint
+        if profile.company_name:
+            card = self._store.load_card(customer_id)
+            if card and card.company_display_name != profile.company_name:
+                card.company_display_name = profile.company_name
+                self._store.save_card(card)
+
+        self._touch_card(customer_id)
+        return profile.to_dict()
 
     def _touch_card(self, customer_id: str) -> None:
         card = self._store.load_card(customer_id)
