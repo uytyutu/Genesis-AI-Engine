@@ -70,30 +70,184 @@ class SupportCenterService:
             n += 1
         return n
 
+    @staticmethod
+    def _is_demo_test_user(*, email: str = "", name: str = "", company: str = "") -> bool:
+        blob = f"{email} {name} {company}".lower()
+        markers = (
+            "@test.",
+            "virtuscore-test",
+            "example.com",
+            "example.de",
+            "+test",
+            "golden.",
+            "gwt-",
+            "b3-review",
+            "rc1-cert",
+            "live.d+",
+            "@test.local",
+        )
+        return any(m in blob for m in markers)
+
+    def _order_activity_index(self) -> dict[str, dict[str, Any]]:
+        """customer_id|email → order/product activity (from sales_orders SSOT)."""
+        index: dict[str, dict[str, Any]] = {}
+        path = self._memory / "sales_orders.json"
+        orders: list[dict[str, Any]] = []
+        if path.is_file():
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                data = None
+            if isinstance(data, list):
+                orders = [o for o in data if isinstance(o, dict)]
+            elif isinstance(data, dict):
+                if isinstance(data.get("orders"), list):
+                    orders = [o for o in data["orders"] if isinstance(o, dict)]
+                else:
+                    orders = [v for v in data.values() if isinstance(v, dict)]
+        root = self._memory / "sales_orders"
+        if root.is_dir():
+            for p in root.glob("*.json"):
+                try:
+                    row = json.loads(p.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                if isinstance(row, dict):
+                    orders.append(row)
+
+        def _touch(key: str, order: dict[str, Any]) -> None:
+            if not key:
+                return
+            slot = index.setdefault(
+                key,
+                {
+                    "orders_count": 0,
+                    "products_count": 0,
+                    "last_order_id": None,
+                    "last_order_at": "",
+                    "last_order_status": None,
+                    "last_package": None,
+                },
+            )
+            slot["orders_count"] = int(slot["orders_count"]) + 1
+            slot["products_count"] = int(slot["products_count"]) + 1
+            at = str(
+                order.get("paid_at")
+                or order.get("updated_at")
+                or order.get("created_at")
+                or ""
+            )
+            if at >= str(slot.get("last_order_at") or ""):
+                slot["last_order_at"] = at
+                slot["last_order_id"] = order.get("order_id")
+                slot["last_order_status"] = order.get("status")
+                slot["last_package"] = (
+                    order.get("package_name") or order.get("package_id") or None
+                )
+
+        for order in orders:
+            cid = str(order.get("customer_id") or "").strip()
+            em = str(order.get("email") or "").strip().lower()
+            if cid:
+                _touch(f"id:{cid}", order)
+            if em:
+                _touch(f"em:{em}", order)
+        return index
+
+    def _user_row(
+        self,
+        card: CustomerCard,
+        *,
+        activity: dict[str, dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        card = self.ensure_business_id(card)
+        company = self._store.load_company_by_customer(card.customer_id)
+        company_name = (company.name if company else card.company_display_name) or ""
+        account = self._store.load_account(card.customer_id)
+        act_map = activity if activity is not None else self._order_activity_index()
+        act = act_map.get(f"id:{card.customer_id}") or act_map.get(
+            f"em:{str(card.email or '').strip().lower()}"
+        ) or {}
+        demo = self._is_demo_test_user(
+            email=str(card.email or ""),
+            name=str(card.name or ""),
+            company=str(company_name),
+        )
+        return {
+            "customer_id": card.customer_id,
+            "business_id": card.business_id,
+            "name": card.name,
+            "email": card.email,
+            "phone": card.phone,
+            "company": company_name or None,
+            "country": card.country or (account.country if account else "") or None,
+            "registered_at": card.registered_at
+            or (account.created_at if account else "")
+            or "",
+            "last_activity_at": card.last_activity_at
+            or (account.last_login_at if account else "")
+            or act.get("last_order_at")
+            or "",
+            "account_status": card.account_status or "active",
+            "products_count": int(act.get("products_count") or 0),
+            "orders_count": int(act.get("orders_count") or 0),
+            "last_order_id": act.get("last_order_id"),
+            "last_order_status": act.get("last_order_status"),
+            "last_package": act.get("last_package"),
+            "is_demo_test": demo,
+            "layer": "demo_test" if demo else "customer",
+        }
+
+    def list_users(
+        self,
+        *,
+        query: str = "",
+        limit: int = 50,
+        include_demo_test: bool = True,
+    ) -> dict[str, Any]:
+        """Owner Users desk — registered customers from identity SSOT (not a parallel DB)."""
+        self.backfill_missing_ids(limit=500)
+        q = str(query or "").strip()
+        activity = self._order_activity_index()
+        cards = (
+            self._store.search_clients(q, limit=max(limit, 1))
+            if q
+            else self._store.iter_cards(limit=max(limit, 1))
+        )
+        rows: list[dict[str, Any]] = []
+        demo_hidden = 0
+        for card in cards:
+            row = self._user_row(card, activity=activity)
+            if row["is_demo_test"] and not include_demo_test:
+                demo_hidden += 1
+                continue
+            rows.append(row)
+            if len(rows) >= limit:
+                break
+        rows.sort(
+            key=lambda r: str(r.get("last_activity_at") or r.get("registered_at") or ""),
+            reverse=True,
+        )
+        return {
+            "ok": True,
+            "module": "owner_users_v1",
+            "query": q,
+            "count": len(rows),
+            "demo_test_hidden": demo_hidden,
+            "users": rows,
+            "empty": len(rows) == 0,
+            "empty_message_de": (
+                "Kein Kunde gefunden." if q else "Noch keine Kunden registriert."
+            ),
+            "quelle_de": "customer_identity cards + sales_orders (activity only)",
+        }
+
     def lookup(self, query: str, *, limit: int = 20) -> list[dict[str, Any]]:
         q = str(query or "").strip()
         if not q:
             return []
-        hits = self._store.search_clients(q, limit=limit)
-        out: list[dict[str, Any]] = []
-        for card in hits:
-            card = self.ensure_business_id(card)
-            company = self._store.load_company_by_customer(card.customer_id)
-            out.append(
-                {
-                    "customer_id": card.customer_id,
-                    "business_id": card.business_id,
-                    "name": card.name,
-                    "email": card.email,
-                    "phone": card.phone,
-                    "company": (company.name if company else card.company_display_name)
-                    or None,
-                    "country": card.country,
-                    "registered_at": card.registered_at,
-                    "account_status": card.account_status,
-                }
-            )
-        return out
+        listed = self.list_users(query=q, limit=limit, include_demo_test=True)
+        return list(listed.get("users") or [])
 
     def build_client_card(self, customer_id: str) -> dict[str, Any] | None:
         card = self._store.load_card(customer_id)
@@ -118,23 +272,100 @@ class SupportCenterService:
                 limit=50,
             )
         except Exception:
+            orders = []
+        if not orders:
             orders = self._scan_orders_fallback(customer_id, card.email)
 
         products = self._summarize_products(orders)
+        websites = self._website_rows(orders)
         commerce = self._commerce_snapshot(orders)
         tickets = self.list_tickets(customer_id)
         timeline = self.list_timeline(customer_id, limit=40)
+        company_name = (company.name if company else card.company_display_name) or ""
+        demo = self._is_demo_test_user(
+            email=str(card.email or ""),
+            name=str(card.name or ""),
+            company=str(company_name),
+        )
+
+        owner_actions: list[dict[str, Any]] = [
+            {
+                "id": "open_users",
+                "label": "Users desk",
+                "href": f"/users?id={card.customer_id}",
+            },
+            {
+                "id": "open_orders",
+                "label": "Orders",
+                "href": "/orders",
+            },
+            {
+                "id": "open_products",
+                "label": "Products / Factory",
+                "href": "/factory",
+            },
+            {
+                "id": "open_support",
+                "label": "Support",
+                "href": "/support",
+            },
+            {
+                "id": "email_client",
+                "label": "Email client",
+                "href": f"mailto:{card.email}" if card.email else None,
+            },
+            {"id": "add_note", "label": "Add support note"},
+            {"id": "open_ticket", "label": "Create ticket"},
+        ]
+        for site in websites:
+            if site.get("preview_href"):
+                owner_actions.append(
+                    {
+                        "id": f"preview-{site.get('order_id')}",
+                        "label": f"Preview · {site.get('package') or site.get('order_id')}",
+                        "href": site["preview_href"],
+                        "external": True,
+                    }
+                )
+            if site.get("download_href"):
+                owner_actions.append(
+                    {
+                        "id": f"zip-{site.get('order_id')}",
+                        "label": f"ZIP · {site.get('order_id')}",
+                        "href": site["download_href"],
+                        "external": True,
+                    }
+                )
+            if site.get("order_href"):
+                owner_actions.append(
+                    {
+                        "id": f"order-{site.get('order_id')}",
+                        "label": f"Order · {site.get('order_id')}",
+                        "href": site["order_href"],
+                    }
+                )
 
         return {
             "ok": True,
-            "title": "Client Card",
+            "title": "Owner User Card",
+            "module": "owner_users_v1",
             "business_id": card.business_id,
             "customer_id": card.customer_id,
+            "is_demo_test": demo,
+            "layer": "demo_test" if demo else "customer",
+            "chain": {
+                "user": card.customer_id,
+                "customer": card.customer_id,
+                "orders": [o.get("order_id") for o in orders if o.get("order_id")],
+                "products": [p.get("order_id") for p in products if p.get("order_id")],
+                "websites": [w.get("order_id") for w in websites if w.get("order_id")],
+                "support": f"/users?id={card.customer_id}",
+            },
             "profile": {
                 "name": card.name,
                 "email": card.email,
                 "phone": card.phone,
-                "company": (company.name if company else card.company_display_name) or "",
+                "company": company_name,
                 "country": card.country or (account.country if account else ""),
                 "locale": card.locale or (account.locale if account else ""),
                 "registered_at": card.registered_at or (account.created_at if account else ""),
@@ -144,6 +375,7 @@ class SupportCenterService:
                 "tier": card.tier,
             },
             "products": products,
+            "websites": websites,
             "orders": orders,
             "finance": {
                 "payments": [
@@ -153,10 +385,15 @@ class SupportCenterService:
                         "package": o.get("package_name") or o.get("package_id"),
                         "amount": o.get("amount_eur") or o.get("price_eur"),
                         "paid_at": o.get("paid_at"),
+                        "payment_mode": o.get("payment_mode"),
+                        "href": f"/orders#{o.get('order_id')}" if o.get("order_id") else None,
                     }
                     for o in orders
                 ],
-                "note": "Virtus never takes shop buyer funds — merchant Stripe only.",
+                "note": (
+                    "References only — REAL revenue lives in Finance Ledger. "
+                    "Demo/test payments are marked on the order."
+                ),
             },
             "commerce": commerce,
             "domains": [
@@ -179,12 +416,7 @@ class SupportCenterService:
                 "tickets": tickets,
             },
             "timeline": timeline,
-            "actions": [
-                {"id": "copy_business_id", "label": "Copy Business ID"},
-                {"id": "email_client", "label": "Email client", "href": f"mailto:{card.email}"},
-                {"id": "add_note", "label": "Add support note"},
-                {"id": "open_ticket", "label": "Create ticket"},
-            ],
+            "actions": owner_actions,
             "updated_at": _now(),
         }
 
@@ -320,6 +552,40 @@ class SupportCenterService:
         )
 
     @staticmethod
+    def _website_rows(orders: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Website products with owner Preview / ZIP links (API paths)."""
+        rows: list[dict[str, Any]] = []
+        for o in orders:
+            kind = str(o.get("product_kind") or o.get("kind") or "").lower()
+            pid = str(o.get("package_id") or o.get("product_id") or "").lower()
+            name = str(o.get("package_name") or o.get("product_name") or "")
+            blob = f"{kind} {pid} {name}".lower()
+            if any(x in blob for x in ("store", "shop", "aistore", "bot", "employee")):
+                continue
+            oid = str(o.get("order_id") or "")
+            product_id = str(o.get("product_id") or "").strip()
+            download_ready = bool(o.get("download_ready"))
+            rows.append(
+                {
+                    "order_id": oid,
+                    "product_id": product_id or None,
+                    "package": name or pid,
+                    "status": o.get("status"),
+                    "download_ready": download_ready,
+                    "order_href": f"/orders#{oid}" if oid else None,
+                    "preview_href": (
+                        f"/api/factory/products/{product_id}/preview" if product_id else None
+                    ),
+                    "download_href": (
+                        f"/api/sales/orders/{oid}/download"
+                        if oid and download_ready
+                        else None
+                    ),
+                }
+            )
+        return rows
+
+    @staticmethod
     def _summarize_products(orders: list[dict[str, Any]]) -> list[dict[str, Any]]:
         items: list[dict[str, Any]] = []
         for o in orders:
@@ -393,22 +659,55 @@ class SupportCenterService:
         return {"stores": snapshots}
 
     def _scan_orders_fallback(self, customer_id: str, email: str) -> list[dict[str, Any]]:
-        root = self._memory / "sales_orders"
-        if not root.is_dir():
-            return []
         cid = customer_id.strip()
         em = email.strip().lower()
         rows: list[dict[str, Any]] = []
-        for path in root.glob("*.json"):
+
+        def _consider(order: dict[str, Any]) -> None:
+            oid_cid = str(order.get("customer_id") or "").strip()
+            oid_email = str(order.get("email") or "").strip().lower()
+            if cid and oid_cid == cid:
+                rows.append(order)
+            elif em and oid_email == em and not oid_cid:
+                rows.append(order)
+
+        path = self._memory / "sales_orders.json"
+        if path.is_file():
             try:
-                order = json.loads(path.read_text(encoding="utf-8"))
+                data = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, json.JSONDecodeError):
+                data = None
+            orders: list[Any] = []
+            if isinstance(data, list):
+                orders = data
+            elif isinstance(data, dict):
+                if isinstance(data.get("orders"), list):
+                    orders = data["orders"]
+                else:
+                    orders = list(data.values())
+            for order in orders:
+                if isinstance(order, dict):
+                    _consider(order)
+
+        root = self._memory / "sales_orders"
+        if root.is_dir():
+            for p in root.glob("*.json"):
+                try:
+                    order = json.loads(p.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                if isinstance(order, dict):
+                    _consider(order)
+
+        # de-dupe
+        seen: set[str] = set()
+        unique: list[dict[str, Any]] = []
+        for o in rows:
+            oid = str(o.get("order_id") or "")
+            if oid and oid in seen:
                 continue
-            if not isinstance(order, dict):
-                continue
-            if cid and str(order.get("customer_id") or "") == cid:
-                rows.append(order)
-            elif em and str(order.get("email") or "").strip().lower() == em:
-                rows.append(order)
-        rows.sort(key=lambda o: str(o.get("created_at") or ""), reverse=True)
-        return rows[:50]
+            if oid:
+                seen.add(oid)
+            unique.append(o)
+        unique.sort(key=lambda o: str(o.get("created_at") or ""), reverse=True)
+        return unique[:50]

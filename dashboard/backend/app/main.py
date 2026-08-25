@@ -6801,6 +6801,29 @@ def owner_clients_lookup(q: str = "", limit: int = 20) -> dict:
     return {"ok": True, "query": q, "results": hits, "count": len(hits)}
 
 
+@app.get("/api/owner/users")
+def owner_users_list(
+    q: str = "",
+    limit: int = 50,
+    include_demo_test: bool = True,
+) -> dict:
+    """Owner Users v1 ? registered customers list (identity SSOT, not a parallel DB)."""
+    return _support_center().list_users(
+        query=q,
+        limit=min(max(int(limit or 50), 1), 200),
+        include_demo_test=bool(include_demo_test),
+    )
+
+
+@app.get("/api/owner/users/{customer_id}")
+def owner_user_card(customer_id: str) -> dict:
+    """Owner Users v1 ? full user card (same SSOT as Client Card)."""
+    card = _support_center().build_client_card(customer_id)
+    if not card:
+        raise HTTPException(status_code=404, detail="client_not_found")
+    return card
+
+
 @app.get("/api/owner/clients/{customer_id}")
 def owner_client_card(customer_id: str) -> dict:
     """Support Center — full Client Card."""

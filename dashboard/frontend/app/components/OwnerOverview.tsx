@@ -103,10 +103,10 @@ export function OwnerOverview() {
 
   const cards = [
     {
-      label: "Клиенты",
+      label: "Пользователи",
       value: pulse.clients != null ? String(pulse.clients) : "—",
       hint: "зарегистрировано",
-      href: "/clients",
+      href: "/users",
     },
     {
       label: "Заказы",
@@ -196,7 +196,7 @@ export function OwnerOverview() {
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
-            href="/clients"
+            href="/users"
             className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black"
           >
             Найти клиента

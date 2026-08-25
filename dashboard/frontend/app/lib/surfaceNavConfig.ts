@@ -87,6 +87,7 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
     "/acquisition",
     "/support",
     "/clients",
+    "/users",
     "/scanner",
     "/growth",
     "/tasks",
@@ -140,7 +141,7 @@ export const CLIENT_NAV_LINKS = [
 /** MC 2.0 primary — только коммерческий Virtus (без Farm). Язык оболочки: RU. */
 export const CEO_PRIMARY_LINKS = [
   { href: "/executive", label: "Обзор", hint: "Клиенты · заказы · выручка" },
-  { href: "/clients", label: "Клиенты", hint: "Поиск · карточка клиента" },
+  { href: "/users", label: "Пользователи", hint: "Список · карточка · заказы" },
   { href: "/orders", label: "Заказы", hint: "Оплата · Factory · ZIP" },
   { href: "/factory", label: "Продукты", hint: "Website · Shop · AI" },
   { href: "/acquisition", label: "Продажи", hint: "Country Desk · лиды" },

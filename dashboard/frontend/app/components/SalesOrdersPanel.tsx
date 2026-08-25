@@ -262,14 +262,14 @@ export function SalesOrdersPanel({ mode = "desk" }: Props) {
               <div className="mt-3 flex flex-wrap gap-2">
                 {o.customer_id ? (
                   <Link
-                    href={`/clients?q=${encodeURIComponent(o.customer_id)}`}
+                    href={`/users?id=${encodeURIComponent(o.customer_id)}`}
                     className="rounded-lg border border-white/15 px-3 py-1.5 text-xs hover:bg-white/5"
                   >
                     Customer →
                   </Link>
                 ) : o.email ? (
                   <Link
-                    href={`/clients?q=${encodeURIComponent(o.email)}`}
+                    href={`/users?q=${encodeURIComponent(o.email)}`}
                     className="rounded-lg border border-white/15 px-3 py-1.5 text-xs hover:bg-white/5"
                   >
                     Найти клиента →

@@ -10,6 +10,7 @@ const TITLES: Record<string, string> = {
   "/orders": "Заказы",
   "/factory": "Продукты",
   "/clients": "Клиенты",
+  "/users": "Пользователи",
   "/support": "Поддержка",
   "/finance": "Финансы",
   "/acquisition": "Продажи · Country Desk",
@@ -43,8 +44,8 @@ export function GenesisTopBar() {
         <h1 className="genesis-topbar__title">{title}</h1>
       </div>
       <div className="genesis-topbar__actions">
-        <Link href="/clients" className="genesis-topbar__link">
-          Клиенты
+        <Link href="/users" className="genesis-topbar__link">
+          Пользователи
         </Link>
         <Link href="/orders" className="genesis-topbar__link">
           Заказы
