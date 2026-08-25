@@ -4501,6 +4501,66 @@ def client_business_profile_upsert(request: Request, body: dict | None = None) -
     }
 
 
+@app.get("/api/giveaway/{code}")
+def giveaway_public_status(code: str) -> dict:
+    """Public Giveaway link status — no auth. Does not reveal winner PII."""
+    from app.integration.giveaway import GiveawayService
+
+    return GiveawayService(_memory_dir()).public_status(code)
+
+
+@app.post("/api/client/giveaway/{code}/redeem")
+def client_giveaway_redeem(code: str, request: Request) -> dict:
+    """Authenticated redeem — 0€ Website Basic entitlement from Business Profile SSOT."""
+    from fastapi import HTTPException
+
+    from app.integration.customer_identity.auth import require_client
+    from app.integration.giveaway import GiveawayService
+
+    payload = require_client(request)
+    try:
+        result = GiveawayService(_memory_dir()).redeem(
+            code, customer_id=str(payload["sub"])
+        )
+    except ValueError as exc:
+        detail = str(exc)
+        status = 400
+        if detail == "code_not_found":
+            status = 404
+        elif detail in ("code_exhausted", "already_redeemed"):
+            status = 409
+        raise HTTPException(status_code=status, detail=detail) from exc
+    return result
+
+
+@app.get("/api/owner/giveaway/codes")
+def owner_giveaway_codes() -> dict:
+    """Owner: list Giveaway codes (stream link + status)."""
+    from app.integration.giveaway import GiveawayService
+
+    codes = GiveawayService(_memory_dir()).list_codes()
+    return {"ok": True, "codes": codes}
+
+
+@app.post("/api/owner/giveaway/codes")
+def owner_giveaway_create_code(body: dict | None = None) -> dict:
+    """Owner: create an extra Giveaway code (default stream code is auto-ensured)."""
+    from fastapi import HTTPException
+
+    from app.integration.giveaway import GiveawayService
+
+    payload = body if isinstance(body, dict) else {}
+    try:
+        row = GiveawayService(_memory_dir()).create_code(
+            code=str(payload.get("code") or "").strip() or None,
+            label=str(payload.get("label") or "Giveaway Basic")[:120],
+            max_redeems=int(payload.get("max_redeems") or 1),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "code": row}
+
+
 @app.get("/api/client/vector-coaching")
 def client_vector_coaching(request: Request) -> dict:
     """Ephemeral Vector coaching notifications — not a chat."""

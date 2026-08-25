@@ -494,10 +494,22 @@ def run_website_product_intelligence(
     city: str = "",
 ) -> dict[str, Any]:
     result = evaluate_website_niche_intelligence(html=html, niche_id=niche_id)
-    from app.factory.content_ssot import audit_geo_consistency, cities_mentioned
+    try:
+        from app.factory.content_ssot import audit_geo_consistency, cities_mentioned
+    except ImportError:
+        audit_geo_consistency = None  # type: ignore[assignment]
+        cities_mentioned = None  # type: ignore[assignment]
 
     ssot_city = (city or "").strip()
-    if not ssot_city:
+    if cities_mentioned is None:
+        result.checks.append(
+            IntelCheck(
+                "geo_consistency",
+                "REVIEW_REQUIRED",
+                "content_ssot module unavailable — geo audit skipped",
+            )
+        )
+    elif not ssot_city:
         mentioned = cities_mentioned(html or "")
         if len(mentioned) > 1:
             result.checks.append(
@@ -527,7 +539,7 @@ def run_website_product_intelligence(
                     "no city signal in content",
                 )
             )
-    else:
+    elif audit_geo_consistency is not None:
         geo = audit_geo_consistency(html=html, city=ssot_city)
         result.checks.append(
             IntelCheck(
@@ -539,22 +551,31 @@ def run_website_product_intelligence(
             )
         )
 
-    from app.factory.chrome_copy_audit import audit_client_facing_copy
+    try:
+        from app.factory.chrome_copy_audit import audit_client_facing_copy
 
-    chrome = audit_client_facing_copy(
-        html=html,
-        niche_id=niche_id,
-        client_delivery=True,
-    )
-    result.checks.append(
-        IntelCheck(
-            chrome["id"],
-            chrome["status"],
-            chrome.get("detail") or "",
-            found=[f.get("detail", "") for f in (chrome.get("findings") or [])][:8],
-            expected=[],
+        chrome = audit_client_facing_copy(
+            html=html,
+            niche_id=niche_id,
+            client_delivery=True,
         )
-    )
+        result.checks.append(
+            IntelCheck(
+                chrome["id"],
+                chrome["status"],
+                chrome.get("detail") or "",
+                found=[f.get("detail", "") for f in (chrome.get("findings") or [])][:8],
+                expected=[],
+            )
+        )
+    except ImportError:
+        result.checks.append(
+            IntelCheck(
+                "chrome_copy_audit",
+                "REVIEW_REQUIRED",
+                "chrome_copy_audit module unavailable — skipped",
+            )
+        )
     return result.as_dict()
 
 

@@ -1290,7 +1290,9 @@ export default function IncomeLabPage() {
                     <button
                       type="button"
                       disabled={!!busy || stage === "paper"}
-                      onClick={() => void approve(o.id, "once")}
+                      onClick={() => {
+                        if (o.id) void approve(o.id, "once");
+                      }}
                       className="rounded-md bg-emerald-600/90 px-3 py-1.5 text-xs font-medium disabled:opacity-40"
                     >
                       Одобрить микро-тест
@@ -1298,7 +1300,9 @@ export default function IncomeLabPage() {
                     <button
                       type="button"
                       disabled={!!busy || stage === "paper"}
-                      onClick={() => void approve(o.id, "batch_limit")}
+                      onClick={() => {
+                        if (o.id) void approve(o.id, "batch_limit");
+                      }}
                       className="rounded-md border border-emerald-500/40 px-3 py-1.5 text-xs disabled:opacity-40"
                     >
                       Все до €{autoLimit}
@@ -1306,7 +1310,9 @@ export default function IncomeLabPage() {
                     <button
                       type="button"
                       disabled={!!busy}
-                      onClick={() => void reject(o.id)}
+                      onClick={() => {
+                        if (o.id) void reject(o.id);
+                      }}
                       className="rounded-md border border-red-500/40 px-3 py-1.5 text-xs text-red-200 disabled:opacity-40"
                     >
                       Отклонить

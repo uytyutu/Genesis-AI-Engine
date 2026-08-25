@@ -95,6 +95,10 @@ def should_tag_demo_order(payload: dict[str, Any]) -> bool:
     """True when create payload is an intentional demo order."""
     if not demo_payment_bridge_enabled():
         return False
+    if str(payload.get("entitlement_type") or "").lower() == "giveaway":
+        return False
+    if str(payload.get("payment_mode") or "").lower() == "giveaway":
+        return False
     if payload.get("demo") is True or str(payload.get("demo") or "").lower() in {
         "1",
         "true",
@@ -110,6 +114,11 @@ def should_tag_demo_order(payload: dict[str, Any]) -> bool:
 
 def is_demo_order(order: dict[str, Any] | None) -> bool:
     if not isinstance(order, dict):
+        return False
+    # Giveaway = 0€ entitlement, not Demo Payment / not REAL finance paint.
+    if str(order.get("entitlement_type") or "").lower() == "giveaway":
+        return False
+    if str(order.get("payment_mode") or "").lower() == "giveaway":
         return False
     if str(order.get("payment_mode") or "").lower() == "demo":
         return True

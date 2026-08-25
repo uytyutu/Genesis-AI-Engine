@@ -406,13 +406,16 @@ class SupportCenterService:
                         "amount": o.get("amount_eur") or o.get("price_eur"),
                         "paid_at": o.get("paid_at"),
                         "payment_mode": o.get("payment_mode"),
+                        "entitlement_type": o.get("entitlement_type"),
+                        "is_giveaway": bool(o.get("is_giveaway"))
+                        or str(o.get("entitlement_type") or "") == "giveaway",
                         "href": f"/orders#{o.get('order_id')}" if o.get("order_id") else None,
                     }
                     for o in orders
                 ],
                 "note": (
                     "References only — REAL revenue lives in Finance Ledger. "
-                    "Demo/test payments are marked on the order."
+                    "Giveaway = 0 € entitlement (not Stripe). Demo/test marked separately."
                 ),
             },
             "commerce": commerce,
@@ -585,6 +588,9 @@ class SupportCenterService:
             oid = str(o.get("order_id") or "")
             product_id = str(o.get("product_id") or "").strip()
             download_ready = bool(o.get("download_ready"))
+            is_giveaway = bool(o.get("is_giveaway")) or str(
+                o.get("entitlement_type") or ""
+            ) == "giveaway"
             rows.append(
                 {
                     "order_id": oid,
@@ -592,6 +598,23 @@ class SupportCenterService:
                     "package": name or pid,
                     "status": o.get("status"),
                     "download_ready": download_ready,
+                    "is_giveaway": is_giveaway,
+                    "entitlement_type": o.get("entitlement_type")
+                    or ("giveaway" if is_giveaway else None),
+                    "payment_mode": o.get("payment_mode"),
+                    "original_value_eur": o.get("original_value_eur"),
+                    "price_eur": o.get("price_eur"),
+                    "giveaway_code": o.get("giveaway_code"),
+                    "factory_label": (
+                        "Ready"
+                        if download_ready or str(o.get("status") or "") == "ready"
+                        else (
+                            "In production"
+                            if str(o.get("status") or "")
+                            in ("paid", "in_production")
+                            else str(o.get("status") or "")
+                        )
+                    ),
                     "order_href": f"/orders#{oid}" if oid else None,
                     "preview_href": (
                         f"/api/factory/products/{product_id}/preview" if product_id else None
@@ -631,6 +654,10 @@ class SupportCenterService:
                     "package": name or pid,
                     "paid_at": o.get("paid_at"),
                     "published_at": o.get("published_at"),
+                    "is_giveaway": bool(o.get("is_giveaway"))
+                    or str(o.get("entitlement_type") or "") == "giveaway",
+                    "entitlement_type": o.get("entitlement_type"),
+                    "payment_mode": o.get("payment_mode"),
                 }
             )
         return items

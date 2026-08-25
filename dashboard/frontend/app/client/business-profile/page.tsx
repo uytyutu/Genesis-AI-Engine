@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { ClientWorkspaceShell } from "../../components/ClientWorkspaceShell";
 import { getClientToken } from "../../lib/clientAuth";
 import { BccPanel, BccSectionHeader } from "../../lib/clientUi";
@@ -51,7 +52,10 @@ const emptyProfile = (): BusinessProfile => ({
   socials: { instagram: "", facebook: "" },
 });
 
-export default function ClientBusinessProfilePage() {
+function ClientBusinessProfileInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextAfterSave = searchParams.get("next") || "";
   const [busy, setBusy] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -164,6 +168,12 @@ export default function ClientBusinessProfilePage() {
       setSavedMsg(
         "Gespeichert — Business Profile ist die Quelle für Website, Factory und weitere Produkte.",
       );
+      if (
+        nextAfterSave.startsWith("/") &&
+        !nextAfterSave.startsWith("//")
+      ) {
+        router.push(nextAfterSave);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Fehler");
     } finally {
@@ -390,5 +400,19 @@ export default function ClientBusinessProfilePage() {
         </div>
       ) : null}
     </ClientWorkspaceShell>
+  );
+}
+
+export default function ClientBusinessProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <ClientWorkspaceShell title="Unternehmensprofil" subtitle="Laden…">
+          <p className="text-sm text-zinc-500">Laden…</p>
+        </ClientWorkspaceShell>
+      }
+    >
+      <ClientBusinessProfileInner />
+    </Suspense>
   );
 }

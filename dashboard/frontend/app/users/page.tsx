@@ -63,6 +63,8 @@ type UserCard = {
     status?: string;
     package?: string;
     order_id?: string;
+    is_giveaway?: boolean;
+    entitlement_type?: string;
   }[];
   websites?: {
     order_id?: string;
@@ -72,6 +74,12 @@ type UserCard = {
     order_href?: string | null;
     preview_href?: string | null;
     download_href?: string | null;
+    is_giveaway?: boolean;
+    entitlement_type?: string;
+    factory_label?: string;
+    original_value_eur?: number;
+    price_eur?: number;
+    giveaway_code?: string;
   }[];
   orders?: {
     order_id?: string;
@@ -80,6 +88,8 @@ type UserCard = {
     price_eur?: number;
     amount_eur?: number;
     payment_mode?: string;
+    entitlement_type?: string;
+    is_giveaway?: boolean;
   }[];
   finance?: {
     payments?: {
@@ -89,6 +99,9 @@ type UserCard = {
       amount?: number;
       paid_at?: string;
       href?: string | null;
+      is_giveaway?: boolean;
+      entitlement_type?: string;
+      payment_mode?: string;
     }[];
     note?: string;
   };
@@ -526,6 +539,9 @@ function OwnerUsersDesk() {
                   <ul className="mt-1 space-y-1">
                     {(card.products || []).map((p) => (
                       <li key={`${p.order_id}-${p.label}`} className="text-zinc-300">
+                        {p.is_giveaway || p.entitlement_type === "giveaway" ? (
+                          <span className="mr-1 text-emerald-300">🎁 Giveaway · </span>
+                        ) : null}
                         {p.label} · {p.package} · {p.status}
                         {p.order_id ? (
                           <>
@@ -553,7 +569,20 @@ function OwnerUsersDesk() {
                     {(card.websites || []).map((w) => (
                       <li key={w.order_id} className="rounded-lg border border-white/10 px-2 py-2">
                         <p className="text-zinc-200">
-                          {w.package} · {w.status}
+                          {w.is_giveaway || w.entitlement_type === "giveaway" ? (
+                            <span className="text-emerald-300">🎁 Giveaway · </span>
+                          ) : null}
+                          Website Basic · {w.package} · Factory:{" "}
+                          {w.factory_label || w.status}
+                          {typeof w.price_eur === "number" ? (
+                            <span className="text-zinc-500">
+                              {" "}
+                              · {w.price_eur} €
+                              {w.original_value_eur
+                                ? ` (Wert ${w.original_value_eur} €)`
+                                : ""}
+                            </span>
+                          ) : null}
                         </p>
                         <div className="mt-1 flex flex-wrap gap-2 text-xs">
                           {w.order_href ? (

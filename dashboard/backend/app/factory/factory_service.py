@@ -175,7 +175,16 @@ class FactoryService:
         )
         contacts["commerce_mode"] = commerce.commerce_mode
         contacts["commerce_resolution"] = commerce.as_dict()
+        # Preserve commercial ladder (basic/business/premium) for Media Integrity floors.
+        # Commerce SSOT maps basic→standalone; media gate must not upgrade Basic to Business.
+        ladder_package = str(
+            package_id or contacts.get("package_id") or ""
+        ).strip().lower()
+        if ladder_package not in ("basic", "business", "premium", "connected", "standalone"):
+            ladder_package = ""
         package_id = commerce.factory_package_id
+        if not ladder_package:
+            ladder_package = str(package_id or "").strip().lower()
 
         # Business Generation — invent a living company for demos (not niche template)
         fabricate = bool(
@@ -213,10 +222,13 @@ class FactoryService:
         from app.factory.visual_intelligence.studio import convene_board
 
         pkg_id = str(features.package_id or "standalone").strip().lower() or "standalone"
+        # Media / studio floors: keep Basic as Basic (commerce maps it to standalone→business).
+        if ladder_package == "basic":
+            pkg_id = "basic"
+        elif pkg_id not in ("basic", "business", "premium"):
+            pkg_id = "premium" if pkg_id == "connected" else "business"
         studio_plan = convene_board(
-            package_id=pkg_id if pkg_id in ("basic", "business", "premium") else (
-                "premium" if pkg_id == "connected" else "business"
-            ),
+            package_id=pkg_id,
             niche=analysis.niche,
             market_code=market,
             goal=str(contacts.get("goal") or "lead") or None,

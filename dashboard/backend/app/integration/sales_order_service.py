@@ -2100,15 +2100,28 @@ class SalesOrderService:
             commerce_mode=str(contacts.get("commerce_mode") or "") or None,
         )
         factory_pkg = _cm.factory_package_id
-        # FactoryIntentRequest still accepts legacy patterns in some builds —
-        # map connected→premium, standalone→business for gate compatibility.
-        intent_pkg = {
-            "standalone": "business",
-            "connected": "premium",
-            "basic": "business",
-            "business": "business",
-            "premium": "premium",
-        }.get(factory_pkg, "business")
+        # Media Integrity floors follow the commercial package on the order.
+        # basic must stay basic — normalize_commerce_mode maps basic→standalone→business
+        # and that incorrectly triggers premium gallery byte floors.
+        order_pkg = str(order.get("package_id") or package_id).strip().lower()
+        if order_pkg == "basic":
+            intent_pkg = "basic"
+            contacts_pkg = "basic"
+        elif order_pkg in ("premium", "connected"):
+            intent_pkg = "premium"
+            contacts_pkg = factory_pkg
+        elif order_pkg in ("business", "standalone"):
+            intent_pkg = "business"
+            contacts_pkg = factory_pkg
+        else:
+            intent_pkg = {
+                "standalone": "business",
+                "connected": "premium",
+                "basic": "basic",
+                "business": "business",
+                "premium": "premium",
+            }.get(factory_pkg, "business")
+            contacts_pkg = factory_pkg
         intent = FactoryIntentRequest(
             product_type="landing-page",
             description=brief,
@@ -2118,7 +2131,11 @@ class SalesOrderService:
             deadline=None,
             client_legal=legal or None,
             package_id=intent_pkg,
-            contacts={**contacts, "package_id": factory_pkg, "commerce_mode": _cm.commerce_mode},
+            contacts={
+                **contacts,
+                "package_id": contacts_pkg,
+                "commerce_mode": _cm.commerce_mode,
+            },
             motion_level=motion,
         )
         result = self._factory_intent.submit(intent)
@@ -2633,6 +2650,17 @@ class SalesOrderService:
             "created_at": order.get("created_at"),
             "updated_at": order.get("updated_at"),
             **demo_public_flags(order, ui_lang=ui_lang),
+            "entitlement_type": order.get("entitlement_type"),
+            "payment_status": order.get("payment_status"),
+            "payment_mode": str(
+                order.get("payment_mode") or order.get("payment_provider") or ""
+            )
+            or None,
+            "original_value_eur": order.get("original_value_eur")
+            or order.get("listed_price_eur"),
+            "giveaway_code": order.get("giveaway_code"),
+            "is_giveaway": str(order.get("entitlement_type") or "") == "giveaway"
+            or str(order.get("payment_mode") or "") == "giveaway",
             "download_ready": download_ready,
             "download_url": f"/api/sales/orders/{order_id}/download" if download_ready else None,
             "download_bytes": download_bytes,
@@ -2943,9 +2971,14 @@ class SalesOrderService:
                 demo = bool(order.get("demo") or order.get("is_demo")) or str(
                     order.get("payment_mode") or ""
                 ).lower() == "demo"
-                if demo and not meta.get("demo_order"):
+                giveaway = str(order.get("entitlement_type") or "").lower() == "giveaway" or str(
+                    order.get("payment_mode") or ""
+                ).lower() == "giveaway"
+                if (demo or giveaway) and not meta.get("demo_order"):
                     meta["demo_order"] = True
                     meta["allow_demo_pack"] = True
+                    if giveaway:
+                        meta["giveaway_order"] = True
                     dirty = True
                 if dirty:
                     product_dir = factory._sandbox / product_id  # type: ignore[attr-defined]
@@ -3054,7 +3087,12 @@ class SalesOrderService:
         demo = bool(order.get("demo") or order.get("is_demo")) or str(
             order.get("payment_mode") or ""
         ).lower() == "demo"
-        return self._product_packable(product_id, demo=demo)
+        # Giveaway Basic: deliver ZIP when HTML exists (same HTML floor as demo).
+        # Compliance Hard Gate remains for paid commercial Path A — not 0€ stream gifts.
+        giveaway = str(order.get("entitlement_type") or "").lower() == "giveaway" or str(
+            order.get("payment_mode") or ""
+        ).lower() == "giveaway"
+        return self._product_packable(product_id, demo=demo or giveaway)
 
     def _client_download_meta(
         self, order: dict, *, download_ready: bool
@@ -3149,6 +3187,14 @@ class SalesOrderService:
             "paid_at": order.get("paid_at"),
             "estimated_delivery_at": order.get("estimated_delivery_at"),
             "download_ready": bool(self._client_download_ready(order)),
+            "entitlement_type": order.get("entitlement_type"),
+            "payment_status": order.get("payment_status"),
+            "payment_mode": order.get("payment_mode") or order.get("payment_provider"),
+            "original_value_eur": order.get("original_value_eur")
+            or order.get("listed_price_eur"),
+            "giveaway_code": order.get("giveaway_code"),
+            "is_giveaway": str(order.get("entitlement_type") or "") == "giveaway"
+            or str(order.get("payment_mode") or "") == "giveaway",
         }
 
     def _orders_path(self) -> Path:

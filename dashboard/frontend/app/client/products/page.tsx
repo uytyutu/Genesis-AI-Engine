@@ -53,6 +53,10 @@ type ClientOrder = {
   primary_role?: string;
   superseded?: boolean;
   quality_state?: string;
+  is_giveaway?: boolean;
+  entitlement_type?: string;
+  original_value_eur?: number;
+  price_eur?: number;
 };
 
 function isShopOrder(o: ClientOrder) {
@@ -228,6 +232,11 @@ export default function ClientProductsPage() {
   }, [orders, products, webOrder, shopOrder, botOrder]);
 
   const ownedOrders = orders.filter((o) => !isBotOrder(o));
+  const giveawayBasic = ownedOrders.find(
+    (o) =>
+      (o.is_giveaway || o.entitlement_type === "giveaway") &&
+      String(o.package_id || "").toLowerCase() === "basic",
+  );
 
   return (
     <ClientWorkspaceShell
@@ -235,6 +244,70 @@ export default function ClientProductsPage() {
       subtitle="Product Control — Aktiv verwalten, fehlende Module hinzufügen, Coming Soon nur wenn noch nicht lieferbar."
     >
       {error ? <p className="mb-4 text-sm text-rose-200">{error}</p> : null}
+
+      {giveawayBasic ? (
+        <div className="mb-8 rounded-2xl border border-emerald-500/30 bg-emerald-950/25 px-5 py-5">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-emerald-300/90">
+            Giveaway
+          </p>
+          <h2 className="mt-1 text-xl font-semibold text-white">
+            Website Basic — Aktiv
+          </h2>
+          <p className="mt-2 text-sm text-zinc-400">
+            Geschenk (Wert {Number(giveawayBasic.original_value_eur || 299)} €) · 0 € ·
+            keine Stripe-Zahlung. Bearbeiten Sie Daten und Design, öffnen Sie Preview und laden
+            Sie das ZIP.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              href={`/client/websites/${giveawayBasic.order_id}/admin`}
+              className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-emerald-400"
+            >
+              Website Control öffnen
+            </Link>
+            {giveawayBasic.product_id ? (
+              <a
+                href={`${API}/api/factory/products/${giveawayBasic.product_id}/preview`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl border border-white/15 px-4 py-2 text-sm text-white hover:bg-white/5"
+              >
+                Preview
+              </a>
+            ) : null}
+            {giveawayBasic.download_ready && giveawayBasic.download_url ? (
+              <a
+                href={`${API}${giveawayBasic.download_url}`}
+                className="rounded-xl border border-emerald-500/40 px-4 py-2 text-sm font-semibold text-emerald-100 hover:bg-emerald-950/40"
+              >
+                ZIP laden
+              </a>
+            ) : null}
+          </div>
+          <div className="mt-6 border-t border-white/10 pt-5">
+            <p className="text-sm font-medium text-white">
+              Ihr Website Basic ist bereit. Möchten Sie mehr?
+            </p>
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+              {[
+                { label: "Business — 599 €", href: "/order?package=business" },
+                { label: "Premium — 999 €", href: "/order?package=premium" },
+                { label: "Online-Shop — ab 799 €", href: "/order?package=ecommerce_shop" },
+                { label: "AI Assistant — ab 499 €", href: "/order/bot" },
+              ].map((u) => (
+                <li key={u.href}>
+                  <Link
+                    href={u.href}
+                    className="block rounded-xl border border-violet-500/25 bg-violet-950/20 px-3 py-2.5 text-sm text-violet-100 hover:border-violet-400/50"
+                  >
+                    {u.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ) : null}
 
       {products === null ? (
         <p className="text-sm text-zinc-500">Laden…</p>
@@ -264,20 +337,32 @@ export default function ClientProductsPage() {
                       >
                         <div className="flex items-start justify-between gap-2">
                           <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-                            {shop ? "Online Shop" : "Website"}
+                            {shop
+                              ? "Online Shop"
+                              : o.is_giveaway || o.entitlement_type === "giveaway"
+                                ? "Website · Giveaway"
+                                : "Website"}
                           </p>
                           <BccStatusPill
                             tone={toneFromHonest(status.key)}
-                            label={status.label}
+                            label={
+                              !shop &&
+                              (o.is_giveaway || o.entitlement_type === "giveaway") &&
+                              status.key === "active"
+                                ? "Aktiv"
+                                : status.label
+                            }
                           />
                         </div>
                         <p className="mt-2 text-lg font-semibold text-white">
                           {shop
                             ? o.service_name || o.package_name || "Mein Online Shop"
-                            : o.service_name ||
-                              o.package_name ||
-                              o.business_name ||
-                              "Auftrag"}
+                            : o.is_giveaway || o.entitlement_type === "giveaway"
+                              ? `Website ${packageTierLabel(o.package_id, o.package_name)} — Aktiv`
+                              : o.service_name ||
+                                o.package_name ||
+                                o.business_name ||
+                                "Auftrag"}
                         </p>
                         <p className="mt-2 flex-1 text-sm text-zinc-500">
                           {o.business_name ? `${o.business_name} · ` : ""}
