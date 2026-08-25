@@ -34,7 +34,7 @@ const LABEL: Record<HonestProductStatus, string> = {
   active: "Aktiv",
   pending: "In Bearbeitung",
   not_activated: "Nicht aktiviert",
-  coming_soon: "Coming Soon",
+  coming_soon: "Demnächst",
   unknown: "Unbekannt",
 };
 
@@ -165,7 +165,7 @@ export function resolveHonestCta(
         actionable: true,
       };
     case "coming_soon":
-      return { kind: "coming_soon", label: "Coming Soon", actionable: false };
+      return { kind: "coming_soon", label: "Demnächst", actionable: false };
     default:
       return { kind: "none", label: "", actionable: false };
   }

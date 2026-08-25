@@ -15,9 +15,7 @@ import {
 import { ASSISTANT_NAME } from "../lib/publicBrand";
 import { clientAuthHeaders, getClientToken } from "../lib/clientAuth";
 import { publicApiBase } from "../lib/publicApiBase";
-import {
-  resolveOrderHonestStatus,
-} from "../lib/clientProductStatus";
+import { resolveOrderHonestStatus } from "../lib/clientProductStatus";
 import {
   resolveBccPrimaryCards,
   type BccModuleCardModel,
@@ -31,6 +29,10 @@ import {
   BccStatusPill,
   toneFromHonest,
 } from "../lib/clientUi";
+import {
+  LAUNCH_PRICE_HINTS,
+  LAUNCH_PURCHASE_ROUTES,
+} from "../lib/launchClientUx";
 
 type MyProduct = {
   product_id: string;
@@ -139,10 +141,68 @@ function ProductCard({ card }: { card: ProductCardModel }) {
           </BccPrimaryButton>
         ) : (
           <span className="inline-flex min-h-[44px] items-center rounded-xl border border-white/10 px-4 text-sm text-zinc-500">
-            {card.cta.label || "Coming Soon"}
+            {card.cta.label || "Demnächst"}
           </span>
         )}
       </div>
+    </BccPanel>
+  );
+}
+
+const EMPTY_OFFERS = [
+  {
+    id: "website",
+    icon: "🌐",
+    title: "Website",
+    price: LAUNCH_PRICE_HINTS.website,
+    href: LAUNCH_PURCHASE_ROUTES.website,
+    cta: "Website erstellen",
+  },
+  {
+    id: "shop",
+    icon: "🛒",
+    title: "Online-Shop",
+    price: LAUNCH_PRICE_HINTS.shop,
+    href: LAUNCH_PURCHASE_ROUTES.shop,
+    cta: "Online-Shop erstellen",
+  },
+  {
+    id: "ai",
+    icon: "🤖",
+    title: "AI Assistant",
+    price: LAUNCH_PRICE_HINTS.ai,
+    href: LAUNCH_PURCHASE_ROUTES.ai,
+    cta: "AI Assistant hinzufügen",
+  },
+] as const;
+
+/** Secondary Vector teaser — never competes with purchase CTAs. */
+function VectorKennenlernenTeaser({ emphasis = false }: { emphasis?: boolean }) {
+  return (
+    <BccPanel
+      className={
+        emphasis
+          ? "border-emerald-500/20 p-5"
+          : "border-emerald-500/15 p-4"
+      }
+    >
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300/70">
+        {ASSISTANT_NAME}
+      </p>
+      <h2
+        className={
+          emphasis
+            ? "mt-2 text-lg font-semibold tracking-tight text-white"
+            : "mt-1 text-base font-semibold text-white"
+        }
+      >
+        {emphasis ? "Dein Business Assistant" : "Vector kennenlernen"}
+      </h2>
+      <p className={emphasis ? "mt-2 max-w-2xl text-sm text-zinc-400" : "mt-1 text-sm text-zinc-500"}>
+        {emphasis
+          ? "Frag mich zu deinem Unternehmen, deiner Website, Analytics oder deinen nächsten Schritten."
+          : "Dein Business Assistant hilft dir bei der Auswahl."}
+      </p>
     </BccPanel>
   );
 }
@@ -237,6 +297,8 @@ export default function ClientDashboardPage() {
   const hasAi =
     Boolean(botOrder) || (products ?? []).some(isChatbotProduct);
 
+  const noProduct = products !== null && !hasWebsite && !hasShop && !hasAi;
+
   const cards: ProductCardModel[] = useMemo(() => {
     const signals = signalsFromOrdersAndProducts({
       orders,
@@ -284,7 +346,6 @@ export default function ClientDashboardPage() {
   const hasRealCompanyName =
     Boolean(rawName) && !placeholderNames.has(rawName.toLowerCase());
   const greetingName = hasRealCompanyName ? rawName : "Ihr Unternehmen";
-  const showSetup = !hasWebsite || !hasRealCompanyName;
 
   return (
     <ClientWorkspaceShell
@@ -298,7 +359,7 @@ export default function ClientDashboardPage() {
         </p>
       ) : null}
 
-      {!hasRealCompanyName ? (
+      {!hasRealCompanyName && !noProduct ? (
         <div className="mb-5 rounded-xl border border-amber-400/25 bg-amber-500/10 px-3 py-3 text-sm text-amber-100/90">
           Unternehmensprofil vervollständigen — dann kann Virtus Core passgenau
           arbeiten.{" "}
@@ -320,30 +381,96 @@ export default function ClientDashboardPage() {
         </p>
       </header>
 
-      <section aria-label="Ihre Produkte" className="mb-8">
-        {products === null ? (
-          <p className="text-sm text-zinc-500">Produkte werden geladen…</p>
-        ) : (
-          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {cards.map((card) => (
-              <li key={card.id}>
-                <ProductCard card={card} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {products === null ? (
+        <p className="mb-8 text-sm text-zinc-500">Produkte werden geladen…</p>
+      ) : noProduct ? (
+        <>
+          <section aria-label="Kein Produkt" className="mb-8">
+            <BccPanel className="border-violet-400/25 p-6 sm:p-8">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-300/80">
+                Start
+              </p>
+              <h2 className="mt-2 text-xl font-semibold tracking-tight text-white sm:text-2xl">
+                Noch kein Produkt aktiviert
+              </h2>
+              <p className="mt-2 max-w-xl text-sm text-zinc-400">
+                Was möchtest du aufbauen? Starte mit einer digitalen Lösung für
+                dein Unternehmen.
+              </p>
+              <ul className="mt-6 grid gap-3 sm:grid-cols-3">
+                {EMPTY_OFFERS.map((offer) => (
+                  <li key={offer.id}>
+                    <BccPrimaryButton href={offer.href} tone="pending">
+                      {offer.cta}
+                    </BccPrimaryButton>
+                  </li>
+                ))}
+              </ul>
+            </BccPanel>
+          </section>
 
-      {showSetup ? (
-        <div className="mb-8 grid gap-4 lg:grid-cols-2">
-          <BusinessSetupPanel dark />
-          <AiHealthPanel dark />
-        </div>
-      ) : hasAi || hasWebsite ? (
-        <div className="mb-8">
-          <AiHealthPanel dark />
-        </div>
-      ) : null}
+          <section aria-label="Empfohlen" className="mb-8">
+            <BccSectionHeader title="Empfohlen" />
+            <ul className="mt-4 grid gap-4 sm:grid-cols-3">
+              {EMPTY_OFFERS.map((offer) => (
+                <li key={`rec-${offer.id}`}>
+                  <BccPanel className="flex h-full flex-col p-5">
+                    <p className="text-2xl" aria-hidden>
+                      {offer.icon}
+                    </p>
+                    <h3 className="mt-3 text-lg font-semibold text-white">
+                      {offer.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-zinc-500">{offer.price}</p>
+                    <div className="mt-auto pt-5">
+                      <BccPrimaryButton href={offer.href} tone="inactive">
+                        Entdecken →
+                      </BccPrimaryButton>
+                    </div>
+                  </BccPanel>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section aria-label="Vector kennenlernen" className="mb-8">
+            <VectorKennenlernenTeaser />
+          </section>
+        </>
+      ) : (
+        <>
+          <section aria-label="Meine Produkte" className="mb-8">
+            <BccSectionHeader
+              title="Meine Produkte"
+              actionHref="/client/products"
+              actionLabel="Alle →"
+            />
+            <ul className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {cards.map((card) => (
+                <li key={card.id}>
+                  <ProductCard card={card} />
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section aria-label="Vector Business Assistant" className="mb-8">
+            <VectorKennenlernenTeaser emphasis />
+          </section>
+
+          {hasWebsite && !hasRealCompanyName ? (
+            <div className="mb-8">
+              <BusinessSetupPanel dark />
+            </div>
+          ) : null}
+
+          {hasWebsite || hasShop || hasAi ? (
+            <div className="mb-8">
+              <AiHealthPanel dark />
+            </div>
+          ) : null}
+        </>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <BccPanel className="p-5">

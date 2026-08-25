@@ -56,7 +56,7 @@ export const BCC_MODULE_CATALOG: readonly BccModuleDef[] = [
     availability: "live",
     ownedHref: "/client/site",
     purchaseHref: "/order?form=1",
-    priceHint: "Ab 199 €",
+    priceHint: "Ab 299 €",
     primary: true,
   },
   {
