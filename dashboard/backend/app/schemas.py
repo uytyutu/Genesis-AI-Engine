@@ -981,6 +981,23 @@ class FinancialView(BaseModel):
     disclaimer: str = ""
 
 
+class FinanceTaxReport(BaseModel):
+    """Financial Truth — Ledger CONFIRMED only (not demo sales_orders)."""
+
+    confirmed_eur: float = 0.0
+    label_ru: str = "Подтверждённый доход (Ledger)"
+    banner_ru: str = ""
+    demo_excluded: bool = True
+    financial_truth: dict = {}
+
+
+class FinanceMoneyLayers(BaseModel):
+    REAL: float = 0.0
+    PIPELINE: float = 0.0
+    COMMERCIAL: float = 0.0
+    SIMULATION: float = 0.0
+
+
 class FinanceCenter(BaseModel):
     owner_name: str
     greeting: str
@@ -1016,6 +1033,8 @@ class FinanceCenter(BaseModel):
     global_revenue: dict = {}
     system_mode: str = "sandbox"
     financial_view: FinancialView | dict = {}
+    tax_report: FinanceTaxReport | dict | None = None
+    money_layers: FinanceMoneyLayers | dict | None = None
 
 
 class DepartmentStatus(BaseModel):
