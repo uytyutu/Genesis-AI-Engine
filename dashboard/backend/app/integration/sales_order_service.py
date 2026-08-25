@@ -2034,6 +2034,7 @@ class SalesOrderService:
         if not gate["ok"]:
             raise ValueError("WAITLIST_REQUIRED")
         contacts = {
+            "customer_id": order.get("customer_id") or "",
             "business_name": order.get("business_name"),
             "phone": order.get("phone"),
             "whatsapp": order.get("whatsapp") or order.get("phone"),
@@ -2069,8 +2070,22 @@ class SalesOrderService:
             if isinstance(order.get("clarify_answers"), dict)
             else {},
         }
+        # Prefer Business Profile SSOT over order-copied interview (adapter in Factory).
+        # Keep order interview only as fallback when Profile is missing.
         if isinstance(order.get("business_interview"), dict):
             contacts["business_interview"] = order["business_interview"]
+        try:
+            from app.integration.customer_identity.factory_profile_adapter import (
+                apply_business_profile_to_contacts,
+            )
+
+            contacts = apply_business_profile_to_contacts(
+                contacts,
+                memory_dir=self._memory,
+                customer_id=str(order.get("customer_id") or "") or None,
+            )
+        except Exception:
+            pass
         mats = order.get("materials")
         if isinstance(mats, dict) and isinstance(mats.get("files"), list):
             contacts["materials"] = mats["files"]

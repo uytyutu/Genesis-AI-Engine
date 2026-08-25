@@ -22,6 +22,6 @@
 
 **Forbidden this mission:** Giveaway product UI · Shop SKU · B4.3 Vector rewrite · Mission 1 / Farm · new markdown canon outside this Pack.
 
-**Slices:** (1) schema+store ✅ · (2) API+Owner/Client read ✅ · (3) Factory consume · (4) Workspace edit write-back · (5) Giveaway attaches to existing profile.
+**Slices:** (1) schema+store ✅ · (2) API+Owner/Client read ✅ · (3) Factory consume ✅ · (4) Workspace edit write-back · (5) Giveaway attaches to existing profile.
 
 **PASS:** Same filled profile drives Factory + Website + Workspace + Vector Context; second purchase does not re-ask full form.

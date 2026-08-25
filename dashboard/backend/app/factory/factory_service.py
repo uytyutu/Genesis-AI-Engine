@@ -65,6 +65,16 @@ class FactoryService:
         timer = StageTimer()
         product_id = intent_id or str(uuid.uuid4())
         contacts = contacts if isinstance(contacts, dict) else {}
+        # Business Profile SSOT → Factory (read adapter; not a second company store)
+        from app.integration.customer_identity.factory_profile_adapter import (
+            apply_business_profile_to_contacts,
+        )
+
+        contacts = apply_business_profile_to_contacts(
+            contacts,
+            memory_dir=self._memory,
+            customer_id=str(contacts.get("customer_id") or "") or None,
+        )
         # Queue wait is attributed by sales_order when known; default 0 for direct builds.
         try:
             queue_s = float(contacts.get("_factory_queue_s") or 0)
@@ -136,6 +146,16 @@ class FactoryService:
             }
         interview = interview_from_payload(_iv_payload)
         contacts = interview_to_contacts(interview, contacts)
+        # Keep SSOT provenance on derived interview view (as_dict drops adapter keys)
+        _ssot = contacts.get("_business_profile_ssot")
+        if (
+            isinstance(_ssot, dict)
+            and _ssot.get("applied")
+            and isinstance(contacts.get("business_interview"), dict)
+        ):
+            contacts["business_interview"]["source"] = "business_profile_ssot"
+            contacts["business_interview"]["ssot"] = "customer_identity.business_profile"
+            contacts["business_interview"]["profile_id"] = str(_ssot.get("profile_id") or "")
         if interview.niche_hint and not str(contacts.get("niche") or "").strip():
             contacts["niche"] = interview.niche_hint
             analysis = analyze(
