@@ -34,12 +34,14 @@ const PUBLIC_EXACT = new Set([
   "/sitemap.xml",
   "/manifest.webmanifest",
   "/tools/website-auditor",
+  "/giveaway",
 ]);
 
 const PUBLIC_ASSET_PREFIXES = [
   "/order/",
   "/products/",
   "/site/",
+  "/giveaway/",
   "/brand/",
   "/tools/",
   "/_next/",
@@ -54,6 +56,7 @@ const PUBLIC_API_PREFIXES = [
   "/api/public/",
   "/api/sales/",
   "/api/client/",
+  "/api/giveaway/",
   "/api/webhooks/",
   "/api/v1/",
   "/api/factory/",
