@@ -7,15 +7,18 @@ import { Suspense } from "react";
 function ClientsToUsers() {
   const router = useRouter();
   const sp = useSearchParams();
+  const id = (sp.get("id") || "").trim();
+  const q = (sp.get("q") || "").trim();
+
   useEffect(() => {
     const params = new URLSearchParams();
-    const id = (sp.get("id") || "").trim();
-    const q = (sp.get("q") || "").trim();
     if (id) params.set("id", id);
     if (q) params.set("q", q);
     const qs = params.toString();
+    // Primitive deps only — depending on `sp` object retriggers forever.
     router.replace(qs ? `/users?${qs}` : "/users");
-  }, [router, sp]);
+  }, [router, id, q]);
+
   return <main className="p-8 text-sm text-zinc-400">Переход к Owner Users…</main>;
 }
 

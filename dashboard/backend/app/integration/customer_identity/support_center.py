@@ -288,6 +288,25 @@ class SupportCenterService:
             company=str(company_name),
         )
 
+        business_profile_payload: dict[str, Any] = {
+            "ok": True,
+            "has_profile": False,
+            "profile": None,
+            "ssot": "customer_identity.business_profile",
+            "note": "Business Profile not filled yet — Order/Giveaway should create via upsert, not a second entity.",
+        }
+        try:
+            from app.integration.customer_identity.service import CustomerIdentityService
+
+            business_profile_payload = CustomerIdentityService(self._memory).business_profile_read(
+                customer_id
+            )
+            bp = business_profile_payload.get("profile") if isinstance(business_profile_payload, dict) else None
+            if isinstance(bp, dict) and bp.get("company_name"):
+                company_name = str(bp.get("company_name") or company_name)
+        except Exception:
+            pass
+
         owner_actions: list[dict[str, Any]] = [
             {
                 "id": "open_users",
@@ -374,6 +393,7 @@ class SupportCenterService:
                 "account_status": card.account_status,
                 "tier": card.tier,
             },
+            "business_profile": business_profile_payload,
             "products": products,
             "websites": websites,
             "orders": orders,

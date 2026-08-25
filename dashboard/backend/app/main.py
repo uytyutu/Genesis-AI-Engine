@@ -4459,6 +4459,15 @@ def client_me(request: Request) -> dict:
     return _customer_identity().me(str(payload["sub"]))
 
 
+@app.get("/api/client/business-profile")
+def client_business_profile(request: Request) -> dict:
+    """Business Profile SSOT — client read (no write-back in slice 2)."""
+    from app.integration.customer_identity.auth import require_client
+
+    payload = require_client(request)
+    return _customer_identity().business_profile_read(str(payload["sub"]))
+
+
 @app.get("/api/client/vector-coaching")
 def client_vector_coaching(request: Request) -> dict:
     """Ephemeral Vector coaching notifications — not a chat."""
@@ -6822,6 +6831,17 @@ def owner_user_card(customer_id: str) -> dict:
     if not card:
         raise HTTPException(status_code=404, detail="client_not_found")
     return card
+
+
+@app.get("/api/owner/users/{customer_id}/business-profile")
+def owner_user_business_profile(customer_id: str) -> dict:
+    """Owner Users — Business Profile SSOT read (honest empty if not filled)."""
+    from app.integration.customer_identity.service import CustomerIdentityService
+
+    store = _support_center()._store
+    if not store.load_card(customer_id) and not store.load_account(customer_id):
+        raise HTTPException(status_code=404, detail="client_not_found")
+    return CustomerIdentityService(_memory_dir()).business_profile_read(customer_id)
 
 
 @app.get("/api/owner/clients/{customer_id}")

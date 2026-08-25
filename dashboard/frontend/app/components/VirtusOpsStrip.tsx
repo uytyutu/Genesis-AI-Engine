@@ -76,7 +76,7 @@ export function VirtusOpsStrip({
     {
       label: "Customers",
       value: clientsCount != null ? String(clientsCount) : "—",
-      href: "/clients",
+      href: "/users",
       hint: "зарегистрировано",
     },
     {

@@ -282,6 +282,7 @@ class CustomerIdentityService:
             else "standard",
             "primary_niche": str(getattr(card, "primary_niche", "") or "") if card else "",
             "phone": (card.phone if card else None) or None,
+            "business_profile": self.business_profile_read(customer_id),
             "company_profile": {
                 "company_name": (card.company_display_name if card else "")
                 or (company.name if company else "")
@@ -373,16 +374,33 @@ class CustomerIdentityService:
 
     def get_business_profile(self, customer_id: str) -> dict[str, Any] | None:
         """Business Profile SSOT — read primary profile for this User (or None)."""
-        if not self._store.load_account(customer_id):
+        if not self._store.load_account(customer_id) and not self._store.load_card(customer_id):
             raise HTTPException(status_code=404, detail="customer_not_found")
         profile = self._store.load_business_profile_by_customer(customer_id)
         return profile.to_dict() if profile else None
 
+    def business_profile_read(self, customer_id: str) -> dict[str, Any]:
+        """Honest read API payload — does not create a profile."""
+        profile = self.get_business_profile(customer_id)
+        return {
+            "ok": True,
+            "has_profile": profile is not None,
+            "profile": profile,
+            "ssot": "customer_identity.business_profile",
+            "note": (
+                None
+                if profile
+                else "Business Profile not filled yet — Order/Giveaway should create via upsert, not a second entity."
+            ),
+        }
+
     def ensure_business_profile(self, customer_id: str) -> dict[str, Any]:
         """Idempotent: one primary Business Profile per User (Giveaway + Order share it)."""
-        existing = self.get_business_profile(customer_id)
+        if not self._store.load_account(customer_id) and not self._store.load_card(customer_id):
+            raise HTTPException(status_code=404, detail="customer_not_found")
+        existing = self._store.load_business_profile_by_customer(customer_id)
         if existing:
-            return existing
+            return existing.to_dict()
 
         import uuid
 
@@ -401,7 +419,7 @@ class CustomerIdentityService:
             company_name=name,
             niche=str(getattr(card, "primary_niche", "") or "") if card else "",
             contacts=BusinessContact(
-                email=(account.email if account else "") or "",
+                email=(account.email if account else "") or (card.email if card else "") or "",
                 phone=(card.phone if card else "") or "",
             ),
             language=(account.locale if account and account.locale else "de")[:16] or "de",

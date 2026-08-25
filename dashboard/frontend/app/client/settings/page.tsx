@@ -12,8 +12,8 @@ const BUSINESS_SECTIONS: {
 }[] = [
   {
     title: "Unternehmensprofil",
-    hint: "Firmenname, Adresse, Telefon, E-Mail — über Onboarding / Website Admin",
-    href: "/client/onboarding",
+    hint: "Business Profile SSOT — Firmenname, Nische, Kontakte, Leistungen (read-only)",
+    href: "/client/business-profile",
   },
   {
     title: "Branding",

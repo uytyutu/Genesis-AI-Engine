@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { getBackendApiBase } from "../lib/backendApiBase";
 
-const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+const API = getBackendApiBase();
 
 type UserRow = {
   customer_id: string;
@@ -30,6 +31,33 @@ type UserCard = {
   customer_id?: string;
   is_demo_test?: boolean;
   profile?: Record<string, string | null | undefined>;
+  business_profile?: {
+    ok?: boolean;
+    has_profile?: boolean;
+    note?: string | null;
+    profile?: {
+      company_name?: string;
+      niche?: string;
+      description?: string;
+      language?: string;
+      market?: string;
+      contacts?: {
+        phone?: string;
+        email?: string;
+        whatsapp?: string;
+        website?: string;
+      };
+      address?: {
+        street?: string;
+        city?: string;
+        postal_code?: string;
+        country?: string;
+      };
+      services?: { name?: string; price_hint?: string }[];
+      source?: string;
+      updated_at?: string;
+    } | null;
+  };
   products?: {
     label?: string;
     status?: string;
@@ -87,9 +115,22 @@ function fmtDate(raw?: string | null) {
   }
 }
 
+/** Sync deep-link without App Router remount (router.replace + useSearchParams = reload loop). */
+function syncUsersUrl(customerId: string, query: string) {
+  if (typeof window === "undefined") return;
+  const params = new URLSearchParams();
+  if (customerId) params.set("id", customerId);
+  const q = query.trim();
+  if (q) params.set("q", q);
+  const qs = params.toString();
+  const next = qs ? `/users?${qs}` : "/users";
+  const cur = `${window.location.pathname}${window.location.search}`;
+  if (cur === next) return;
+  window.history.replaceState(window.history.state, "", next);
+}
+
 function OwnerUsersDesk() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [q, setQ] = useState("");
   const [users, setUsers] = useState<UserRow[]>([]);
   const [emptyMsg, setEmptyMsg] = useState("Noch keine Kunden registriert.");
@@ -99,27 +140,24 @@ function OwnerUsersDesk() {
   const [busy, setBusy] = useState(false);
   const [hideDemo, setHideDemo] = useState(false);
 
-  const openCard = useCallback(
-    async (customerId: string) => {
-      setBusy(true);
-      setError(null);
-      try {
-        const res = await fetch(
-          `${API}/api/owner/users/${encodeURIComponent(customerId)}`,
-          { cache: "no-store" },
-        );
-        const body = await res.json().catch(() => null);
-        if (!res.ok) throw new Error(body?.detail || "Card failed");
-        setCard(body as UserCard);
-        router.replace(`/users?id=${encodeURIComponent(customerId)}${q ? `&q=${encodeURIComponent(q)}` : ""}`);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Card failed");
-      } finally {
-        setBusy(false);
-      }
-    },
-    [router, q],
-  );
+  const openCard = useCallback(async (customerId: string, queryForUrl?: string) => {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `${API}/api/owner/users/${encodeURIComponent(customerId)}`,
+        { cache: "no-store" },
+      );
+      const body = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(body?.detail || "Card failed");
+      setCard(body as UserCard);
+      syncUsersUrl(customerId, queryForUrl ?? q);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Card failed");
+    } finally {
+      setBusy(false);
+    }
+  }, [q]);
 
   const loadList = useCallback(
     async (query?: string) => {
@@ -139,16 +177,15 @@ function OwnerUsersDesk() {
         setEmptyMsg(
           String(body?.empty_message_de || (term ? "Kein Kunde gefunden." : "Noch keine Kunden registriert.")),
         );
-        if (term && rows.length === 1) {
-          await openCard(rows[0].customer_id);
-        }
+        // Do not auto-openCard here — that + URL sync remounted the page in a loop.
+        if (term) syncUsersUrl("", term);
       } catch (e) {
         setError(e instanceof Error ? e.message : "List failed");
       } finally {
         setBusy(false);
       }
     },
-    [q, hideDemo, openCard],
+    [q, hideDemo],
   );
 
   useEffect(() => {
@@ -183,13 +220,6 @@ function OwnerUsersDesk() {
           );
           const cbody = await cres.json().catch(() => null);
           if (cres.ok && !cancelled) setCard(cbody as UserCard);
-        } else if (initialQ && rows.length === 1) {
-          const cres = await fetch(
-            `${API}/api/owner/users/${encodeURIComponent(rows[0].customer_id)}`,
-            { cache: "no-store" },
-          );
-          const cbody = await cres.json().catch(() => null);
-          if (cres.ok && !cancelled) setCard(cbody as UserCard);
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "List failed");
@@ -200,7 +230,7 @@ function OwnerUsersDesk() {
     return () => {
       cancelled = true;
     };
-    // Deep-link / first paint only
+    // Deep-link / first paint only — never depend on searchParams object (remount loop).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -337,7 +367,21 @@ function OwnerUsersDesk() {
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-black/20 p-4">
-          <h2 className="mb-3 text-sm font-semibold text-white">Карточка пользователя</h2>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold text-white">Карточка пользователя</h2>
+            {card ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setCard(null);
+                  syncUsersUrl("", q);
+                }}
+                className="rounded-lg border border-white/15 px-2.5 py-1 text-xs text-zinc-300 hover:bg-white/5"
+              >
+                Закрыть
+              </button>
+            ) : null}
+          </div>
           {!card ? (
             <p className="text-sm text-zinc-400">Выберите пользователя слева.</p>
           ) : (
@@ -369,8 +413,70 @@ function OwnerUsersDesk() {
               </div>
 
               <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-zinc-400">
-                Цепочка: User → Customer → Orders ({card.chain?.orders?.length ?? 0}) → Products (
-                {card.chain?.products?.length ?? 0}) → Websites ({card.chain?.websites?.length ?? 0})
+                Цепочка: User → Business Profile → Orders ({card.chain?.orders?.length ?? 0}) →
+                Products ({card.chain?.products?.length ?? 0}) → Websites (
+                {card.chain?.websites?.length ?? 0})
+              </div>
+
+              <div>
+                <h4 className="text-xs uppercase tracking-wide text-zinc-500">
+                  Business Profile SSOT
+                </h4>
+                {!card.business_profile?.has_profile || !card.business_profile.profile ? (
+                  <p className="mt-1 text-sm text-amber-200/90">
+                    {card.business_profile?.note ||
+                      "Профиль ещё не заполнен — Giveaway/Order не создают вторую сущность."}
+                  </p>
+                ) : (
+                  <div className="mt-2 space-y-2 rounded-xl border border-emerald-500/20 bg-emerald-950/15 px-3 py-3 text-sm text-zinc-300">
+                    <p className="font-medium text-white">
+                      {card.business_profile.profile.company_name || "—"}
+                      {card.business_profile.profile.niche
+                        ? ` · ${card.business_profile.profile.niche}`
+                        : ""}
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                      {card.business_profile.profile.market || "—"} /{" "}
+                      {card.business_profile.profile.language || "—"}
+                      {card.business_profile.profile.source
+                        ? ` · source ${card.business_profile.profile.source}`
+                        : ""}
+                    </p>
+                    {card.business_profile.profile.description ? (
+                      <p className="text-xs leading-relaxed text-zinc-400">
+                        {card.business_profile.profile.description.slice(0, 280)}
+                        {card.business_profile.profile.description.length > 280 ? "…" : ""}
+                      </p>
+                    ) : null}
+                    <p className="text-xs text-zinc-400">
+                      {[
+                        card.business_profile.profile.contacts?.phone,
+                        card.business_profile.profile.contacts?.whatsapp
+                          ? `WA ${card.business_profile.profile.contacts.whatsapp}`
+                          : null,
+                        card.business_profile.profile.contacts?.email,
+                        [
+                          card.business_profile.profile.address?.postal_code,
+                          card.business_profile.profile.address?.city,
+                        ]
+                          .filter(Boolean)
+                          .join(" "),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || "Контакты не заполнены"}
+                    </p>
+                    {(card.business_profile.profile.services || []).length > 0 ? (
+                      <ul className="text-xs text-zinc-400">
+                        {(card.business_profile.profile.services || []).slice(0, 6).map((s, i) => (
+                          <li key={`${s.name}-${i}`}>
+                            {s.name}
+                            {s.price_hint ? ` · ${s.price_hint}` : ""}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-2">
