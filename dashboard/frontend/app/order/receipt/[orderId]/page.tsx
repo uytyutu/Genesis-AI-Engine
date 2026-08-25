@@ -8,8 +8,6 @@ import { PublicPageShell } from "../../../components/PublicPageShell";
 import { Loader } from "../../../components/ui";
 import { publicApiBase } from "../../../lib/publicApiBase";
 import { dateLocaleForUi } from "../../../lib/locale/dateLocale";
-import { isUiLocale } from "../../../lib/locale/types";
-import { useLocale } from "../../../context/LocaleContext";
 
 const API = publicApiBase();
 
@@ -57,7 +55,6 @@ type StatusBody = {
 
 function ReceiptContent() {
   const { t, i18n } = useTranslation("site");
-  const { applyUiLocale } = useLocale();
   const orderId = String(useParams().orderId ?? "");
   const [body, setBody] = useState<StatusBody | null>(null);
   const [loading, setLoading] = useState(true);
@@ -83,12 +80,7 @@ function ReceiptContent() {
     };
   }, [orderId]);
 
-  useEffect(() => {
-    const lang = body?.ui_lang;
-    if (lang && isUiLocale(lang) && i18n.language !== lang) {
-      applyUiLocale(lang);
-    }
-  }, [body?.ui_lang, applyUiLocale, i18n.language]);
+  // L0: receipt.ui_lang must not override uiLocale SSOT
 
   async function downloadZip() {
     setDownloadError("");

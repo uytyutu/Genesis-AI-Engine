@@ -263,7 +263,7 @@ export function GenesisConcierge({
 }: Props) {
   const router = useRouter();
   const { t } = useTranslation(["chat", "errors", "common"]);
-  const { uiLocale, assistantLocale } = useLocale();
+  const { uiLocale } = useLocale();
   const isPublic = scope === "public";
   const isLeadCapture = isPublic && Boolean(leadCapture);
   const isPublicHub = isPublic && hubMode && !isLeadCapture;
@@ -960,7 +960,8 @@ export function GenesisConcierge({
           visitor_id: visitorId,
           session_id: sessionId,
           ui_locale: uiLocale,
-          assistant_locale: assistantLocale,
+          // L0: assistant_locale mirrors uiLocale (no separate SSOT)
+          assistant_locale: uiLocale,
           communication_style: communicationStyleRef.current,
           context:
             scope === "owner"
@@ -1239,7 +1240,6 @@ export function GenesisConcierge({
       voiceSpeaking,
       interruptSpeechIfNeeded,
       uiLocale,
-      assistantLocale,
       communicationStyle,
       pinToBottom,
       t,

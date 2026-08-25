@@ -19,13 +19,12 @@ import {
   loadLocaleState,
   persistLocaleState,
 } from "../lib/locale/storage";
-import type { AssistantLocale, LocaleState, UiLocale } from "../lib/locale/types";
+import type { LocaleState, UiLocale } from "../lib/locale/types";
 
 type LocaleContextValue = LocaleState & {
   setAutoDetect: (auto: boolean) => void;
   setUiLocale: (locale: UiLocale) => void;
-  setAssistantLocale: (locale: AssistantLocale) => void;
-  /** One atomic write — use from public language chips. */
+  /** One atomic write — use from public language chips. Turns off auto-detect. */
   applyUiLocale: (locale: UiLocale) => void;
 };
 
@@ -61,17 +60,13 @@ export function LocaleProvider({
   useEffect(() => {
     setHydrated(true);
     const loaded = loadLocaleState();
-    if (
-      loaded.uiLocale === state.uiLocale &&
-      loaded.assistantLocale === state.assistantLocale
-    ) {
+    if (loaded.uiLocale === state.uiLocale) {
       if (loaded.autoDetect !== state.autoDetect) {
         setState((prev) => ({ ...prev, autoDetect: loaded.autoDetect }));
       }
       persistLocaleState({
         ...loaded,
         uiLocale: state.uiLocale,
-        assistantLocale: state.assistantLocale,
       });
       return;
     }
@@ -97,7 +92,6 @@ export function LocaleProvider({
         const next: LocaleState = {
           autoDetect: auto,
           uiLocale,
-          assistantLocale: auto ? uiLocale : prev.assistantLocale,
         };
         persistLocaleState(next);
         void i18n.changeLanguage(next.uiLocale);
@@ -109,37 +103,23 @@ export function LocaleProvider({
 
   const setUiLocale = useCallback(
     (uiLocale: UiLocale) => {
-      setState((prev) => {
-        const next: LocaleState = {
-          autoDetect: false,
-          uiLocale,
-          assistantLocale:
-            prev.assistantLocale === prev.uiLocale ? uiLocale : prev.assistantLocale,
-        };
-        persistLocaleState(next);
-        void i18n.changeLanguage(next.uiLocale);
-        return next;
-      });
+      const next: LocaleState = {
+        autoDetect: false,
+        uiLocale,
+      };
+      persistLocaleState(next);
+      void i18n.changeLanguage(next.uiLocale);
+      setState(next);
     },
     [i18n],
   );
 
-  const setAssistantLocale = useCallback((assistantLocale: AssistantLocale) => {
-    setState((prev) => {
-      const next: LocaleState = { ...prev, autoDetect: false, assistantLocale };
-      persistLocaleState(next);
-      return next;
-    });
-  }, []);
-
   const applyUiLocale = useCallback(
     (uiLocale: UiLocale) => {
-      const next: LocaleState = {
+      commit({
         autoDetect: false,
         uiLocale,
-        assistantLocale: uiLocale,
-      };
-      commit(next);
+      });
     },
     [commit],
   );
@@ -149,16 +129,14 @@ export function LocaleProvider({
       ...state,
       setAutoDetect,
       setUiLocale,
-      setAssistantLocale,
       applyUiLocale,
     }),
-    [state, setAutoDetect, setUiLocale, setAssistantLocale, applyUiLocale],
+    [state, setAutoDetect, setUiLocale, applyUiLocale],
   );
 
   return (
     <LocaleContext.Provider value={value}>
       <I18nextProvider i18n={i18n}>
-        {/* Hide translated chrome until hydrated when no cookie yet — rare flash only */}
         <div
           suppressHydrationWarning
           data-locale-hydrated={hydrated ? "1" : "0"}

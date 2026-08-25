@@ -10,8 +10,6 @@ import { formatLocalizedMoney } from "../../../lib/formatEur";
 import { fetchPaymentReady, startOrderCheckout } from "../../../lib/orderCheckout";
 import { publicApiBase } from "../../../lib/publicApiBase";
 import { dateLocaleForUi } from "../../../lib/locale/dateLocale";
-import { isUiLocale } from "../../../lib/locale/types";
-import { useLocale } from "../../../context/LocaleContext";
 import { rememberOrder } from "../../../lib/orderHistory";
 
 const API = publicApiBase();
@@ -111,7 +109,6 @@ type OrderStatus = {
 
 function OrderStatusContent() {
   const { t, i18n } = useTranslation("site");
-  const { applyUiLocale } = useLocale();
   const routeParams = useParams();
   const search = useSearchParams();
   const orderId = String(routeParams.orderId ?? "");
@@ -214,12 +211,7 @@ function OrderStatusContent() {
     };
   }, [orderId, justPaid, justCanceled]);
 
-  useEffect(() => {
-    const lang = data?.ui_lang;
-    if (lang && isUiLocale(lang) && i18n.language !== lang) {
-      applyUiLocale(lang);
-    }
-  }, [data?.ui_lang, applyUiLocale, i18n.language]);
+  // L0: order.ui_lang must not override uiLocale SSOT
 
   async function payNow() {
     setPayBusy(true);

@@ -15,7 +15,7 @@ import {
 } from "../lib/pricingApi";
 import { BRAND_NAME } from "../lib/publicBrand";
 import { CONTACT_EMAIL } from "../lib/siteConfig";
-import { canonicalMarketForLang, uiLangForMarket } from "../lib/marketLang";
+import { canonicalMarketForLang } from "../lib/marketLang";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
 
@@ -174,7 +174,7 @@ export default function ServicesPage() {
   const [data, setData] = useState<PricingDisplay | null>(null);
   const [loading, setLoading] = useState(true);
   const [market, setMarket] = useState("DE");
-  const { uiLocale, applyUiLocale } = useLocale();
+  const { uiLocale } = useLocale();
   const { t } = useTranslation("site");
 
   useEffect(() => {
@@ -261,7 +261,7 @@ export default function ServicesPage() {
               const url = new URL(window.location.href);
               url.searchParams.set("market", next);
               window.history.replaceState({}, "", url.toString());
-              applyUiLocale(uiLangForMarket(next) as UiLocale);
+              // L0: market = prices only — do not applyUiLocale
             }}
           >
             {markets.map((m) => (

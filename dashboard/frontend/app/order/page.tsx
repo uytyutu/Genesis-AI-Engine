@@ -16,9 +16,6 @@ import { buildOrderLaunchContext, type OrderLaunchContext } from "../lib/orderPr
 import { Badge, Button, ButtonLink, Card, Field, Input, Textarea } from "../components/ui";
 import { publicApiBase } from "../lib/publicApiBase";
 import { logCommerceEvent } from "../lib/commerceFunnel";
-import { uiLangForMarket } from "../lib/marketLang";
-import { useLocale } from "../context/LocaleContext";
-import type { UiLocale } from "../lib/locale/types";
 import { OrderProjectPreview } from "../components/OrderProjectPreview";
 import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePackage";
 import { parseClientServices } from "../lib/packagePreviewGallery";
@@ -147,7 +144,6 @@ function suggestPackage(needsLogo: boolean, needsDomain: boolean, extra: string)
 
 export default function OrderSitePage() {
   const { t, i18n } = useTranslation("site");
-  const { applyUiLocale } = useLocale();
   const [marketParam, setMarketParam] = useState("");
   const [marketReady, setMarketReady] = useState(false);
   // Guest checkout (Launch Blocker): order form is public — no register redirect.
@@ -182,20 +178,7 @@ export default function OrderSitePage() {
       setMarketReady(true);
     }
   }, []);
-  // Country Desk market → order UI language (packages already currency-synced via API)
-  useEffect(() => {
-    if (!marketReady) return;
-    const market = (marketParam || "DE").toUpperCase();
-    const lang = uiLangForMarket(market) as UiLocale;
-    applyUiLocale(lang);
-    // Win race vs LocaleProvider hydration that re-applies browser "auto" English.
-    const t = window.setTimeout(() => applyUiLocale(lang), 0);
-    const t2 = window.setTimeout(() => applyUiLocale(lang), 50);
-    return () => {
-      window.clearTimeout(t);
-      window.clearTimeout(t2);
-    };
-  }, [marketParam, marketReady, applyUiLocale]);
+  // L0: market param drives prices/currency only — never applyUiLocale(market).
   const launchDeliverables = useMemo(
     () => [t("order.launchD1"), t("order.launchD2"), t("order.launchD3"), t("order.launchD4")],
     [t],

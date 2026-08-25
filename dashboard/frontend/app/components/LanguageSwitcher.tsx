@@ -5,38 +5,34 @@ import { useTranslation } from "react-i18next";
 
 import { useLocale } from "../context/LocaleContext";
 import {
-  LOCALE_REGISTRY,
+  ETALON_UI_LOCALES,
   getLocaleDefinition,
   localeMatchesQuery,
-  type AssistantLocale,
+  LOCALE_REGISTRY,
   type UiLocale,
 } from "../lib/locale/types";
-import { MARKET_PUBLIC_LANGS } from "../lib/marketLang";
 
-/** Market languages first on public Path A (country ↔ currency ↔ language). */
-const PUBLIC_QUICK: readonly UiLocale[] = MARKET_PUBLIC_LANGS as readonly UiLocale[];
+/** L0: etalon contour only — incomplete catalogs stay hidden. */
+const PUBLIC_QUICK: readonly UiLocale[] = ETALON_UI_LOCALES;
 
 function LocaleSearchList({
   label,
   value,
   onPick,
-  translatedOnly = false,
 }: {
   label: string;
   value: UiLocale;
   onPick: (code: UiLocale) => void;
-  /** Public site: only languages with a real pack (no silent EN fallback). */
-  translatedOnly?: boolean;
 }) {
   const { t } = useTranslation("common");
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
-    const base = translatedOnly
-      ? LOCALE_REGISTRY.filter((def) => def.translated)
-      : [...LOCALE_REGISTRY].sort((a, b) => Number(b.translated) - Number(a.translated));
+    const base = LOCALE_REGISTRY.filter((def) =>
+      (ETALON_UI_LOCALES as readonly string[]).includes(def.code),
+    );
     return base.filter((def) => localeMatchesQuery(def, query));
-  }, [query, translatedOnly]);
+  }, [query]);
 
   return (
     <div className="mb-4 last:mb-0">
@@ -75,7 +71,7 @@ function LocaleSearchList({
                 >
                   <span className="font-medium">{def.nativeName}</span>
                   <span className="shrink-0 text-[10px] uppercase tracking-wide text-genesis-muted">
-                    {def.translated ? def.code : `${def.code} · EN`}
+                    {def.code}
                   </span>
                 </button>
               </li>
@@ -90,12 +86,11 @@ function LocaleSearchList({
 export function LanguageSwitcher({
   compact = false,
 }: {
-  /** Public Path A: market languages first (country desk sync). */
+  /** Public Path A: etalon languages (L0). */
   compact?: boolean;
 }) {
   const { t, i18n } = useTranslation("common");
-  const { autoDetect, uiLocale, assistantLocale, setAutoDetect, setAssistantLocale, applyUiLocale } =
-    useLocale();
+  const { autoDetect, uiLocale, setAutoDetect, applyUiLocale } = useLocale();
   const [open, setOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -126,7 +121,7 @@ export function LanguageSwitcher({
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
-  /** One path for every UI pick — turns off auto, syncs assistant, changes i18n. */
+  /** One path for every UI pick — turns off auto, changes i18n. */
   function pickLanguage(code: UiLocale) {
     applyUiLocale(code);
     void i18n.changeLanguage(code);
@@ -161,17 +156,18 @@ export function LanguageSwitcher({
             {t("language.title")}
           </p>
 
+          <label className="mb-3 flex cursor-pointer items-start gap-2 text-sm text-genesis-text">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={autoDetect}
+              onChange={(e) => setAutoDetect(e.target.checked)}
+            />
+            <span>{t("language.auto")}</span>
+          </label>
+
           {compact ? (
             <>
-              <label className="mb-3 flex cursor-pointer items-start gap-2 text-sm text-genesis-text">
-                <input
-                  type="checkbox"
-                  className="mt-1"
-                  checked={autoDetect}
-                  onChange={(e) => setAutoDetect(e.target.checked)}
-                />
-                <span>{t("language.auto")}</span>
-              </label>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {PUBLIC_QUICK.map((code) => {
                   const def = getLocaleDefinition(code);
@@ -208,43 +204,17 @@ export function LanguageSwitcher({
                   <LocaleSearchList
                     label={t("language.ui")}
                     value={uiLocale}
-                    translatedOnly
                     onPick={pickLanguage}
                   />
-                  <p className="mt-2 text-[10px] leading-relaxed text-genesis-muted">
-                    {t("language.fullPackNote")}
-                  </p>
                 </div>
               ) : null}
             </>
           ) : (
-            <>
-              <label className="mb-4 flex cursor-pointer items-start gap-2 text-sm text-genesis-text">
-                <input
-                  type="checkbox"
-                  className="mt-1"
-                  checked={autoDetect}
-                  onChange={(e) => setAutoDetect(e.target.checked)}
-                />
-                <span>{t("language.auto")}</span>
-              </label>
-              <LocaleSearchList
-                label={t("language.ui")}
-                value={uiLocale}
-                onPick={pickLanguage}
-              />
-              <LocaleSearchList
-                label={t("language.assistant")}
-                value={assistantLocale}
-                onPick={(code: AssistantLocale) => {
-                  setAssistantLocale(code);
-                  setOpen(false);
-                }}
-              />
-              <p className="mt-1 text-[10px] leading-relaxed text-genesis-muted">
-                {t("language.fallbackNote")}
-              </p>
-            </>
+            <LocaleSearchList
+              label={t("language.ui")}
+              value={uiLocale}
+              onPick={pickLanguage}
+            />
           )}
         </div>
       )}

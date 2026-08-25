@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from app.integration.genesis_brain.language_constitution import (
-    apply_language_constitution,
+    apply_companion_language_constitution,
     resolve_response_locale,
 )
 from app.integration.vector.companion_context import CompanionContextService
@@ -23,13 +23,14 @@ from app.integration.vector.companion_contracts import (
     ENTRY_SURFACE,
 )
 
-B4_2_SLICE = "B4.2"
+B4_2_SLICE = "B4.2.1"
 COMPANION_TURN_PATH = "/api/client/vector/companion-turn"
 
 ReadIntent = Literal[
     "welcome",
     "connected",
     "analytics",
+    "visitors",
     "next_steps",
     "unknown",
 ]
@@ -40,7 +41,8 @@ _CONNECTED_PATTERNS = re.compile(
     r"(?:"
     r"что\s+(?:у\s+меня\s+)?(?:сейчас\s+)?(?:подключ|актив|есть)|"
     r"какие\s+продукт|мои\s+продукт|"
-    r"was\s+(?:ist|habe\s+ich)(?:\s+bei\s+mir)?\s+(?:verbunden|aktiv|angeschlossen)|"
+    r"was\s+ist\s+(?:bei\s+mir\s+)?(?:(?:gerade|aktuell)\s+)?(?:verbunden|aktiv|angeschlossen)|"
+    r"was\s+habe\s+ich\s+(?:gerade\s+)?(?:verbunden|aktiv|angeschlossen)|"
     r"welche\s+produkte|meine\s+produkte|"
     r"what(?:'s|\s+is)\s+connected|my\s+products"
     r")",
@@ -49,10 +51,21 @@ _CONNECTED_PATTERNS = re.compile(
 
 _ANALYTICS_PATTERNS = re.compile(
     r"(?:"
-    r"зачем\s+(?:мне\s+)?аналитик|почему\s+аналитик|"
+    r"зачем\s+(?:мне\s+)?(?:analytics|аналитик)|"
+    r"почему\s+(?:мне\s+)?(?:analytics|аналитик)|"
     r"warum\s+(?:brauche\s+ich\s+)?analytics|"
     r"why\s+(?:do\s+i\s+need\s+)?analytics|"
     r"analytics\s+(?:nutzen|vorteil|bringt)"
+    r")",
+    re.I,
+)
+
+_VISITOR_PATTERNS = re.compile(
+    r"(?:"
+    r"посетител|besucher|besuche|visitor|"
+    r"сколько\s+(?:у\s+меня\s+)?(?:было\s+)?(?:людей|посетител|визит)|"
+    r"wie\s+viele\s+(?:besucher|user)|"
+    r"how\s+many\s+visitors|website_traffic|трафик"
     r")",
     re.I,
 )
@@ -147,6 +160,8 @@ def detect_read_intent(message: str) -> ReadIntent:
         return "connected"
     if _ANALYTICS_PATTERNS.search(text):
         return "analytics"
+    if _VISITOR_PATTERNS.search(text):
+        return "visitors"
     if _NEXT_STEPS_PATTERNS.search(text):
         return "next_steps"
     return "unknown"
@@ -196,6 +211,8 @@ def compose_read_reply(
         return _connected_reply(snapshot, loc), None
     if intent == "analytics":
         return _analytics_reply(snapshot, loc), None
+    if intent == "visitors":
+        return _visitors_reply(snapshot, loc), None
     if intent == "next_steps":
         return _next_steps_reply(snapshot, loc), None
     return _unknown_reply(message, snapshot, loc)
@@ -251,16 +268,16 @@ def _connected_reply(snapshot: ProductSnapshot, loc: str) -> str:
 def _analytics_reply(snapshot: ProductSnapshot, loc: str) -> str:
     state = snapshot.analytics_state
     if state == "coming_soon":
-        return _t(loc, "analytics_coming_soon", body=snapshot.analytics_body)
+        return _t(loc, "analytics_coming_soon", body=_t(loc, "analytics_default_body"))
     if not snapshot.website_owned and not snapshot.shop_owned:
         return _t(loc, "analytics_need_product_first")
     if state == "not_connected":
         return _t(
             loc,
             "analytics_not_connected",
-            title=snapshot.analytics_title or _t(loc, "analytics_default_title"),
-            body=snapshot.analytics_body or _t(loc, "analytics_default_body"),
-            hint=snapshot.analytics_hint or _t(loc, "analytics_default_hint"),
+            title=_t(loc, "analytics_default_title"),
+            body=_t(loc, "analytics_default_body"),
+            hint=_t(loc, "analytics_default_hint"),
         )
     if state == "connected_no_data":
         return _t(loc, "analytics_no_data_yet", hint=snapshot.analytics_hint)
@@ -269,24 +286,82 @@ def _analytics_reply(snapshot: ProductSnapshot, loc: str) -> str:
     return _t(loc, "analytics_with_data", metrics=ids, hint=snapshot.analytics_hint)
 
 
+def _visitors_reply(snapshot: ProductSnapshot, loc: str) -> str:
+    """Explicit honesty when traffic/visitor data is absent — never invent KPIs."""
+    state = snapshot.analytics_state
+    if state == "not_connected":
+        return _t(loc, "visitors_not_connected")
+    if state == "coming_soon":
+        return _t(loc, "visitors_coming_soon")
+    if state == "connected_no_data":
+        return _t(loc, "visitors_no_data_yet")
+    traffic_metrics = [
+        mid
+        for mid in snapshot.metric_ids
+        if any(k in mid.lower() for k in ("visitor", "besucher", "traffic"))
+    ]
+    if not traffic_metrics:
+        return _t(loc, "visitors_no_traffic_metric")
+    return _t(loc, "visitors_no_yesterday_breakdown", metrics=", ".join(traffic_metrics))
+
+
 def _next_steps_reply(snapshot: ProductSnapshot, loc: str) -> str:
-    steps: list[str] = []
+    company = snapshot.company_name or _t(loc, "your_business")
+    candidates: list[tuple[str, str]] = []
+
     if not snapshot.website_owned:
-        steps.append(_t(loc, "step_add_website"))
-    elif snapshot.analytics_state == "not_connected":
-        steps.append(_t(loc, "step_connect_analytics"))
-    if snapshot.website_owned and not snapshot.shop_owned:
-        steps.append(_t(loc, "step_consider_shop"))
-    if snapshot.website_owned and not snapshot.ai_owned:
-        steps.append(_t(loc, "step_consider_ai"))
-    if snapshot.website_owned:
-        steps.append(_t(loc, "step_improve_site"))
-    if snapshot.niche:
-        steps.append(_t(loc, "step_local_seo", niche=snapshot.niche))
-    if not steps:
-        steps.append(_t(loc, "step_review_products"))
-    intro = _t(loc, "next_steps_intro")
-    return intro + "\n\n" + "\n".join(f"• {s}" for s in steps[:4])
+        candidates.append(
+            (_t(loc, "step_add_website_title"), _t(loc, "step_add_website_why"))
+        )
+    else:
+        if snapshot.analytics_state == "not_connected":
+            candidates.append(
+                (
+                    _t(loc, "step_connect_analytics_title"),
+                    _t(loc, "step_connect_analytics_why", company=company),
+                )
+            )
+        if not snapshot.ai_owned:
+            candidates.append(
+                (
+                    _t(loc, "step_consider_ai_title"),
+                    _t(loc, "step_consider_ai_why", company=company),
+                )
+            )
+        elif not snapshot.shop_owned:
+            candidates.append(
+                (
+                    _t(loc, "step_consider_shop_title"),
+                    _t(loc, "step_consider_shop_why", company=company),
+                )
+            )
+        candidates.append(
+            (
+                _t(loc, "step_improve_site_title"),
+                _t(loc, "step_improve_site_why", company=company),
+            )
+        )
+        if snapshot.niche:
+            candidates.append(
+                (
+                    _t(loc, "step_local_seo_title", niche=snapshot.niche),
+                    _t(loc, "step_local_seo_why", niche=snapshot.niche),
+                )
+            )
+
+    if not candidates:
+        candidates.append(
+            (
+                _t(loc, "step_review_products_title"),
+                _t(loc, "step_review_products_why"),
+            )
+        )
+
+    intro = _t(loc, "next_steps_companion_intro", company=company)
+    lines = [intro, ""]
+    for idx, (title, why) in enumerate(candidates[:3], start=1):
+        lines.append(f"{idx}. {title} — {why}")
+    return "\n".join(lines)
 
 
 def _unknown_reply(message: str, snapshot: ProductSnapshot, loc: str) -> tuple[str, str | None]:
@@ -407,6 +482,126 @@ def _t(loc: str, key: str, **kwargs: str) -> str:
             "ru": "Мои рекомендации по вашему текущему состоянию:",
             "en": "My suggestions based on your current state:",
         },
+        "next_steps_companion_intro": {
+            "de": (
+                "Für «{company}» würde ich jetzt drei Schritte priorisieren — "
+                "basierend auf Ihrem Virtus-Core-Stand, nicht auf allgemeinen Tipps:"
+            ),
+            "ru": (
+                "Для «{company}» я бы сейчас расставил приоритеты так — "
+                "по вашему реальному состоянию в Virtus Core, а не общими советами:"
+            ),
+            "en": (
+                "For {company}, I'd prioritize like this — "
+                "based on your real Virtus Core state, not generic advice:"
+            ),
+        },
+        "step_add_website_title": {
+            "de": "Website starten",
+            "ru": "Запустить сайт",
+            "en": "Launch a Website",
+        },
+        "step_add_website_why": {
+            "de": "Ohne Website fehlt die Basis für Sichtbarkeit und Vertrauen — alles Weitere baut darauf auf.",
+            "ru": "Без сайта нет базы для видимости и доверия — всё остальное опирается на него.",
+            "en": "Without a website there's no base for visibility and trust — everything else builds on it.",
+        },
+        "step_connect_analytics_title": {
+            "de": "Analytics verbinden",
+            "ru": "Подключить Analytics",
+            "en": "Connect Analytics",
+        },
+        "step_connect_analytics_why": {
+            "de": (
+                "Bei {company} läuft die Website — aber ohne Traffic-Quelle sehen Sie nicht, "
+                "woher Anfragen kommen. Jetzt lohnt sich der erste echte Daten-Hook."
+            ),
+            "ru": (
+                "У {company} сайт уже работает, но без источника трафика вы не видите, "
+                "откуда приходят обращения. Сейчас самое время подключить первые реальные данные."
+            ),
+            "en": (
+                "{company}'s website is live — but without a traffic source you can't see "
+                "where inquiries come from. Now is the right moment for the first real data hook."
+            ),
+        },
+        "step_consider_shop_title": {
+            "de": "Online-Shop prüfen",
+            "ru": "Рассмотреть интернет-магазин",
+            "en": "Consider Online Shop",
+        },
+        "step_consider_shop_why": {
+            "de": (
+                "Wenn {company} Produkte direkt verkaufen will, ist der Shop der nächste "
+                "Hebel nach der Website — nicht vorher."
+            ),
+            "ru": (
+                "Если {company} хочет продавать товары напрямую, магазин — следующий рычаг "
+                "после сайта, а не раньше."
+            ),
+            "en": (
+                "If {company} wants to sell products directly, Shop is the next lever "
+                "after Website — not before."
+            ),
+        },
+        "step_consider_ai_title": {
+            "de": "AI Assistant hinzufügen",
+            "ru": "Добавить AI Assistant",
+            "en": "Add AI Assistant",
+        },
+        "step_consider_ai_why": {
+            "de": (
+                "Die Website von {company} ist aktiv — Anfragen außerhalb der Öffnungszeiten "
+                "gehen sonst verloren. Website-Chat plus Telegram schließen diese Lücke."
+            ),
+            "ru": (
+                "Сайт {company} уже работает — запросы вне рабочего времени иначе теряются. "
+                "Чат на сайте и Telegram закрывают этот разрыв."
+            ),
+            "en": (
+                "{company}'s website is active — inquiries outside business hours are otherwise lost. "
+                "Website chat plus Telegram closes that gap."
+            ),
+        },
+        "step_improve_site_title": {
+            "de": "Website-CTA schärfen",
+            "ru": "Усилить CTA на сайте",
+            "en": "Sharpen website CTA",
+        },
+        "step_improve_site_why": {
+            "de": (
+                "Bei {company} steht die Basis — der nächste schnelle Gewinn kommt oft "
+                "durch einen klareren Handlungsaufruf in Hero und Leistungen."
+            ),
+            "ru": (
+                "У {company} база уже есть — быстрый следующий рост часто даёт более чёткий "
+                "призыв к действию в Hero и в услугах."
+            ),
+            "en": (
+                "{company} has the foundation — the next quick win often comes from a clearer "
+                "call-to-action in Hero and services."
+            ),
+        },
+        "step_local_seo_title": {
+            "de": "Lokales SEO ({niche})",
+            "ru": "Локальное SEO ({niche})",
+            "en": "Local SEO ({niche})",
+        },
+        "step_local_seo_why": {
+            "de": "In Ihrer Nische ({niche}) entscheidet regionale Google-Sichtbarkeit über spontane Anfragen.",
+            "ru": "В вашей нише ({niche}) региональная видимость в Google часто решает, придёт ли спонтанный запрос.",
+            "en": "In your niche ({niche}), regional Google visibility often decides spontaneous inquiries.",
+        },
+        "step_review_products_title": {
+            "de": "Meine Produkte öffnen",
+            "ru": "Открыть «Мои продукты»",
+            "en": "Open My Products",
+        },
+        "step_review_products_why": {
+            "de": "Dort sehen Sie ehrlich, was aktiv ist — und was als Nächstes Sinn ergibt.",
+            "ru": "Там видно, что уже активно — и что логично подключить дальше.",
+            "en": "There you see honestly what's active — and what makes sense next.",
+        },
         "step_add_website": {
             "de": "Website hinzufügen — Grundlage für Sichtbarkeit und Vertrauen.",
             "ru": "Добавить сайт — основа для видимости и доверия.",
@@ -429,7 +624,7 @@ def _t(loc: str, key: str, **kwargs: str) -> str:
         },
         "step_improve_site": {
             "de": "Website-Inhalte und CTA schärfen — stärkerer erster Eindruck.",
-            "ru": "Улучшить контент и CTA на сайте — сильнее первое впечатление.",
+            "ru": "Улучшить контент и призыв к действию (CTA) на сайте — сильнее первое впечатление.",
             "en": "Sharpen website content and CTA — stronger first impression.",
         },
         "step_local_seo": {
@@ -451,6 +646,67 @@ def _t(loc: str, key: str, **kwargs: str) -> str:
             "de": "Geht es um Ihre Produkte, Analytics, Website oder nächste Schritte?",
             "ru": "Речь о продуктах, Analytics, сайте или следующих шагах?",
             "en": "Is this about your products, Analytics, website, or next steps?",
+        },
+        "visitors_not_connected": {
+            "de": (
+                "Analytics ist noch nicht verbunden — daher liegen keine Besucherdaten vor. "
+                "Ich erfinde keine Zahl."
+            ),
+            "ru": (
+                "Analytics ещё не подключён, поэтому данных о посетителях нет. "
+                "Я не буду придумывать цифру."
+            ),
+            "en": (
+                "Analytics is not connected yet, so there is no visitor data. "
+                "I will not invent a number."
+            ),
+        },
+        "visitors_coming_soon": {
+            "de": "Analytics ist derzeit Coming Soon — keine Besucherzahlen verfügbar.",
+            "ru": "Analytics сейчас Coming Soon — данных о посетителях нет.",
+            "en": "Analytics is Coming Soon — no visitor data available.",
+        },
+        "visitors_no_data_yet": {
+            "de": (
+                "Analytics ist verbunden, aber es gibt noch keine Besucher-Ereignisse. "
+                "Ich erfinde keine Zahl für gestern."
+            ),
+            "ru": (
+                "Analytics подключён, но событий посещений пока нет. "
+                "Я не буду придумывать цифру за вчера."
+            ),
+            "en": (
+                "Analytics is connected but there are no visitor events yet. "
+                "I will not invent yesterday's number."
+            ),
+        },
+        "visitors_no_traffic_metric": {
+            "de": (
+                "Es gibt keine angebundene Besucher-Quelle in Ihrem Context. "
+                "Ohne Traffic-Daten nenne ich keine Zahl."
+            ),
+            "ru": (
+                "В Context нет подключённого источника посещений. "
+                "Без traffic-данных я не называю цифру."
+            ),
+            "en": (
+                "No visitor traffic source is connected in your Context. "
+                "Without traffic data I won't quote a number."
+            ),
+        },
+        "visitors_no_yesterday_breakdown": {
+            "de": (
+                "Ich sehe Metriken ({metrics}), aber keine tägliche Besucher-Aufschlüsselung "
+                "für gestern im Context. Ich erfinde keine Zahl."
+            ),
+            "ru": (
+                "В Context есть метрики ({metrics}), но нет разбивки посетителей за вчера. "
+                "Я не буду придумывать цифру."
+            ),
+            "en": (
+                "Context lists metrics ({metrics}), but no yesterday visitor breakdown. "
+                "I will not invent a number."
+            ),
         },
     }
     template = table.get(key, {}).get(loc) or table.get(key, {}).get("en", key)
@@ -534,8 +790,14 @@ class CompanionReadService:
         ctx = session.get("context") or {}
         snapshot = snapshot_from_context(ctx)
         intent = detect_read_intent(message)
+        # L0: uiLocale is default; message language may override for this turn only.
+        # Welcome / empty → always ui_locale (never hardcode DE).
         if message.strip() in _WELCOME_TRIGGERS:
-            locale = "de"
+            from app.integration.locale_service import resolve_locale
+
+            locale = resolve_locale(ui_locale or "de")
+            if locale not in ("de", "en", "ru", "uk"):
+                locale = "de"
         else:
             locale = resolve_response_locale(user_message=message, ui_locale=ui_locale)
         brief = build_context_brief(snapshot)
@@ -556,10 +818,18 @@ class CompanionReadService:
                 clarify = None
                 llm_used = True
 
-        reply = apply_language_constitution(
+        constitution_seed = (
+            {"de": "Guten Tag", "en": "Hello", "ru": "Здравствуйте", "uk": "Добрий день"}.get(
+                locale, "Guten Tag"
+            )
+            if message.strip() in _WELCOME_TRIGGERS
+            else message
+        )
+        reply = apply_companion_language_constitution(
             reply,
-            user_message=message if message.strip() not in _WELCOME_TRIGGERS else "Guten Tag",
-            ui_locale=ui_locale or "de",
+            user_message=constitution_seed,
+            ui_locale=ui_locale or locale,
+            protect_extra=(snapshot.company_name,) if snapshot.company_name else (),
         )
 
         return {
@@ -577,6 +847,8 @@ class CompanionReadService:
             "location": session.get("location"),
             "context_ref": session.get("context_ref"),
             "context_brief": brief,
+            "ui_locale": ui_locale or locale,
+            "reply_locale": locale,
             "llm_used": llm_used,
             "llm": llm_used,
             "research": False,

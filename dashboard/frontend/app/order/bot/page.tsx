@@ -10,7 +10,6 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../../components/PublicPageShell";
-import { useLocale } from "../../context/LocaleContext";
 import { BRAND_NAME } from "../../lib/publicBrand";
 import {
   clientAuthHeaders,
@@ -22,7 +21,6 @@ import { startOrderCheckout } from "../../lib/orderCheckout";
 import { publicApiBase } from "../../lib/publicApiBase";
 import { getVisitorId } from "../../lib/visitorId";
 import { companyProfileFromMe } from "../../lib/companyProfile";
-import type { UiLocale } from "../../lib/locale/types";
 import { uiLangForMarket } from "../../lib/marketLang";
 import { BotChannelIconRow } from "../../components/ChannelBrandIcons";
 import {
@@ -136,7 +134,6 @@ export default function BotOrderPage() {
 
 function BotOrderWizard() {
   const { t, i18n } = useTranslation("site");
-  const { applyUiLocale } = useLocale();
   const search = useSearchParams();
   const [step, setStep] = useState(1);
   const [market, setMarket] = useState("DE");
@@ -192,17 +189,6 @@ function BotOrderWizard() {
       })),
     [t],
   );
-
-  useEffect(() => {
-    const next = uiLangForMarket(market) as UiLocale;
-    applyUiLocale(next);
-    const t0 = window.setTimeout(() => applyUiLocale(next), 0);
-    const t1 = window.setTimeout(() => applyUiLocale(next), 50);
-    return () => {
-      window.clearTimeout(t0);
-      window.clearTimeout(t1);
-    };
-  }, [market, applyUiLocale]);
 
   useEffect(() => {
     const pkg = normalizePackageId(search.get("package"));

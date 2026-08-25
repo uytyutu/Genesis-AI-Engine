@@ -12,8 +12,6 @@ import { parseOrderPurchaseType } from "../../lib/orderTrustCard";
 import { OrderTrustCard } from "../../components/OrderTrustCard";
 import { OrderPayeeIdentity } from "../../components/OrderPayeeIdentity";
 import { publicApiBase } from "../../lib/publicApiBase";
-import { useLocale } from "../../context/LocaleContext";
-import { isUiLocale } from "../../lib/locale/types";
 
 const API = publicApiBase();
 
@@ -34,7 +32,6 @@ function OrderPayContent() {
   const params = useSearchParams();
   const router = useRouter();
   const { t, i18n } = useTranslation("site");
-  const { applyUiLocale } = useLocale();
   const orderId = params.get("order_id") ?? "";
   const [status, setStatus] = useState<PayStatus | null>(null);
   const [busy, setBusy] = useState(false);
@@ -72,12 +69,7 @@ function OrderPayContent() {
       .catch(() => setLegalReady(undefined));
   }, [orderId, router]);
 
-  useEffect(() => {
-    const lang = status?.ui_lang;
-    if (!lang || !isUiLocale(lang)) return;
-    if ((i18n.language || "").slice(0, 2) === lang.slice(0, 2)) return;
-    applyUiLocale(lang);
-  }, [status?.ui_lang, applyUiLocale, i18n.language]);
+  // L0: order.ui_lang must not override uiLocale SSOT
 
   async function pay() {
     if (!orderId) return;

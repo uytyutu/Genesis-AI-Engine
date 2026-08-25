@@ -38,15 +38,36 @@ export const LOCALE_REGISTRY: readonly LocaleDefinition[] = [
 ] as const;
 
 export type UiLocale = (typeof LOCALE_REGISTRY)[number]["code"];
+/** @deprecated L0 — uiLocale is the only SSOT; kept as alias for gradual import cleanup */
 export type AssistantLocale = UiLocale;
 
 export type LocaleState = {
   uiLocale: UiLocale;
-  assistantLocale: AssistantLocale;
+  /** When true, first load / auto toggle may follow browser (etalon only). */
   autoDetect: boolean;
 };
 
 export const DEFAULT_UI_LOCALE: UiLocale = "de";
+
+/**
+ * L0 etalon contour — only these are shown in the public language switcher
+ * until Localization L1 proves 100% catalog coverage for more locales.
+ */
+export const ETALON_UI_LOCALES = ["de", "en", "ru", "uk"] as const;
+export type EtalonUiLocale = (typeof ETALON_UI_LOCALES)[number];
+
+export function isEtalonUiLocale(code: string | null | undefined): code is EtalonUiLocale {
+  return Boolean(code && (ETALON_UI_LOCALES as readonly string[]).includes(code));
+}
+
+/** Map any platform tag → etalon locale (non-etalon → DE). */
+export function resolveEtalonUiLocale(raw: string | null | undefined): EtalonUiLocale {
+  const resolved = resolveUiLocale(raw);
+  if (isEtalonUiLocale(resolved)) return resolved;
+  const base = resolved.split("-")[0]?.toLowerCase() || "";
+  if (isEtalonUiLocale(base)) return base;
+  return DEFAULT_UI_LOCALE as EtalonUiLocale;
+}
 
 const LOCALE_BY_CODE = new Map(LOCALE_REGISTRY.map((def) => [def.code, def]));
 

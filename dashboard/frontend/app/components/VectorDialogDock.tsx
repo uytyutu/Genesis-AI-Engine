@@ -16,6 +16,7 @@ import { clientAuthHeaders, getClientToken } from "../lib/clientAuth";
 import { publicApiBase } from "../lib/publicApiBase";
 import { ASSISTANT_NAME } from "../lib/publicBrand";
 import { COMPANION_TURN_PATH } from "../lib/vectorCompanionContracts";
+import { useLocale } from "../context/LocaleContext";
 
 const API = publicApiBase();
 
@@ -27,6 +28,9 @@ type Props = {
   orderId?: string;
   dark?: boolean;
   dock?: "right" | "bottom";
+  /** Controlled open state (BCC customer companion). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   /** Navigate admin shell section (store or website Workspace). */
   onNavigateSection?: (section: string) => void;
   onRefreshSetup?: () => void;
@@ -39,12 +43,25 @@ export function VectorDialogDock({
   orderId,
   dark = true,
   dock = "right",
+  open: controlledOpen,
+  onOpenChange,
   onNavigateSection,
   onRefreshSetup,
   commerceMode,
   hasStore,
 }: Props) {
-  const [open, setOpen] = useState(true);
+  const { uiLocale } = useLocale();
+  const [internalOpen, setInternalOpen] = useState(surface !== "customer");
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (!isControlled) setInternalOpen(next);
+      onOpenChange?.(next);
+    },
+    [isControlled, onOpenChange],
+  );
   const [expanded, setExpanded] = useState(false);
   const [payload, setPayload] = useState<VectorDialogPayload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,6 +85,7 @@ export function VectorDialogDock({
         body: JSON.stringify({
           message,
           page_path: pathname || "/client",
+          ui_locale: uiLocale,
         }),
       });
       if (!res.ok) return null;
@@ -76,7 +94,7 @@ export function VectorDialogDock({
         clarify_question?: string | null;
       };
     },
-    [pathname],
+    [pathname, uiLocale],
   );
 
   useEffect(() => {

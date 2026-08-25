@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { OrderFormShell } from "../../../components/OrderFormShell";
 import { PublicPageShell } from "../../../components/PublicPageShell";
-import { useLocale } from "../../../context/LocaleContext";
 import { BRAND_NAME } from "../../../lib/publicBrand";
 import { formatApiDetail } from "../../../lib/formatApiError";
 import { startOrderCheckout } from "../../../lib/orderCheckout";
@@ -19,8 +18,6 @@ import {
   type ServiceSpec,
 } from "../../../lib/serviceOrderSpecs";
 import { getVisitorId } from "../../../lib/visitorId";
-import { uiLangForMarket } from "../../../lib/marketLang";
-import { isUiLocale } from "../../../lib/locale/types";
 
 const API = publicApiBase();
 
@@ -80,7 +77,6 @@ export default function ServiceOrderPage() {
   const params = useParams();
   const router = useRouter();
   const { t } = useTranslation("site");
-  const { applyUiLocale } = useLocale();
   const serviceId = String(params?.serviceId || "");
   const spec = useMemo(() => getServiceSpec(serviceId), [serviceId]);
   const copy = useMemo(
@@ -95,18 +91,7 @@ export default function ServiceOrderPage() {
   const [waitlisted, setWaitlisted] = useState(false);
   const [orderId, setOrderId] = useState("");
 
-  useEffect(() => {
-    // German market storefront default — one language, no mixed RU/EN.
-    const raw = uiLangForMarket("DE");
-    const lang = isUiLocale(raw) ? raw : "de";
-    applyUiLocale(lang);
-    const t0 = window.setTimeout(() => applyUiLocale(lang), 0);
-    const t1 = window.setTimeout(() => applyUiLocale(lang), 50);
-    return () => {
-      window.clearTimeout(t0);
-      window.clearTimeout(t1);
-    };
-  }, [applyUiLocale]);
+  // L0: do not force DE via market — uiLocale SSOT from LocaleProvider
 
   if (!spec || !copy) {
     return (

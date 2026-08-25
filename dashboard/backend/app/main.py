@@ -7028,6 +7028,7 @@ def client_vector_companion_turn(request: Request, body: dict) -> dict:
     page_path = str(payload.get("page_path") or "").strip() or None
     period = str(payload.get("period") or "30d").strip()
     req_cid = str(payload.get("customer_id") or "").strip() or None
+    ui_locale = str(payload.get("ui_locale") or "").strip() or None
     allowed = {"today", "7d", "30d", "12m"}
     p = period if period in allowed else "30d"
     return CompanionReadService(_memory_dir(), sales=_ctx().sales).turn(
@@ -7038,6 +7039,7 @@ def client_vector_companion_turn(request: Request, body: dict) -> dict:
         page_path=page_path,
         period=p,
         requested_customer_id=req_cid,
+        ui_locale=ui_locale,
     )
 
 

@@ -2,14 +2,15 @@ import { detectBrowserLocale } from "./detect";
 import {
   DEFAULT_UI_LOCALE,
   isPlatformLocale,
-  type AssistantLocale,
+  resolveEtalonUiLocale,
   type LocaleState,
   type UiLocale,
 } from "./types";
 
 const AUTO_KEY = "virtus_ui_locale_auto";
 const UI_KEY = "virtus_ui_locale";
-const ASSISTANT_KEY = "virtus_assistant_locale";
+/** @deprecated L0 — removed as competing SSOT; cleared on persist */
+const ASSISTANT_KEY_LEGACY = "virtus_assistant_locale";
 /** Cookie mirrors UI locale so SSR HTML matches client (stops Angebot≠Предложение). */
 export const UI_LOCALE_COOKIE = "virtus_ui_locale";
 
@@ -22,8 +23,6 @@ function readAuto(): boolean {
   } catch {
     /* private mode */
   }
-  // Prefer German storefront until the visitor explicitly enables auto-detect
-  // or picks another language (uk / ru / en / EU+CIS list).
   return false;
 }
 
@@ -31,17 +30,7 @@ function readStoredUi(): UiLocale | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(UI_KEY);
-    return isPlatformLocale(raw) ? raw : null;
-  } catch {
-    return null;
-  }
-}
-
-function readStoredAssistant(): AssistantLocale | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(ASSISTANT_KEY);
-    return isPlatformLocale(raw) ? raw : null;
+    return isPlatformLocale(raw) ? resolveEtalonUiLocale(raw) : null;
   } catch {
     return null;
   }
@@ -64,25 +53,24 @@ export function defaultLocaleState(
   initialLocale?: UiLocale,
   options?: { fromCookie?: boolean },
 ): LocaleState {
-  // fromCookie reserved for callers (LocaleProvider) — seed is cookie/SSR locale only.
   void options?.fromCookie;
   const uiLocale =
     initialLocale && isPlatformLocale(initialLocale)
-      ? initialLocale
+      ? resolveEtalonUiLocale(initialLocale)
       : DEFAULT_UI_LOCALE;
   return {
-    // Match loadLocaleState()/readAuto() default (false) so first visit does not
-    // hydrate with autoDetect=true then immediately commit(autoDetect=false) —
-    // that re-ran i18n.changeLanguage and flickered the whole /site tree.
-    // Auto-detect stays an explicit user toggle, not a post-hydration surprise.
     autoDetect: false,
     uiLocale,
-    assistantLocale: uiLocale,
   };
 }
 
 /**
  * Browser-only locale after mount. Safe to use navigator + localStorage.
+ *
+ * L0 rules:
+ * - Stored uiLocale wins (manual choice never silently reset).
+ * - First visit (no store): browser → etalon de/en/ru/uk, else DE.
+ * - autoDetect=true: follow browser (etalon) until user picks manually.
  */
 export function loadLocaleState(): LocaleState {
   if (typeof window === "undefined") {
@@ -90,11 +78,15 @@ export function loadLocaleState(): LocaleState {
   }
   const autoDetect = readAuto();
   const storedUi = readStoredUi();
-  const uiLocale = autoDetect
-    ? detectBrowserLocale()
-    : storedUi ?? DEFAULT_UI_LOCALE;
-  const assistantLocale = readStoredAssistant() ?? uiLocale;
-  return { uiLocale, assistantLocale, autoDetect };
+  if (storedUi && !autoDetect) {
+    return { uiLocale: storedUi, autoDetect: false };
+  }
+  if (autoDetect) {
+    return { uiLocale: detectBrowserLocale(), autoDetect: true };
+  }
+  // First visit — browser detect into etalon, else DE.
+  const uiLocale = storedUi ?? detectBrowserLocale();
+  return { uiLocale, autoDetect: false };
 }
 
 export function persistLocaleState(state: LocaleState): void {
@@ -102,8 +94,9 @@ export function persistLocaleState(state: LocaleState): void {
   try {
     localStorage.setItem(AUTO_KEY, state.autoDetect ? "1" : "0");
     localStorage.setItem(UI_KEY, state.uiLocale);
-    localStorage.setItem(ASSISTANT_KEY, state.assistantLocale);
     writeLocaleCookie(state.uiLocale);
+    // L0: drop competing assistant locale key
+    localStorage.removeItem(ASSISTANT_KEY_LEGACY);
   } catch {
     /* private mode */
   }

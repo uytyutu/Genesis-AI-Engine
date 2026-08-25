@@ -17,7 +17,7 @@ import { CONTACT_EMAIL } from "../lib/siteConfig";
 import { publicApiBase } from "../lib/publicApiBase";
 import { formatLocalizedMoney } from "../lib/formatEur";
 import { logCommerceEvent } from "../lib/commerceFunnel";
-import { canonicalMarketForLang, uiLangForMarket } from "../lib/marketLang";
+import { canonicalMarketForLang } from "../lib/marketLang";
 import { filterPublicPackages } from "../lib/showSmokePackage";
 import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
 import { CommercialAgencyHub } from "../components/storefront/CommercialAgencyHub";
@@ -139,7 +139,7 @@ type MarketOption = {
  */
 export function SitePage() {
   const { t, i18n } = useTranslation("site");
-  const { uiLocale, applyUiLocale } = useLocale();
+  const { uiLocale } = useLocale();
   const router = useRouter();
   const [, startViewTransition] = useTransition();
   const syncLock = useRef<"market" | "lang" | null>(null);
@@ -288,10 +288,7 @@ export function SitePage() {
     syncLock.current = "market";
     setMarket(code);
     writeMarketToUrl(code);
-    const lang = uiLangForMarket(code) as UiLocale;
-    if (uiLocale !== lang) {
-      applyUiLocale(lang);
-    }
+    // L0: market = prices/currency/legal only — never override uiLocale
   }
 
   useEffect(() => {
@@ -299,13 +296,9 @@ export function SitePage() {
       const p = new URLSearchParams(window.location.search);
       const explicit = (p.get("market") || p.get("country") || "").toUpperCase();
       if (explicit) {
-        // Explicit price-policy URL wins → sync UI language to that market.
+        // Explicit price-policy URL → market only (language stays uiLocale SSOT).
         syncLock.current = "market";
         setMarket(explicit);
-        const lang = uiLangForMarket(explicit) as UiLocale;
-        if (uiLocale !== lang) {
-          applyUiLocale(lang);
-        }
       } else {
         // LanguageSwitcher / localStorage wins → sync market + URL to UI language.
         const next = canonicalMarketForLang(uiLocale);
@@ -320,18 +313,16 @@ export function SitePage() {
     } catch {
       setMarket(canonicalMarketForLang(uiLocale));
     }
-    // Initial URL ↔ market/lang only once on mount.
+    // Initial URL ↔ market only once on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // LanguageSwitcher is source of truth when buyer picks a UI language.
+  // LanguageSwitcher is source of truth when buyer picks a UI language → suggest market.
   useEffect(() => {
     if (syncLock.current === "market") {
       syncLock.current = null;
       return;
     }
-    const expectedLang = uiLangForMarket(market);
-    if (uiLocale === expectedLang) return;
     const next = canonicalMarketForLang(uiLocale);
     if (next === market) return;
     syncLock.current = "lang";

@@ -1,4 +1,8 @@
-/** Market code → public storefront / buyer UI language (sync with backend market_delivery). */
+/** Market code → suggested UI language (Country Desk / first-visit hints only).
+
+L0 Locale SSOT: do NOT call applyUiLocale(uiLangForMarket(...)) at runtime.
+market = prices / currency / legal; uiLocale = language.
+*/
 export const MARKET_UI_LANG: Record<string, string> = {
   DE: "de",
   AT: "de",
