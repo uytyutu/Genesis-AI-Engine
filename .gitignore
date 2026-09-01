@@ -1,5 +1,6 @@
-__pycache__/
-*.py[cod]
+**/__pycache__/
+virtus_core/compute_engine/.runtime/
+
 .pytest_cache/
 .venv/
 dist/
@@ -79,3 +80,9 @@ docs/STABILITY_HISTORY.md
 # Cursor / IDE (local only)
 .cursorignore
 .vscode/
+
+# Local experiment runtime (VCORE genesis state, compute probes)
+.runtime/
+
+# Root monorepo helpers (vcore scripts)
+node_modules/

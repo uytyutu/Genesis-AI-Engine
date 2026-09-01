@@ -191,5 +191,10 @@ export const CEO_STUDIO_LINKS = [
 export const CEO_SYSTEM_LINKS = [
   { href: "/launch", label: "Запуск", hint: "Сервисы" },
   { href: "/check", label: "Разработчик", hint: "Диагностика" },
+  {
+    href: "/treasury",
+    label: "Treasury",
+    hint: "OWN wallets · dust consolidate · fee plan · OK confirm",
+  },
   { href: "/settings", label: "Настройки", hint: "Профиль" },
 ] as const;
