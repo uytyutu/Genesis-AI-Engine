@@ -358,7 +358,12 @@ class SalesOrderCreateRequest(BaseModel):
     payment_mode: str | None = Field(
         default=None,
         max_length=16,
-        description="Set to 'demo' for Demo Payment Bridge orders",
+        description="demo | gift — non-Stripe fulfillment modes",
+    )
+    gift_code: str | None = Field(
+        default=None,
+        max_length=64,
+        description="One-time Virtus friend/gift token from /gift/CODE",
     )
     cinematic_enabled: bool = Field(
         default=False,
@@ -393,6 +398,10 @@ class SalesOrderCreatedResponse(BaseModel):
     demo_payment_available: bool = False
     demo_payment_banner: str | None = None
     demo_note: str | None = None
+    gift: bool = False
+    is_gift: bool = False
+    gift_payment_available: bool = False
+    gift_payment_completed: bool = False
     cinematic_enabled: bool = False
     cinematic_price_eur: float | None = None
     motion_level: str | None = None

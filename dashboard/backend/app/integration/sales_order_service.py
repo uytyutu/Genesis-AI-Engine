@@ -879,6 +879,16 @@ class SalesOrderService:
         wants_demo = bool(payload.get("demo")) or str(
             payload.get("payment_mode") or ""
         ).lower() == "demo"
+        gift_code = str(payload.get("gift_code") or "").strip()
+        wants_gift = bool(gift_code) or str(payload.get("payment_mode") or "").lower() == "gift"
+        if wants_gift:
+            from app.integration.gift_token import peek_token
+
+            peek = peek_token(gift_code)
+            if not peek.get("ok"):
+                raise ValueError(str(peek.get("error") or "gift_code_invalid"))
+            if not payload.get("package_id"):
+                payload = {**payload, "package_id": peek.get("package_id") or "standalone"}
         if wants_demo and not demo_payment_bridge_enabled():
             raise ValueError("demo_payment_disabled")
         # Auto-demo companies still require bridge enabled (never silent in production)
@@ -1257,7 +1267,21 @@ class SalesOrderService:
 
         from app.integration.demo_payment import should_tag_demo_order
 
-        if should_tag_demo_order(payload):
+        if gift_code:
+            from app.integration.gift_token import peek_token
+
+            peek = peek_token(gift_code)
+            if not peek.get("ok"):
+                raise ValueError(str(peek.get("error") or "gift_code_invalid"))
+            order["gift"] = True
+            order["is_gift"] = True
+            order["gift_code"] = gift_code.strip().upper()
+            order["payment_mode"] = "gift"
+            order["counts_toward_revenue"] = False
+            order["demo_banner"] = peek.get("banner_de") or (
+                "Virtus Core Geschenk — keine Zahlung erforderlich."
+            )
+        elif should_tag_demo_order(payload):
             order["demo"] = True
             order["is_demo"] = True
             order["payment_mode"] = "demo"
@@ -1267,6 +1291,7 @@ class SalesOrderService:
             )
         self._save_order(order)
         from app.integration.demo_payment import demo_public_flags
+        from app.integration.gift_token import gift_public_flags
 
         out = {
             "ok": True,
@@ -1296,6 +1321,7 @@ class SalesOrderService:
             "monthly_amount": order.get("monthly_amount"),
         }
         out.update(demo_public_flags(order, ui_lang=ui_lang))
+        out.update(gift_public_flags(order, ui_lang=ui_lang))
         return out
 
     def list_orders(self, limit: int = 20) -> list[dict]:
@@ -2522,6 +2548,7 @@ class SalesOrderService:
             download_label = "generating..."
 
         from app.integration.demo_payment import demo_public_flags
+        from app.integration.gift_token import gift_public_flags
 
         paid_flag = status in ("paid", "in_production", "ready", "delivered")
         status_path = f"/order/status/{order_id}"
@@ -2618,6 +2645,7 @@ class SalesOrderService:
             "created_at": order.get("created_at"),
             "updated_at": order.get("updated_at"),
             **demo_public_flags(order, ui_lang=ui_lang),
+            **gift_public_flags(order, ui_lang=ui_lang),
             "download_ready": download_ready,
             "download_url": f"/api/sales/orders/{order_id}/download" if download_ready else None,
             "download_bytes": download_bytes,

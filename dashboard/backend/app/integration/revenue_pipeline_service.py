@@ -195,6 +195,33 @@ class RevenuePipelineService:
             payment_mode="demo",
         )
 
+    def complete_gift_payment(self, order_id: str) -> dict:
+        """Friend/gift fulfillment — single-use gift_code orders only; never real revenue."""
+        from app.integration.gift_token import redeem_token
+
+        order = self._sales.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        is_gift = (
+            str(order.get("payment_mode") or "").lower() == "gift"
+            or order.get("gift") is True
+            or order.get("is_gift") is True
+        )
+        if not is_gift:
+            raise ValueError("not_a_gift_order")
+        code = str(order.get("gift_code") or "").strip()
+        if not code:
+            raise ValueError("gift_code_missing")
+        redeem_token(code, order_id=order_id)
+        return self._apply_payment(
+            order_id=order_id,
+            amount_eur=None,
+            provider="gift",
+            sender="gift@virtus.local",
+            external_id=f"gift-{order_id}",
+            payment_mode="gift",
+        )
+
     def handle_stripe_webhook(self, payload: bytes, signature: str) -> dict:
         from app.services.finance_center import (
             StripeWebhookCriticalError,
@@ -298,10 +325,12 @@ class RevenuePipelineService:
         mode = (payment_mode or order.get("payment_mode") or "").strip().lower()
         if provider == "demo":
             mode = "demo"
+        if provider == "gift":
+            mode = "gift"
 
         label = f"Bestellung {order_id}: {order['business_name']}"
-        # Demo payments must never inflate real finance metrics
-        if mode != "demo":
+        # Demo / gift payments must never inflate real finance metrics
+        if mode not in {"demo", "gift"}:
             self._finance.credit_order_payment(
                 paid,
                 label,
@@ -313,7 +342,12 @@ class RevenuePipelineService:
 
         now = datetime.now(timezone.utc)
         order["status"] = "paid"
-        order["status_label"] = "Bezahlt (Demo)" if mode == "demo" else "Bezahlt"
+        if mode == "demo":
+            order["status_label"] = "Bezahlt (Demo)"
+        elif mode == "gift":
+            order["status_label"] = "Geschenk / Gift"
+        else:
+            order["status_label"] = "Bezahlt"
         order["paid_at"] = now.isoformat()
         order["payment_provider"] = provider
         order["payment_external_id"] = external_id
@@ -322,6 +356,10 @@ class RevenuePipelineService:
             order["demo"] = True
             order["is_demo"] = True
             order["demo_payment"] = True
+            order["counts_toward_revenue"] = False
+        if mode == "gift":
+            order["gift"] = True
+            order["is_gift"] = True
             order["counts_toward_revenue"] = False
         order["updated_at"] = now.isoformat()
         # Path A Factory builds in minutes — not multi-day handoff.
@@ -448,7 +486,7 @@ class RevenuePipelineService:
         self._backfill_email_from_checkout(order)
         email_result = self._send_receipt_if_needed(order)
         owner_mail = None
-        if mode != "demo":
+        if mode not in {"demo", "gift"}:
             owner_mail = self._receipt_email.send_owner_payment_alert(
                 order=order, support_email=_support_email()
             )

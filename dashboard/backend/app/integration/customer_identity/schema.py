@@ -95,6 +95,11 @@ class CustomerCard:
     account_status: str = "active"
     company_display_name: str = ""
     support_notes: list[dict[str, Any]] = field(default_factory=list)
+    # Owner gift / complimentary accounts (friend giveaway)
+    gift_account: bool = False
+    gift_unlimited: bool = False
+    unlimited: bool = False
+    workspace_mode: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)

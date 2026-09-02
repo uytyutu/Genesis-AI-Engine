@@ -5086,13 +5086,38 @@ def create_sales_order(request: Request, body: SalesOrderCreateRequest) -> Sales
                 status_code=403,
                 detail="Demo Payment Bridge отключён в Production",
             ) from exc
+        if msg in {
+            "gift_code_invalid",
+            "gift_code_not_found",
+            "gift_code_used",
+            "gift_code_expired",
+        }:
+            raise HTTPException(status_code=403, detail=msg) from exc
         if msg in ("cinematic_product_unavailable", "cinematic_product_misconfigured"):
             raise HTTPException(status_code=400, detail=msg) from exc
         raise HTTPException(status_code=400, detail=msg) from exc
     order = _ctx().sales.get_order(result["order_id"])
     if order and order.get("email"):
         ReceiptEmailService().send_order_received(order=order)
-    return SalesOrderCreatedResponse(**result)
+    # Friend gift via /order?gift= — auto-complete (claim path also pays itself)
+    if order and (
+        str(order.get("payment_mode") or "").lower() == "gift"
+        or order.get("gift")
+        or order.get("is_gift")
+    ):
+        try:
+            _ctx().revenue.complete_gift_payment(result["order_id"])
+            result["gift"] = True
+            result["is_gift"] = True
+            result["payment_mode"] = "gift"
+            result["gift_payment_completed"] = True
+            result["gift_payment_available"] = False
+            result["demo_payment_available"] = False
+        except ValueError:
+            pass
+    return SalesOrderCreatedResponse(
+        **{k: v for k, v in result.items() if k in SalesOrderCreatedResponse.model_fields}
+    )
 
 
 @app.get("/api/commerce/cinematic-experience")
@@ -8120,6 +8145,128 @@ def sales_order_pay_demo(order_id: str) -> RevenuePaymentResponse:
             raise HTTPException(status_code=400, detail="Сумма не совпадает")
         raise HTTPException(status_code=400, detail="Demo Payment не прошёл")
     return RevenuePaymentResponse(**result)
+
+
+@app.post("/api/sales/orders/{order_id}/pay-gift", response_model=RevenuePaymentResponse)
+def sales_order_pay_gift(order_id: str) -> RevenuePaymentResponse:
+    """One-time friend gift — redeems gift_code; never Stripe / never finance inflate."""
+    try:
+        result = _ctx().revenue.complete_gift_payment(order_id)
+    except ValueError as e:
+        code = str(e)
+        if code == "order_not_found":
+            raise HTTPException(status_code=404, detail="Заказ не найден")
+        if code == "not_a_gift_order":
+            raise HTTPException(status_code=403, detail="Это не gift-заказ")
+        if code in {
+            "gift_code_missing",
+            "gift_code_invalid",
+            "gift_code_not_found",
+            "gift_code_used",
+            "gift_code_expired",
+        }:
+            raise HTTPException(status_code=403, detail=code)
+        if code == "amount_mismatch":
+            raise HTTPException(status_code=400, detail="Сумма не совпадает")
+        raise HTTPException(status_code=400, detail="Gift Payment не прошёл")
+    return RevenuePaymentResponse(**result)
+
+
+@app.post("/api/public/gift/mint")
+def public_gift_mint(request: Request, body: dict | None = None) -> dict:
+    """Mint single-use gift (requires X-Virtus-Gift-Mint = GENESIS_GIFT_MINT_KEY)."""
+    from app.integration.gift_token import mint_token
+
+    body = body or {}
+    key = (os.getenv("GENESIS_GIFT_MINT_KEY") or "").strip()
+    provided = (request.headers.get("X-Virtus-Gift-Mint") or "").strip()
+    # Beta convenience: if no key configured, allow mint only on beta host
+    host = (request.headers.get("host") or "").lower()
+    beta_host = "beta." in host
+    if key:
+        if provided != key:
+            raise HTTPException(status_code=403, detail="gift_mint_forbidden")
+    elif not beta_host:
+        raise HTTPException(status_code=403, detail="gift_mint_key_required")
+    site = (
+        os.getenv("NEXT_PUBLIC_SITE_URL")
+        or os.getenv("GENESIS_PUBLIC_URL")
+        or f"https://{host}"
+        or "https://beta.genesis-ai-engine.com"
+    ).rstrip("/")
+    if "localhost" in site and beta_host:
+        site = "https://beta.genesis-ai-engine.com"
+    minted = mint_token(
+        label=str(body.get("label") or "Friend gift"),
+        package_id=str(body.get("package_id") or "standalone"),
+        ttl_days=int(body.get("ttl_days") or 14),
+        minted_by="public_mint",
+    )
+    minted["url"] = f"{site}{minted['path']}"
+    minted["gift_url"] = f"{site}{minted['gift_path']}"
+    return minted
+
+
+@app.get("/api/public/gift/{code}")
+def public_gift_peek(code: str) -> dict:
+    """Validate a gift link without redeeming."""
+    from app.integration.gift_token import peek_token
+
+    return peek_token(code)
+
+
+@app.post("/api/public/gift/{code}/claim")
+def public_gift_claim(code: str, body: dict | None = None) -> dict:
+    """Friend gift: form → Virtus account + website order (no Stripe) → credentials."""
+    from app.integration.gift_claim import claim_friend_gift
+
+    return claim_friend_gift(
+        code=code,
+        identity_service=_customer_identity(),
+        sales_service=_ctx().sales,
+        revenue_service=_ctx().revenue,
+        body=body or {},
+    )
+
+
+@app.post("/api/owner/gift-tokens")
+def owner_mint_gift_token(request: Request, body: dict | None = None) -> dict:
+    """Mint a single-use friend gift link for beta/private sharing."""
+    from app.integration.gift_token import mint_token
+
+    body = body or {}
+    key = (os.getenv("GENESIS_GIFT_MINT_KEY") or "").strip()
+    provided = (request.headers.get("X-Virtus-Gift-Mint") or "").strip()
+    allow_local = (
+        (os.getenv("GENESIS_ALLOW_DEMO_PAYMENT") or "").strip() == "1"
+        or (os.getenv("GENESIS_DEMO_MODE") or "").strip() == "1"
+        or (os.getenv("GENESIS_ENV") or os.getenv("NODE_ENV") or "dev").strip().lower()
+        not in {"production", "prod"}
+    )
+    # Beta: allow mint when GENESIS_GIFT_MINT_KEY matches, or beta host without prod lock
+    beta_ok = (os.getenv("GENESIS_PUBLIC_URL") or "").lower().find("beta.") >= 0
+    if key:
+        if provided != key:
+            raise HTTPException(status_code=403, detail="gift_mint_forbidden")
+    elif not (allow_local or beta_ok):
+        raise HTTPException(
+            status_code=403,
+            detail="Set GENESIS_GIFT_MINT_KEY to mint gifts",
+        )
+    site = (
+        os.getenv("NEXT_PUBLIC_SITE_URL")
+        or os.getenv("GENESIS_PUBLIC_URL")
+        or "https://beta.genesis-ai-engine.com"
+    ).rstrip("/")
+    minted = mint_token(
+        label=str(body.get("label") or "Friend gift"),
+        package_id=str(body.get("package_id") or "standalone"),
+        ttl_days=int(body.get("ttl_days") or 14),
+        minted_by="owner_api",
+    )
+    minted["url"] = f"{site}{minted['path']}"
+    minted["gift_url"] = f"{site}{minted['gift_path']}"
+    return minted
 
 
 @app.post(
