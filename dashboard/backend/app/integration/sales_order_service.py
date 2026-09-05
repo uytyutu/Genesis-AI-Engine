@@ -522,12 +522,12 @@ _PACKAGES = {
         "name": "Business Automation",
         "price_eur": 399,
         "product_kind": "addon",
-        "tagline": "Автоматизация бизнес-процессов",
-        "included_summary": "workflow для малого бизнеса — от 399 €",
+        "tagline": "Automatisierung: Anfragen → CRM → Follow-up",
+        "included_summary": "Individuelle Einrichtung für KMU — ab 650 €",
         "deliverables": [
-            "Карта процессов",
-            "Автоматизации под задачу",
-            "Статус в кабинете",
+            "Prozesskarte",
+            "Automatisierung unter Aufgabe",
+            "Status im Kundenbüro",
         ],
         "eta_days": "5–14",
         "from_price": True,
@@ -580,7 +580,122 @@ _PACKAGES = {
         "billing": "monthly",
         "from_price": True,
     },
+    # Virtus Office micro-SKUs (CC-2) — not listed on public website ladder.
+    "office_simple_op": {
+        "id": "office_simple_op",
+        "name": "Virtus Office · Einfache Operation",
+        "price_eur": 4.90,
+        "product_kind": "office",
+        "tagline": "Office micro-job",
+        "included_summary": "Virtus Office Auftrag",
+        "deliverables": ["Office Ergebnisdatei"],
+        "eta_days": "minutes",
+        "purchase_type": "one_time",
+    },
+    "office_translate": {
+        "id": "office_translate",
+        "name": "Virtus Office · Übersetzung",
+        "price_eur": 7.90,
+        "product_kind": "office",
+        "tagline": "Office Übersetzung",
+        "included_summary": "Virtus Office Übersetzung",
+        "deliverables": ["Übersetzte Datei"],
+        "eta_days": "minutes",
+        "purchase_type": "one_time",
+    },
+    "office_doc_quality": {
+        "id": "office_doc_quality",
+        "name": "Virtus Office · Dokument-Qualitätscheck",
+        "price_eur": 7.90,
+        "product_kind": "office",
+        "tagline": "READY / NOT_READY Bericht",
+        "included_summary": "Technischer Qualitätsbericht — kein korrigiertes Dokument",
+        "deliverables": ["Quality report (PDF/JSON)"],
+        "eta_days": "minutes",
+        "purchase_type": "one_time",
+    },
+    "office_document": {
+        "id": "office_document",
+        "name": "Virtus Office · Dokument",
+        "price_eur": 9.90,
+        "product_kind": "office",
+        "tagline": "Office Dokument",
+        "included_summary": "Virtus Office Dokumentarbeit",
+        "deliverables": ["Ergebnisdokument"],
+        "eta_days": "minutes",
+        "purchase_type": "one_time",
+    },
+    "office_cv_bewerbung": {
+        "id": "office_cv_bewerbung",
+        "name": "Virtus Office · Bewerbung",
+        "price_eur": 14.90,
+        "product_kind": "office",
+        "tagline": "Lebenslauf / Anschreiben",
+        "included_summary": "Virtus Office Bewerbung",
+        "deliverables": ["PDF Bewerbungsdokument"],
+        "eta_days": "minutes",
+        "purchase_type": "one_time",
+    },
+    "office_excel_calc": {
+        "id": "office_excel_calc",
+        "name": "Virtus Office · Excel / Daten",
+        "price_eur": 14.90,
+        "product_kind": "office",
+        "tagline": "Datenextraktion",
+        "included_summary": "Virtus Office Daten",
+        "deliverables": ["Excel / Datenexport"],
+        "eta_days": "minutes",
+        "purchase_type": "one_time",
+    },
+    "office_doc_analysis": {
+        "id": "office_doc_analysis",
+        "name": "Virtus Office · Analyse",
+        "price_eur": 14.90,
+        "product_kind": "office",
+        "tagline": "Dokumentanalyse",
+        "included_summary": "Virtus Office Analyse",
+        "deliverables": ["Analyse-Ergebnis"],
+        "eta_days": "minutes",
+        "purchase_type": "one_time",
+    },
+    "office_large_pack": {
+        "id": "office_large_pack",
+        "name": "Virtus Office · Paket",
+        "price_eur": 24.90,
+        "product_kind": "office",
+        "tagline": "Office Paket",
+        "included_summary": "Virtus Office Paket",
+        "deliverables": ["Paket-Ergebnis"],
+        "eta_days": "minutes",
+        "purchase_type": "one_time",
+    },
+    "office_complex_from": {
+        "id": "office_complex_from",
+        "name": "Virtus Office · Komplex",
+        "price_eur": 39.90,
+        "product_kind": "office",
+        "tagline": "Komplexer Office Auftrag",
+        "included_summary": "Virtus Office komplex",
+        "deliverables": ["Komplexes Ergebnis"],
+        "eta_days": "minutes",
+        "purchase_type": "one_time",
+        "from_price": True,
+    },
 }
+
+_OFFICE_PACKAGE_IDS = frozenset(
+    {
+        "office_simple_op",
+        "office_translate",
+        "office_doc_quality",
+        "office_document",
+        "office_cv_bewerbung",
+        "office_excel_calc",
+        "office_doc_analysis",
+        "office_large_pack",
+        "office_complex_from",
+    }
+)
 
 _REPAIR_PACKAGE_IDS = frozenset({"repair_lite", "repair_standard", "repair_complete"})
 _ADDON_PACKAGE_IDS = frozenset(
@@ -770,6 +885,30 @@ class SalesOrderService:
             }
             return package, offer.as_dict()
 
+        if pid in _OFFICE_PACKAGE_IDS:
+            market = get_market((market_code or "DE").strip().upper() or "DE")
+            base = _PACKAGES[pid]
+            amount = round(float(base["price_eur"]), 2)
+            price_label = f"{amount:.2f} {market.symbol}"
+            package = {
+                **base,
+                "price_eur": amount,
+                "currency": market.currency,
+                "symbol": market.symbol,
+                "market_code": market.code,
+                "price_label": price_label,
+                "product_kind": "office",
+            }
+            return package, {
+                "package_id": pid,
+                "amount": amount,
+                "currency": market.currency,
+                "symbol": market.symbol,
+                "market_code": market.code,
+                "price_label": price_label,
+                "product_kind": "office",
+            }
+
         if pid in _ADDON_PACKAGE_IDS:
             from app.integration.market_registry import format_amount, get_market
 
@@ -879,6 +1018,17 @@ class SalesOrderService:
         wants_demo = bool(payload.get("demo")) or str(
             payload.get("payment_mode") or ""
         ).lower() == "demo"
+        gift_code = str(payload.get("gift_code") or "").strip()
+        wants_gift = bool(gift_code) or str(payload.get("payment_mode") or "").lower() == "gift"
+        if wants_gift:
+            from app.integration.gift_token import peek_token
+
+            peek = peek_token(gift_code)
+            if not peek.get("ok"):
+                raise ValueError(str(peek.get("error") or "gift_code_invalid"))
+            # Gift forces website Standalone unless payload already set a package
+            if not payload.get("package_id"):
+                payload = {**payload, "package_id": peek.get("package_id") or "standalone"}
         if wants_demo and not demo_payment_bridge_enabled():
             raise ValueError("demo_payment_disabled")
         # Auto-demo companies still require bridge enabled (never silent in production)
@@ -1257,7 +1407,21 @@ class SalesOrderService:
 
         from app.integration.demo_payment import should_tag_demo_order
 
-        if should_tag_demo_order(payload):
+        if gift_code:
+            from app.integration.gift_token import peek_token
+
+            peek = peek_token(gift_code)
+            if not peek.get("ok"):
+                raise ValueError(str(peek.get("error") or "gift_code_invalid"))
+            order["gift"] = True
+            order["is_gift"] = True
+            order["gift_code"] = gift_code.strip().upper()
+            order["payment_mode"] = "gift"
+            order["counts_toward_revenue"] = False
+            order["demo_banner"] = peek.get("banner_de") or (
+                "Virtus Core Geschenk — keine Zahlung erforderlich."
+            )
+        elif should_tag_demo_order(payload):
             order["demo"] = True
             order["is_demo"] = True
             order["payment_mode"] = "demo"
@@ -1267,6 +1431,7 @@ class SalesOrderService:
             )
         self._save_order(order)
         from app.integration.demo_payment import demo_public_flags
+        from app.integration.gift_token import gift_public_flags
 
         out = {
             "ok": True,
@@ -1296,6 +1461,7 @@ class SalesOrderService:
             "monthly_amount": order.get("monthly_amount"),
         }
         out.update(demo_public_flags(order, ui_lang=ui_lang))
+        out.update(gift_public_flags(order, ui_lang=ui_lang))
         return out
 
     def list_orders(self, limit: int = 20) -> list[dict]:
@@ -2522,6 +2688,7 @@ class SalesOrderService:
             download_label = "generating..."
 
         from app.integration.demo_payment import demo_public_flags
+        from app.integration.gift_token import gift_public_flags
 
         paid_flag = status in ("paid", "in_production", "ready", "delivered")
         status_path = f"/order/status/{order_id}"
@@ -2618,6 +2785,7 @@ class SalesOrderService:
             "created_at": order.get("created_at"),
             "updated_at": order.get("updated_at"),
             **demo_public_flags(order, ui_lang=ui_lang),
+            **gift_public_flags(order, ui_lang=ui_lang),
             "download_ready": download_ready,
             "download_url": f"/api/sales/orders/{order_id}/download" if download_ready else None,
             "download_bytes": download_bytes,

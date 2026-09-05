@@ -478,6 +478,94 @@ class ReceiptEmailService:
             from_addr=from_addr,
         )
 
+    def send_office_payment_receipt(
+        self,
+        *,
+        to: str,
+        order_id: str,
+        product: str,
+        price_label: str,
+        order_url: str,
+        receipt_url: str,
+        customer_name: str = "Kunde",
+    ) -> dict:
+        """Virtus Office — Zahlungsbestätigung (no product files yet)."""
+        name = (customer_name or "Kunde").strip() or "Kunde"
+        subject = f"Zahlung bestätigt – Bestellung {order_id}"
+        intro = (
+            f"Guten Tag {name},\n\n"
+            f"Ihre Zahlung für «{product}» wurde bestätigt. "
+            f"Wir bearbeiten Ihren Auftrag jetzt."
+        )
+        text = (
+            f"{intro}\n\n"
+            f"Bestellung: {order_id}\n"
+            f"Produkt: {product}\n"
+            f"Betrag: {price_label}\n\n"
+            f"Auftrag: {order_url}\n"
+            f"Beleg / Status: {receipt_url}\n\n"
+            f"Mit freundlichen Grüßen\n{BRAND_NAME}"
+        )
+        html_body = _html_email(
+            lang="de",
+            title="Zahlung bestätigt",
+            intro=f"Guten Tag {name}, Ihre Zahlung wurde bestätigt.",
+            rows=[
+                ("Bestellung", order_id),
+                ("Produkt", product),
+                ("Betrag", price_label or "—"),
+            ],
+            cta_href=order_url,
+            cta_label="Auftrag öffnen",
+        )
+        return self._send(to=to, subject=subject, text=text, html=html_body)
+
+    def send_office_delivery_ready(
+        self,
+        *,
+        to: str,
+        order_id: str,
+        product: str,
+        files: list[str],
+        download_url: str,
+        receipt_url: str,
+        customer_name: str = "Kunde",
+    ) -> dict:
+        """Virtus Office — Produkt fertig: secure download link (no raw file attachment)."""
+        name = (customer_name or "Kunde").strip() or "Kunde"
+        subject = f"Ihre Bestellung ist fertig – Bestellung {order_id}"
+        file_lines = "\n".join(f"• {f}" for f in (files or ["Ergebnis"]))
+        text = (
+            f"Guten Tag {name},\n\n"
+            f"Ihre Bestellung wurde erfolgreich bearbeitet.\n\n"
+            f"Ihre Dokumente sind fertig.\n\n"
+            f"Bestellung: {order_id}\n"
+            f"Produkt: {product}\n\n"
+            f"Ihre Dateien:\n{file_lines}\n\n"
+            f"Dokumente herunterladen:\n{download_url}\n\n"
+            f"Rechnung / Zahlungsbeleg:\n{receipt_url}\n\n"
+            f"Der Download-Link ist geschützt und nur für diesen Auftrag gültig.\n\n"
+            f"Vielen Dank für Ihre Bestellung.\n\n"
+            f"Mit freundlichen Grüßen\n{BRAND_NAME}"
+        )
+        html_body = _html_email(
+            lang="de",
+            title="Ihre Bestellung ist fertig",
+            intro=(
+                f"Guten Tag {name}, Ihre Bestellung wurde erfolgreich bearbeitet. "
+                f"Ihre Dokumente sind fertig."
+            ),
+            rows=[
+                ("Bestellung", order_id),
+                ("Produkt", product),
+                ("Dateien", ", ".join(files or ["Ergebnis"])),
+            ],
+            cta_href=download_url,
+            cta_label="Dokumente herunterladen",
+        )
+        # Extra receipt CTA in text only — keep subject free of PII beyond order id
+        return self._send(to=to, subject=subject, text=text, html=html_body)
+
     def _send(
         self,
         *,

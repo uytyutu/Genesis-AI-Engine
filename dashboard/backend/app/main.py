@@ -329,6 +329,12 @@ from app.commercial_api.router import router as commercial_api_router
 
 app.include_router(commercial_api_router)
 
+# Virtus Office Job Engine Stage 1 — lifecycle + ingest (pipeline_live=False)
+from app.integration.virtus_office.router import router as virtus_office_router
+
+app.include_router(virtus_office_router)
+
+
 # R3.8.2 — controlled Portal registration (no-op while feature_enabled=False)
 from app.portal.portal_registration import register_portal_read
 
