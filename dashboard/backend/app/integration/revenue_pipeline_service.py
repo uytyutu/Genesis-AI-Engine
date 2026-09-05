@@ -150,6 +150,17 @@ class RevenuePipelineService:
 
         label = f"{BRAND_NAME} · {order['package_name']} — {order['business_name']}"
         currency = str(order.get("currency") or "EUR").lower()
+        extra_metadata: dict[str, str] | None = None
+        pkg = str(order.get("package_id") or "").strip().lower()
+        if (
+            str(order.get("product_kind") or "").strip().lower() == "office"
+            or pkg.startswith("office_")
+            or order.get("office_job_id")
+        ):
+            extra_metadata = {
+                "product": "virtus_office",
+                "office_job_id": str(order.get("office_job_id") or ""),
+            }
         session = self._checkout.create_checkout(
             order_id=order_id,
             amount_eur=float(order["price_eur"]),
@@ -159,6 +170,7 @@ class RevenuePipelineService:
             currency=currency,
             motion_level=str(order.get("motion_level") or "none"),
             market_code=str(order.get("market_code") or "DE"),
+            extra_metadata=extra_metadata,
         )
         order["status"] = "awaiting_payment"
         order["status_label"] = "Wartet auf Zahlung"
@@ -194,6 +206,43 @@ class RevenuePipelineService:
             external_id=f"demo-{order_id}",
             payment_mode="demo",
         )
+
+    def complete_gift_payment(self, order_id: str) -> dict:
+        """Friend/gift fulfillment — single-use gift_code orders only; never real revenue."""
+        from app.integration.gift_token import redeem_token
+
+        order = self._sales.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        is_gift = (
+            str(order.get("payment_mode") or "").lower() == "gift"
+            or order.get("gift") is True
+            or order.get("is_gift") is True
+        )
+        if not is_gift:
+            raise ValueError("not_a_gift_order")
+        code = str(order.get("gift_code") or "").strip()
+        if not code:
+            raise ValueError("gift_code_missing")
+        redeem_token(code, order_id=order_id)
+        result = self._apply_payment(
+            order_id=order_id,
+            amount_eur=None,
+            provider="gift",
+            sender="gift@virtus.local",
+            external_id=f"gift-{order_id}",
+            payment_mode="gift",
+        )
+        # Mark client card as gift when email matches a registered account
+        try:
+            email = str(order.get("email") or "").strip().lower()
+            if email and "@" in email:
+                ident = getattr(self, "_identity", None) or getattr(self, "_customer_identity", None)
+                # soft: sales may attach later on login; flags set in create_order attach path if available
+                _ = ident
+        except Exception:
+            pass
+        return result
 
     def handle_stripe_webhook(self, payload: bytes, signature: str) -> dict:
         from app.services.finance_center import (
@@ -282,7 +331,9 @@ class RevenuePipelineService:
             self._ensure_order_email(order, sender)
             self._backfill_email_from_checkout(order)
             email_result = self._send_receipt_if_needed(order)
-            return self._already_paid_response(order_id, email_result=email_result)
+            already = self._already_paid_response(order_id, email_result=email_result)
+            self._confirm_office_job_if_needed(order)
+            return already
 
         expected = float(order["price_eur"])
         paid = expected if amount_eur is None else round(float(amount_eur), 2)
@@ -298,10 +349,12 @@ class RevenuePipelineService:
         mode = (payment_mode or order.get("payment_mode") or "").strip().lower()
         if provider == "demo":
             mode = "demo"
+        if provider == "gift":
+            mode = "gift"
 
         label = f"Bestellung {order_id}: {order['business_name']}"
-        # Demo payments must never inflate real finance metrics
-        if mode != "demo":
+        # Demo / gift payments must never inflate real finance metrics
+        if mode not in {"demo", "gift"}:
             self._finance.credit_order_payment(
                 paid,
                 label,
@@ -396,19 +449,27 @@ class RevenuePipelineService:
                 logger.exception("bot_workspace_provision_failed order=%s", order_id)
 
         # Shop / bot: dedicated pipelines — never Path A landing Work Farm.
+        # Office: confirm job payment only — never Factory / Work Farm.
         product_id = None
         work_job = None
+        pkg = str(order.get("package_id") or "").strip().lower()
+        is_office = (
+            str(order.get("product_kind") or "").strip().lower() == "office"
+            or pkg.startswith("office_")
+            or bool(order.get("office_job_id"))
+        )
         is_shop = (
-            str(order.get("package_id") or "").strip().lower() == "ecommerce_shop"
+            pkg == "ecommerce_shop"
             or str(order.get("product_kind") or "") == "shop"
         )
-        pkg = str(order.get("package_id") or "").strip().lower()
         is_bot = (
             str(order.get("product_kind") or "") == "bot"
             or pkg.startswith("bot_")
             or pkg == "ai_chatbot"
         )
-        if is_shop or is_bot:
+        if is_office:
+            self._confirm_office_job_if_needed(order)
+        elif is_shop or is_bot:
             production = self._sales.start_production(order_id)
             product_id = production.get("product_id")
         elif self._work_farm is not None:
@@ -437,7 +498,11 @@ class RevenuePipelineService:
                 if mode == "demo"
                 else (
                     f"🟢 {order['business_name']} — {price_display} ({order['package_name']}). "
-                    f"Work Farm · производство запущено."
+                    + (
+                        "Virtus Office · Zahlung bestätigt."
+                        if is_office
+                        else "Work Farm · производство запущено."
+                    )
                 )
             ),
             order_id=order_id,
@@ -468,6 +533,32 @@ class RevenuePipelineService:
             "payment_mode": mode or None,
             "demo": mode == "demo",
         }
+
+    def _confirm_office_job_if_needed(self, order: dict) -> None:
+        """Idempotent Office Job PAYMENT_CONFIRMED after Core Order PAID."""
+        pkg = str(order.get("package_id") or "").strip().lower()
+        is_office = (
+            str(order.get("product_kind") or "").strip().lower() == "office"
+            or pkg.startswith("office_")
+            or bool(order.get("office_job_id"))
+        )
+        if not is_office:
+            return
+        try:
+            from app.integration.virtus_office.payment_bridge import on_core_order_paid
+
+            mem = getattr(self._sales, "_memory", None)
+            if mem is None:
+                return
+            on_core_order_paid(
+                order,
+                memory_dir=Path(mem) if not isinstance(mem, Path) else mem,
+            )
+        except Exception:
+            logger.exception(
+                "office_payment_confirm_failed order=%s",
+                order.get("order_id"),
+            )
 
     def _already_paid_response(
         self, order_id: str, *, email_result: dict | None = None

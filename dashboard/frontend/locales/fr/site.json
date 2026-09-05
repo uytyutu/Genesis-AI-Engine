@@ -604,5 +604,194 @@
         "order": "💶 New order"
       }
     }
+  },
+  "agencyHub": {
+    "hero": {
+      "badge": "Boutique en ligne",
+      "titleLine1": "Create. Automate. Work smarter.",
+      "titleLine2": "Conçue pour votre entreprise.",
+      "sub": "Websites · Online Shops · AI Bots · Virtus Office · Automation",
+      "cta": "Créer une boutique →",
+      "projects": "Voir les projets",
+      "mockAlt": "Premium online store — fashion store demo",
+      "mockOpen": "Ouvrir la démo boutique",
+      "ki": "AI-assisted delivery. You can request changes after purchase where the product allows.",
+      "kiLink": "AI notice",
+      "demoCaption": "Exemple de produit (démo) — la langue de l’aperçu peut différer de l’interface"
+    },
+    "products": {
+      "title": "Nos produits",
+      "sub": "Trois parcours clairs — prix transparents, commande réelle.",
+      "website": "Website",
+      "shop": "Boutique en ligne",
+      "ai": "AI Business Assistant",
+      "fromPrice": "à partir de {{price}}",
+      "oneTime": "Paiement unique",
+      "thenMonthly": "+ {{monthly}}/mois",
+      "web1": "Industry & brand — finished website",
+      "web2": "Responsive · Contact · Legal",
+      "web3": "Packages Basic / Business / Premium",
+      "shop1": "Catalog · Cart · Shop Admin",
+      "shop2": "Stripe / shipping / email — your accounts",
+      "shop3": "AI Store Basic / Start",
+      "ai1": "Telegram + Website Chat live",
+      "ai2": "Leads · bookings · 24/7 answers",
+      "ai3": "WhatsApp / IG / Messenger — Coming soon",
+      "compare": "Comparer les forfaits",
+      "aiTiers": "View tiers",
+      "bestseller": "Bestseller",
+      "selected": "Sélectionné",
+      "pickTier": "Choisir le forfait",
+      "selectedLine": "✓ Site — {{tier}} sélectionné",
+      "cta": "Commander"
+    },
+    "more": {
+      "title": "Autres services",
+      "sub": "Disponible à la commande ou Coming soon — sans promesses vides.",
+      "analysis": "Website Analysis",
+      "repair": "Website Repair",
+      "automation": "Automation",
+      "crm": "CRM",
+      "seo": "SEO",
+      "marketing": "Marketing",
+      "live": "Live",
+      "soon": "Bientôt"
+    },
+    "projects": {
+      "title": "Nos projets",
+      "sub": "Factory examples. More industries appear here when released.",
+      "visit": "Visiter",
+      "demoNote": "Exemples internes démo/test — pas de commandes clients réelles"
+    },
+    "why": {
+      "title": "Pourquoi Virtus Core",
+      "sub": "A digital company instead of an agency queue — you order, receive and control.",
+      "p1t": "Clear prices",
+      "p1d": "Website, shop and AI — without hidden agency hours.",
+      "p2t": "Fast delivery",
+      "p2d": "Factory builds after payment. You review and publish.",
+      "p3t": "Your panel",
+      "p3d": "From Business: Client Workspace — edit content and media yourself.",
+      "link": "Comparer avec les agences →"
+    },
+    "reviews": {
+      "leave": "Leave a review"
+    },
+    "final": {
+      "title": "Prêt à démarrer votre projet ?",
+      "sub": "Choose Website, Shop or AI Assistant — payment and delivery via the existing order flow.",
+      "cta": "Démarrer le projet",
+      "consult": "Demander un conseil"
+    },
+    "legal": {
+      "nav": "Mentions légales",
+      "impressum": "Mentions légales",
+      "privacy": "Confidentialité"
+    },
+    "directions": {
+      "availableTitle": "Available now",
+      "availableHint": "What you can buy or start today.",
+      "available": "Available now",
+      "coming": "Coming soon",
+      "open": "Open →",
+      "comingCta": "Learn more →",
+      "websites": "Websites",
+      "websitesBlurb": "Professional sites for businesses and services.",
+      "shops": "Online Shops",
+      "shopsBlurb": "Catalog, cart and shop admin — built to sell.",
+      "bots": "AI Bots",
+      "botsBlurb": "Receptionist, support and sales bots for real channels.",
+      "office": "Virtus Office",
+      "officeBlurb": "Documents, translations, calculations and business tasks.",
+      "automation": "Automation & AI",
+      "automationBlurb": "Workflow automation and AI employees — expanding soon.",
+      "comingTitle": "More coming to Virtus Core",
+      "comingBody": "Automation, AI Employees and deeper analytics expand after the products above prove daily value. No fake Connect.",
+      "backCore": "← Back to Virtus Core",
+      "examplesTitle": "Selected examples"
+    },
+    "atmosphere": {
+      "websitesTitle": "Websites for real businesses",
+      "websitesSub": "Industry-ready sites with contact, legal pages and a clear path to order.",
+      "websitesCta": "Order a website →",
+      "shopsTitle": "Online shops built to sell",
+      "shopsSub": "Product catalog, cart and owner admin — Stripe and shipping connected by you.",
+      "shopsCta": "Order an online shop →",
+      "botsTitle": "AI bots for real channels",
+      "botsSub": "Receptionist, support and sales — one brain for website chat and Telegram.",
+      "botsCta": "Order an AI bot →",
+      "seePackages": "See packages on Virtus Core",
+      "shopFlagship": "Catalog · cart · shop admin",
+      "botReceptionist": "AI Receptionist",
+      "botReceptionistBlurb": "Qualifies inquiries 24/7 — Telegram + website chat.",
+      "botSupport": "Support assistant",
+      "botSupportBlurb": "Answers product questions from your confirmed knowledge.",
+      "botSales": "Sales bot",
+      "botSalesBlurb": "Guides buyers to the right package — honest Coming Soon for WA/IG."
+    },
+    "showcase": {
+      "headline": "Create. Automate. Work smarter.",
+      "subline": "Websites · Online Shops · AI Bots · Virtus Office · Automation",
+      "tabsLabel": "Virtus Core products",
+      "seeMore": "See examples →",
+      "dragHint": "Swipe or use tabs — each product has its own visual.",
+      "tabs": {
+        "websites": "Websites",
+        "shops": "Online Shops",
+        "bots": "AI Bots",
+        "office": "Virtus Office",
+        "automation": "Automation"
+      },
+      "panes": {
+        "websites": {
+          "title": "Create websites",
+          "blurb": "Real business sites — restaurant, beauty, auto, services."
+        },
+        "shops": {
+          "title": "Create online shops",
+          "blurb": "Catalog, product cards, cart and checkout — built to sell."
+        },
+        "bots": {
+          "title": "Build AI bots",
+          "blurb": "Receptionist, support and sales — chat that looks like a bot."
+        },
+        "office": {
+          "title": "Work with documents",
+          "blurb": "PDF · DOCX · Excel · OCR · translate · calculate — your data only."
+        },
+        "automation": {
+          "title": "Automate business",
+          "blurb": "Workflows expanding soon — no fake Connect."
+        }
+      },
+      "cta": {
+        "websites": "Order a website →",
+        "shops": "Order a shop →",
+        "bots": "Order an AI bot →",
+        "office": "Open Virtus Office →",
+        "automation": "Learn more →"
+      }
+    },
+    "galleries": {
+      "open": "Open →",
+      "openOffice": "Open Office →",
+      "websitesTitle": "Websites Virtus Core creates",
+      "websitesSub": "Different niches — real published demos, not one repeated screenshot.",
+      "shopsTitle": "Online shops built to sell",
+      "shopsSub": "Product grids and storefronts — not ordinary website heroes.",
+      "botsTitle": "AI bots — chat that looks like a bot",
+      "botsSub": "Receptionist, support, sales, booking — not website screenshots.",
+      "officeTitle": "Virtus Office — documents that work",
+      "officeSub": "PDF · DOCX · Excel · OCR · translation · calculations — your data only.",
+      "automationTitle": "Automation & AI — expanding",
+      "automationSub": "Workflow examples — Coming soon. No fake Connect.",
+      "bots": {
+        "bot-receptionist": "AI Receptionist",
+        "bot-support": "Customer Support",
+        "bot-sales": "Sales",
+        "bot-booking": "Booking",
+        "bot-faq": "FAQ"
+      }
+    }
   }
 }

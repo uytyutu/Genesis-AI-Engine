@@ -1,0 +1,222 @@
+.vo-shell {
+  --vo-bg: #f4f1eb;
+  --vo-surface: #ffffff;
+  --vo-ink: #182033;
+  --vo-muted: #5a6478;
+  --vo-accent: #1a4f8c;
+  --vo-accent-soft: #e7eef7;
+  --vo-border: #ddd6cb;
+  --vo-ok: #1f6b4a;
+  --vo-warn: #8a6a1f;
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #e8eef6 0%, transparent 55%),
+    radial-gradient(900px 400px at 100% 0%, #efe8dc 0%, transparent 50%),
+    var(--vo-bg);
+  color: var(--vo-ink);
+  font-family: var(--vo-font-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* Ambient: document atelier — soft sheets + ink pulse (not marketing glow). */
+.vo-ambient {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.vo-ambient__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.45;
+  background-image:
+    linear-gradient(rgba(26, 79, 140, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 79, 140, 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%);
+}
+
+.vo-ambient__sheet {
+  position: absolute;
+  border-radius: 6px;
+  border: 1px solid rgba(26, 79, 140, 0.22);
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.7) 0 14px,
+      rgba(231, 238, 247, 0.55) 14px 15px
+    );
+  box-shadow: 0 22px 48px rgba(24, 32, 51, 0.08);
+  animation: vo-sheet-drift 22s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate;
+}
+
+.vo-ambient__sheet--a {
+  width: min(260px, 34vw);
+  height: min(340px, 44vh);
+  top: 6%;
+  left: 1%;
+  transform: rotate(-9deg);
+  opacity: 0.9;
+}
+
+.vo-ambient__sheet--b {
+  width: min(210px, 28vw);
+  height: min(280px, 36vh);
+  top: 38%;
+  right: 2%;
+  animation-duration: 28s;
+  animation-delay: -6s;
+  transform: rotate(8deg);
+  opacity: 0.85;
+}
+
+.vo-ambient__sheet--c {
+  width: min(170px, 22vw);
+  height: min(220px, 28vh);
+  bottom: 8%;
+  left: 22%;
+  opacity: 0.75;
+  animation-duration: 32s;
+  animation-delay: -12s;
+  transform: rotate(-4deg);
+}
+
+.vo-ambient__line {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(26, 79, 140, 0.35),
+    transparent
+  );
+  animation: vo-line-sweep 12s linear infinite;
+}
+
+.vo-ambient__line--1 {
+  width: 48%;
+  top: 20%;
+  left: 28%;
+}
+
+.vo-ambient__line--2 {
+  width: 32%;
+  top: 55%;
+  right: 14%;
+  animation-duration: 18s;
+  animation-delay: -4s;
+}
+
+.vo-ambient__ink {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(26, 79, 140, 0.4);
+  animation: vo-ink-pulse 4.5s ease-in-out infinite;
+}
+
+.vo-ambient__ink--1 {
+  top: 16%;
+  right: 18%;
+}
+
+.vo-ambient__ink--2 {
+  bottom: 22%;
+  left: 10%;
+  animation-delay: -1.8s;
+  background: rgba(31, 107, 74, 0.35);
+}
+
+.vo-shell > *:not(.vo-ambient) {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes vo-sheet-drift {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 18px -24px;
+  }
+}
+
+@keyframes vo-line-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-10%);
+  }
+  15%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(12%);
+  }
+}
+
+@keyframes vo-ink-pulse {
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vo-ambient__sheet,
+  .vo-ambient__line,
+  .vo-ambient__ink,
+  .vo-enter,
+  .vo-dot-live,
+  .vo-pulse {
+    animation: none !important;
+  }
+}
+
+.vo-display {
+  font-family: var(--vo-font-display), Georgia, serif;
+}
+
+@keyframes vo-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.vo-enter {
+  animation: vo-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes vo-pulse-dot {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.vo-dot-live {
+  animation: vo-pulse-dot 1.2s ease-in-out infinite;
+}
+
+.vo-pulse {
+  animation: vo-pulse-dot 1.2s ease-in-out infinite;
+}
