@@ -453,8 +453,8 @@
     },
     "translate": {
       "title": "Translate a document",
-      "lead": "Upload PDF, Word, photo or scan. Photos work best with readable text.",
-      "b1": "Translation into the chosen target language",
+      "lead": "Upload PDF, Word, photo or scan. Translate professional documents into 30+ languages worldwide — source language auto-detected or chosen manually.",
+      "b1": "Translation into the chosen target language (30+ languages)",
       "b2": "Structured output",
       "b3": "PDF or DOCX",
       "b4": "Quality check before completion"
@@ -488,7 +488,8 @@
     "sourceAuto": "Source language: detected automatically",
     "sourceLanguage": "Document language",
     "sourceAutoDetect": "Auto-detected (change if wrong)",
-    "chooseTarget": "Choose target language"
+    "chooseTarget": "Choose target language",
+    "languagesHint": "30+ languages: Europe, Middle East, Asia — source and target freely selectable."
   },
   "analysis": {
     "title": "Virtus Office is analyzing your document…",

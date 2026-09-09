@@ -286,6 +286,26 @@ export async function fetchOfficeCatalog(): Promise<{
   return parsePublicJson(res);
 }
 
+export async function fetchOfficeLanguages(): Promise<OfficeLanguage[]> {
+  try {
+    const res = await fetch(`${API}/api/office/languages`);
+    const data = (await parsePublicJson(res)) as {
+      languages?: OfficeLanguage[];
+    };
+    const rows = Array.isArray(data.languages) ? data.languages : [];
+    return rows
+      .map((r) => ({
+        code: String(r.code || "").toLowerCase(),
+        label_de: String(r.label_de || r.native || r.code || ""),
+        label_en: String(r.label_en || r.native || r.code || ""),
+        native: String(r.native || r.label_en || r.label_de || r.code || ""),
+      }))
+      .filter((r) => r.code);
+  } catch {
+    return [];
+  }
+}
+
 export async function generateOfficeQr(payload: {
   qr_type: string;
   fields: Record<string, string>;

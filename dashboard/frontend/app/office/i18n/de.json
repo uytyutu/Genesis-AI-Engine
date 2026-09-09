@@ -453,8 +453,8 @@
     },
     "translate": {
       "title": "Dokument übersetzen",
-      "lead": "PDF, Word, Foto oder Scan hochladen. Bei Fotos gilt: lesbarer Text liefert bessere Ergebnisse.",
-      "b1": "Übersetzung in die gewählte Zielsprache",
+      "lead": "PDF, Word, Foto oder Scan hochladen. Übersetzung in 30+ Sprachen weltweit — berufliche Dokumente, Quellsprache automatisch erkannt oder manuell gewählt.",
+      "b1": "Übersetzung in die gewählte Zielsprache (30+ Sprachen)",
       "b2": "Strukturierte Ausgabe",
       "b3": "PDF oder DOCX",
       "b4": "Qualitätsprüfung vor Abschluss"
@@ -488,7 +488,8 @@
     "sourceAuto": "Quellsprache: automatisch erkannt",
     "sourceLanguage": "Sprache des Dokuments",
     "sourceAutoDetect": "Automatisch erkannt (korrigierbar)",
-    "chooseTarget": "Zielsprache wählen"
+    "chooseTarget": "Zielsprache wählen",
+    "languagesHint": "30+ Sprachen: Europa, Naher Osten, Asien — Quell- und Zielsprache frei wählbar."
   },
   "analysis": {
     "title": "Virtus Office analysiert Ihr Dokument…",

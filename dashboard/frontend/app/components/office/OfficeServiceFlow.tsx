@@ -7,11 +7,14 @@ import {
   checkoutOfficeJob,
   configureOfficeDocument,
   createOfficeJob,
+  fetchOfficeLanguages,
   selectOfficeAction,
   uploadOfficeFile,
   uploadOfficePages,
   type OfficeJobView,
+  type OfficeLanguage,
 } from "../../lib/officeApi";
+import { resolveOfficeLanguages } from "../../lib/officeLanguages";
 import { saveOfficeJobToken } from "../../lib/officeSession";
 import { useOfficeT } from "../../lib/useOfficeT";
 import { DocumentConfigurePanel } from "./DocumentConfigurePanel";
@@ -78,9 +81,27 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
   const [legalConfirm, setLegalConfirm] = useState(false);
   const [customerEmail, setCustomerEmail] = useState("");
   const configureRef = useRef<HTMLDivElement | null>(null);
+  const [catalogLanguages, setCatalogLanguages] = useState<OfficeLanguage[]>([]);
 
   const proposal = job?.proposal;
-  const languages = job?.languages || [];
+  const languages = useMemo(
+    () => resolveOfficeLanguages(job?.languages, catalogLanguages),
+    [job?.languages, catalogLanguages],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchOfficeLanguages()
+      .then((rows) => {
+        if (!cancelled && rows.length) setCatalogLanguages(rows);
+      })
+      .catch(() => {
+        /* fallback catalog in resolveOfficeLanguages */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const detected = proposal?.detected?.language || proposal?.explanation?.language_code;
@@ -437,17 +458,9 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
                   onChange={(e) => setSourceLang(e.target.value)}
                 >
                   <option value="auto">{t("service.sourceAutoDetect")}</option>
-                  {(languages.length
-                    ? languages
-                    : [
-                        { code: "de", native: "Deutsch", label_en: "German", label_de: "Deutsch" },
-                        { code: "en", native: "English", label_en: "English", label_de: "Englisch" },
-                        { code: "uk", native: "Українська", label_en: "Ukrainian", label_de: "Ukrainisch" },
-                        { code: "ru", native: "Русский", label_en: "Russian", label_de: "Russisch" },
-                      ]
-                  ).map((l) => (
+                  {languages.map((l) => (
                     <option key={l.code} value={l.code}>
-                      {l.native || ("label_en" in l ? l.label_en : undefined) || l.code}
+                      {l.native || l.label_en || l.label_de || l.code}
                     </option>
                   ))}
                 </select>
@@ -460,20 +473,9 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
                   onChange={(e) => setTargetLang(e.target.value)}
                 >
                   <option value="">{t("service.chooseTarget")}</option>
-                  {(languages.length
-                    ? languages.map((l) => ({
-                        code: l.code,
-                        native: l.native || l.label_en || l.code,
-                      }))
-                    : [
-                        { code: "de", native: "Deutsch" },
-                        { code: "en", native: "English" },
-                        { code: "uk", native: "Українська" },
-                        { code: "ru", native: "Русский" },
-                      ]
-                  ).map((l) => (
+                  {languages.map((l) => (
                     <option key={l.code} value={l.code}>
-                      {l.native}
+                      {l.native || l.label_en || l.label_de || l.code}
                     </option>
                   ))}
                 </select>
@@ -490,6 +492,9 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
                   {kind === "excel" ? <option value="xlsx">XLSX</option> : null}
                 </select>
               </label>
+              <p className="sm:col-span-2 text-xs text-[var(--vo-muted)]">
+                {t("service.languagesHint")}
+              </p>
               <p className="sm:col-span-2 text-xs text-[var(--vo-muted)]">
                 {t("langSeparationHint")}
               </p>
