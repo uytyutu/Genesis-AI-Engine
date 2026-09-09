@@ -190,6 +190,9 @@ def office_engine_status() -> dict[str, Any]:
         public_coming_soon_cards,
         readiness_record,
     )
+    from app.integration.virtus_office.office_product_catalog import (
+        catalog_public as product_catalog_public,
+    )
 
     caps = audit_matrix()
     return {
@@ -202,6 +205,7 @@ def office_engine_status() -> dict[str, Any]:
         "statuses": list(OFFICE_JOB_STATUSES),
         "price_matrix_eur": OFFICE_PRICE_MATRIX_EUR,
         "languages": catalog_public(),
+        "product_catalog": product_catalog_public(),
         "executable_actions": list(OFFICE_SELLABLE_NOW),
         "sellable_skus": caps["sellable_skus"],
         "sku_roadmap": list(OFFICE_SKU_ROADMAP),
@@ -236,6 +240,54 @@ def office_engine_status() -> dict[str, Any]:
             "sales_kit_public_path_ready": bool(SALES_KIT_PUBLIC_PATH_READY),
             "sales_kit_live": bool(SALES_KIT_LIVE),
         },
+    }
+
+
+@router.get("/catalog")
+def office_product_catalog() -> dict[str, Any]:
+    from app.integration.virtus_office.office_product_catalog import catalog_public
+
+    return {"ok": True, "products": catalog_public()}
+
+
+class QrGenerateBody(BaseModel):
+    qr_type: str = Field(default="url", max_length=32)
+    fields: dict[str, Any] = Field(default_factory=dict)
+
+
+@router.post("/qr/generate")
+def office_qr_generate_free(body: QrGenerateBody) -> dict[str, Any]:
+    """FREE QR tool — executor + validator, no payment."""
+    import base64
+
+    from app.integration.virtus_office.sku_qr_code import generate_qr
+
+    res = generate_qr(qr_type=body.qr_type, fields=body.fields)
+    if not res.get("ok"):
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": res.get("error") or "qr_failed",
+                "message": res.get("detail") or "QR generation failed",
+            },
+        )
+    arts = []
+    for a in res.get("artifacts") or []:
+        arts.append(
+            {
+                "filename": a["filename"],
+                "mime": a["mime"],
+                "base64": base64.b64encode(a["bytes"]).decode("ascii"),
+            }
+        )
+    return {
+        "ok": True,
+        "free": True,
+        "qr_type": res.get("qr_type"),
+        "payload": res.get("payload"),
+        "validation": res.get("validation"),
+        "artifacts": arts,
+        "preview_png_base64": arts[0]["base64"] if arts else None,
     }
 
 

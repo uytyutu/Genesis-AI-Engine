@@ -33,6 +33,8 @@ PRICE_KEY_TO_PACKAGE: dict[str, str] = {
     "excel_calc": "office_excel_calc",
     "doc_analysis": "office_doc_analysis",
     "large_pack": "office_large_pack",
+    "pdf_pro": "office_pdf_pro",
+    "translation_pack": "office_translation_pack",
     "complex_from": "office_complex_from",
     "sales_kit_basic": "office_sales_kit_basic",
     "sales_kit_business": "office_sales_kit_business",

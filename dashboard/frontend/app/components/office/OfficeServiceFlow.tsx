@@ -17,20 +17,45 @@ import { useOfficeT } from "../../lib/useOfficeT";
 import { DocumentConfigurePanel } from "./DocumentConfigurePanel";
 import { OfficeShell } from "./OfficeShell";
 
-type ServiceKind = "translate" | "documents" | "excel" | "smart";
+type ServiceKind =
+  | "translate"
+  | "translation_pack"
+  | "pdf_pro"
+  | "documents"
+  | "excel"
+  | "smart"
+  | "searchable"
+  | "redaction"
+  | "fillable"
+  | "pdfa"
+  | "archive";
 
 const PRESET: Record<ServiceKind, string | null> = {
   translate: "translate",
+  translation_pack: "translation_pack",
+  pdf_pro: "pdf_pro",
   documents: null,
   excel: null,
   smart: null,
+  searchable: "searchable_pdf",
+  redaction: "redaction",
+  fillable: "fillable_pdf",
+  pdfa: "pdf_a_2b",
+  archive: "document_archive",
 };
 
 const DEFAULT_ACTION: Record<ServiceKind, string | null> = {
   translate: "translate",
+  translation_pack: "translation_pack",
+  pdf_pro: "pdf_pro",
   documents: "convert_docx",
   excel: "extract_data",
   smart: null,
+  searchable: "searchable_pdf",
+  redaction: "redaction",
+  fillable: "fillable_pdf",
+  pdfa: "pdf_a_2b",
+  archive: "document_archive",
 };
 
 const LEGAL_HINT =
@@ -46,7 +71,9 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
   const [job, setJob] = useState<OfficeJobView | null>(null);
   const [targetLang, setTargetLang] = useState("");
   const [sourceLang, setSourceLang] = useState("auto");
-  const [outputFmt, setOutputFmt] = useState(kind === "excel" ? "xlsx" : "pdf");
+  const [outputFmt, setOutputFmt] = useState(
+    kind === "excel" ? "xlsx" : kind === "archive" ? "zip" : "pdf",
+  );
   const [analysisStep, setAnalysisStep] = useState(0);
   const [legalConfirm, setLegalConfirm] = useState(false);
   const [customerEmail, setCustomerEmail] = useState("");
@@ -71,9 +98,15 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
     }
   }, [router]);
 
+  const copyRoot =
+    kind === "pdf_pro"
+      ? "pdfPro"
+      : kind === "translation_pack"
+        ? "translationPack"
+        : `service.${kind}`;
   const bullets = useMemo(
-    () => [1, 2, 3, 4].map((n) => t(`service.${kind}.b${n}`)),
-    [kind, t],
+    () => [1, 2, 3, 4].map((n) => t(`${copyRoot}.b${n}`)),
+    [copyRoot, t],
   );
 
   function abandonJob() {
@@ -314,6 +347,7 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
     Boolean(proposal?.payment_enabled && proposal?.document_settings?.confirmed);
   const showTranslateLang =
     kind === "translate" ||
+    kind === "translation_pack" ||
     proposal?.task === "translate" ||
     nextStep === "configure_translate";
   const pathStep = showChoices ? 1 : showConfigure ? 2 : canPay ? 3 : proposal?.task ? 2 : 0;
@@ -349,7 +383,7 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
   }
 
   return (
-    <OfficeShell active={kind === "smart" ? "smart" : kind}>
+    <OfficeShell active={kind}>
       <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
         <button
           type="button"
@@ -376,9 +410,14 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
       <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="vo-enter">
           <h1 className="vo-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            {t(`service.${kind}.title`)}
+            {t(`${copyRoot}.title`)}
           </h1>
-          <p className="mt-3 text-[var(--vo-muted)]">{t(`service.${kind}.lead`)}</p>
+          <p className="mt-3 text-[var(--vo-muted)]">{t(`${copyRoot}.lead`)}</p>
+          {(kind === "pdf_pro" || kind === "translation_pack") && (
+            <p className="mt-3 text-sm font-semibold text-[var(--vo-accent)]">
+              {t(`${copyRoot}.price`)} · {t("home.oneTime")}
+            </p>
+          )}
           <ul className="mt-6 space-y-2 text-sm text-[var(--vo-ink)]">
             {bullets.map((b) => (
               <li key={b} className="flex gap-2">
@@ -463,7 +502,7 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
               type="file"
               className="hidden"
               multiple
-              accept=".pdf,.png,.jpg,.jpeg,.docx,.xlsx,.csv,.txt,application/pdf,image/*"
+              accept=".pdf,.png,.jpg,.jpeg,.docx,.xlsx,.csv,.txt,.zip,application/pdf,application/zip,image/*"
               disabled={busy}
               onChange={(e) => onFiles(e.target.files)}
             />
@@ -478,7 +517,11 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
               <li key={`side-${b}`}>• {b}</li>
             ))}
           </ul>
-          {(kind === "excel" || kind === "documents" || kind === "translate") && (
+          {(kind === "excel" ||
+            kind === "documents" ||
+            kind === "translate" ||
+            kind === "translation_pack" ||
+            kind === "pdf_pro") && (
             <p className="mt-4 text-xs text-[var(--vo-muted)]">{t("ocrHonesty")}</p>
           )}
           {kind === "excel" ? (
@@ -726,6 +769,14 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
                     </button>
                   ))}
                 </div>
+                {kind === "smart" ? (
+                  <RecommendedPackage
+                    actionIds={[
+                      proposal.task,
+                      ...(proposal.choice_options || []).map((option) => option.id),
+                    ]}
+                  />
+                ) : null}
                 {explanation?.kind === "invoice" ? (
                   <p className="mt-3 text-xs text-[var(--vo-muted)]">
                     {t("analysis.invoiceCalcHint")}
@@ -880,6 +931,42 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
         </section>
       ) : null}
     </OfficeShell>
+  );
+}
+
+function RecommendedPackage({
+  actionIds,
+}: {
+  actionIds: Array<string | null | undefined>;
+}) {
+  const { t } = useOfficeT();
+  const normalized = actionIds.filter(Boolean).join(" ");
+  const recommendation = /translate/.test(normalized)
+    ? { href: "/office/translation-pack", key: "translation_pack" }
+    : /lebenslauf|bewerbung/.test(normalized)
+      ? { href: "/office/cv-bewerbung", key: "cv_bewerbung" }
+      : /searchable|redaction|fillable|pdf|archive|quality/.test(normalized)
+        ? { href: "/office/pdf-pro", key: "pdf_pro" }
+        : null;
+  if (!recommendation) return null;
+
+  return (
+    <Link
+      href={recommendation.href}
+      className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-[var(--vo-accent)]/30 bg-[var(--vo-accent-soft)]/55 px-4 py-3 text-sm hover:border-[var(--vo-accent)]"
+    >
+      <span>
+        <span className="block text-xs font-semibold uppercase tracking-wide text-[var(--vo-muted)]">
+          {t("home.recommendedPackage")}
+        </span>
+        <span className="font-semibold text-[var(--vo-ink)]">
+          {t(`catalog.${recommendation.key}.title`)}
+        </span>
+      </span>
+      <span className="font-semibold text-[var(--vo-accent)]">
+        {t("start")} →
+      </span>
+    </Link>
   );
 }
 

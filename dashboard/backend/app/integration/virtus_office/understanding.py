@@ -29,10 +29,12 @@ CUSTOMER_EXECUTABLE_ACTIONS = frozenset(
         "lebenslauf_improve",
         "bewerbungsschreiben",
         "bewerbung_paket",
-        # Sales Kit registry prep — customer_sellable stays False until SALES_KIT_LIVE
         "sales_kit_basic",
         "sales_kit_business",
         "sales_kit_professional",
+        "pdf_pro",
+        "translation_pack",
+        "qr_code",
     }
 )
 
@@ -178,6 +180,34 @@ ACTION_CATALOG: tuple[dict[str, Any], ...] = (
         "needs_profile": True,
         "customer_sellable": True,
     },
+    {
+        "id": "pdf_pro",
+        "label_de": "PDF PRO",
+        "icon": "pdf",
+        "needs_target_language": False,
+        "default_output": "zip",
+        "price_key": "pdf_pro",
+        "customer_sellable": True,
+    },
+    {
+        "id": "translation_pack",
+        "label_de": "Translation Pack",
+        "icon": "translate",
+        "needs_target_language": True,
+        "default_output": "zip",
+        "price_key": "translation_pack",
+        "customer_sellable": True,
+    },
+    {
+        "id": "qr_code",
+        "label_de": "QR-Code",
+        "icon": "qr",
+        "needs_target_language": False,
+        "default_output": "png",
+        "price_key": "simple_op",
+        "customer_sellable": True,
+        "free": True,
+    },
     # B2B Sales Kit — public path wired; purchase gated by SALES_KIT_LIVE + customer_sellable
     {
         "id": "sales_kit_basic",
@@ -239,23 +269,25 @@ def _suggest_actions(
     scan_like = file_kind == "image" or (file_kind == "pdf" and not text_detected)
     if scan_like:
         actions = [
+            "pdf_pro",
             "searchable_pdf",
             "redaction",
             "document_quality_check",
+            "translation_pack",
             "translate",
             "convert_docx",
-            "extract_data",
         ]
     elif file_kind in {"xlsx", "csv"} or type_id == "spreadsheet" or tables > 0:
-        actions = ["document_quality_check", "extract_data", "translate", "convert_docx"]
+        actions = ["document_quality_check", "extract_data", "translation_pack", "translate", "convert_docx"]
     elif type_id == "invoice":
         actions = [
+            "pdf_pro",
             "document_quality_check",
             "extract_data",
             "redaction",
             "searchable_pdf",
+            "translation_pack",
             "translate",
-            "convert_docx",
         ]
     elif type_id == "businessplan":
         actions = ["document_quality_check", "translate", "extract_data", "convert_docx"]

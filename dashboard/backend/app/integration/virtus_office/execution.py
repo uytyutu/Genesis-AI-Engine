@@ -40,6 +40,9 @@ EXECUTABLE_ACTION_IDS: frozenset[str] = frozenset(
         "fillable_pdf",
         "pdf_a_2b",
         "document_archive",
+        "pdf_pro",
+        "translation_pack",
+        "qr_code",
     }
 ) | set(BEWERBUNG_ACTION_IDS)
 
@@ -116,6 +119,37 @@ def execute_office_action(
 
     if action in {"sales_kit_basic", "sales_kit_business", "sales_kit_professional"}:
         return _exec_sales_kit(action_id=action, intent=intent, understanding=understanding)
+
+    if action == "qr_code":
+        from app.integration.virtus_office.sku_qr_code import execute_qr_code
+
+        return execute_qr_code(intent=intent, understanding=understanding)
+
+    if action == "pdf_pro":
+        from app.integration.virtus_office.sku_pdf_pro import execute_pdf_pro
+
+        return execute_pdf_pro(
+            data=data,
+            filename=filename,
+            file_kind=file_kind,
+            content_type=content_type,
+            intent=intent,
+            understanding=understanding,
+            extra_pages=extra_pages,
+        )
+
+    if action == "translation_pack":
+        from app.integration.virtus_office.sku_translation_pack import execute_translation_pack
+
+        return execute_translation_pack(
+            data=data,
+            filename=filename,
+            file_kind=file_kind,
+            content_type=content_type,
+            intent=intent,
+            understanding=understanding,
+            extra_pages=extra_pages,
+        )
 
     if action == "document_quality_check":
         from app.integration.virtus_office.document_quality_check import (

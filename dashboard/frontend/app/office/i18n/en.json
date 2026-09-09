@@ -48,6 +48,15 @@
       "smart": "Smart understand"
     },
     "lead": "Upload a document, table or image. Virtus identifies what is inside, explains the content and proposes suitable actions.",
+    "taglineAds": "Ready-to-use digital materials for work, applications and business.",
+    "packagesTitle": "Choose a ready package",
+    "forPersonal": "For personal use",
+    "forBusiness": "For business",
+    "tools": "Tools",
+    "oneTime": "One-time purchase",
+    "free": "FREE",
+    "aLaCarteTitle": "Single services",
+    "recommendedPackage": "Recommended package",
     "smartTitle": "Not sure which service you need?",
     "smartLead": "Upload a file — Virtus explains the content and proposes the next steps.",
     "servicesTitle": "Services",
@@ -112,6 +121,26 @@
     }
   },
   "catalog": {
+    "pdf_pro": {
+      "title": "PDF PRO",
+      "subtitle": "Search, redact, fill, archive and quality-check PDFs in one package.",
+      "price": "€29.90"
+    },
+    "cv_bewerbung": {
+      "title": "CV & Application",
+      "subtitle": "Professional CV and tailored cover letter from your facts.",
+      "price": "€24.90"
+    },
+    "translation_pack": {
+      "title": "Translation Pack",
+      "subtitle": "Translate complete documents with structure and quality checks.",
+      "price": "€19.90"
+    },
+    "qr_code": {
+      "title": "QR Code",
+      "subtitle": "Create QR codes for links, contacts, Wi-Fi and messages.",
+      "price": "FREE"
+    },
     "searchable": {
       "title": "Searchable PDF",
       "subtitle": "Scan → PDF with text layer (Ctrl+F)",
@@ -315,6 +344,70 @@
       "formats": "PDF, DOCX",
       "price": "14.90",
       "eta": "10–25"
+    }
+  },
+  "pdfPro": {
+    "title": "PDF PRO",
+    "lead": "One upload for the complete PDF toolkit: searchable text, redaction, forms, PDF/A, archive and quality checks.",
+    "honesty": "Only the operations confirmed in your proposal are performed.",
+    "opsLabel": "Included PDF operations",
+    "cta": "Upload PDF",
+    "price": "€29.90",
+    "b1": "Searchable text layer and technical validation",
+    "b2": "Redaction and fillable form options",
+    "b3": "PDF/A and organized archive outputs",
+    "b4": "Quality check before delivery"
+  },
+  "translationPack": {
+    "title": "Translation Pack",
+    "lead": "Translate a complete document while preserving names, numbers and structure.",
+    "honesty": "Not a certified translation; scan quality affects the result.",
+    "opsLabel": "Translation options",
+    "cta": "Upload document",
+    "price": "€19.90",
+    "b1": "Choose source and target language",
+    "b2": "Preserve names, numbers and dates",
+    "b3": "Structured PDF or DOCX output",
+    "b4": "Quality check before delivery"
+  },
+  "qr": {
+    "title": "Free QR Code Generator",
+    "lead": "Create a ready QR code and download it as PNG, SVG or PDF. No payment required.",
+    "freeBadge": "FREE · no payment",
+    "typeLabel": "QR type",
+    "generate": "Generate QR code",
+    "generating": "Generating…",
+    "required": "Enter at least one value.",
+    "error": "The QR code could not be generated.",
+    "ready": "Your QR code is ready",
+    "downloadLead": "Choose the format you need.",
+    "previewAlt": "Generated QR code preview",
+    "downloadPng": "Download PNG",
+    "downloadSvg": "Download SVG",
+    "downloadPdf": "Download PDF",
+    "types": {
+      "url": "Website URL",
+      "whatsapp": "WhatsApp",
+      "maps": "Maps address",
+      "email": "Email",
+      "phone": "Phone",
+      "text": "Plain text",
+      "wifi": "Wi-Fi",
+      "vcard": "Contact card"
+    },
+    "fields": {
+      "url": "URL",
+      "phone": "Phone number",
+      "message": "Message",
+      "address": "Address",
+      "email": "Email address",
+      "subject": "Subject",
+      "text": "Text",
+      "ssid": "Wi-Fi name (SSID)",
+      "password": "Wi-Fi password",
+      "security": "Security (WPA/WEP/nopass)",
+      "name": "Full name",
+      "company": "Company"
     }
   },
   "service": {
@@ -741,6 +834,10 @@
   },
   "nav": {
     "home": "Office",
+    "pdf_pro": "PDF PRO",
+    "cv_bewerbung": "CV & Application",
+    "translation_pack": "Translation Pack",
+    "qr": "QR Free",
     "searchable": "Searchable PDF",
     "redaction": "Redaction",
     "fillable": "Fillable",

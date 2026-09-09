@@ -77,6 +77,9 @@ OFFICE_SELLABLE_NOW: tuple[str, ...] = (
     "sales_kit_basic",
     "sales_kit_business",
     "sales_kit_professional",
+    "pdf_pro",
+    "translation_pack",
+    "qr_code",
 )
 
 OFFICE_VITRINE_FORBIDDEN: tuple[str, ...] = (
@@ -171,6 +174,8 @@ OFFICE_PRICE_MATRIX_EUR: dict[str, float] = {
     "excel_calc": 14.90,
     "doc_analysis": 14.90,
     "large_pack": 24.90,
+    "pdf_pro": 29.90,
+    "translation_pack": 19.90,
     "complex_from": 39.90,
     # B2B package targets (not LIVE / not sellable until Owner E2E)
     "sales_kit_basic": 99.0,

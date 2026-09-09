@@ -51,10 +51,22 @@
     "smartTitle": "Non sei sicuro di quale servizio ti serve?",
     "smartLead": "Carica un file — Virtus spiega il contenuto e propone i passi successivi.",
     "servicesTitle": "Servizi",
+    "taglineAds": "Materiali digitali pronti per lavoro, candidature e aziende.",
+    "packagesTitle": "Scegli un pacchetto pronto",
+    "forPersonal": "Per privati",
+    "forBusiness": "Per aziende",
+    "tools": "Strumenti",
+    "oneTime": "Acquisto una tantum",
+    "free": "GRATIS",
+    "aLaCarteTitle": "Servizi singoli",
+    "recommendedPackage": "Pacchetto consigliato",
+    "b2bTitle":"Pacchetti aziendali","b2bLead":"Pacchetti professionali di documenti per aziende. Non ancora in vendita — disponibili a breve dopo l’approvazione del proprietario.",
+    "comingSoon":"Prossimamente","comingSoonCta":"Non ancora disponibile","salesKitLearnMore":"Scopri di più →",
     "formatsLabel": "Formati",
     "howTitle": "Come funziona",
     "quick": {
       "upload": "Carica",
+      "searchable":"PDF ricercabile","redaction":"Oscuramento dati","fillable":"PDF compilabile","pdfa":"PDF/A-2b","archive":"Archivio documenti","quality":"Controllo qualità",
       "translate": "Traduci",
       "create": "Crea",
       "calculate": "Calcola",
@@ -101,6 +113,16 @@
     }
   },
   "catalog": {
+    "pdf_pro": {"title":"PDF PRO","subtitle":"Cerca, oscura, compila, archivia e controlla PDF in un unico pacchetto.","price":"29,90 €"},
+    "cv_bewerbung": {"title":"CV e candidatura","subtitle":"CV professionale e lettera personalizzata dai tuoi dati.","price":"24,90 €"},
+    "translation_pack": {"title":"Pacchetto traduzione","subtitle":"Traduci documenti completi con struttura e controllo qualità.","price":"19,90 €"},
+    "qr_code": {"title":"Codice QR","subtitle":"Crea QR per link, contatti, Wi-Fi e messaggi.","price":"GRATIS"},
+    "searchable":{"title":"PDF ricercabile","subtitle":"Scansione → PDF con livello di testo (Ctrl+F)","upload":"Scansione · PDF immagine · foto","receive":"PDF con testo ricercabile e copiabile — con controllo tecnico","price":"9.90","eta":"5–15","formats":"PDF, JPG, PNG"},
+    "redaction":{"title":"Oscuramento dati","subtitle":"Rimuovi i dati personali","upload":"Contratto · fattura · estratto · scansione","receive":"Copia PDF senza email, IBAN, telefono ecc. nel testo estraibile","price":"9.90","eta":"5–15","formats":"PDF, JPG, PNG"},
+    "fillable":{"title":"PDF compilabile","subtitle":"Campi AcroForm reali","upload":"Modulo · registrazione · scansione · PDF","receive":"PDF con campi interattivi (testo/casella) — verificato tecnicamente","price":"19.90","eta":"5–20","formats":"PDF, JPG, PNG"},
+    "pdfa":{"title":"Archivio PDF/A-2b","subtitle":"PDF per archiviazione (strutturale)","upload":"PDF · scansione · foto","receive":"PDF/A-2b con OutputIntent + XMP — controllo Virtus, senza certificazione veraPDF","price":"9.90","eta":"5–15","formats":"PDF, JPG, PNG"},
+    "archive":{"title":"Archivio documenti","subtitle":"Lotto → cartelle + ZIP + indice","upload":"ZIP · più PDF/immagini · scansione cartella","receive":"ZIP con cartelle, file rinominati e index.xlsx — verificato tecnicamente","price":"29.90","eta":"5–20","formats":"ZIP, PDF, JPG, PNG, DOCX"},
+    "quality":{"title":"Controllo qualità documento","subtitle":"Rapporto tecnico READY / NOT_READY","upload":"PDF · Word · Excel · foto · scansione","receive":"Solo rapporto diagnostico — nessun documento corretto o consulenza legale/fiscale","price":"7.90","eta":"2–8","formats":"PDF, DOCX, XLSX, JPG, PNG"},
     "translate": {
       "title": "Traduzione",
       "subtitle": "Tradurre documenti",
@@ -128,6 +150,12 @@
       "eta": "10–25",
       "formats": "PDF, DOCX"
     },
+    "sales_kit":{"title":"Sales Kit","subtitle":"Documenti di vendita professionali dai materiali della tua azienda.","upload":"Logo · servizi · prezzi · contatti · documenti esistenti","receive":"Profilo aziendale · offerta · listino prezzi · modello email (ZIP in base al livello)","price":"99","eta":"15–40","formats":"PDF, DOCX, ZIP","honesty":"Solo dalle informazioni fornite. Nessun servizio, prezzo o riferimento inventato."},
+    "company_profile":{"title":"Profilo aziendale","subtitle":"Profilo aziendale professionale dai tuoi materiali.","upload":"Nome azienda · logo · testo · servizi · contatti","receive":"Profilo aziendale in PDF e DOCX","price":"149","eta":"15–35","formats":"PDF, DOCX","honesty":"Nessun dato inventato sulla tua azienda."},
+    "document_cleanup_pack":{"title":"Pacchetto riordino documenti","subtitle":"Standardizza e riordina professionalmente il tuo set di documenti.","upload":"10–30 documenti (in base al livello)","receive":"File puliti e formattati in modo uniforme","price":"99","eta":"20–60","formats":"PDF, DOCX","honesty":"Riordino professionale — non certificazione legale o di conformità."},
+    "business_translation_pack":{"title":"Pacchetto traduzione aziendale","subtitle":"Traduci documenti aziendali — devi scegliere la lingua di destinazione.","upload":"Documenti originali · lingua di origine · lingua di destinazione","receive":"Pacchetto PDF/DOCX tradotto","price":"99","eta":"20–60","formats":"PDF, DOCX","honesty":"Nessuna affermazione aziendale inventata; numeri e nomi sono preservati con cura."},
+    "excel_business_pack":{"title":"Pacchetto Excel aziendale","subtitle":"Trasforma fogli disordinati in una cartella di lavoro utilizzabile.","upload":"Excel · CSV · tabelle chiare","receive":"XLSX ripulito con struttura e riepilogo","price":"149","eta":"20–50","formats":"XLSX, CSV","honesty":"Nessuna BI avanzata e nessun dato inventato."},
+    "process_sop_pack":{"title":"Pacchetto processi / SOP","subtitle":"I tuoi flussi di lavoro come documentazione strutturata dei processi.","upload":"Descrizioni · Word/PDF/Excel esistenti","receive":"Documenti di processo strutturati con checklist","price":"199","eta":"30–90","formats":"PDF, DOCX","honesty":"Solo strutturazione dei documenti — non consulenza legale, fiscale o ISO."},
     "documents": {
       "title": "Documenti",
       "subtitle": "PDF · Word",
@@ -191,6 +219,19 @@
       "price": "14.90",
       "eta": "10–25"
     }
+  },
+  "pdfPro": {
+    "title":"PDF PRO","lead":"Un solo caricamento per ricerca, oscuramento, moduli, PDF/A, archivio e controllo qualità.","honesty":"Vengono eseguite solo le operazioni confermate nella proposta.","opsLabel":"Operazioni PDF incluse","cta":"Carica PDF","price":"29,90 €",
+    "b1":"Livello di testo ricercabile e verifica tecnica","b2":"Opzioni di oscuramento e moduli compilabili","b3":"Output PDF/A e archivio organizzato","b4":"Controllo qualità prima della consegna"
+  },
+  "translationPack": {
+    "title":"Pacchetto traduzione","lead":"Traduci un documento completo preservando nomi, numeri e struttura.","honesty":"Non è una traduzione certificata; la qualità della scansione incide sul risultato.","opsLabel":"Opzioni di traduzione","cta":"Carica documento","price":"19,90 €",
+    "b1":"Scelta della lingua sorgente e destinazione","b2":"Conservazione di nomi, numeri e date","b3":"Output strutturato PDF o DOCX","b4":"Controllo qualità prima della consegna"
+  },
+  "qr": {
+    "title":"Generatore gratuito di codici QR","lead":"Crea un codice QR e scaricalo in PNG, SVG o PDF. Nessun pagamento.","freeBadge":"GRATIS · senza pagamento","typeLabel":"Tipo di QR","generate":"Crea codice QR","generating":"Creazione…","required":"Inserisci almeno un valore.","error":"Impossibile creare il codice QR.","ready":"Il tuo codice QR è pronto","downloadLead":"Scegli il formato necessario.","previewAlt":"Anteprima del codice QR","downloadPng":"Scarica PNG","downloadSvg":"Scarica SVG","downloadPdf":"Scarica PDF",
+    "types":{"url":"URL sito","whatsapp":"WhatsApp","maps":"Indirizzo Maps","email":"E-mail","phone":"Telefono","text":"Testo libero","wifi":"Wi-Fi","vcard":"Scheda contatto"},
+    "fields":{"url":"URL","phone":"Numero di telefono","message":"Messaggio","address":"Indirizzo","email":"Indirizzo e-mail","subject":"Oggetto","text":"Testo","ssid":"Nome Wi-Fi (SSID)","password":"Password Wi-Fi","security":"Sicurezza (WPA/WEP/nopass)","name":"Nome completo","company":"Azienda"}
   },
   "service": {
     "translate": {
@@ -492,13 +533,28 @@
   },
   "nav": {
     "home": "Office",
+    "pdf_pro": "PDF PRO",
+    "cv_bewerbung": "CV e candidatura",
+    "translation_pack": "Traduzione",
+    "qr": "QR gratis",
+    "searchable":"PDF ricercabile","redaction":"Oscuramento dati","fillable":"PDF compilabile","pdfa":"PDF/A","archive":"Archivio",
     "translate": "Traduzione",
     "lebenslauf": "CV",
     "bewerbung": "Candidatura",
+    "sales_kit": "Sales Kit",
     "documents": "Documenti",
     "excel": "Excel",
     "smart": "Smart",
-    "cabinet": "My cabinet"
+    "cabinet": "Il mio spazio"
+  },
+  "salesKit":{
+    "eyebrow":"Virtus Office","title":"Sales Kit","lead":"Documenti di vendita professionali basati sui dati della tua azienda — chiari, onesti e senza contenuti inventati.","honesty":"Usiamo solo le informazioni che fornisci. Nessun servizio, prezzo o riferimento inventato.",
+    "basicIncludes":"Profilo aziendale in PDF e DOCX","businessIncludes":"Profilo aziendale · offerta · listino prezzi · modello email","professionalIncludes":"Pacchetto aziendale completo come Business, con preparazione estesa",
+    "formTitle":"Dati della tua azienda","formLead":"Inserisci i dati da includere nei documenti. La creazione inizia solo dopo il pagamento riuscito e quando il servizio è attivo.",
+    "fields":{"companyName":"Nome azienda","email":"Email","phone":"Telefono","description":"Breve descrizione","services":"Servizi (uno per riga)","prices":"Prezzi / listino (uno per riga)"},
+    "placeholders":{"services":"es. Consulenza in sede","prices":"es. Consulenza — 89 €"},
+    "ctaConfigure":"Continua","ctaCheckout":"Ordina ora","working":"Attendi…","configFailed":"Configurazione non riuscita. Controlla i dati.","configuredBlocked":"Dati salvati. L’acquisto non è ancora abilitato — il pagamento resta bloccato.","configuredReady":"Dati salvati. Puoi procedere al pagamento.","liveBlocked":"Sales Kit non è ancora abilitato. I dati sono salvati — l’acquisto sarà disponibile dopo il rilascio.","checkoutUnexpected":"Risposta di pagamento imprevista. Riprova più tardi.",
+    "tiers":{"sales_kit_basic":{"label":"Basic","desc":"Un solido profilo aziendale per una prima impressione professionale."},"sales_kit_business":{"label":"Business","desc":"Profilo, offerta, prezzi e modello email per le vendite quotidiane."},"sales_kit_professional":{"label":"Professional","desc":"Pacchetto completo di documenti per attività commerciali impegnative."}}
   },
   "progress": {
     "title": "Il tuo ordine",

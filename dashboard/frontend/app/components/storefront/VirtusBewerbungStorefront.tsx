@@ -31,10 +31,16 @@ const ACTION_IDS: ActionId[] = [
   "bewerbung_paket",
 ];
 
-export function VirtusBewerbungStorefront({ embedded = false }: { embedded?: boolean }) {
+export function VirtusBewerbungStorefront({
+  embedded = false,
+  defaultAction = "lebenslauf_create",
+}: {
+  embedded?: boolean;
+  defaultAction?: ActionId;
+}) {
   const router = useRouter();
   const { t } = useOfficeT();
-  const [action, setAction] = useState<ActionId>("lebenslauf_create");
+  const [action, setAction] = useState<ActionId>(defaultAction);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);

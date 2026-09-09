@@ -1118,6 +1118,8 @@ class OfficeJobEngine:
             )
         if intent.get("id") == "translate" and not intent.get("target_language"):
             raise OfficeJobError("target_language_required", "Bitte Zielsprache wählen")
+        if intent.get("id") == "translation_pack" and not intent.get("target_language"):
+            raise OfficeJobError("target_language_required", "Bitte Zielsprache wählen")
         if not intent.get("id"):
             raise OfficeJobError("action_required", "Bitte zuerst eine Aktion wählen")
 
@@ -1151,6 +1153,7 @@ class OfficeJobEngine:
 
         is_bewerbung = intent.get("id") in BEWERBUNG_ACTION_IDS
         is_sales_kit = intent_id in SALES_KIT_SKUS
+        is_qr = intent_id == "qr_code"
         data = b""
         extra_pages: list[tuple[bytes, str]] = []
         photo_bytes: bytes | None = None
@@ -1167,6 +1170,10 @@ class OfficeJobEngine:
             understanding = dict(job.get("understanding") or {})
             understanding["sales_kit_company"] = company
             job["understanding"] = understanding
+        elif is_qr:
+            qr_cfg = dict(intent.get("qr") or {})
+            if not qr_cfg and not intent.get("qr_type"):
+                return self._fail_execution(job, "missing_input", "QR-Daten fehlen")
         elif is_bewerbung:
             missing = missing_fields_for_action(str(intent["id"]), profile)
             if missing:

@@ -51,10 +51,22 @@
     "smartTitle": "Hangi hizmete ihtiyacınız olduğundan emin değil misiniz?",
     "smartLead": "Dosya yükleyin — Virtus içeriği açıklar ve sonraki adımları önerir.",
     "servicesTitle": "Hizmetler",
+    "taglineAds": "İş, başvuru ve şirket için kullanıma hazır dijital materyaller.",
+    "packagesTitle": "Hazır paket seçin",
+    "forPersonal": "Bireysel kullanım",
+    "forBusiness": "İşletmeler için",
+    "tools": "Araçlar",
+    "oneTime": "Tek seferlik satın alma",
+    "free": "ÜCRETSİZ",
+    "aLaCarteTitle": "Tekil hizmetler",
+    "recommendedPackage": "Önerilen paket",
+    "b2bTitle": "İş paketleri", "b2bLead": "Şirketler için profesyonel belge paketleri. Henüz satışta değil — işletme sahibi onayından sonra yakında.",
+    "comingSoon": "Yakında", "comingSoonCta": "Henüz kullanılamıyor", "salesKitLearnMore": "Daha fazla bilgi →",
     "formatsLabel": "Biçimler",
     "howTitle": "Nasıl çalışır",
     "quick": {
       "upload": "Yükle",
+      "searchable":"Aranabilir PDF","redaction":"Veri karartma","fillable":"Doldurulabilir PDF","pdfa":"PDF/A-2b","archive":"Belge arşivi","quality":"Kalite kontrolü",
       "translate": "Çevir",
       "create": "Oluştur",
       "calculate": "Hesapla",
@@ -101,6 +113,16 @@
     }
   },
   "catalog": {
+    "pdf_pro": {"title":"PDF PRO","subtitle":"PDF arama, karartma, doldurma, arşivleme ve kontrol tek pakette.","price":"29,90 €"},
+    "cv_bewerbung": {"title":"CV ve Başvuru","subtitle":"Bilgilerinize dayalı profesyonel CV ve özel ön yazı.","price":"24,90 €"},
+    "translation_pack": {"title":"Çeviri Paketi","subtitle":"Tam belgeleri yapı ve kalite kontrolüyle çevirin.","price":"19,90 €"},
+    "qr_code": {"title":"QR Kod","subtitle":"Bağlantı, kişi, Wi-Fi ve mesajlar için QR oluşturun.","price":"ÜCRETSİZ"},
+    "searchable":{"title":"Aranabilir PDF","subtitle":"Tarama → metin katmanlı PDF (Ctrl+F)","upload":"Tarama · görüntü PDF · fotoğraf","receive":"Metni aranabilir ve kopyalanabilir PDF — teknik kalite kontrolüyle","price":"9.90","eta":"5–15","formats":"PDF, JPG, PNG"},
+    "redaction":{"title":"Veri karartma","subtitle":"Kişisel verileri kaldırın","upload":"Sözleşme · fatura · ekstre · tarama","receive":"Çıkarılabilir metinde e-posta, IBAN, telefon vb. bulunmayan PDF kopyası","price":"9.90","eta":"5–15","formats":"PDF, JPG, PNG"},
+    "fillable":{"title":"Doldurulabilir PDF","subtitle":"Gerçek AcroForm alanları","upload":"Form · kayıt · tarama · PDF","receive":"Tıklanabilir alanlara sahip PDF (metin/onay kutusu) — teknik olarak doğrulanmış","price":"19.90","eta":"5–20","formats":"PDF, JPG, PNG"},
+    "pdfa":{"title":"PDF/A-2b arşivi","subtitle":"Arşiv PDF'si (yapısal)","upload":"PDF · tarama · fotoğraf","receive":"OutputIntent + XMP içeren PDF/A-2b — Virtus kontrolü, veraPDF sertifikası değil","price":"9.90","eta":"5–15","formats":"PDF, JPG, PNG"},
+    "archive":{"title":"Belge arşivi","subtitle":"Toplu dosya → klasörler + ZIP + dizin","upload":"ZIP · birden çok PDF/görsel · klasör taraması","receive":"Klasörler, yeniden adlandırılmış dosyalar ve index.xlsx içeren ZIP — teknik olarak doğrulanmış","price":"29.90","eta":"5–20","formats":"ZIP, PDF, JPG, PNG, DOCX"},
+    "quality":{"title":"Belge kalite kontrolü","subtitle":"READY / NOT_READY teknik raporu","upload":"PDF · Word · Excel · fotoğraf · tarama","receive":"Yalnızca tanı raporu — düzeltilmiş belge veya hukuk/vergi tavsiyesi yok","price":"7.90","eta":"2–8","formats":"PDF, DOCX, XLSX, JPG, PNG"},
     "translate": {
       "title": "Çeviri",
       "subtitle": "Belgeleri çevirin",
@@ -128,6 +150,12 @@
       "eta": "10–25",
       "formats": "PDF, DOCX"
     },
+    "sales_kit":{"title":"Sales Kit","subtitle":"Şirket materyallerinizden profesyonel satış belgeleri.","upload":"Logo · hizmetler · fiyatlar · iletişim · mevcut belgeler","receive":"Şirket profili · teklif · fiyat listesi · e-posta şablonu (pakete göre ZIP)","price":"99","eta":"15–40","formats":"PDF, DOCX, ZIP","honesty":"Yalnızca verdiğiniz bilgilerden. Uydurma hizmet, fiyat veya referans yok."},
+    "company_profile":{"title":"Şirket Profili","subtitle":"Materyallerinizden profesyonel şirket profili.","upload":"Şirket adı · logo · metin · hizmetler · iletişim","receive":"PDF ve DOCX olarak şirket profili","price":"149","eta":"15–35","formats":"PDF, DOCX","honesty":"Şirketiniz hakkında uydurma bilgi yok."},
+    "document_cleanup_pack":{"title":"Belge Düzenleme Paketi","subtitle":"Belge setinizi standartlaştırın ve profesyonelce düzenleyin.","upload":"10–30 belge (pakete göre)","receive":"Temizlenmiş, tutarlı biçimlendirilmiş dosyalar","price":"99","eta":"20–60","formats":"PDF, DOCX","honesty":"Profesyonel düzenleme — hukuk veya uyumluluk sertifikası değildir."},
+    "business_translation_pack":{"title":"İş Çevirisi Paketi","subtitle":"İş belgelerini çevirin — hedef dil seçilmelidir.","upload":"Kaynak belgeler · kaynak dil · hedef dil","receive":"Çevrilmiş PDF/DOCX paketi","price":"99","eta":"20–60","formats":"PDF, DOCX","honesty":"Uydurma iş iddiası yok; sayılar ve adlar dikkatle korunur."},
+    "excel_business_pack":{"title":"Excel İş Paketi","subtitle":"Dağınık tabloları kullanılabilir bir çalışma kitabına dönüştürün.","upload":"Excel · CSV · net tablolar","receive":"Yapı ve özet içeren temizlenmiş XLSX","price":"149","eta":"20–50","formats":"XLSX, CSV","honesty":"Gelişmiş BI ve uydurma veri yok."},
+    "process_sop_pack":{"title":"Süreç / SOP Paketi","subtitle":"İş akışlarınız yapılandırılmış süreç belgelerine dönüşür.","upload":"Açıklamalar · mevcut Word/PDF/Excel","receive":"Kontrol listeleri içeren yapılandırılmış süreç belgeleri","price":"199","eta":"30–90","formats":"PDF, DOCX","honesty":"Yalnızca belge yapılandırması — hukuk, vergi veya ISO tavsiyesi değildir."},
     "documents": {
       "title": "Belgeler",
       "subtitle": "PDF · Word",
@@ -191,6 +219,19 @@
       "price": "14.90",
       "eta": "10–25"
     }
+  },
+  "pdfPro": {
+    "title":"PDF PRO","lead":"Arama, karartma, formlar, PDF/A, arşiv ve kalite kontrolü için tek yükleme.","honesty":"Yalnızca teklifinizde onaylanan işlemler uygulanır.","opsLabel":"Dahil PDF işlemleri","cta":"PDF yükle","price":"29,90 €",
+    "b1":"Aranabilir metin katmanı ve teknik doğrulama","b2":"Karartma ve doldurulabilir form seçenekleri","b3":"PDF/A ve düzenli arşiv çıktıları","b4":"Teslimattan önce kalite kontrolü"
+  },
+  "translationPack": {
+    "title":"Çeviri Paketi","lead":"Adları, sayıları ve yapıyı koruyarak tam belgeyi çevirin.","honesty":"Yeminli çeviri değildir; tarama kalitesi sonucu etkiler.","opsLabel":"Çeviri seçenekleri","cta":"Belge yükle","price":"19,90 €",
+    "b1":"Kaynak ve hedef dil seçimi","b2":"Ad, sayı ve tarihleri koruma","b3":"Yapılandırılmış PDF veya DOCX","b4":"Teslimattan önce kalite kontrolü"
+  },
+  "qr": {
+    "title":"Ücretsiz QR Kod Oluşturucu","lead":"QR kod oluşturun ve PNG, SVG veya PDF indirin. Ödeme gerekmez.","freeBadge":"ÜCRETSİZ · ödeme yok","typeLabel":"QR türü","generate":"QR kod oluştur","generating":"Oluşturuluyor…","required":"En az bir değer girin.","error":"QR kod oluşturulamadı.","ready":"QR kodunuz hazır","downloadLead":"İhtiyacınız olan biçimi seçin.","previewAlt":"Oluşturulan QR kod önizlemesi","downloadPng":"PNG indir","downloadSvg":"SVG indir","downloadPdf":"PDF indir",
+    "types":{"url":"Web sitesi URL’si","whatsapp":"WhatsApp","maps":"Harita adresi","email":"E-posta","phone":"Telefon","text":"Düz metin","wifi":"Wi-Fi","vcard":"Kişi kartı"},
+    "fields":{"url":"URL","phone":"Telefon numarası","message":"Mesaj","address":"Adres","email":"E-posta adresi","subject":"Konu","text":"Metin","ssid":"Wi-Fi adı (SSID)","password":"Wi-Fi parolası","security":"Güvenlik (WPA/WEP/nopass)","name":"Ad soyad","company":"Şirket"}
   },
   "service": {
     "translate": {
@@ -492,13 +533,28 @@
   },
   "nav": {
     "home": "Office",
+    "pdf_pro": "PDF PRO",
+    "cv_bewerbung": "CV ve Başvuru",
+    "translation_pack": "Çeviri Paketi",
+    "qr": "Ücretsiz QR",
+    "searchable":"Aranabilir PDF","redaction":"Veri karartma","fillable":"Doldurulabilir PDF","pdfa":"PDF/A","archive":"Arşiv",
     "translate": "Çeviri",
     "lebenslauf": "CV",
     "bewerbung": "Başvuru",
+    "sales_kit": "Sales Kit",
     "documents": "Belgeler",
     "excel": "Excel",
     "smart": "Smart",
-    "cabinet": "My cabinet"
+    "cabinet": "Kabinettim"
+  },
+  "salesKit":{
+    "eyebrow":"Virtus Office","title":"Sales Kit","lead":"Şirketinizin gerçek bilgilerine dayalı profesyonel satış belgeleri — açık, dürüst ve uydurma içerik olmadan.","honesty":"Yalnızca verdiğiniz bilgileri kullanırız. Uydurma hizmet, fiyat veya referans yok.",
+    "basicIncludes":"PDF ve DOCX olarak Şirket Profili","businessIncludes":"Şirket Profili · teklif · fiyat listesi · e-posta şablonu","professionalIncludes":"Business paketinin genişletilmiş hazırlıklı tam sürümü",
+    "formTitle":"Şirket bilgileriniz","formLead":"Belgelerde yer alacak gerçek bilgileri girin. Oluşturma yalnızca başarılı ödemeden ve hizmet yayına alındıktan sonra başlar.",
+    "fields":{"companyName":"Şirket adı","email":"E-posta","phone":"Telefon","description":"Kısa açıklama","services":"Hizmetler (her satıra bir tane)","prices":"Fiyatlar / fiyat listesi (her satıra bir tane)"},
+    "placeholders":{"services":"ör. Yerinde danışmanlık","prices":"ör. Danışmanlık — €89"},
+    "ctaConfigure":"Devam et","ctaCheckout":"Şimdi sipariş ver","working":"Lütfen bekleyin…","configFailed":"Yapılandırma başarısız. Bilgilerinizi kontrol edin.","configuredBlocked":"Bilgiler kaydedildi. Satın alma henüz etkin değil — ödeme kapalı kalır.","configuredReady":"Bilgiler kaydedildi. Ödemeye geçebilirsiniz.","liveBlocked":"Sales Kit henüz etkin değil. Bilgiler kaydedildi — satın alma yayın sonrası başlar.","checkoutUnexpected":"Beklenmeyen ödeme yanıtı. Lütfen daha sonra tekrar deneyin.",
+    "tiers":{"sales_kit_basic":{"label":"Basic","desc":"Profesyonel bir ilk izlenim için güçlü şirket profili."},"sales_kit_business":{"label":"Business","desc":"Günlük satışlar için profil, teklif, fiyatlar ve e-posta şablonu."},"sales_kit_professional":{"label":"Professional","desc":"Titiz müşteri iletişimi için eksiksiz belge paketi."}}
   },
   "progress": {
     "title": "Siparişiniz",

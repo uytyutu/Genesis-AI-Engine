@@ -48,6 +48,15 @@
       "smart": "Smart verstehen"
     },
     "lead": "Laden Sie ein Dokument, eine Tabelle oder ein Bild hoch. Virtus erkennt den Inhalt, erklärt ihn und schlägt passende Aktionen vor.",
+    "taglineAds": "Fertige digitale Unterlagen für Arbeit, Bewerbung und Unternehmen.",
+    "packagesTitle": "Fertiges Paket wählen",
+    "forPersonal": "Für Privatpersonen",
+    "forBusiness": "Für Unternehmen",
+    "tools": "Werkzeuge",
+    "oneTime": "Einmaliger Kauf",
+    "free": "KOSTENLOS",
+    "aLaCarteTitle": "Einzelleistungen",
+    "recommendedPackage": "Empfohlenes Paket",
     "smartTitle": "Nicht sicher, welchen Service Sie brauchen?",
     "smartLead": "Datei hochladen — Virtus erklärt den Inhalt und schlägt nächste Schritte vor.",
     "servicesTitle": "Leistungen",
@@ -112,6 +121,26 @@
     }
   },
   "catalog": {
+    "pdf_pro": {
+      "title": "PDF PRO",
+      "subtitle": "PDFs suchen, schwärzen, ausfüllen, archivieren und prüfen – in einem Paket.",
+      "price": "29,90 €"
+    },
+    "cv_bewerbung": {
+      "title": "CV & Bewerbung",
+      "subtitle": "Professioneller Lebenslauf und passendes Anschreiben aus Ihren Angaben.",
+      "price": "24,90 €"
+    },
+    "translation_pack": {
+      "title": "Übersetzungspaket",
+      "subtitle": "Vollständige Dokumente mit Struktur und Qualitätsprüfung übersetzen.",
+      "price": "19,90 €"
+    },
+    "qr_code": {
+      "title": "QR-Code",
+      "subtitle": "QR-Codes für Links, Kontakte, WLAN und Nachrichten erstellen.",
+      "price": "KOSTENLOS"
+    },
     "searchable": {
       "title": "Durchsuchbares PDF",
       "subtitle": "Scan → PDF mit Textschicht (Ctrl+F)",
@@ -315,6 +344,70 @@
       "formats": "PDF, DOCX",
       "price": "14,90",
       "eta": "10–25"
+    }
+  },
+  "pdfPro": {
+    "title": "PDF PRO",
+    "lead": "Ein Upload für das vollständige PDF-Paket: Textsuche, Schwärzung, Formulare, PDF/A, Archiv und Qualitätsprüfung.",
+    "honesty": "Ausgeführt werden nur die in Ihrem Angebot bestätigten Vorgänge.",
+    "opsLabel": "Enthaltene PDF-Vorgänge",
+    "cta": "PDF hochladen",
+    "price": "29,90 €",
+    "b1": "Durchsuchbare Textschicht mit technischer Prüfung",
+    "b2": "Optionen für Schwärzung und ausfüllbare Formulare",
+    "b3": "PDF/A- und geordnete Archiv-Ausgabe",
+    "b4": "Qualitätsprüfung vor der Auslieferung"
+  },
+  "translationPack": {
+    "title": "Übersetzungspaket",
+    "lead": "Ein vollständiges Dokument übersetzen und Namen, Zahlen sowie Struktur erhalten.",
+    "honesty": "Keine beglaubigte Übersetzung; Scan-Qualität beeinflusst das Ergebnis.",
+    "opsLabel": "Übersetzungsoptionen",
+    "cta": "Dokument hochladen",
+    "price": "19,90 €",
+    "b1": "Quell- und Zielsprache wählen",
+    "b2": "Namen, Zahlen und Daten erhalten",
+    "b3": "Strukturierte Ausgabe als PDF oder DOCX",
+    "b4": "Qualitätsprüfung vor der Auslieferung"
+  },
+  "qr": {
+    "title": "Kostenloser QR-Code-Generator",
+    "lead": "Erstellen Sie einen fertigen QR-Code und laden Sie ihn als PNG, SVG oder PDF herunter. Keine Zahlung.",
+    "freeBadge": "KOSTENLOS · ohne Zahlung",
+    "typeLabel": "QR-Typ",
+    "generate": "QR-Code erstellen",
+    "generating": "Wird erstellt…",
+    "required": "Bitte mindestens einen Wert eingeben.",
+    "error": "Der QR-Code konnte nicht erstellt werden.",
+    "ready": "Ihr QR-Code ist fertig",
+    "downloadLead": "Wählen Sie das passende Format.",
+    "previewAlt": "Vorschau des erstellten QR-Codes",
+    "downloadPng": "PNG herunterladen",
+    "downloadSvg": "SVG herunterladen",
+    "downloadPdf": "PDF herunterladen",
+    "types": {
+      "url": "Website-URL",
+      "whatsapp": "WhatsApp",
+      "maps": "Kartenadresse",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "text": "Freier Text",
+      "wifi": "WLAN",
+      "vcard": "Kontaktkarte"
+    },
+    "fields": {
+      "url": "URL",
+      "phone": "Telefonnummer",
+      "message": "Nachricht",
+      "address": "Adresse",
+      "email": "E-Mail-Adresse",
+      "subject": "Betreff",
+      "text": "Text",
+      "ssid": "WLAN-Name (SSID)",
+      "password": "WLAN-Passwort",
+      "security": "Sicherheit (WPA/WEP/nopass)",
+      "name": "Vollständiger Name",
+      "company": "Unternehmen"
     }
   },
   "service": {
@@ -741,6 +834,10 @@
   },
   "nav": {
     "home": "Office",
+    "pdf_pro": "PDF PRO",
+    "cv_bewerbung": "CV & Bewerbung",
+    "translation_pack": "Übersetzungspaket",
+    "qr": "QR kostenlos",
     "searchable": "Searchable PDF",
     "redaction": "Schwärzung",
     "fillable": "Ausfüllbar",

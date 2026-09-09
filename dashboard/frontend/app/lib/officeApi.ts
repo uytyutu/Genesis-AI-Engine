@@ -227,6 +227,28 @@ export type OfficeCabinet = {
   downloads: Array<Record<string, unknown>>;
 };
 
+export type OfficeCatalogProduct = {
+  id: string;
+  title?: string;
+  price_eur?: number | null;
+  live?: boolean;
+  [key: string]: unknown;
+};
+
+export type OfficeQrArtifact = {
+  filename: string;
+  mime: string;
+  base64: string;
+};
+
+export type OfficeQrResult = {
+  ok: boolean;
+  free: boolean;
+  preview_png_base64?: string;
+  artifacts: OfficeQrArtifact[];
+  validation?: Record<string, unknown>;
+};
+
 async function parseJson(res: Response): Promise<OfficeJobView> {
   const data = (await res.json().catch(() => ({}))) as OfficeJobView & {
     detail?: { message?: string; code?: string } | string;
@@ -240,6 +262,40 @@ async function parseJson(res: Response): Promise<OfficeJobView> {
     throw new Error(msg);
   }
   return data;
+}
+
+async function parsePublicJson<T>(res: Response): Promise<T> {
+  const data = (await res.json().catch(() => ({}))) as T & {
+    detail?: { message?: string } | string;
+  };
+  if (!res.ok) {
+    const detail = data.detail;
+    throw new Error(
+      typeof detail === "string"
+        ? detail
+        : detail?.message || `Office API ${res.status}`,
+    );
+  }
+  return data;
+}
+
+export async function fetchOfficeCatalog(): Promise<{
+  products: OfficeCatalogProduct[];
+}> {
+  const res = await fetch(`${API}/api/office/catalog`);
+  return parsePublicJson(res);
+}
+
+export async function generateOfficeQr(payload: {
+  qr_type: string;
+  fields: Record<string, string>;
+}): Promise<OfficeQrResult> {
+  const res = await fetch(`${API}/api/office/qr/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return parsePublicJson(res);
 }
 
 export async function createOfficeJob(opts?: {
