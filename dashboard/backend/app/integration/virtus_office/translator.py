@@ -13,7 +13,7 @@ from typing import Any
 
 import httpx
 
-from app.integration.virtus_office.language_catalog import language_label_de
+from app.integration.virtus_office.language_catalog import is_known_language, language_label_de
 
 _ENTITY_RE = re.compile(
     r"("
@@ -85,6 +85,15 @@ def translate_text(
 ) -> dict[str, Any]:
     src = (source_language or "auto").lower().split("-")[0]
     tgt = (target_language or "en").lower().split("-")[0]
+    if tgt not in {"auto", ""} and not is_known_language(tgt):
+        return {
+            "ok": False,
+            "provider": "none",
+            "text": "",
+            "entities": [],
+            "error": "unsupported_target_language",
+            "detail": f"Target language not in Office catalog: {tgt}",
+        }
     entities = extract_entities(text)
     if not (text or "").strip():
         return {

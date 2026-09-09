@@ -14,7 +14,7 @@ import {
   type OfficeJobView,
   type OfficeLanguage,
 } from "../../lib/officeApi";
-import { resolveOfficeLanguages } from "../../lib/officeLanguages";
+import { mergeOfficeLanguages } from "../../lib/officeLanguageCatalog";
 import { saveOfficeJobToken } from "../../lib/officeSession";
 import { useOfficeT } from "../../lib/useOfficeT";
 import { DocumentConfigurePanel } from "./DocumentConfigurePanel";
@@ -80,12 +80,12 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
   const [analysisStep, setAnalysisStep] = useState(0);
   const [legalConfirm, setLegalConfirm] = useState(false);
   const [customerEmail, setCustomerEmail] = useState("");
-  const configureRef = useRef<HTMLDivElement | null>(null);
   const [catalogLanguages, setCatalogLanguages] = useState<OfficeLanguage[]>([]);
+  const configureRef = useRef<HTMLDivElement | null>(null);
 
   const proposal = job?.proposal;
   const languages = useMemo(
-    () => resolveOfficeLanguages(job?.languages, catalogLanguages),
+    () => mergeOfficeLanguages(job?.languages?.length ? job.languages : catalogLanguages),
     [job?.languages, catalogLanguages],
   );
 
@@ -93,10 +93,10 @@ export function OfficeServiceFlow({ kind }: { kind: ServiceKind }) {
     let cancelled = false;
     void fetchOfficeLanguages()
       .then((rows) => {
-        if (!cancelled && rows.length) setCatalogLanguages(rows);
+        if (!cancelled) setCatalogLanguages(mergeOfficeLanguages(rows));
       })
       .catch(() => {
-        /* fallback catalog in resolveOfficeLanguages */
+        if (!cancelled) setCatalogLanguages(mergeOfficeLanguages(null));
       });
     return () => {
       cancelled = true;

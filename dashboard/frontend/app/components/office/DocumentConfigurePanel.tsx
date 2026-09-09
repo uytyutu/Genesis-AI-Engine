@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { OfficeJobView, OfficeLanguage } from "../../lib/officeApi";
-import { resolveOfficeLanguages } from "../../lib/officeLanguages";
+import { mergeOfficeLanguages } from "../../lib/officeLanguageCatalog";
 import { useOfficeT } from "../../lib/useOfficeT";
 
 export type DocumentSettingsValues = Record<string, unknown>;
@@ -115,7 +115,7 @@ export function DocumentConfigurePanel({
     return Object.entries(field.when).every(([k, v]) => String(values[k] ?? "") === v);
   }
 
-  const langOptions = resolveOfficeLanguages(languages);
+  const langOptions = mergeOfficeLanguages(languages);
 
   const ops = settings.ops || [];
   const preview = settings.preview || [];
