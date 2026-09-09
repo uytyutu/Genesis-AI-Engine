@@ -12,16 +12,38 @@ const SERVICE_CARDS = [
     icon: "✨",
     featured: true,
   },
+  { id: "searchable", href: "/office/searchable", icon: "🔍" },
+  { id: "redaction", href: "/office/redaction", icon: "⬛" },
+  { id: "fillable", href: "/office/fillable", icon: "📝" },
+  { id: "pdfa", href: "/office/pdfa", icon: "🗄️" },
+  { id: "archive", href: "/office/archive", icon: "📦" },
   { id: "quality", href: "/office/smart", icon: "🔎" },
   { id: "translate", href: "/office/translate", icon: "🌍" },
   { id: "documents", href: "/office/documents", icon: "📄" },
   { id: "excel", href: "/office/excel", icon: "📊" },
   { id: "lebenslauf", href: "/office/lebenslauf", icon: "🧾" },
   { id: "bewerbung", href: "/office/bewerbung", icon: "💼" },
+  { id: "sales_kit", href: "/office/sales-kit", icon: "📁" },
+] as const;
+
+/**
+ * Other B2B packs — Coming Soon until their *_LIVE (Sales Kit is LIVE above).
+ */
+const B2B_COMING_SOON = [
+  { id: "company_profile", icon: "🏢", href: null as string | null },
+  { id: "document_cleanup_pack", icon: "🧹", href: null as string | null },
+  { id: "business_translation_pack", icon: "🌐", href: null as string | null },
+  { id: "excel_business_pack", icon: "📈", href: null as string | null },
+  { id: "process_sop_pack", icon: "📋", href: null as string | null },
 ] as const;
 
 const QUICK_CTAS = [
   { id: "upload", href: "/office/smart" },
+  { id: "searchable", href: "/office/searchable" },
+  { id: "redaction", href: "/office/redaction" },
+  { id: "fillable", href: "/office/fillable" },
+  { id: "pdfa", href: "/office/pdfa" },
+  { id: "archive", href: "/office/archive" },
   { id: "quality", href: "/office/smart" },
   { id: "translate", href: "/office/translate" },
   { id: "create", href: "/office/documents" },
@@ -34,8 +56,7 @@ const HOW_STEPS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
 
 /**
  * Client vitrine = sellable-only cards above.
- * Unfinished B2B document products stay in backend SSOT / `/api/office/status` only —
- * never on `/office` until executor + validator + E2E PASS.
+ * B2B Coming Soon = visible but not purchasable (no checkout) until LIVE.
  */
 
 export function OfficeHome() {
@@ -138,6 +159,66 @@ export function OfficeHome() {
               </div>
             </Link>
           ))}
+        </div>
+      </section>
+
+      <section className="mt-14 space-y-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--vo-muted)]">
+          {t("home.b2bTitle")}
+        </h2>
+        <p className="max-w-2xl text-sm text-[var(--vo-muted)]">{t("home.b2bLead")}</p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {B2B_COMING_SOON.map((card, i) => {
+            const body = (
+              <div className="flex items-start gap-3">
+                <span className="text-xl" aria-hidden>
+                  {card.icon}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-lg font-semibold text-[var(--vo-ink)]">
+                      {t(`catalog.${card.id}.title`)}
+                    </h3>
+                    <span className="rounded-md border border-[var(--vo-border)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--vo-muted)]">
+                      {t("home.comingSoon")}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-[var(--vo-muted)]">
+                    {t(`catalog.${card.id}.subtitle`)}
+                  </p>
+                  <p className="mt-3 text-xs text-[var(--vo-muted)]">
+                    {t(`catalog.${card.id}.receive`)}
+                  </p>
+                  <p className="mt-2 text-xs leading-relaxed text-[var(--vo-ink)]/75">
+                    {t(`catalog.${card.id}.honesty`)}
+                  </p>
+                  <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
+                    <span className="font-semibold text-[var(--vo-ink)]/70">
+                      {t("fromPrice", { price: t(`catalog.${card.id}.price`) })}
+                    </span>
+                    <span className="ml-auto text-xs font-medium text-[var(--vo-muted)]">
+                      {card.href ? t("home.salesKitLearnMore") : t("home.comingSoonCta")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+            const className =
+              "vo-enter rounded-2xl border border-dashed border-[var(--vo-border)] bg-[var(--vo-surface)]/80 p-5";
+            const style = { animationDelay: `${60 + i * 30}ms` };
+            if (card.href) {
+              return (
+                <Link key={card.id} href={card.href} className={className} style={style}>
+                  {body}
+                </Link>
+              );
+            }
+            return (
+              <div key={card.id} className={className} style={style}>
+                {body}
+              </div>
+            );
+          })}
         </div>
       </section>
 

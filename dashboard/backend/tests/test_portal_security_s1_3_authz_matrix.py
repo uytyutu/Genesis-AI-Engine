@@ -148,6 +148,10 @@ def test_farm_runtime_is_public_for_rapidapi_upstream():
     assert is_public_api_path("/api/farm/runtime/de-plz-city-lookup/health", "GET")
     assert production_api_allowed("/api/farm/runtime/de-plz-city-lookup/v1/de/plz/10115", "GET")
     assert production_api_allowed("/api/farm/runtime/openapi-lint-report/v1/openapi/lint", "POST")
+    assert production_api_allowed("/api/office/status", "GET")
+    assert production_api_allowed("/api/office/sales-kit-company", "POST")
+    assert production_api_allowed("/api/office/jobs", "POST")
+    assert production_api_allowed("/api/office/jobs/ojob-x/checkout", "POST")
     assert not is_public_api_path("/api/farm/queues", "GET")
     assert not is_public_api_path("/api/farm/rapidapi/status", "GET")
 

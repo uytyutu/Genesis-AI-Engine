@@ -51,10 +51,20 @@
     "smartTitle": "Not sure which service you need?",
     "smartLead": "Upload a file — Virtus explains the content and proposes the next steps.",
     "servicesTitle": "Services",
+    "b2bTitle": "Business packages",
+    "b2bLead": "Professional document packages for companies. Not for sale yet — Coming soon after owner approval.",
+    "comingSoon": "Coming soon",
+    "comingSoonCta": "Not available yet",
+    "salesKitLearnMore": "Learn more →",
     "formatsLabel": "Formats",
     "howTitle": "How it works",
     "quick": {
       "upload": "Upload",
+      "searchable": "Searchable PDF",
+      "redaction": "Redaction",
+      "fillable": "Fillable PDF",
+      "pdfa": "PDF/A-2b",
+      "archive": "Document Archive",
       "quality": "Quality check",
       "translate": "Translate",
       "create": "Create",
@@ -102,6 +112,51 @@
     }
   },
   "catalog": {
+    "searchable": {
+      "title": "Searchable PDF",
+      "subtitle": "Scan → PDF with text layer (Ctrl+F)",
+      "upload": "Scan · image PDF · photo",
+      "receive": "PDF where text is searchable and copyable — with technical QA",
+      "price": "9.90",
+      "eta": "5–15",
+      "formats": "PDF, JPG, PNG"
+    },
+    "redaction": {
+      "title": "Redaction",
+      "subtitle": "Remove personal data",
+      "upload": "Contract · invoice · statement · scan",
+      "receive": "PDF copy without email, IBAN, phone etc. in extractable text",
+      "price": "9.90",
+      "eta": "5–15",
+      "formats": "PDF, JPG, PNG"
+    },
+    "fillable": {
+      "title": "Fillable PDF",
+      "subtitle": "Real AcroForm fields",
+      "upload": "Form · registration · scan · PDF",
+      "receive": "PDF with clickable fields (text/checkbox) — technically verified",
+      "price": "19.90",
+      "eta": "5–20",
+      "formats": "PDF, JPG, PNG"
+    },
+    "pdfa": {
+      "title": "PDF/A-2b archive",
+      "subtitle": "Archive PDF (structural)",
+      "upload": "PDF · scan · photo",
+      "receive": "PDF/A-2b with OutputIntent + XMP — Virtus check, not veraPDF-certified",
+      "price": "9.90",
+      "eta": "5–15",
+      "formats": "PDF, JPG, PNG"
+    },
+    "archive": {
+      "title": "Document Archive",
+      "subtitle": "Batch → folders + ZIP + index",
+      "upload": "ZIP · multiple PDF/images · folder scan",
+      "receive": "ZIP with folders, renamed files and index.xlsx — technically verified",
+      "price": "29.90",
+      "eta": "5–20",
+      "formats": "ZIP, PDF, JPG, PNG, DOCX"
+    },
     "quality": {
       "title": "Document quality check",
       "subtitle": "READY / NOT_READY technical report",
@@ -137,6 +192,66 @@
       "price": "14.90",
       "eta": "10–25",
       "formats": "PDF, DOCX"
+    },
+    "sales_kit": {
+      "title": "Sales Kit",
+      "subtitle": "Professional sales documents from your company materials.",
+      "upload": "Logo · services · prices · contacts · existing documents",
+      "receive": "Company Profile · Offer · Price list · Email template (ZIP by tier)",
+      "price": "99",
+      "eta": "15–40",
+      "formats": "PDF, DOCX, ZIP",
+      "honesty": "Only from your provided information. No invented services, prices, or references."
+    },
+    "company_profile": {
+      "title": "Company Profile",
+      "subtitle": "Professional company profile from your materials.",
+      "upload": "Company name · logo · text · services · contacts",
+      "receive": "Company profile as PDF and DOCX",
+      "price": "149",
+      "eta": "15–35",
+      "formats": "PDF, DOCX",
+      "honesty": "No invented facts about your company."
+    },
+    "document_cleanup_pack": {
+      "title": "Document Cleanup Pack",
+      "subtitle": "Standardize and professionally clean your document set.",
+      "upload": "10–30 documents (by tier)",
+      "receive": "Cleaned, consistently formatted files",
+      "price": "99",
+      "eta": "20–60",
+      "formats": "PDF, DOCX",
+      "honesty": "Professional cleanup — not legal/compliance certification."
+    },
+    "business_translation_pack": {
+      "title": "Business Translation Pack",
+      "subtitle": "Translate business documents — target language must be chosen.",
+      "upload": "Source documents · source language · target language",
+      "receive": "Translated PDF/DOCX package",
+      "price": "99",
+      "eta": "20–60",
+      "formats": "PDF, DOCX",
+      "honesty": "No invented business claims; preserve numbers and names carefully."
+    },
+    "excel_business_pack": {
+      "title": "Excel Business Pack",
+      "subtitle": "Turn messy spreadsheets into a usable working workbook.",
+      "upload": "Excel · CSV · clear tables",
+      "receive": "Cleaned XLSX with structure and summary",
+      "price": "149",
+      "eta": "20–50",
+      "formats": "XLSX, CSV",
+      "honesty": "No advanced BI; no invented data."
+    },
+    "process_sop_pack": {
+      "title": "Process / SOP Pack",
+      "subtitle": "Your workflows as structured process documentation.",
+      "upload": "Descriptions · existing Word/PDF/Excel",
+      "receive": "Structured process documents with checklists",
+      "price": "199",
+      "eta": "30–90",
+      "formats": "PDF, DOCX",
+      "honesty": "Document structuring only — not legal, tax, or ISO advice."
     },
     "documents": {
       "title": "Documents",
@@ -203,6 +318,46 @@
     }
   },
   "service": {
+    "searchable": {
+      "title": "Searchable PDF",
+      "lead": "Upload a scan or image PDF. You get a PDF with a text layer — searchable with Ctrl+F.",
+      "b1": "OCR text layer over the pages",
+      "b2": "PDF download",
+      "b3": "Technical check: text is truly extractable",
+      "b4": "No chat dump — a finished file"
+    },
+    "redaction": {
+      "title": "Redact personal data",
+      "lead": "Upload a contract, invoice or scan. Virtus removes detected personal data and delivers a verified PDF copy.",
+      "b1": "Email, IBAN, phone, customer ID, and more",
+      "b2": "Rebuilt PDF — text not merely painted over",
+      "b3": "Check: PII no longer extractable",
+      "b4": "Not legal advice — technical redaction"
+    },
+    "fillable": {
+      "title": "Fillable PDF",
+      "lead": "Upload a form or scan. You get a PDF with real AcroForm fields you can fill on your computer.",
+      "b1": "Text fields and checkboxes",
+      "b2": "Detects common labels (Name, Address, Email, …)",
+      "b3": "Check: write/read field values",
+      "b4": "No fake underlines — a real form"
+    },
+    "pdfa": {
+      "title": "PDF/A-2b archive",
+      "lead": "Upload a document — Virtus produces an archive-oriented PDF/A-2b (structurally verified).",
+      "b1": "OutputIntent + ICC (sRGB)",
+      "b2": "XMP pdfaid part=2 / conformance=B",
+      "b3": "Technical check before delivery",
+      "b4": "Not a veraPDF/ISO certificate — honest Virtus validation"
+    },
+    "archive": {
+      "title": "Document Archive",
+      "lead": "Upload a ZIP or multiple files. Virtus sorts, renames and delivers a verified archive.",
+      "b1": "Classification into folders (invoices, contracts, …)",
+      "b2": "Consistent filenames with date",
+      "b3": "ZIP + index.xlsx + manifest.json",
+      "b4": "Technical check: ZIP opens, index complete"
+    },
     "translate": {
       "title": "Translate a document",
       "lead": "Upload PDF, Word, photo or scan. Photos work best with readable text.",
@@ -586,13 +741,64 @@
   },
   "nav": {
     "home": "Office",
+    "searchable": "Searchable PDF",
+    "redaction": "Redaction",
+    "fillable": "Fillable",
+    "pdfa": "PDF/A",
+    "archive": "Archive",
     "translate": "Translation",
     "lebenslauf": "CV",
     "bewerbung": "Application",
+    "sales_kit": "Sales Kit",
     "documents": "Documents",
     "excel": "Excel",
     "smart": "Smart",
     "cabinet": "My cabinet"
+  },
+  "salesKit": {
+    "eyebrow": "Virtus Office",
+    "title": "Sales Kit",
+    "lead": "Professional sales documents from your company facts — clear, honest, no invented content.",
+    "honesty": "We only use the information you provide. No invented services, prices, or references.",
+    "basicIncludes": "Company Profile as PDF and DOCX",
+    "businessIncludes": "Company Profile · Offer · Price list · Email template",
+    "professionalIncludes": "Full business package like Business, with extended preparation",
+    "formTitle": "Your company details",
+    "formLead": "Enter the facts that should appear in the documents. Creation starts only after successful payment — and only once the service is live.",
+    "fields": {
+      "companyName": "Company name",
+      "email": "Email",
+      "phone": "Phone",
+      "description": "Short description",
+      "services": "Services (one per line)",
+      "prices": "Prices / price list (one per line)"
+    },
+    "placeholders": {
+      "services": "e.g. On-site consulting",
+      "prices": "e.g. Consulting — €89"
+    },
+    "ctaConfigure": "Continue",
+    "ctaCheckout": "Order now",
+    "working": "Please wait…",
+    "configFailed": "Configuration failed. Please check your details.",
+    "configuredBlocked": "Details saved. Purchase is not enabled yet — checkout stays blocked.",
+    "configuredReady": "Details saved. You can proceed to payment.",
+    "liveBlocked": "Sales Kit is not enabled yet. Your details are saved — purchase starts after release.",
+    "checkoutUnexpected": "Unexpected checkout response. Please try again later.",
+    "tiers": {
+      "sales_kit_basic": {
+        "label": "Basic",
+        "desc": "A solid company profile for a professional first impression."
+      },
+      "sales_kit_business": {
+        "label": "Business",
+        "desc": "Profile plus offer, prices, and email template for everyday sales."
+      },
+      "sales_kit_professional": {
+        "label": "Professional",
+        "desc": "Complete document package for demanding customer outreach."
+      }
+    }
   },
   "progress": {
     "title": "Your order",

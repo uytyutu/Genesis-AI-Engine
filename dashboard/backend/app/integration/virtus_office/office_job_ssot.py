@@ -3,6 +3,12 @@
 Commercial line separate from B2B (Receptionist / Automation / Vector).
 Do not advertise automated pay→file delivery until OFFICE_PIPELINE_LIVE.
 
+Positioning (binding, public):
+  ChatGPT answers. Virtus delivers.
+  (DE) ChatGPT antwortet. Virtus führt aus.
+  We do not compete on «AI can write text» — we sell a finished digital artifact:
+  file in → process → new file → technical check → download.
+
 Target UX (client-facing, not chat):
   UPLOAD → UNDERSTAND → INTENT → PROPOSAL+PRICE → PAY → EXECUTE
   → QUALITY GATE → ARTIFACT → SECURE DOWNLOAD
@@ -13,21 +19,26 @@ Virtus Product Rule (binding):
   state-issued certificate.
 
   No executor  → No SKU.
-  No validator → No high-risk SKU (e.g. XRechnung / PDF/A).
+  No validator → No high-risk SKU (e.g. XRechnung / PDF/A / redaction).
   No PASS      → No delivery.
 
+SKU sellable gate (every new SKU, binding):
+  Executor → Validator → E2E → Payment → PASS → Artifact → Cabinet/Email
+  → only then SELLABLE (vitrine). Never show roadmap on client /office.
+
 Sellable today (code paths only): translate, convert_docx, extract_data,
-document_quality_check, Lebenslauf/Bewerbung. OCR is ingest, not a catalog SKU.
+document_quality_check, searchable_pdf, redaction, fillable_pdf, pdf_a_2b,
+document_archive, Lebenslauf/Bewerbung.
 Forbidden on vitrine: Official / Legal / notarized / apostille / medical /
 tax advice / legal advice theatre.
 
-Roadmap (scaffold contracts only — SKU_ENABLED=False until executor+validator PASS):
-XRechnung → ZUGFeRD → searchable PDF → fillable PDF → PDF/A-2b → Archive → PDF/UA.
+Build order (locked 2026-09-05) — next after Archive:
+  PDF Engine + Archive SELLABLE → then XRechnung / ZUGFeRD (full validator).
+  pdf_ua stays last-track scaffold only.
+  PDF/A-2b = Virtus structural claim (not veraPDF-certified) until external validator.
+
 Country price multipliers only after ≥2 new SELLABLE SKUs beyond baseline.
 Capability truth: office_capability_audit.audit_matrix() — never invent SELLABLE.
-
-Stage 1 (live in code, pipeline_live still False):
-  UPLOAD → JOB CREATED → INGEST → UNDERSTANDING READY (stub contract)
 """
 
 from __future__ import annotations
@@ -54,10 +65,18 @@ OFFICE_SELLABLE_NOW: tuple[str, ...] = (
     "convert_docx",
     "extract_data",
     "document_quality_check",
+    "searchable_pdf",
+    "redaction",
+    "fillable_pdf",
+    "pdf_a_2b",
+    "document_archive",
     "lebenslauf_create",
     "lebenslauf_improve",
     "bewerbungsschreiben",
     "bewerbung_paket",
+    "sales_kit_basic",
+    "sales_kit_business",
+    "sales_kit_professional",
 )
 
 OFFICE_VITRINE_FORBIDDEN: tuple[str, ...] = (
@@ -72,14 +91,36 @@ OFFICE_VITRINE_FORBIDDEN: tuple[str, ...] = (
     "rechtsberatung",
 )
 
+# Public positioning strings (API / CEO reports — not customer i18n packs).
+OFFICE_POSITIONING_EN = "ChatGPT answers. Virtus delivers."
+OFFICE_POSITIONING_DE = "ChatGPT antwortet. Virtus führt aus."
+
+# Engineering priority for next SELLABLE work (includes extract_data harden step).
+OFFICE_SKU_BUILD_ORDER: tuple[str, ...] = (
+    "searchable_pdf",
+    "redaction",
+    "fillable_pdf",
+    "pdf_a_2b",
+    "extract_data",  # already SELLABLE — schema/data QA hardening
+    "document_archive",
+    "xrechnung",
+    "zugferd",
+)
+
+# Scaffold contracts only — SKU_ENABLED=False until sellable gate PASS.
+# B2B packs: catalog + (Sales Kit) executor/validator exist; *_LIVE=false → not sellable.
 OFFICE_SKU_ROADMAP: tuple[str, ...] = (
     "xrechnung",
     "zugferd",
-    "searchable_pdf",
-    "fillable_pdf",
-    "pdf_a_2b",
-    "document_archive",
     "pdf_ua",
+    "sales_kit_basic",
+    "sales_kit_business",
+    "sales_kit_professional",
+    "company_profile",
+    "document_cleanup_pack",
+    "business_translation_pack",
+    "excel_business_pack",
+    "process_sop_pack",
 )
 
 OfficeJobStatus = Literal[
@@ -121,16 +162,30 @@ OFFICE_PRICE_MATRIX_EUR: dict[str, float] = {
     "doc_quality": 7.90,
     "translate": 7.90,
     "document": 9.90,
+    "searchable": 9.90,
+    "redaction": 9.90,
+    "fillable": 19.90,
+    "pdf_a": 9.90,
+    "archive": 29.90,
     "cv_bewerbung": 14.90,
     "excel_calc": 14.90,
     "doc_analysis": 14.90,
     "large_pack": 24.90,
     "complex_from": 39.90,
+    # B2B package targets (not LIVE / not sellable until Owner E2E)
+    "sales_kit_basic": 99.0,
+    "sales_kit_business": 199.0,
+    "sales_kit_professional": 299.0,
+    "company_profile": 149.0,
+    "document_cleanup_pack": 99.0,
+    "business_translation_pack": 99.0,
+    "excel_business_pack": 149.0,
+    "process_sop_pack": 199.0,
 }
 
 # Product input formats (stricter than Path A order_materials allow-list).
 OFFICE_ALLOWED_EXT: frozenset[str] = frozenset(
-    {".pdf", ".jpg", ".jpeg", ".png", ".docx", ".xlsx", ".csv", ".txt"}
+    {".pdf", ".jpg", ".jpeg", ".png", ".docx", ".xlsx", ".csv", ".txt", ".zip"}
 )
 
 OFFICE_EXT_TO_KIND: dict[str, str] = {
@@ -142,6 +197,7 @@ OFFICE_EXT_TO_KIND: dict[str, str] = {
     ".xlsx": "xlsx",
     ".csv": "csv",
     ".txt": "txt",
+    ".zip": "zip",
 }
 
 OFFICE_KIND_MIMES: dict[str, frozenset[str]] = {
@@ -161,6 +217,7 @@ OFFICE_KIND_MIMES: dict[str, frozenset[str]] = {
     ),
     "csv": frozenset({"text/csv", "application/csv", "text/plain"}),
     "txt": frozenset({"text/plain"}),
+    "zip": frozenset({"application/zip", "application/x-zip-compressed"}),
 }
 
 # Generic MIME from browsers — allow when extension is trusted.

@@ -13,8 +13,17 @@ logger = logging.getLogger(__name__)
 _MAX_PROMPT_CHARS = 14_000
 
 
-def extract_pdf_text(path: Path, *, max_pages: int) -> tuple[str, int, int]:
-    """Return (text, total_pages, pages_included). Tries pypdf (non-strict) first."""
+def extract_pdf_text(
+    path: Path,
+    *,
+    max_pages: int,
+    max_chars: int | None = _MAX_PROMPT_CHARS,
+) -> tuple[str, int, int]:
+    """Return (text, total_pages, pages_included). Tries pypdf (non-strict) first.
+
+    max_chars defaults to Knowledge Intake prompt budget (14k). Pass None for
+    full Virtus Office extraction (no silent truncation).
+    """
     from pypdf import PdfReader
 
     last_error: Exception | None = None
@@ -33,14 +42,38 @@ def extract_pdf_text(path: Path, *, max_pages: int) -> tuple[str, int, int]:
                 if page_text.strip():
                     parts.append(page_text.strip())
             text = "\n\n".join(parts).strip()
-            if len(text) > _MAX_PROMPT_CHARS:
-                text = text[:_MAX_PROMPT_CHARS].rstrip() + "\n…[текст обрезан по лимиту контекста]"
+            if max_chars is not None and len(text) > max_chars:
+                text = text[:max_chars].rstrip() + "\n…[текст обрезан по лимиту контекста]"
             if text.strip():
                 return text, total, take
+            # Empty text but readable PDF — still return page counts (scan / image-only).
+            if total > 0:
+                return "", total, take
         except Exception as exc:
             last_error = exc
             logger.warning("PDF read failed (strict=%s): %s", strict, exc)
     raise ValueError(f"pdf parse error: {last_error or 'no extractable text'}")
+
+
+def extract_pdf_text_bytes(
+    data: bytes,
+    *,
+    max_pages: int = 20,
+    max_chars: int | None = _MAX_PROMPT_CHARS,
+) -> tuple[str, int, int]:
+    """Same as extract_pdf_text for in-memory bytes (Virtus Office reuse)."""
+    import tempfile
+
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+        tmp.write(data)
+        path = Path(tmp.name)
+    try:
+        return extract_pdf_text(path, max_pages=max_pages, max_chars=max_chars)
+    finally:
+        try:
+            path.unlink(missing_ok=True)
+        except OSError:
+            pass
 
 
 class AttachmentPdfSource:

@@ -496,6 +496,179 @@ class OfficeJobEngine:
         self._write(job)
         return self.public_view(job)
 
+    def _configure_sales_kit_job(
+        self,
+        job: dict[str, Any],
+        *,
+        tier: str,
+        company: dict[str, Any],
+        mode: str,
+    ) -> dict[str, Any]:
+        """Shared Sales Kit configuration (public or sandbox). No execute, no invent."""
+        from app.integration.virtus_office.b2b_packages import (
+            B2B_PRICE_EUR,
+            SALES_KIT_LIVE,
+            SALES_KIT_SKUS,
+        )
+        from app.integration.virtus_office.sku_sales_kit import (
+            missing_required_fields,
+            normalize_company_input,
+            resolve_tier,
+        )
+
+        payment = dict(job.get("payment") or {})
+        if payment.get("price_lock") or payment.get("requires_payment"):
+            raise OfficeJobError(
+                "price_locked",
+                "Preis und Parameter sind gesperrt — Änderungen abgelehnt",
+            )
+        if job["status"] not in {"created", "proposal_ready", "understanding", "failed"}:
+            raise OfficeJobError("invalid_state", f"Job is {job['status']}")
+
+        aid = resolve_tier(tier)
+        if aid not in SALES_KIT_SKUS:
+            raise OfficeJobError("invalid_tier", f"Unbekannter Sales Kit Tarif: {tier}")
+        meta = next((a for a in ACTION_CATALOG if a["id"] == aid), None)
+        if not meta:
+            raise OfficeJobError("invalid_action", f"Sales Kit nicht im Katalog: {aid}")
+
+        normalized = normalize_company_input(company)
+        missing = missing_required_fields(normalized, tier=aid)
+        if missing:
+            raise OfficeJobError(
+                "missing_input",
+                "Fehlende Unternehmensdaten: " + ", ".join(missing),
+            )
+
+        price = float(B2B_PRICE_EUR[aid])
+        matrix_price = float(_price_for(aid))
+        if abs(price - matrix_price) > 0.01:
+            raise OfficeJobError(
+                "price_mismatch",
+                f"Preis-SSOT Drift ({price} ≠ {matrix_price})",
+            )
+
+        # Reject client-forged price if smuggled into company payload
+        if company.get("price_eur") is not None:
+            try:
+                client_p = float(company.get("price_eur"))
+            except (TypeError, ValueError):
+                client_p = -1.0
+            if abs(client_p - matrix_price) > 0.01:
+                raise OfficeJobError(
+                    "price_mismatch",
+                    "Übermittelter Preis abgelehnt — Serverpreis ist maßgeblich",
+                )
+
+        intent = {
+            "id": aid,
+            "source_language": "de",
+            "detected_source_language": "de",
+            "target_language": None,
+            "output_format": "zip",
+            "locked": True,
+            "label_de": meta.get("label_de") or aid,
+            "price_eur": matrix_price,
+        }
+        understanding = dict(job.get("understanding") or {})
+        understanding.update(
+            {
+                "filled": True,
+                "stage": "understood",
+                "intent": intent,
+                "suggested_intent": aid,
+                "suggested_output_format": "zip",
+                "suggested_price_eur": matrix_price,
+                "needs_user_choice": False,
+                "sales_kit_company": normalized,
+                "summary_de": f"Sales Kit · {normalized.get('company_name') or aid}",
+            }
+        )
+        live = bool(SALES_KIT_LIVE)
+        if mode == "sandbox_e2e":
+            hint = "Sandbox E2E — Zahlung erforderlich vor Ausführung."
+            ingest_de = "Sales Kit Sandbox E2E (Unternehmensdaten)"
+        else:
+            hint = (
+                "Konfiguration bereit. Zahlung und Ausführung erst nach LIVE-Freigabe."
+                if not live
+                else "Konfiguration bereit — Zahlung erforderlich vor Ausführung."
+            )
+            ingest_de = "Sales Kit öffentliche Konfiguration (Unternehmensdaten)"
+
+        proposal = {
+            "filled": True,
+            "task": aid,
+            "task_label_de": meta.get("label_de") or aid,
+            "price_eur": matrix_price,
+            "currency": "EUR",
+            "result_format": "zip",
+            "payment_enabled": True,
+            "next_step": "awaiting_payment",
+            "stage3_ready": True,
+            "continue_hint_de": hint,
+            "sales_kit_live": live,
+            "purchase_blocked_until_live": not live,
+        }
+        if job["status"] == "created" and not job.get("material_id"):
+            job["stage1_complete"] = True
+            job["ingest"] = {
+                "ok": True,
+                "material_id": None,
+                "findings": [],
+                "status_de": ingest_de,
+                "_internal_ok": True,
+            }
+
+        job["sales_kit_company"] = normalized
+        job["sales_kit_sandbox_e2e"] = mode == "sandbox_e2e"
+        job["sales_kit_public_path"] = mode == "public"
+        job["understanding"] = understanding
+        job["proposal"] = proposal
+        job["status"] = "proposal_ready"
+        job["stage2_complete"] = True
+        job["updated_at"] = _utc_now()
+        self._write(job)
+        return self.public_view(job)
+
+    def configure_sales_kit(
+        self,
+        job_id: str,
+        *,
+        owner_token: str,
+        tier: str,
+        company: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Public buyer-path configuration. Does not execute. LIVE gate remains on checkout."""
+        job = self._require_owner(job_id, owner_token)
+        return self._configure_sales_kit_job(job, tier=tier, company=company, mode="public")
+
+    def configure_sales_kit_sandbox_e2e(
+        self,
+        job_id: str,
+        *,
+        owner_token: str,
+        tier: str,
+        company: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Configure Sales Kit for sandbox Payment E2E only (LIVE stays false).
+
+        Requires GENESIS_OFFICE_SALES_KIT_SANDBOX_E2E=1.
+        Does not make the product publicly sellable.
+        """
+        from app.integration.virtus_office.b2b_packages import sales_kit_sandbox_e2e_allowed
+
+        if not sales_kit_sandbox_e2e_allowed():
+            raise OfficeJobError(
+                "sandbox_e2e_disabled",
+                "Sales Kit Sandbox E2E nicht aktiviert (GENESIS_OFFICE_SALES_KIT_SANDBOX_E2E)",
+            )
+
+        job = self._require_owner(job_id, owner_token)
+        return self._configure_sales_kit_job(
+            job, tier=tier, company=company, mode="sandbox_e2e"
+        )
+
     def attach_bewerbung_photo(
         self,
         job_id: str,
@@ -956,19 +1129,45 @@ class OfficeJobEngine:
             assert_price_lock_intact(job)
 
         executable = EXECUTABLE_ACTION_IDS
-        if intent.get("id") not in executable:
+        from app.integration.virtus_office.b2b_packages import (
+            SALES_KIT_SKUS,
+            live_flag_for_sku,
+            sales_kit_sandbox_e2e_allowed,
+        )
+
+        intent_id = str(intent.get("id") or "")
+        sales_kit_exec_ok = (
+            intent_id in SALES_KIT_SKUS
+            and (
+                live_flag_for_sku(intent_id)
+                or (bool(job.get("sales_kit_sandbox_e2e")) and sales_kit_sandbox_e2e_allowed())
+            )
+        )
+        if intent_id not in executable and not sales_kit_exec_ok:
             raise OfficeJobError(
                 "unsupported_action",
                 f"Aktion noch nicht ausgeführt: {intent.get('id')}",
             )
 
         is_bewerbung = intent.get("id") in BEWERBUNG_ACTION_IDS
+        is_sales_kit = intent_id in SALES_KIT_SKUS
         data = b""
         extra_pages: list[tuple[bytes, str]] = []
         photo_bytes: bytes | None = None
         profile = normalize_profile(job.get("bewerbung_profile") or {})
 
-        if is_bewerbung:
+        if is_sales_kit:
+            company = dict(job.get("sales_kit_company") or {})
+            if not company.get("company_name"):
+                return self._fail_execution(
+                    job,
+                    "missing_input",
+                    "Unternehmensdaten fehlen — Sales Kit ohne erfundene Fakten",
+                )
+            understanding = dict(job.get("understanding") or {})
+            understanding["sales_kit_company"] = company
+            job["understanding"] = understanding
+        elif is_bewerbung:
             missing = missing_fields_for_action(str(intent["id"]), profile)
             if missing:
                 return self._fail_execution(
@@ -1063,6 +1262,8 @@ class OfficeJobEngine:
             source_image_count=result.get("source_image_count"),
             delivery_mode=result.get("delivery_mode"),
             ocr_financial_qa=result.get("ocr_financial_qa"),
+            pii_terms=list(result.get("pii_terms") or []),
+            redaction_boxes=result.get("redaction_boxes"),
         )
         job["quality"] = {
             "passed": qa["passed"],

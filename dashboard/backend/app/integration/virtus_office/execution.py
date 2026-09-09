@@ -35,6 +35,11 @@ EXECUTABLE_ACTION_IDS: frozenset[str] = frozenset(
         "convert_docx",
         "extract_data",
         "document_quality_check",
+        "searchable_pdf",
+        "redaction",
+        "fillable_pdf",
+        "pdf_a_2b",
+        "document_archive",
     }
 ) | set(BEWERBUNG_ACTION_IDS)
 
@@ -109,12 +114,80 @@ def execute_office_action(
             intent=intent,
         )
 
+    if action in {"sales_kit_basic", "sales_kit_business", "sales_kit_professional"}:
+        return _exec_sales_kit(action_id=action, intent=intent, understanding=understanding)
+
     if action == "document_quality_check":
         from app.integration.virtus_office.document_quality_check import (
             execute_document_quality_check,
         )
 
         return execute_document_quality_check(
+            data=data,
+            filename=filename,
+            file_kind=file_kind,
+            content_type=content_type,
+            intent=intent,
+            understanding=understanding,
+            extra_pages=extra_pages,
+        )
+
+    if action == "searchable_pdf":
+        from app.integration.virtus_office.sku_searchable_pdf import execute_searchable_pdf
+
+        return execute_searchable_pdf(
+            data=data,
+            filename=filename,
+            file_kind=file_kind,
+            content_type=content_type,
+            intent=intent,
+            understanding=understanding,
+            extra_pages=extra_pages,
+        )
+
+    if action == "redaction":
+        from app.integration.virtus_office.sku_redaction import execute_redaction
+
+        return execute_redaction(
+            data=data,
+            filename=filename,
+            file_kind=file_kind,
+            content_type=content_type,
+            intent=intent,
+            understanding=understanding,
+            extra_pages=extra_pages,
+        )
+
+    if action == "fillable_pdf":
+        from app.integration.virtus_office.sku_fillable_pdf import execute_fillable_pdf
+
+        return execute_fillable_pdf(
+            data=data,
+            filename=filename,
+            file_kind=file_kind,
+            content_type=content_type,
+            intent=intent,
+            understanding=understanding,
+            extra_pages=extra_pages,
+        )
+
+    if action == "pdf_a_2b":
+        from app.integration.virtus_office.sku_pdf_a import execute_pdf_a_2b
+
+        return execute_pdf_a_2b(
+            data=data,
+            filename=filename,
+            file_kind=file_kind,
+            content_type=content_type,
+            intent=intent,
+            understanding=understanding,
+            extra_pages=extra_pages,
+        )
+
+    if action == "document_archive":
+        from app.integration.virtus_office.sku_document_archive import execute_document_archive
+
+        return execute_document_archive(
             data=data,
             filename=filename,
             file_kind=file_kind,
@@ -163,6 +236,59 @@ def execute_office_action(
         "detail": f"Aktion noch nicht unterstützt: {action}",
         "quality_input_text": text,
         "quality_output_text": "",
+    }
+
+
+def _exec_sales_kit(
+    *,
+    action_id: str,
+    intent: dict[str, Any],
+    understanding: dict[str, Any],
+) -> dict[str, Any]:
+    from app.integration.virtus_office.sku_sales_kit import (
+        generate_sales_kit,
+        validate_sales_kit_artifact,
+    )
+
+    company = dict(understanding.get("sales_kit_company") or intent.get("company") or {})
+    gen = generate_sales_kit(company=company, tier=action_id, action_id=action_id)
+    if not gen.get("ok"):
+        return {
+            "ok": False,
+            "error": gen.get("error") or "sales_kit_failed",
+            "detail": gen.get("detail") or "Sales Kit konnte nicht erzeugt werden",
+            "missing": gen.get("missing"),
+            "quality_input_text": "",
+            "quality_output_text": "",
+        }
+    va = validate_sales_kit_artifact(
+        data=gen["bytes"], tier=action_id, company=company
+    )
+    if not va.get("pass"):
+        return {
+            "ok": False,
+            "error": "sales_kit_validation_failed",
+            "detail": "Sales Kit Validator FAIL",
+            "validation": va,
+            "quality_input_text": str(gen.get("qa_text") or ""),
+            "quality_output_text": str(gen.get("qa_text") or ""),
+        }
+    qa = str(gen.get("qa_text") or "")
+    name = str(company.get("company_name") or gen.get("company_name") or "")
+    return {
+        "ok": True,
+        "action_id": action_id,
+        "ext": "zip",
+        "mime": MIME["zip"],
+        "filename": str(gen.get("filename") or f"{action_id}.zip"),
+        "bytes": gen["bytes"],
+        "quality_input_text": qa,
+        "quality_output_text": qa,
+        "translation_provider": None,
+        "entities": [name] if name else [],
+        "target_language": None,
+        "sales_kit_validation": va,
+        "sales_kit_files": list(gen.get("files") or []),
     }
 
 

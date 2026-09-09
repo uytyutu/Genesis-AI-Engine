@@ -29,13 +29,14 @@ CapabilityStatus = Literal["SELLABLE", "PARTIAL", "BLOCKED", "ROADMAP", "FORBIDD
 # High-risk file formats: must not be SELLABLE without a dedicated validator.
 HIGH_RISK_SKUS: frozenset[str] = frozenset(
     {
+        "searchable_pdf",
+        "redaction",
+        "fillable_pdf",
+        "pdf_a_2b",
+        "document_archive",
         "xrechnung",
         "zugferd",
-        "pdf_a_2b",
         "pdf_ua",
-        "fillable_pdf",
-        "searchable_pdf",
-        "document_archive",
     }
 )
 
@@ -87,11 +88,13 @@ def _validator_probe(action_id: str) -> dict[str, Any]:
         }
     # High-risk roadmap: probe optional modules
     module_map = {
-        "xrechnung": ("app.integration.virtus_office.sku_xrechnung", "validate_xrechnung"),
-        "zugferd": ("app.integration.virtus_office.sku_zugferd", "validate_zugferd"),
         "searchable_pdf": (
             "app.integration.virtus_office.sku_searchable_pdf",
             "validate_searchable_pdf",
+        ),
+        "redaction": (
+            "app.integration.virtus_office.sku_redaction",
+            "validate_redaction",
         ),
         "fillable_pdf": (
             "app.integration.virtus_office.sku_fillable_pdf",
@@ -102,7 +105,41 @@ def _validator_probe(action_id: str) -> dict[str, Any]:
             "app.integration.virtus_office.sku_document_archive",
             "validate_archive",
         ),
+        "xrechnung": ("app.integration.virtus_office.sku_xrechnung", "validate_xrechnung"),
+        "zugferd": ("app.integration.virtus_office.sku_zugferd", "validate_zugferd"),
         "pdf_ua": ("app.integration.virtus_office.sku_pdf_ua", "validate_pdf_ua"),
+        "sales_kit_basic": (
+            "app.integration.virtus_office.sku_sales_kit",
+            "validate_sales_kit_artifact",
+        ),
+        "sales_kit_business": (
+            "app.integration.virtus_office.sku_sales_kit",
+            "validate_sales_kit_artifact",
+        ),
+        "sales_kit_professional": (
+            "app.integration.virtus_office.sku_sales_kit",
+            "validate_sales_kit_artifact",
+        ),
+        "company_profile": (
+            "app.integration.virtus_office.sku_company_profile",
+            "validate_company_profile",
+        ),
+        "document_cleanup_pack": (
+            "app.integration.virtus_office.sku_document_cleanup",
+            "validate_document_cleanup",
+        ),
+        "business_translation_pack": (
+            "app.integration.virtus_office.sku_business_translation",
+            "validate_business_translation",
+        ),
+        "excel_business_pack": (
+            "app.integration.virtus_office.sku_excel_business",
+            "validate_excel_business",
+        ),
+        "process_sop_pack": (
+            "app.integration.virtus_office.sku_process_sop",
+            "validate_process_sop",
+        ),
     }
     if aid in module_map:
         mod_name, fn_name = module_map[aid]
@@ -136,13 +173,22 @@ def _executor_probe(action_id: str) -> dict[str, Any]:
     if live:
         return {"ok": True, "kind": "wired", "in_executable_set": True}
     module_map = {
-        "xrechnung": "app.integration.virtus_office.sku_xrechnung",
-        "zugferd": "app.integration.virtus_office.sku_zugferd",
         "searchable_pdf": "app.integration.virtus_office.sku_searchable_pdf",
+        "redaction": "app.integration.virtus_office.sku_redaction",
         "fillable_pdf": "app.integration.virtus_office.sku_fillable_pdf",
         "pdf_a_2b": "app.integration.virtus_office.sku_pdf_a",
         "document_archive": "app.integration.virtus_office.sku_document_archive",
+        "xrechnung": "app.integration.virtus_office.sku_xrechnung",
+        "zugferd": "app.integration.virtus_office.sku_zugferd",
         "pdf_ua": "app.integration.virtus_office.sku_pdf_ua",
+        "sales_kit_basic": "app.integration.virtus_office.sku_sales_kit",
+        "sales_kit_business": "app.integration.virtus_office.sku_sales_kit",
+        "sales_kit_professional": "app.integration.virtus_office.sku_sales_kit",
+        "company_profile": "app.integration.virtus_office.sku_company_profile",
+        "document_cleanup_pack": "app.integration.virtus_office.sku_document_cleanup",
+        "business_translation_pack": "app.integration.virtus_office.sku_business_translation",
+        "excel_business_pack": "app.integration.virtus_office.sku_excel_business",
+        "process_sop_pack": "app.integration.virtus_office.sku_process_sop",
     }
     if aid in module_map:
         try:
@@ -303,22 +349,23 @@ def audit_matrix() -> dict[str, Any]:
         "rows": rows,
         "display_aliases": display_aliases,
         "inconsistencies": inconsistencies,
-        "b2b_packages": {
-            "status": "ROADMAP",
-            "note": (
-                "10/50 Rechnungen batches only after xrechnung/zugferd SELLABLE. "
-                "No fake package SKUs."
-            ),
-            "planned": [
-                "batch_xrechnung_10",
-                "batch_xrechnung_50",
-                "batch_searchable_pdf",
-                "batch_document_archive",
-            ],
+        "positioning": {
+            "en": "ChatGPT answers. Virtus delivers.",
+            "de": "ChatGPT antwortet. Virtus führt aus.",
         },
-        "next_b2b_candidates": [
+        "b2b_packages": _b2b_packages_audit(),
+        "next_engineering": [
+            "sales_kit",
             "xrechnung",
             "zugferd",
+        ],
+        "next_b2b_candidates": [
+            "sales_kit_business",
+            "company_profile",
+            "document_cleanup_pack",
+            "business_translation_pack",
+            "excel_business_pack",
+            "process_sop_pack",
         ],
         "live_gate": {
             "office_pipeline_live": OFFICE_PIPELINE_LIVE,
@@ -327,9 +374,49 @@ def audit_matrix() -> dict[str, Any]:
                 "Stripe live decision (manual)",
                 "No inconsistencies in capability audit",
                 "Businessplan Commercial PASS if selling BP translation at scale",
+                "B2B: *_LIVE flip only after Sales Kit Owner E2E PASS (never auto)",
             ],
             "auto_flip_forbidden": True,
+            "b2b_live_flags": {
+                "SALES_KIT_LIVE": False,
+                "COMPANY_PROFILE_LIVE": False,
+                "DOCUMENT_CLEANUP_LIVE": False,
+                "BUSINESS_TRANSLATION_LIVE": False,
+                "EXCEL_BUSINESS_LIVE": False,
+                "PROCESS_SOP_LIVE": False,
+            },
         },
+    }
+
+
+def _b2b_packages_audit() -> dict[str, Any]:
+    from app.integration.virtus_office.b2b_packages import (
+        B2B_PACKAGE_SKUS,
+        SALES_KIT_LIVE,
+        assert_not_in_sellable,
+        public_coming_soon_cards,
+        readiness_record,
+    )
+
+    leaked = assert_not_in_sellable(OFFICE_SELLABLE_NOW)
+    return {
+        "status": "ROADMAP",
+        "live_any": False,
+        "sales_kit_live": SALES_KIT_LIVE,
+        "note": (
+            "High-value B2B packs registered. Sales Kit has executor+validator for Owner "
+            "E2E. All *_LIVE=false — not in OFFICE_SELLABLE_NOW, no checkout."
+        ),
+        "sku_ids": sorted(B2B_PACKAGE_SKUS),
+        "coming_soon_cards": public_coming_soon_cards(),
+        "readiness": readiness_record(),
+        "sellable_leak": leaked,
+        "planned_legacy_batches": [
+            "batch_searchable_pdf",
+            "batch_document_archive",
+            "batch_xrechnung_10",
+            "batch_xrechnung_50",
+        ],
     }
 
 
@@ -342,12 +429,13 @@ def report_table() -> list[dict[str, str]]:
         "lebenslauf_create",
         "bewerbung_paket",
         "document_quality_check",
-        "xrechnung",
-        "zugferd",
         "searchable_pdf",
+        "redaction",
         "fillable_pdf",
         "pdf_a_2b",
         "document_archive",
+        "xrechnung",
+        "zugferd",
         "pdf_ua",
     ]
     out: list[dict[str, str]] = []

@@ -24,11 +24,19 @@ PRICE_KEY_TO_PACKAGE: dict[str, str] = {
     "doc_quality": "office_doc_quality",
     "translate": "office_translate",
     "document": "office_document",
+    "searchable": "office_searchable",
+    "redaction": "office_redaction",
+    "fillable": "office_fillable",
+    "pdf_a": "office_pdf_a",
+    "archive": "office_archive",
     "cv_bewerbung": "office_cv_bewerbung",
     "excel_calc": "office_excel_calc",
     "doc_analysis": "office_doc_analysis",
     "large_pack": "office_large_pack",
     "complex_from": "office_complex_from",
+    "sales_kit_basic": "office_sales_kit_basic",
+    "sales_kit_business": "office_sales_kit_business",
+    "sales_kit_professional": "office_sales_kit_professional",
 }
 
 OFFICE_PACKAGE_IDS: frozenset[str] = frozenset(PRICE_KEY_TO_PACKAGE.values())
@@ -247,6 +255,13 @@ def lock_and_begin_checkout(
         "complete_profile",
     }:
         raise OfficeJobError("not_ready", "Vorschlag noch nicht zahlungsbereit")
+
+    # Sales Kit public gate — LIVE=false blocks unless sandbox E2E job marker
+    intent_pre = dict((job.get("understanding") or {}).get("intent") or {})
+    action_pre = str(intent_pre.get("id") or proposal.get("task") or "").strip()
+    from app.integration.virtus_office.b2b_packages import assert_sales_kit_checkout_allowed
+
+    assert_sales_kit_checkout_allowed(job, action_pre)
 
     # Reject client-forged price
     if client_price_eur is not None:

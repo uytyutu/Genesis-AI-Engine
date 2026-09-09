@@ -386,6 +386,49 @@ export async function submitBewerbungProfile(
   return parseJson(res);
 }
 
+export type SalesKitConfigureResult = OfficeJobView & {
+  ok?: boolean;
+  tier?: string;
+  price_eur?: number;
+  currency?: string;
+  job_id?: string;
+  owner_token?: string;
+  sales_kit_live?: boolean;
+  purchase_blocked_until_live?: boolean;
+  public_path_ready?: boolean;
+};
+
+/** Public Sales Kit configuration — server sets price; LIVE=false still blocks checkout. */
+export async function configureSalesKitCompany(payload: {
+  tier: string;
+  company: Record<string, unknown>;
+  email?: string;
+  job_id?: string;
+  owner_token?: string;
+  /** Never trusted as price authority — sent only to verify mismatch rejection */
+  price_eur?: number;
+}): Promise<SalesKitConfigureResult> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(clientAuthHeaders() as Record<string, string>),
+  };
+  if (payload.owner_token) {
+    headers["X-Office-Owner-Token"] = payload.owner_token;
+  }
+  const res = await fetch(`${API}/api/office/sales-kit-company`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      tier: payload.tier,
+      company: payload.company,
+      email: payload.email || null,
+      job_id: payload.job_id || null,
+      price_eur: payload.price_eur ?? null,
+    }),
+  });
+  return parseJson(res) as Promise<SalesKitConfigureResult>;
+}
+
 export async function attachBewerbungPhoto(
   jobId: string,
   ownerToken: string,

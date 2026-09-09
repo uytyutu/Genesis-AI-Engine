@@ -50,6 +50,8 @@ _PUBLIC_PREFIXES = (
     "/api/sales/packages",
     "/api/sales/payment-status",
     "/api/sales/email-status",
+    # Virtus Office buyer path (Sales Kit + existing Office SKUs)
+    "/api/office/",
     "/api/webhooks/",
     "/webhooks/",
 )
@@ -73,6 +75,10 @@ _PUBLIC_PATTERNS: tuple[tuple[str, str], ...] = (
     (r"^/api/public/website-analysis$", "POST"),
     (r"^/api/public/website-analysis/[^/]+$", "GET"),
     (r"^/api/client/analysis-cases$", "GET"),
+    (r"^/api/affiliate/go/[^/]+/[^/]+/[^/]+$", "GET"),
+    (r"^/api/monetization/go/[^/]+/[^/]+/[^/]+$", "GET"),
+    (r"^/api/agent-node/v1/health$", "GET"),
+    (r"^/api/agent-node/v1/analyze$", "POST"),
 )
 
 

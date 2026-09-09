@@ -21,9 +21,15 @@ const fraunces = Fraunces({
 
 const NAV = [
   { href: "/office", key: "home" },
+  { href: "/office/searchable", key: "searchable" },
+  { href: "/office/redaction", key: "redaction" },
+  { href: "/office/fillable", key: "fillable" },
+  { href: "/office/pdfa", key: "pdfa" },
+  { href: "/office/archive", key: "archive" },
   { href: "/office/translate", key: "translate" },
   { href: "/office/lebenslauf", key: "lebenslauf" },
   { href: "/office/bewerbung", key: "bewerbung" },
+  { href: "/office/sales-kit", key: "sales_kit" },
   { href: "/office/documents", key: "documents" },
   { href: "/office/excel", key: "excel" },
   { href: "/office/smart", key: "smart" },

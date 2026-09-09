@@ -65,6 +65,17 @@ class BewerbungProfileBody(BaseModel):
     output_format: str | None = Field(default=None, max_length=16)
 
 
+class SalesKitCompanyBody(BaseModel):
+    """Public Sales Kit configuration — server price only; no client price authority."""
+
+    tier: str = Field(..., min_length=4, max_length=40)
+    company: dict[str, Any] = Field(default_factory=dict)
+    email: str | None = Field(default=None, max_length=160)
+    job_id: str | None = Field(default=None, max_length=64)
+    # Ignored for pricing — if sent, must match server or price_mismatch
+    price_eur: float | None = None
+
+
 class CheckoutBody(BaseModel):
     success_url: str = Field(..., min_length=8, max_length=800)
     cancel_url: str = Field(..., min_length=8, max_length=800)
@@ -107,6 +118,10 @@ def _http_error(exc: OfficeJobError) -> HTTPException:
         "already_paid": 409,
         "not_locked": 409,
         "invalid_outcome": 400,
+        "product_not_live": 403,
+        "sandbox_e2e_disabled": 403,
+        "missing_input": 400,
+        "invalid_tier": 400,
         "invalid_price": 400,
     }.get(exc.code, 400)
     return HTTPException(status_code=status, detail={"code": exc.code, "message": exc.message})
@@ -169,6 +184,12 @@ def office_engine_status() -> dict[str, Any]:
         audit_matrix,
         report_table,
     )
+    from app.integration.virtus_office.b2b_packages import (
+        SALES_KIT_LIVE,
+        SALES_KIT_PUBLIC_PATH_READY,
+        public_coming_soon_cards,
+        readiness_record,
+    )
 
     caps = audit_matrix()
     return {
@@ -205,8 +226,16 @@ def office_engine_status() -> dict[str, Any]:
         "note": (
             "OFFICE_PIPELINE_LIVE=True (owner soft-beta). "
             "stripe_live follows PaymentCheckoutService.is_live_mode(). "
-            "Client vitrine = SELLABLE only; roadmap SKUs stay internal until validators PASS."
+            "Client vitrine = SELLABLE only. B2B packs may show Coming Soon; "
+            "*_LIVE=false → not in OFFICE_SELLABLE_NOW, no checkout."
         ),
+        "b2b": {
+            "coming_soon": True,
+            "readiness": readiness_record(),
+            "cards": public_coming_soon_cards(),
+            "sales_kit_public_path_ready": bool(SALES_KIT_PUBLIC_PATH_READY),
+            "sales_kit_live": bool(SALES_KIT_LIVE),
+        },
     }
 
 
@@ -417,6 +446,115 @@ async def attach_bewerbung_photo(
     except OfficeJobError as exc:
         raise _http_error(exc) from exc
     return {"ok": True, **view}
+
+
+@router.post("/sales-kit-company")
+def configure_sales_kit_company_public(
+    request: Request,
+    body: SalesKitCompanyBody,
+    x_office_owner_token: str | None = Header(default=None, alias="X-Office-Owner-Token"),
+) -> dict[str, Any]:
+    """Public Sales Kit configuration (buyer path).
+
+    Creates/configures a job with company + tier. Does NOT execute.
+    Checkout remains blocked while SALES_KIT_LIVE=false (product_not_live).
+    Client price is never authoritative.
+    """
+    from app.integration.virtus_office.b2b_packages import (
+        B2B_PRICE_EUR,
+        SALES_KIT_LIVE,
+        SALES_KIT_PUBLIC_PATH_READY,
+        SALES_KIT_SKUS,
+    )
+    from app.integration.virtus_office.sku_sales_kit import resolve_tier
+
+    eng = _engine()
+    cid, client_email = _optional_client(request)
+    email = (body.email or client_email or "").strip() or None
+
+    tier = resolve_tier(body.tier)
+    if tier not in SALES_KIT_SKUS:
+        raise _http_error(OfficeJobError("invalid_tier", f"Unbekannter Sales Kit Tarif: {body.tier}"))
+
+    server_price = float(B2B_PRICE_EUR[tier])
+    if body.price_eur is not None and abs(float(body.price_eur) - server_price) > 0.01:
+        raise _http_error(
+            OfficeJobError("price_mismatch", "Übermittelter Preis abgelehnt")
+        )
+
+    company = dict(body.company or {})
+    if body.price_eur is not None:
+        company = {**company, "price_eur": body.price_eur}
+
+    try:
+        if body.job_id and x_office_owner_token:
+            token = _token_or_401(x_office_owner_token)
+            view = eng.configure_sales_kit(
+                body.job_id,
+                owner_token=token,
+                tier=tier,
+                company=company,
+            )
+            created = {"job_id": body.job_id, "owner_token": token}
+        else:
+            created = eng.create_job(email=email, customer_id=cid)
+            view = eng.configure_sales_kit(
+                created["job_id"],
+                owner_token=created["owner_token"],
+                tier=tier,
+                company=company,
+            )
+    except OfficeJobError as exc:
+        raise _http_error(exc) from exc
+
+    return {
+        "ok": True,
+        "public_path_ready": bool(SALES_KIT_PUBLIC_PATH_READY),
+        "sales_kit_live": bool(SALES_KIT_LIVE),
+        "purchase_blocked_until_live": not bool(SALES_KIT_LIVE),
+        "tier": tier,
+        "price_eur": server_price,
+        "currency": "EUR",
+        "job_id": created["job_id"],
+        "owner_token": created["owner_token"],
+        **view,
+    }
+
+
+@router.post("/jobs/{job_id}/sales-kit-company")
+def configure_sales_kit_company_job(
+    job_id: str,
+    body: SalesKitCompanyBody,
+    x_office_owner_token: str | None = Header(default=None, alias="X-Office-Owner-Token"),
+) -> dict[str, Any]:
+    """Configure Sales Kit on an existing job (public path)."""
+    from app.integration.virtus_office.b2b_packages import B2B_PRICE_EUR, SALES_KIT_LIVE
+    from app.integration.virtus_office.sku_sales_kit import resolve_tier
+
+    token = _token_or_401(x_office_owner_token)
+    tier = resolve_tier(body.tier)
+    server_price = float(B2B_PRICE_EUR.get(tier) or 0)
+    if body.price_eur is not None and abs(float(body.price_eur) - server_price) > 0.01:
+        raise _http_error(
+            OfficeJobError("price_mismatch", "Übermittelter Preis abgelehnt")
+        )
+    company = dict(body.company or {})
+    if body.price_eur is not None:
+        company = {**company, "price_eur": body.price_eur}
+    try:
+        view = _engine().configure_sales_kit(
+            job_id, owner_token=token, tier=tier, company=company
+        )
+    except OfficeJobError as exc:
+        raise _http_error(exc) from exc
+    return {
+        "ok": True,
+        "sales_kit_live": bool(SALES_KIT_LIVE),
+        "purchase_blocked_until_live": not bool(SALES_KIT_LIVE),
+        "tier": tier,
+        "price_eur": server_price,
+        **view,
+    }
 
 
 @router.post("/jobs/{job_id}/checkout")

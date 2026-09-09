@@ -20,10 +20,19 @@ CUSTOMER_EXECUTABLE_ACTIONS = frozenset(
         "convert_docx",
         "extract_data",
         "document_quality_check",
+        "searchable_pdf",
+        "redaction",
+        "fillable_pdf",
+        "pdf_a_2b",
+        "document_archive",
         "lebenslauf_create",
         "lebenslauf_improve",
         "bewerbungsschreiben",
         "bewerbung_paket",
+        # Sales Kit registry prep — customer_sellable stays False until SALES_KIT_LIVE
+        "sales_kit_basic",
+        "sales_kit_business",
+        "sales_kit_professional",
     }
 )
 
@@ -37,6 +46,51 @@ ACTION_CATALOG: tuple[dict[str, Any], ...] = (
         "needs_target_language": False,
         "default_output": "pdf",
         "price_key": "doc_quality",
+        "customer_sellable": True,
+    },
+    {
+        "id": "searchable_pdf",
+        "label_de": "Durchsuchbares PDF",
+        "icon": "ocr",
+        "needs_target_language": False,
+        "default_output": "pdf",
+        "price_key": "searchable",
+        "customer_sellable": True,
+    },
+    {
+        "id": "redaction",
+        "label_de": "Daten schwärzen",
+        "icon": "redact",
+        "needs_target_language": False,
+        "default_output": "pdf",
+        "price_key": "redaction",
+        "customer_sellable": True,
+    },
+    {
+        "id": "fillable_pdf",
+        "label_de": "Ausfüllbares PDF",
+        "icon": "form",
+        "needs_target_language": False,
+        "default_output": "pdf",
+        "price_key": "fillable",
+        "customer_sellable": True,
+    },
+    {
+        "id": "pdf_a_2b",
+        "label_de": "PDF/A-2b Archiv",
+        "icon": "archive",
+        "needs_target_language": False,
+        "default_output": "pdf",
+        "price_key": "pdf_a",
+        "customer_sellable": True,
+    },
+    {
+        "id": "document_archive",
+        "label_de": "Dokumenten-Archiv",
+        "icon": "batch",
+        "needs_target_language": False,
+        "default_output": "zip",
+        "price_key": "archive",
         "customer_sellable": True,
     },
     {
@@ -124,6 +178,43 @@ ACTION_CATALOG: tuple[dict[str, Any], ...] = (
         "needs_profile": True,
         "customer_sellable": True,
     },
+    # B2B Sales Kit — public path wired; purchase gated by SALES_KIT_LIVE + customer_sellable
+    {
+        "id": "sales_kit_basic",
+        "label_de": "Sales Kit Basic",
+        "icon": "sales",
+        "needs_target_language": False,
+        "default_output": "zip",
+        "price_key": "sales_kit_basic",
+        "needs_company": True,
+        "sandbox_e2e_only": False,
+        "public_path_ready": True,
+        "customer_sellable": True,
+    },
+    {
+        "id": "sales_kit_business",
+        "label_de": "Sales Kit Business",
+        "icon": "sales",
+        "needs_target_language": False,
+        "default_output": "zip",
+        "price_key": "sales_kit_business",
+        "needs_company": True,
+        "sandbox_e2e_only": False,
+        "public_path_ready": True,
+        "customer_sellable": True,
+    },
+    {
+        "id": "sales_kit_professional",
+        "label_de": "Sales Kit Professional",
+        "icon": "sales",
+        "needs_target_language": False,
+        "default_output": "zip",
+        "price_key": "sales_kit_professional",
+        "needs_company": True,
+        "sandbox_e2e_only": False,
+        "public_path_ready": True,
+        "customer_sellable": True,
+    },
 )
 
 
@@ -145,29 +236,68 @@ def _suggest_actions(
     type_id = str(doc_type.get("id") or "")
     ui = list((explanation or {}).get("suggested_ui_actions") or [])
     # Sellable only — never offer summarize/explain as paid choice cards
-    actions = ui or ["document_quality_check", "translate", "extract_data", "convert_docx"]
-    if file_kind in {"xlsx", "csv"} or type_id == "spreadsheet" or tables > 0:
+    scan_like = file_kind == "image" or (file_kind == "pdf" and not text_detected)
+    if scan_like:
+        actions = [
+            "searchable_pdf",
+            "redaction",
+            "document_quality_check",
+            "translate",
+            "convert_docx",
+            "extract_data",
+        ]
+    elif file_kind in {"xlsx", "csv"} or type_id == "spreadsheet" or tables > 0:
         actions = ["document_quality_check", "extract_data", "translate", "convert_docx"]
-    if type_id == "invoice":
-        actions = ["document_quality_check", "extract_data", "translate", "convert_docx"]
-    if type_id == "businessplan":
+    elif type_id == "invoice":
+        actions = [
+            "document_quality_check",
+            "extract_data",
+            "redaction",
+            "searchable_pdf",
+            "translate",
+            "convert_docx",
+        ]
+    elif type_id == "businessplan":
         actions = ["document_quality_check", "translate", "extract_data", "convert_docx"]
-    if type_id == "bank_statement":
-        actions = ["document_quality_check", "extract_data", "translate", "convert_docx"]
-    if type_id == "official_notice":
-        actions = ["document_quality_check", "translate", "convert_docx", "extract_data"]
-    if type_id in {"cv_lebenslauf", "cover_letter"}:
+    elif type_id == "bank_statement":
+        actions = [
+            "document_quality_check",
+            "extract_data",
+            "searchable_pdf",
+            "translate",
+            "convert_docx",
+        ]
+    elif type_id == "official_notice":
+        actions = [
+            "document_quality_check",
+            "fillable_pdf",
+            "searchable_pdf",
+            "translate",
+            "convert_docx",
+            "extract_data",
+        ]
+    elif type_id in {"cv_lebenslauf", "cover_letter"}:
         actions = [
             "document_quality_check",
             "lebenslauf_improve",
             "lebenslauf_create",
             "bewerbungsschreiben",
             "bewerbung_paket",
+            "searchable_pdf",
             "translate",
             "convert_docx",
         ]
-    if file_kind == "image" and not text_detected:
-        actions = ["document_quality_check", "translate", "convert_docx", "extract_data"]
+    else:
+        actions = ui or [
+            "document_quality_check",
+            "searchable_pdf",
+            "translate",
+            "extract_data",
+            "convert_docx",
+        ]
+        if "searchable_pdf" not in actions:
+            actions = ["document_quality_check", "searchable_pdf", *[a for a in actions if a != "document_quality_check"]]
+
     # Always offer quality check when missing
     if "document_quality_check" not in actions:
         actions = ["document_quality_check", *actions]
@@ -248,6 +378,19 @@ def build_understanding(
         text_detected=structure["text_detected"],
         tables=structure["tables"],
         explanation=explanation,
+    )
+
+    from app.integration.virtus_office.b2b_packages import detect_b2b_intent
+
+    b2b_intent = detect_b2b_intent(
+        " ".join(
+            [
+                text[:2000],
+                filename or "",
+                str((explanation or {}).get("summary_de") or ""),
+                str(service_preset or ""),
+            ]
+        )
     )
 
     # Confidence = blend of lang + type + parse quality
@@ -351,6 +494,13 @@ def build_understanding(
             "ocr_provider": structure.get("ocr_provider"),
             "ocr_status": structure.get("ocr_status"),
         },
+        # B2B packs: intent may be detected, but never sold while *_LIVE=false
+        "b2b_intent": b2b_intent,
+        "b2b_unavailable_de": (
+            (b2b_intent or {}).get("message_de")
+            if b2b_intent and not b2b_intent.get("live")
+            else None
+        ),
     }
 
 
