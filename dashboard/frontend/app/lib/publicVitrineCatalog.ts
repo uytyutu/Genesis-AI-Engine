@@ -65,6 +65,21 @@ export const STORE_EXAMPLE_NICHES = [
 /** Basic websites — restored live paths (not quarantine links). */
 export const PUBLIC_VITRINE_WEBSITES_BASIC: PublicVitrineDemo[] = [
   {
+    id: "web-basic-dental",
+    niche: "dental",
+    kind: "website",
+    packageId: "basic",
+    href: "/package-previews/sites/basic/dental/index.html",
+    thumb: "/package-previews/sites/basic/dental/assets/hero.jpg",
+    emoji: "🦷",
+    labelKey: "examples.dental",
+    fallback: "Zahnarzt / Стоматологія",
+    blurb: "Praxis & Termin",
+    priceKind: "website",
+    badge: "Basic",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
     id: "web-basic-beauty",
     niche: "beauty",
     kind: "website",
@@ -88,7 +103,7 @@ export const PUBLIC_VITRINE_WEBSITES_BASIC: PublicVitrineDemo[] = [
     thumb: "/package-previews/sites/basic/barbershop/assets/hero.jpg",
     emoji: "💈",
     labelKey: "examples.barbershop",
-    fallback: "Barbershop",
+    fallback: "Friseur / Barbershop",
     blurb: "Schnitt & Style",
     priceKind: "website",
     badge: "Basic",
@@ -131,6 +146,21 @@ export const PUBLIC_VITRINE_WEBSITES_BASIC: PublicVitrineDemo[] = [
  * These are the sellable Business examples, not Premium (Premium not ready).
  */
 export const PUBLIC_VITRINE_WEBSITES_BUSINESS: PublicVitrineDemo[] = [
+  {
+    id: "web-business-dental",
+    niche: "dental",
+    kind: "website",
+    packageId: "business",
+    href: "/package-previews/sites/business/dental/index.html",
+    thumb: "/package-previews/sites/business/dental/assets/hero.jpg",
+    emoji: "🦷",
+    labelKey: "examples.dental",
+    fallback: "Zahnarzt · Business",
+    blurb: "Praxis & Termin",
+    priceKind: "website",
+    badge: "Business",
+    showcaseStatus: "PUBLISHED",
+  },
   {
     id: "web-business-automotive",
     niche: "auto",
@@ -185,7 +215,7 @@ export const PUBLIC_VITRINE_WEBSITES_BUSINESS: PublicVitrineDemo[] = [
     thumb: "/package-previews/premium/barbershop/assets/seq/f001.jpg",
     emoji: "💈",
     labelKey: "examples.barbershop",
-    fallback: "Barbershop",
+    fallback: "Friseur / Barbershop · Business",
     blurb: "Business-Präsentation",
     priceKind: "website",
     badge: "Business",
@@ -481,6 +511,7 @@ export type PublicAgencyPortfolioItem = {
 
 const AGENCY_ARTIFACT_AUTO = "/package-previews/sites/business/auto";
 const AGENCY_ARTIFACT_RESTAURANT = "/package-previews/sites/business/restaurant";
+const AGENCY_ARTIFACT_DENTAL = "/package-previews/sites/business/dental";
 
 export function portfolioArtifactRoot(href: string): string {
   const clean = href.replace(/\\/g, "/").split("#")[0]?.split("?")[0] ?? href;
@@ -501,8 +532,20 @@ export function portfolioLivePreviewUrl(artifactRoot: string): string {
   return `${artifactRoot.replace(/\/$/, "")}/index.html`;
 }
 
-/** Published agency portfolio — Automotive + Restaurant only until more Reality PASS builds. */
+/** Published agency portfolio — include dental so /site/websites is not auto/restaurant-only. */
 export const PUBLIC_AGENCY_PORTFOLIO: PublicAgencyPortfolioItem[] = [
+  {
+    id: "portfolio-dental",
+    productId: "web-business-dental",
+    artifactId: "sites/business/dental",
+    title: "Zahnarzt",
+    industry: "dental",
+    tag: "Webdesign · Praxis",
+    livePreviewUrl: portfolioLivePreviewUrl(AGENCY_ARTIFACT_DENTAL),
+    previewImage: portfolioPreviewImageForArtifact(AGENCY_ARTIFACT_DENTAL),
+    packageId: "business",
+    showcaseStatus: "PUBLISHED",
+  },
   {
     id: "portfolio-auto",
     productId: "03b9eab4-23ae-4482-b525-a9c262fd060b",
@@ -558,7 +601,7 @@ export function assertPortfolioArtifactIntegrity(item: PublicAgencyPortfolioItem
   );
 }
 
-export const PUBLIC_VITRINE_THUMB_VERSION = "v23portfolioIntegrity";
+export const PUBLIC_VITRINE_THUMB_VERSION = "v24dentalFriseur";
 
 export function isPublishedShowcaseDemo(demo: PublicVitrineDemo): boolean {
   return demo.showcaseStatus === "PUBLISHED";

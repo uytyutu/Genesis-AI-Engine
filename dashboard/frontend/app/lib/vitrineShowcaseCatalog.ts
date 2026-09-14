@@ -61,12 +61,12 @@ export function websiteShowcaseSlides(): GalleryItem[] {
       href: d.href,
       kind: "photo" as const,
     }));
-  return [...portfolio, ...extras].slice(0, 8);
+  return [...portfolio, ...extras].slice(0, 12);
 }
 
 export function shopShowcaseSlides(): GalleryItem[] {
   return publishedStores()
-    .slice(0, 6)
+    .slice(0, 10)
     .map((d) => ({
       id: d.id,
       title: d.fallback,
