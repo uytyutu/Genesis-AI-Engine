@@ -65,21 +65,6 @@ export const STORE_EXAMPLE_NICHES = [
 /** Basic websites — restored live paths (not quarantine links). */
 export const PUBLIC_VITRINE_WEBSITES_BASIC: PublicVitrineDemo[] = [
   {
-    id: "web-basic-dental",
-    niche: "dental",
-    kind: "website",
-    packageId: "basic",
-    href: "/package-previews/sites/basic/dental/index.html",
-    thumb: "/package-previews/sites/basic/dental/assets/hero.jpg",
-    emoji: "🦷",
-    labelKey: "examples.dental",
-    fallback: "Zahnarzt / Стоматологія",
-    blurb: "Praxis & Termin",
-    priceKind: "website",
-    badge: "Basic",
-    showcaseStatus: "PUBLISHED",
-  },
-  {
     id: "web-basic-beauty",
     niche: "beauty",
     kind: "website",
