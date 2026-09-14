@@ -2,9 +2,9 @@
   "brand": "Virtus Office",
   "tagline": "Цифровий офіс на базі ШІ: документи, переклади, розрахунки та бізнес-задачі.",
   "uiLangLabel": "Мова інтерфейсу",
-  "documentLanguage": "Document language",
+  "documentLanguage": "Мова документа",
   "translationTarget": "Translation target",
-  "cvTargetMarket": "Target market (applications)",
+  "cvTargetMarket": "Ринок подачі (заяви)",
   "langSeparationHint": "Мова меню і мова документа — різні речі. Зміна мови інтерфейсу не змінює автоматично мову перекладу.",
   "backHome": "На головну Office",
   "backCore": "До Virtus Core",
@@ -121,51 +121,110 @@
     }
   },
   "catalog": {
+<<<<<<< Updated upstream
     "pdf_pro": {"title":"PDF PRO","subtitle":"Пошук, приховування, форми, архівування та перевірка PDF в одному пакеті.","price":"29,90 €"},
     "cv_bewerbung": {"title":"CV і заява","subtitle":"Професійне резюме та супровідний лист на основі ваших даних.","price":"24,90 €"},
     "translation_pack": {"title":"Пакет перекладу","subtitle":"Переклад повних документів зі структурою та перевіркою якості.","price":"19,90 €"},
     "qr_code": {"title":"QR-код","subtitle":"Створюйте QR для посилань, контактів, Wi-Fi та повідомлень.","price":"БЕЗКОШТОВНО"},
+=======
+    "pdf_pro": {
+      "title": "PDF PRO",
+      "subtitle": "Пошук, приховування, форми, архівування та перевірка PDF в одному пакеті.",
+      "price": "29,90 €"
+    },
+    "cv_bewerbung": {
+      "title": "CV і заява",
+      "subtitle": "Професійне резюме та супровідний лист на основі ваших даних.",
+      "price": "24,90 €"
+    },
+    "translation_pack": {
+      "title": "Пакет перекладу",
+      "subtitle": "Переклад повних документів зі структурою та перевіркою якості.",
+      "price": "19,90 €"
+    },
+    "qr_code": {
+      "title": "QR-код",
+      "subtitle": "Створюйте QR для посилань, контактів, Wi-Fi та повідомлень.",
+      "price": "БЕЗКОШТОВНО"
+    },
+>>>>>>> Stashed changes
     "searchable": {
       "title": "PDF із пошуком",
       "subtitle": "Скан → PDF із текстовим шаром (Ctrl+F)",
       "upload": "Скан · PDF-зображення · фото",
       "receive": "PDF, у якому текст можна шукати й копіювати — з технічною перевіркою",
+<<<<<<< Updated upstream
       "price": "9.90", "eta": "5–15", "formats": "PDF, JPG, PNG"
+=======
+      "price": "9.90",
+      "eta": "5–15",
+      "formats": "PDF, JPG, PNG"
+>>>>>>> Stashed changes
     },
     "redaction": {
       "title": "Приховування персональних даних",
       "subtitle": "Видалення персональних даних",
       "upload": "Договір · рахунок · виписка · скан",
       "receive": "Копія PDF без email, IBAN, телефону та інших даних у видобувному тексті",
+<<<<<<< Updated upstream
       "price": "9.90", "eta": "5–15", "formats": "PDF, JPG, PNG"
+=======
+      "price": "9.90",
+      "eta": "5–15",
+      "formats": "PDF, JPG, PNG"
+>>>>>>> Stashed changes
     },
     "fillable": {
       "title": "Заповнюваний PDF",
       "subtitle": "Справжні поля AcroForm",
       "upload": "Форма · реєстрація · скан · PDF",
       "receive": "PDF з інтерактивними полями (текст/прапорець) — технічно перевірено",
+<<<<<<< Updated upstream
       "price": "19.90", "eta": "5–20", "formats": "PDF, JPG, PNG"
+=======
+      "price": "19.90",
+      "eta": "5–20",
+      "formats": "PDF, JPG, PNG"
+>>>>>>> Stashed changes
     },
     "pdfa": {
       "title": "Архів PDF/A-2b",
       "subtitle": "Архівний PDF (структурний)",
       "upload": "PDF · скан · фото",
       "receive": "PDF/A-2b з OutputIntent + XMP — перевірка Virtus, без сертифікації veraPDF",
+<<<<<<< Updated upstream
       "price": "9.90", "eta": "5–15", "formats": "PDF, JPG, PNG"
+=======
+      "price": "9.90",
+      "eta": "5–15",
+      "formats": "PDF, JPG, PNG"
+>>>>>>> Stashed changes
     },
     "archive": {
       "title": "Архів документів",
       "subtitle": "Пакет → папки + ZIP + індекс",
       "upload": "ZIP · кілька PDF/зображень · скан папки",
       "receive": "ZIP із папками, перейменованими файлами та index.xlsx — технічно перевірено",
+<<<<<<< Updated upstream
       "price": "29.90", "eta": "5–20", "formats": "ZIP, PDF, JPG, PNG, DOCX"
+=======
+      "price": "29.90",
+      "eta": "5–20",
+      "formats": "ZIP, PDF, JPG, PNG, DOCX"
+>>>>>>> Stashed changes
     },
     "quality": {
       "title": "Перевірка якості документа",
       "subtitle": "Технічний звіт READY / NOT_READY",
       "upload": "PDF · Word · Excel · фото · скан",
       "receive": "Лише діагностичний звіт — без виправленого документа та юридичних/податкових порад",
+<<<<<<< Updated upstream
       "price": "7.90", "eta": "2–8", "formats": "PDF, DOCX, XLSX, JPG, PNG"
+=======
+      "price": "7.90",
+      "eta": "2–8",
+      "formats": "PDF, DOCX, XLSX, JPG, PNG"
+>>>>>>> Stashed changes
     },
     "translate": {
       "title": "Переклад",
@@ -195,6 +254,7 @@
       "formats": "PDF, DOCX"
     },
     "sales_kit": {
+<<<<<<< Updated upstream
       "title": "Sales Kit", "subtitle": "Професійні матеріали для продажів із даних вашої компанії.",
       "upload": "Логотип · послуги · ціни · контакти · наявні документи",
       "receive": "Профіль компанії · пропозиція · прайс-лист · шаблон листа (ZIP за тарифом)",
@@ -228,6 +288,65 @@
       "title": "Пакет процесів / SOP", "subtitle": "Ваші робочі процеси як структурована документація.",
       "upload": "Описи · наявні Word/PDF/Excel", "receive": "Структуровані документи процесів із чек-листами",
       "price": "199", "eta": "30–90", "formats": "PDF, DOCX",
+=======
+      "title": "Sales Kit",
+      "subtitle": "Професійні матеріали для продажів із даних вашої компанії.",
+      "upload": "Логотип · послуги · ціни · контакти · наявні документи",
+      "receive": "Профіль компанії · пропозиція · прайс-лист · шаблон листа (ZIP за тарифом)",
+      "price": "99",
+      "eta": "15–40",
+      "formats": "PDF, DOCX, ZIP",
+      "honesty": "Лише з наданої інформації. Без вигаданих послуг, цін чи відгуків."
+    },
+    "company_profile": {
+      "title": "Профіль компанії",
+      "subtitle": "Професійний профіль компанії з ваших матеріалів.",
+      "upload": "Назва компанії · логотип · текст · послуги · контакти",
+      "receive": "Профіль компанії у PDF і DOCX",
+      "price": "149",
+      "eta": "15–35",
+      "formats": "PDF, DOCX",
+      "honesty": "Без вигаданих фактів про вашу компанію."
+    },
+    "document_cleanup_pack": {
+      "title": "Пакет упорядкування документів",
+      "subtitle": "Уніфікуйте та професійно впорядкуйте набір документів.",
+      "upload": "10–30 документів (за тарифом)",
+      "receive": "Очищені файли з єдиним форматуванням",
+      "price": "99",
+      "eta": "20–60",
+      "formats": "PDF, DOCX",
+      "honesty": "Професійне впорядкування — не юридична сертифікація відповідності."
+    },
+    "business_translation_pack": {
+      "title": "Пакет бізнес-перекладу",
+      "subtitle": "Переклад бізнес-документів — потрібно обрати цільову мову.",
+      "upload": "Вихідні документи · мова оригіналу · цільова мова",
+      "receive": "Пакет перекладених PDF/DOCX",
+      "price": "99",
+      "eta": "20–60",
+      "formats": "PDF, DOCX",
+      "honesty": "Без вигаданих бізнес-тверджень; числа й назви зберігаються уважно."
+    },
+    "excel_business_pack": {
+      "title": "Бізнес-пакет Excel",
+      "subtitle": "Перетворіть неохайні таблиці на зручну робочу книгу.",
+      "upload": "Excel · CSV · чіткі таблиці",
+      "receive": "Очищений XLSX зі структурою та підсумком",
+      "price": "149",
+      "eta": "20–50",
+      "formats": "XLSX, CSV",
+      "honesty": "Без розширеної BI та вигаданих даних."
+    },
+    "process_sop_pack": {
+      "title": "Пакет процесів / SOP",
+      "subtitle": "Ваші робочі процеси як структурована документація.",
+      "upload": "Описи · наявні Word/PDF/Excel",
+      "receive": "Структуровані документи процесів із чек-листами",
+      "price": "199",
+      "eta": "30–90",
+      "formats": "PDF, DOCX",
+>>>>>>> Stashed changes
       "honesty": "Лише структурування документів — не юридичні, податкові чи ISO-поради."
     },
     "documents": {
@@ -295,6 +414,7 @@
     }
   },
   "pdfPro": {
+<<<<<<< Updated upstream
     "title":"PDF PRO","lead":"Одне завантаження для пошуку, приховування даних, форм, PDF/A, архіву та перевірки якості.","honesty":"Виконуються лише операції, підтверджені у вашій пропозиції.","opsLabel":"Операції PDF у пакеті","cta":"Завантажити PDF","price":"29,90 €",
     "b1":"Текстовий шар із пошуком і технічна перевірка","b2":"Опції приховування та заповнюваних форм","b3":"PDF/A та впорядкований архів","b4":"Перевірка якості перед доставкою"
   },
@@ -306,6 +426,70 @@
     "title":"Безкоштовний генератор QR-кодів","lead":"Створіть QR-код і завантажте PNG, SVG або PDF. Без оплати.","freeBadge":"БЕЗКОШТОВНО · без оплати","typeLabel":"Тип QR","generate":"Створити QR-код","generating":"Створення…","required":"Введіть принаймні одне значення.","error":"Не вдалося створити QR-код.","ready":"Ваш QR-код готовий","downloadLead":"Оберіть потрібний формат.","previewAlt":"Перегляд створеного QR-коду","downloadPng":"Завантажити PNG","downloadSvg":"Завантажити SVG","downloadPdf":"Завантажити PDF",
     "types":{"url":"URL сайту","whatsapp":"WhatsApp","maps":"Адреса на мапі","email":"Ел. пошта","phone":"Телефон","text":"Текст","wifi":"Wi-Fi","vcard":"Картка контакту"},
     "fields":{"url":"URL","phone":"Номер телефону","message":"Повідомлення","address":"Адреса","email":"Електронна пошта","subject":"Тема","text":"Текст","ssid":"Назва Wi-Fi (SSID)","password":"Пароль Wi-Fi","security":"Захист (WPA/WEP/nopass)","name":"Повне ім’я","company":"Компанія"}
+=======
+    "title": "PDF PRO",
+    "lead": "Одне завантаження для пошуку, приховування даних, форм, PDF/A, архіву та перевірки якості.",
+    "honesty": "Виконуються лише операції, підтверджені у вашій пропозиції.",
+    "opsLabel": "Операції PDF у пакеті",
+    "cta": "Завантажити PDF",
+    "price": "29,90 €",
+    "b1": "Текстовий шар із пошуком і технічна перевірка",
+    "b2": "Опції приховування та заповнюваних форм",
+    "b3": "PDF/A та впорядкований архів",
+    "b4": "Перевірка якості перед доставкою"
+  },
+  "translationPack": {
+    "title": "Пакет перекладу",
+    "lead": "Перекладіть повний документ зі збереженням назв, чисел і структури.",
+    "honesty": "Це не засвідчений переклад; якість скану впливає на результат.",
+    "opsLabel": "Опції перекладу",
+    "cta": "Завантажити документ",
+    "price": "19,90 €",
+    "b1": "Вибір вихідної та цільової мови",
+    "b2": "Збереження назв, чисел і дат",
+    "b3": "Структурований PDF або DOCX",
+    "b4": "Перевірка якості перед доставкою"
+  },
+  "qr": {
+    "title": "Безкоштовний генератор QR-кодів",
+    "lead": "Створіть QR-код і завантажте PNG, SVG або PDF. Без оплати.",
+    "freeBadge": "БЕЗКОШТОВНО · без оплати",
+    "typeLabel": "Тип QR",
+    "generate": "Створити QR-код",
+    "generating": "Створення…",
+    "required": "Введіть принаймні одне значення.",
+    "error": "Не вдалося створити QR-код.",
+    "ready": "Ваш QR-код готовий",
+    "downloadLead": "Оберіть потрібний формат.",
+    "previewAlt": "Перегляд створеного QR-коду",
+    "downloadPng": "Завантажити PNG",
+    "downloadSvg": "Завантажити SVG",
+    "downloadPdf": "Завантажити PDF",
+    "types": {
+      "url": "URL сайту",
+      "whatsapp": "WhatsApp",
+      "maps": "Адреса на мапі",
+      "email": "Ел. пошта",
+      "phone": "Телефон",
+      "text": "Текст",
+      "wifi": "Wi-Fi",
+      "vcard": "Картка контакту"
+    },
+    "fields": {
+      "url": "URL",
+      "phone": "Номер телефону",
+      "message": "Повідомлення",
+      "address": "Адреса",
+      "email": "Електронна пошта",
+      "subject": "Тема",
+      "text": "Текст",
+      "ssid": "Назва Wi-Fi (SSID)",
+      "password": "Пароль Wi-Fi",
+      "security": "Захист (WPA/WEP/nopass)",
+      "name": "Повне ім’я",
+      "company": "Компанія"
+    }
+>>>>>>> Stashed changes
   },
   "service": {
     "translate": {
@@ -515,75 +699,115 @@
     "emailRequired": "Вкажіть коректний email перед оплатою."
   },
   "preview": {
-    "title": "Preview",
-    "style": "Style",
-    "language": "Language",
-    "pages": "Pages",
-    "product": "Product",
-    "structure": "Structure",
-    "fullAfterPay": "Full document after payment",
-    "styleGermanProfessional": "German Professional"
+    "title": "Попередній перегляд",
+    "style": "Стиль",
+    "font": "Шрифт",
+    "language": "Мова",
+    "pages": "Сторінки",
+    "product": "Продукт",
+    "structure": "Структура",
+    "fullAfterPay": "Повний документ після оплати",
+    "styleGermanProfessional": "Класичний професійний"
   },
   "bewerbung": {
-    "title": "Application Office",
-    "lead": "CV, cover letter and package — only from your data. No invented qualifications. No guaranteed hire.",
-    "honesty": "Profile → payment → generation → QA → download in cabinet and by email (secure link). No invented qualifications. No job guarantee.",
-    "profileTitle": "Profile (required fields depend on service)",
-    "checkProfile": "Check profile",
-    "checking": "Checking…",
-    "payCta": "Proceed to payment",
-    "download": "Download",
-    "missingPrefix": "Missing:",
-    "photoLabel": "Photo (JPG/PNG)",
-    "jobCreateFailed": "Could not create job",
-    "photoError": "Photo error",
-    "checkoutError": "Checkout error",
-    "downloadFailed": "Download failed",
+    "title": "Резюме (CV) і заява на роботу",
+    "lead": "Тут ви створюєте резюме (те саме, що CV / Lebenslauf), супровідний лист або повний пакет заяви — тільки з ваших даних. Без вигаданих кваліфікацій. Без гарантії працевлаштування.",
+    "honesty": "Крок 1: заповніть дані → крок 2: оплата → крок 3: Virtus готує документ → крок 4: завантаження в кабінеті та на email. Без вигаданих кваліфікацій. Без гарантії роботи.",
+    "profileTitle": "Ваші дані для резюме",
+    "designTitle": "Як має виглядати резюме",
+    "designHint": "Оберіть стиль і шрифт. Мова меню (цей екран) і мова самого резюме — різні налаштування.",
+    "styleLabel": "Стиль",
+    "fontLabel": "Шрифт",
+    "styles": {
+      "professional": "Класичний професійний",
+      "color": "Кольоровий / сучасний",
+      "modern": "Компактний · одна сторінка"
+    },
+    "fonts": {
+      "classic": "Classic (Helvetica)",
+      "elegant": "Elegant (Times)",
+      "modern": "Modern (Helvetica)",
+      "mono": "Mono (Courier)"
+    },
+    "marketLabel": "Ринок подачі",
+    "docLangLabel": "Мова документа",
+    "checkProfile": "Перевірити дані і продовжити до оплати",
+    "checking": "Перевіряємо…",
+    "payCta": "До оплати",
+    "download": "Завантажити",
+    "missingPrefix": "Бракує:",
+    "photoLabel": "Фото (JPG/PNG)",
+    "photoChoose": "Обрати фото",
+    "photoNone": "Файл не вибрано",
+    "jobCreateFailed": "Не вдалося створити замовлення",
+    "photoError": "Помилка фото",
+    "checkoutError": "Помилка оплати",
+    "downloadFailed": "Помилка завантаження",
     "fields": {
-      "fullName": "Full name",
+      "fullName": "Повне ім’я",
       "email": "Email",
-      "phone": "Phone",
-      "city": "City",
-      "address": "Address",
-      "postalCode": "Postal code",
-      "employer": "Employer",
-      "title": "Position",
-      "expStart": "Employment from",
-      "expEnd": "Employment until",
-      "school": "School / university",
-      "degree": "Degree",
-      "eduStart": "Education from",
-      "languages": "Languages (Name:Level)",
-      "skills": "Skills (comma-separated)",
-      "license": "Driving licence",
-      "vacancyTitle": "Job title",
-      "vacancyCompany": "Employer (vacancy)",
-      "vacancyNotes": "Job ad / notes",
-      "motivation": "Motivation / strengths"
+      "phone": "Телефон",
+      "city": "Місто",
+      "address": "Адреса",
+      "postalCode": "Індекс",
+      "employer": "Роботодавець",
+      "title": "Посада",
+      "expStart": "Робота з",
+      "expEnd": "Робота до",
+      "school": "Школа / університет",
+      "degree": "Освіта / ступінь",
+      "eduStart": "Навчання з",
+      "languages": "Мови (Назва:Рівень)",
+      "skills": "Навички (через кому)",
+      "license": "Водійські права",
+      "vacancyTitle": "Назва вакансії",
+      "vacancyCompany": "Роботодавець (вакансія)",
+      "vacancyNotes": "Текст вакансії / нотатки",
+      "motivation": "Мотивація / сильні сторони"
     },
     "placeholders": {
       "expStart": "03/2020",
       "expEnd": "12/2023",
       "license": "B",
-      "languages": "German:C1, English:B2"
+      "languages": "Німецька:C1, Англійська:B2"
     },
     "actions": {
       "lebenslauf_create": {
-        "label": "Create CV",
-        "hint": "New CV from your details"
+        "label": "Створити резюме",
+        "hint": "Нове резюме (CV / Lebenslauf) з ваших даних — зрозуміло для роботодавця"
       },
       "lebenslauf_improve": {
-        "label": "Improve CV",
-        "hint": "Restructure existing text"
+        "label": "Покращити резюме",
+        "hint": "Упорядкувати й професійно структурувати ваш текст"
       },
       "bewerbungsschreiben": {
-        "label": "Cover letter",
-        "hint": "With optional job ad"
+        "label": "Супровідний лист",
+        "hint": "Лист до роботодавця (можна додати вакансію)"
       },
       "bewerbung_paket": {
-        "label": "Application package",
-        "hint": "CV + cover letter as ZIP"
+        "label": "Повний пакет заяви",
+        "hint": "Резюме + супровідний лист одним ZIP-файлом"
       }
+    },
+    "missing": {
+      "personal.full_name": "Повне ім’я",
+      "personal.email": "Email",
+      "personal.phone": "Телефон",
+      "personal.city": "Місто",
+      "personal.contact": "Email або телефон",
+      "experience": "Досвід роботи",
+      "experience.employer": "Роботодавець",
+      "experience.title": "Посада",
+      "experience.start": "Початок роботи",
+      "education": "Освіта",
+      "education.school": "Школа / університет",
+      "education.degree": "Ступінь",
+      "education.start": "Початок навчання",
+      "vacancy.title": "Назва вакансії",
+      "vacancy.company": "Компанія вакансії",
+      "vacancy.text_or_title": "Вакансія або назва посади",
+      "source_cv": "Попереднє резюме (файл або текст)",
+      "experience_or_education": "Досвід роботи або освіта"
     }
   },
   "actions": {
@@ -626,7 +850,12 @@
     "cabinet": "Мій кабінет"
   },
   "salesKit": {
+<<<<<<< Updated upstream
     "eyebrow": "Virtus Office", "title": "Sales Kit",
+=======
+    "eyebrow": "Virtus Office",
+    "title": "Sales Kit",
+>>>>>>> Stashed changes
     "lead": "Професійні матеріали для продажів на основі фактів вашої компанії — чітко, чесно, без вигаданого вмісту.",
     "honesty": "Ми використовуємо лише надану вами інформацію. Без вигаданих послуг, цін чи відгуків.",
     "basicIncludes": "Профіль компанії у PDF і DOCX",
@@ -635,20 +864,52 @@
     "formTitle": "Дані вашої компанії",
     "formLead": "Введіть факти, які мають бути в документах. Створення почнеться лише після успішної оплати та запуску сервісу.",
     "fields": {
+<<<<<<< Updated upstream
       "companyName": "Назва компанії", "email": "Email", "phone": "Телефон", "description": "Короткий опис",
       "services": "Послуги (по одній у рядку)", "prices": "Ціни / прайс-лист (по одній позиції в рядку)"
     },
     "placeholders": {"services": "наприклад, консультація на місці", "prices": "наприклад, консультація — 89 €"},
     "ctaConfigure": "Продовжити", "ctaCheckout": "Замовити зараз", "working": "Зачекайте…",
+=======
+      "companyName": "Назва компанії",
+      "email": "Email",
+      "phone": "Телефон",
+      "description": "Короткий опис",
+      "services": "Послуги (по одній у рядку)",
+      "prices": "Ціни / прайс-лист (по одній позиції в рядку)"
+    },
+    "placeholders": {
+      "services": "наприклад, консультація на місці",
+      "prices": "наприклад, консультація — 89 €"
+    },
+    "ctaConfigure": "Продовжити",
+    "ctaCheckout": "Замовити зараз",
+    "working": "Зачекайте…",
+>>>>>>> Stashed changes
     "configFailed": "Не вдалося налаштувати. Перевірте введені дані.",
     "configuredBlocked": "Дані збережено. Купівля ще недоступна — оформлення замовлення заблоковано.",
     "configuredReady": "Дані збережено. Можна перейти до оплати.",
     "liveBlocked": "Sales Kit ще недоступний. Дані збережено — купівля відкриється після запуску.",
     "checkoutUnexpected": "Неочікувана відповідь оформлення замовлення. Спробуйте пізніше.",
     "tiers": {
+<<<<<<< Updated upstream
       "sales_kit_basic": {"label": "Basic", "desc": "Переконливий профіль компанії для професійного першого враження."},
       "sales_kit_business": {"label": "Business", "desc": "Профіль, пропозиція, ціни й шаблон листа для щоденних продажів."},
       "sales_kit_professional": {"label": "Professional", "desc": "Повний пакет документів для вимогливої роботи з клієнтами."}
+=======
+      "sales_kit_basic": {
+        "label": "Basic",
+        "desc": "Переконливий профіль компанії для професійного першого враження."
+      },
+      "sales_kit_business": {
+        "label": "Business",
+        "desc": "Профіль, пропозиція, ціни й шаблон листа для щоденних продажів."
+      },
+      "sales_kit_professional": {
+        "label": "Professional",
+        "desc": "Повний пакет документів для вимогливої роботи з клієнтами."
+      }
+>>>>>>> Stashed changes
     }
   },
   "progress": {

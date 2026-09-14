@@ -744,24 +744,44 @@
   "preview": {
     "title": "Preview",
     "style": "Style",
+    "font": "Font",
     "language": "Language",
     "pages": "Pages",
     "product": "Product",
     "structure": "Structure",
     "fullAfterPay": "Full document after payment",
-    "styleGermanProfessional": "German Professional"
+    "styleGermanProfessional": "Classic professional"
   },
   "bewerbung": {
-    "title": "Application Office",
-    "lead": "CV, cover letter and package — only from your data. No invented qualifications. No guaranteed hire.",
+    "title": "CV & application",
+    "lead": "Create a professional CV, cover letter or package — only from your data. No invented qualifications. No hire guarantee.",
     "honesty": "Profile → payment → generation → QA → download in cabinet and by email (secure link). No invented qualifications. No job guarantee.",
-    "profileTitle": "Profile (required fields depend on service)",
-    "checkProfile": "Check profile",
+    "profileTitle": "Your details (required fields depend on the service)",
+    "designTitle": "CV look",
+    "designHint": "Choose style and font. Menu language and document language are separate.",
+    "styleLabel": "Style",
+    "fontLabel": "Font",
+    "styles": {
+      "professional": "Classic professional",
+      "color": "Colourful / modern",
+      "modern": "Compact · one page"
+    },
+    "fonts": {
+      "classic": "Classic (Helvetica)",
+      "elegant": "Elegant (Times)",
+      "modern": "Modern (Helvetica)",
+      "mono": "Mono (Courier)"
+    },
+    "marketLabel": "Target market",
+    "docLangLabel": "Document language",
+    "checkProfile": "Check details and continue",
     "checking": "Checking…",
     "payCta": "Proceed to payment",
     "download": "Download",
     "missingPrefix": "Missing:",
     "photoLabel": "Photo (JPG/PNG)",
+    "photoChoose": "Choose photo",
+    "photoNone": "No file selected",
     "jobCreateFailed": "Could not create job",
     "photoError": "Photo error",
     "checkoutError": "Checkout error",
@@ -811,6 +831,26 @@
         "label": "Application package",
         "hint": "CV + cover letter as ZIP"
       }
+    },
+    "missing": {
+      "personal.full_name": "Full name",
+      "personal.email": "Email",
+      "personal.phone": "Phone",
+      "personal.city": "City",
+      "personal.contact": "Email or phone",
+      "experience": "Work experience",
+      "experience.employer": "Employer",
+      "experience.title": "Position",
+      "experience.start": "Employment start",
+      "education": "Education",
+      "education.school": "School / university",
+      "education.degree": "Degree",
+      "education.start": "Education start",
+      "vacancy.title": "Job title",
+      "vacancy.company": "Vacancy company",
+      "vacancy.text_or_title": "Job ad or job title",
+      "source_cv": "Previous CV (file or text)",
+      "experience_or_education": "Work experience or education"
     }
   },
   "actions": {

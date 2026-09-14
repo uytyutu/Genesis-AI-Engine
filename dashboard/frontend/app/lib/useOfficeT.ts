@@ -32,10 +32,31 @@ export function useOfficeT() {
   const locale = resolveOfficeI18nLocale(uiLocale);
   const dict = OFFICE_I18N_BUNDLES[locale] as Dict;
   const fallback = OFFICE_I18N_BUNDLES.de as Dict;
+  const english = OFFICE_I18N_BUNDLES.en as Dict;
 
   const t = useCallback(
     (path: string, vars?: Record<string, string | number>) => {
-      const raw = getPath(dict, path) ?? getPath(fallback, path);
+      let raw = getPath(dict, path);
+      // Bewerbung / preview leftover English in non-EN locales → use German client copy
+      if (
+        locale !== "en" &&
+        locale !== "de" &&
+        typeof raw === "string" &&
+        (path === "bewerbung" ||
+          path.startsWith("bewerbung.") ||
+          path === "preview" ||
+          path.startsWith("preview.") ||
+          path === "documentLanguage" ||
+          path === "cvTargetMarket")
+      ) {
+        const enVal = getPath(english, path);
+        if (typeof enVal === "string" && raw === enVal) {
+          raw = getPath(fallback, path);
+        }
+      }
+      if (raw === undefined) {
+        raw = getPath(fallback, path);
+      }
       if (typeof raw !== "string") {
         const fallbackStr =
           vars && typeof vars.defaultValue === "string" ? vars.defaultValue : path;
@@ -43,7 +64,7 @@ export function useOfficeT() {
       }
       return interpolate(raw, vars);
     },
-    [dict, fallback],
+    [dict, fallback, english, locale],
   );
 
   const setOfficeLocale = useCallback(

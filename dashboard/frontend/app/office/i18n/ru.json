@@ -2,9 +2,9 @@
   "brand": "Virtus Office",
   "tagline": "Цифровой офис на ИИ: документы, переводы, расчёты и бизнес-задачи.",
   "uiLangLabel": "Язык интерфейса",
-  "documentLanguage": "Document language",
+  "documentLanguage": "Язык документа",
   "translationTarget": "Translation target",
-  "cvTargetMarket": "Target market (applications)",
+  "cvTargetMarket": "Рынок подачи (заявления)",
   "langSeparationHint": "Язык меню и язык документа — разные вещи. Смена языка интерфейса не меняет автоматически язык перевода.",
   "backHome": "На главную Office",
   "backCore": "К Virtus Core",
@@ -121,10 +121,33 @@
     }
   },
   "catalog": {
+<<<<<<< Updated upstream
     "pdf_pro": {"title":"PDF PRO","subtitle":"Поиск, скрытие, формы, архивирование и проверка PDF в одном пакете.","price":"29,90 €"},
     "cv_bewerbung": {"title":"CV и заявление","subtitle":"Профессиональное резюме и сопроводительное письмо по вашим данным.","price":"24,90 €"},
     "translation_pack": {"title":"Пакет перевода","subtitle":"Перевод полных документов с сохранением структуры и проверкой качества.","price":"19,90 €"},
     "qr_code": {"title":"QR-код","subtitle":"Создавайте QR для ссылок, контактов, Wi-Fi и сообщений.","price":"БЕСПЛАТНО"},
+=======
+    "pdf_pro": {
+      "title": "PDF PRO",
+      "subtitle": "Поиск, скрытие, формы, архивирование и проверка PDF в одном пакете.",
+      "price": "29,90 €"
+    },
+    "cv_bewerbung": {
+      "title": "CV и заявление",
+      "subtitle": "Профессиональное резюме и сопроводительное письмо по вашим данным.",
+      "price": "24,90 €"
+    },
+    "translation_pack": {
+      "title": "Пакет перевода",
+      "subtitle": "Перевод полных документов с сохранением структуры и проверкой качества.",
+      "price": "19,90 €"
+    },
+    "qr_code": {
+      "title": "QR-код",
+      "subtitle": "Создавайте QR для ссылок, контактов, Wi-Fi и сообщений.",
+      "price": "БЕСПЛАТНО"
+    },
+>>>>>>> Stashed changes
     "searchable": {
       "title": "PDF с поиском",
       "subtitle": "Скан → PDF с текстовым слоем (Ctrl+F)",
@@ -331,6 +354,7 @@
     }
   },
   "pdfPro": {
+<<<<<<< Updated upstream
     "title":"PDF PRO","lead":"Одна загрузка для поиска, скрытия данных, форм, PDF/A, архива и проверки качества.","honesty":"Выполняются только операции, подтверждённые в вашем предложении.","opsLabel":"Операции PDF в пакете","cta":"Загрузить PDF","price":"29,90 €",
     "b1":"Текстовый слой с поиском и техническая проверка","b2":"Опции скрытия и заполняемых форм","b3":"PDF/A и упорядоченный архив","b4":"Проверка качества перед доставкой"
   },
@@ -342,6 +366,70 @@
     "title":"Бесплатный генератор QR-кодов","lead":"Создайте QR-код и скачайте PNG, SVG или PDF. Без оплаты.","freeBadge":"БЕСПЛАТНО · без оплаты","typeLabel":"Тип QR","generate":"Создать QR-код","generating":"Создание…","required":"Введите хотя бы одно значение.","error":"Не удалось создать QR-код.","ready":"Ваш QR-код готов","downloadLead":"Выберите нужный формат.","previewAlt":"Предпросмотр QR-кода","downloadPng":"Скачать PNG","downloadSvg":"Скачать SVG","downloadPdf":"Скачать PDF",
     "types":{"url":"URL сайта","whatsapp":"WhatsApp","maps":"Адрес на карте","email":"Эл. почта","phone":"Телефон","text":"Текст","wifi":"Wi-Fi","vcard":"Карточка контакта"},
     "fields":{"url":"URL","phone":"Номер телефона","message":"Сообщение","address":"Адрес","email":"Электронная почта","subject":"Тема","text":"Текст","ssid":"Имя Wi-Fi (SSID)","password":"Пароль Wi-Fi","security":"Защита (WPA/WEP/nopass)","name":"Полное имя","company":"Компания"}
+=======
+    "title": "PDF PRO",
+    "lead": "Одна загрузка для поиска, скрытия данных, форм, PDF/A, архива и проверки качества.",
+    "honesty": "Выполняются только операции, подтверждённые в вашем предложении.",
+    "opsLabel": "Операции PDF в пакете",
+    "cta": "Загрузить PDF",
+    "price": "29,90 €",
+    "b1": "Текстовый слой с поиском и техническая проверка",
+    "b2": "Опции скрытия и заполняемых форм",
+    "b3": "PDF/A и упорядоченный архив",
+    "b4": "Проверка качества перед доставкой"
+  },
+  "translationPack": {
+    "title": "Пакет перевода",
+    "lead": "Переведите полный документ с сохранением названий, чисел и структуры.",
+    "honesty": "Это не заверенный перевод; качество скана влияет на результат.",
+    "opsLabel": "Опции перевода",
+    "cta": "Загрузить документ",
+    "price": "19,90 €",
+    "b1": "Выбор исходного и целевого языка",
+    "b2": "Сохранение названий, чисел и дат",
+    "b3": "Структурированный PDF или DOCX",
+    "b4": "Проверка качества перед доставкой"
+  },
+  "qr": {
+    "title": "Бесплатный генератор QR-кодов",
+    "lead": "Создайте QR-код и скачайте PNG, SVG или PDF. Без оплаты.",
+    "freeBadge": "БЕСПЛАТНО · без оплаты",
+    "typeLabel": "Тип QR",
+    "generate": "Создать QR-код",
+    "generating": "Создание…",
+    "required": "Введите хотя бы одно значение.",
+    "error": "Не удалось создать QR-код.",
+    "ready": "Ваш QR-код готов",
+    "downloadLead": "Выберите нужный формат.",
+    "previewAlt": "Предпросмотр QR-кода",
+    "downloadPng": "Скачать PNG",
+    "downloadSvg": "Скачать SVG",
+    "downloadPdf": "Скачать PDF",
+    "types": {
+      "url": "URL сайта",
+      "whatsapp": "WhatsApp",
+      "maps": "Адрес на карте",
+      "email": "Эл. почта",
+      "phone": "Телефон",
+      "text": "Текст",
+      "wifi": "Wi-Fi",
+      "vcard": "Карточка контакта"
+    },
+    "fields": {
+      "url": "URL",
+      "phone": "Номер телефона",
+      "message": "Сообщение",
+      "address": "Адрес",
+      "email": "Электронная почта",
+      "subject": "Тема",
+      "text": "Текст",
+      "ssid": "Имя Wi-Fi (SSID)",
+      "password": "Пароль Wi-Fi",
+      "security": "Защита (WPA/WEP/nopass)",
+      "name": "Полное имя",
+      "company": "Компания"
+    }
+>>>>>>> Stashed changes
   },
   "service": {
     "translate": {
@@ -634,75 +722,115 @@
     }
   },
   "preview": {
-    "title": "Preview",
-    "style": "Style",
-    "language": "Language",
-    "pages": "Pages",
-    "product": "Product",
-    "structure": "Structure",
-    "fullAfterPay": "Full document after payment",
-    "styleGermanProfessional": "German Professional"
+    "title": "Предпросмотр",
+    "style": "Стиль",
+    "font": "Шрифт",
+    "language": "Язык",
+    "pages": "Страницы",
+    "product": "Продукт",
+    "structure": "Структура",
+    "fullAfterPay": "Полный документ после оплаты",
+    "styleGermanProfessional": "Классический профессиональный"
   },
   "bewerbung": {
-    "title": "Application Office",
-    "lead": "CV, cover letter and package — only from your data. No invented qualifications. No guaranteed hire.",
-    "honesty": "Profile → payment → generation → QA → download in cabinet and by email (secure link). No invented qualifications. No job guarantee.",
-    "profileTitle": "Profile (required fields depend on service)",
-    "checkProfile": "Check profile",
-    "checking": "Checking…",
-    "payCta": "Proceed to payment",
-    "download": "Download",
-    "missingPrefix": "Missing:",
-    "photoLabel": "Photo (JPG/PNG)",
-    "jobCreateFailed": "Could not create job",
-    "photoError": "Photo error",
-    "checkoutError": "Checkout error",
-    "downloadFailed": "Download failed",
+    "title": "Резюме (CV) и заявление на работу",
+    "lead": "Здесь вы создаёте резюме (то же, что CV / Lebenslauf), сопроводительное письмо или полный пакет заявления — только из ваших данных. Без выдуманных квалификаций. Без гарантии трудоустройства.",
+    "honesty": "Шаг 1: заполните данные → шаг 2: оплата → шаг 3: Virtus готовит документ → шаг 4: скачивание в кабинете и на email. Без выдуманных квалификаций. Без гарантии работы.",
+    "profileTitle": "Ваши данные для резюме",
+    "designTitle": "Как должно выглядеть резюме",
+    "designHint": "Выберите стиль и шрифт. Язык меню (этот экран) и язык самого резюме — разные настройки.",
+    "styleLabel": "Стиль",
+    "fontLabel": "Шрифт",
+    "styles": {
+      "professional": "Классический профессиональный",
+      "color": "Цветной / современный",
+      "modern": "Компактный · одна страница"
+    },
+    "fonts": {
+      "classic": "Classic (Helvetica)",
+      "elegant": "Elegant (Times)",
+      "modern": "Modern (Helvetica)",
+      "mono": "Mono (Courier)"
+    },
+    "marketLabel": "Рынок подачи",
+    "docLangLabel": "Язык документа",
+    "checkProfile": "Проверить данные и продолжить к оплате",
+    "checking": "Проверяем…",
+    "payCta": "К оплате",
+    "download": "Скачать",
+    "missingPrefix": "Не хватает:",
+    "photoLabel": "Фото (JPG/PNG)",
+    "photoChoose": "Выбрать фото",
+    "photoNone": "Файл не выбран",
+    "jobCreateFailed": "Не удалось создать заказ",
+    "photoError": "Ошибка фото",
+    "checkoutError": "Ошибка оплаты",
+    "downloadFailed": "Ошибка скачивания",
     "fields": {
-      "fullName": "Full name",
+      "fullName": "Полное имя",
       "email": "Email",
-      "phone": "Phone",
-      "city": "City",
-      "address": "Address",
-      "postalCode": "Postal code",
-      "employer": "Employer",
-      "title": "Position",
-      "expStart": "Employment from",
-      "expEnd": "Employment until",
-      "school": "School / university",
-      "degree": "Degree",
-      "eduStart": "Education from",
-      "languages": "Languages (Name:Level)",
-      "skills": "Skills (comma-separated)",
-      "license": "Driving licence",
-      "vacancyTitle": "Job title",
-      "vacancyCompany": "Employer (vacancy)",
-      "vacancyNotes": "Job ad / notes",
-      "motivation": "Motivation / strengths"
+      "phone": "Телефон",
+      "city": "Город",
+      "address": "Адрес",
+      "postalCode": "Индекс",
+      "employer": "Работодатель",
+      "title": "Должность",
+      "expStart": "Работа с",
+      "expEnd": "Работа до",
+      "school": "Школа / университет",
+      "degree": "Образование / степень",
+      "eduStart": "Учёба с",
+      "languages": "Языки (Название:Уровень)",
+      "skills": "Навыки (через запятую)",
+      "license": "Водительские права",
+      "vacancyTitle": "Название вакансии",
+      "vacancyCompany": "Работодатель (вакансия)",
+      "vacancyNotes": "Текст вакансии / заметки",
+      "motivation": "Мотивация / сильные стороны"
     },
     "placeholders": {
       "expStart": "03/2020",
       "expEnd": "12/2023",
       "license": "B",
-      "languages": "German:C1, English:B2"
+      "languages": "Немецкий:C1, Английский:B2"
     },
     "actions": {
       "lebenslauf_create": {
-        "label": "Create CV",
-        "hint": "New CV from your details"
+        "label": "Создать резюме",
+        "hint": "Новое резюме (CV / Lebenslauf) из ваших данных — понятно для работодателя"
       },
       "lebenslauf_improve": {
-        "label": "Improve CV",
-        "hint": "Restructure existing text"
+        "label": "Улучшить резюме",
+        "hint": "Упорядочить и профессионально структурировать ваш текст"
       },
       "bewerbungsschreiben": {
-        "label": "Cover letter",
-        "hint": "With optional job ad"
+        "label": "Сопроводительное письмо",
+        "hint": "Письмо работодателю (можно добавить вакансию)"
       },
       "bewerbung_paket": {
-        "label": "Application package",
-        "hint": "CV + cover letter as ZIP"
+        "label": "Полный пакет заявления",
+        "hint": "Резюме + сопроводительное письмо одним ZIP-файлом"
       }
+    },
+    "missing": {
+      "personal.full_name": "Полное имя",
+      "personal.email": "Email",
+      "personal.phone": "Телефон",
+      "personal.city": "Город",
+      "personal.contact": "Email или телефон",
+      "experience": "Опыт работы",
+      "experience.employer": "Работодатель",
+      "experience.title": "Должность",
+      "experience.start": "Начало работы",
+      "education": "Образование",
+      "education.school": "Школа / университет",
+      "education.degree": "Степень",
+      "education.start": "Начало учёбы",
+      "vacancy.title": "Название вакансии",
+      "vacancy.company": "Компания вакансии",
+      "vacancy.text_or_title": "Вакансия или название должности",
+      "source_cv": "Прежнее резюме (файл или текст)",
+      "experience_or_education": "Опыт работы или образование"
     }
   },
   "actions": {

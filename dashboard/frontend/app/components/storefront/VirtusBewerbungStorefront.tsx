@@ -68,6 +68,15 @@ export function VirtusBewerbungStorefront({
   const [vacText, setVacText] = useState("");
   const [motivation, setMotivation] = useState("");
   const [outputFmt, setOutputFmt] = useState("pdf");
+  const [targetMarket, setTargetMarket] = useState("DE");
+  const [docLanguage, setDocLanguage] = useState("de");
+  const [cvStyle, setCvStyle] = useState<"professional" | "color" | "modern">(
+    "professional",
+  );
+  const [cvFont, setCvFont] = useState<"classic" | "elegant" | "modern" | "mono">(
+    "classic",
+  );
+  const [photoName, setPhotoName] = useState<string | null>(null);
 
   const missing = useMemo(
     () =>
@@ -75,6 +84,12 @@ export function VirtusBewerbungStorefront({
         ?.missing_fields || []),
     [job],
   );
+
+  function missingLabel(row: { id: string; label_de?: string }) {
+    const key = `bewerbung.missing.${row.id}`;
+    const translated = t(key);
+    return translated === key ? row.label_de || row.id : translated;
+  }
 
   function buildProfile() {
     const langs = languages
@@ -129,10 +144,14 @@ export function VirtusBewerbungStorefront({
       vacancy: {
         title: vacTitle || null,
         company: vacCompany || null,
+        text: vacText || null,
         raw_text: vacText || null,
       },
       motivation: motivation || null,
-      target_market: "DE",
+      motivation_notes: motivation || null,
+      target_market: targetMarket,
+      document_language: docLanguage,
+      design: { style: cvStyle, font: cvFont },
     };
   }
 
@@ -155,6 +174,7 @@ export function VirtusBewerbungStorefront({
     if (!file) return;
     setBusy(true);
     setError(null);
+    setPhotoName(file.name);
     try {
       const { jobId, ownerToken } = await ensureJob();
       const viewed = await attachBewerbungPhoto(jobId, ownerToken, file);
@@ -182,11 +202,11 @@ export function VirtusBewerbungStorefront({
         setPhase("ready");
       } else {
         setPhase("form");
-        const miss = (viewed.proposal as { missing_fields?: { label_de: string }[] })
+        const miss = (viewed.proposal as { missing_fields?: { id: string; label_de: string }[] })
           ?.missing_fields;
         if (miss?.length) {
           setError(
-            `${t("bewerbung.missingPrefix")} ${miss.map((m) => m.label_de).join(", ")}`,
+            `${t("bewerbung.missingPrefix")} ${miss.map((m) => missingLabel(m)).join(", ")}`,
           );
         }
       }
@@ -307,9 +327,78 @@ export function VirtusBewerbungStorefront({
 
       <div className="mt-8 space-y-4 rounded-2xl border border-[var(--vo-border)] bg-[var(--vo-surface)] p-5">
         <h2 className="text-sm font-semibold text-[var(--vo-ink)]">{t("bewerbung.profileTitle")}</h2>
-        <p className="text-xs text-[var(--vo-muted)]">
-          {t("cvTargetMarket")}: Deutschland · {t("documentLanguage")}: Deutsch
-        </p>
+
+        <div className="rounded-xl border border-[var(--vo-border)] bg-[var(--vo-bg)] p-4">
+          <h3 className="text-sm font-semibold text-[var(--vo-ink)]">{t("bewerbung.designTitle")}</h3>
+          <p className="mt-1 text-xs text-[var(--vo-muted)]">{t("bewerbung.designHint")}</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs text-[var(--vo-muted)]">
+              {t("bewerbung.marketLabel")}
+              <select
+                className="mt-1 w-full rounded-lg border border-[var(--vo-border)] bg-[var(--vo-surface)] px-3 py-2 text-sm text-[var(--vo-ink)]"
+                value={targetMarket}
+                onChange={(e) => setTargetMarket(e.target.value)}
+              >
+                <option value="DE">Deutschland</option>
+                <option value="AT">Österreich</option>
+                <option value="CH">Schweiz</option>
+                <option value="UA">Україна</option>
+                <option value="PL">Polska</option>
+                <option value="EU">EU / other</option>
+              </select>
+            </label>
+            <label className="block text-xs text-[var(--vo-muted)]">
+              {t("bewerbung.docLangLabel")}
+              <select
+                className="mt-1 w-full rounded-lg border border-[var(--vo-border)] bg-[var(--vo-surface)] px-3 py-2 text-sm text-[var(--vo-ink)]"
+                value={docLanguage}
+                onChange={(e) => setDocLanguage(e.target.value)}
+              >
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+                <option value="uk">Українська</option>
+                <option value="ru">Русский</option>
+                <option value="pl">Polski</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="it">Italiano</option>
+                <option value="tr">Türkçe</option>
+              </select>
+            </label>
+            <label className="block text-xs text-[var(--vo-muted)]">
+              {t("bewerbung.styleLabel")}
+              <select
+                className="mt-1 w-full rounded-lg border border-[var(--vo-border)] bg-[var(--vo-surface)] px-3 py-2 text-sm text-[var(--vo-ink)]"
+                value={cvStyle}
+                onChange={(e) =>
+                  setCvStyle(e.target.value as "professional" | "color" | "modern")
+                }
+              >
+                <option value="professional">{t("bewerbung.styles.professional")}</option>
+                <option value="color">{t("bewerbung.styles.color")}</option>
+                <option value="modern">{t("bewerbung.styles.modern")}</option>
+              </select>
+            </label>
+            <label className="block text-xs text-[var(--vo-muted)]">
+              {t("bewerbung.fontLabel")}
+              <select
+                className="mt-1 w-full rounded-lg border border-[var(--vo-border)] bg-[var(--vo-surface)] px-3 py-2 text-sm text-[var(--vo-ink)]"
+                value={cvFont}
+                onChange={(e) =>
+                  setCvFont(
+                    e.target.value as "classic" | "elegant" | "modern" | "mono",
+                  )
+                }
+              >
+                <option value="classic">{t("bewerbung.fonts.classic")}</option>
+                <option value="elegant">{t("bewerbung.fonts.elegant")}</option>
+                <option value="modern">{t("bewerbung.fonts.modern")}</option>
+                <option value="mono">{t("bewerbung.fonts.mono")}</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label={t("bewerbung.fields.fullName")} value={fullName} onChange={setFullName} />
           <Field label={t("bewerbung.fields.email")} value={email} onChange={setEmail} />
@@ -385,12 +474,20 @@ export function VirtusBewerbungStorefront({
         <div className="flex flex-wrap items-center gap-3">
           <label className="text-xs text-[var(--vo-muted)]">
             {t("bewerbung.photoLabel")}
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="mt-1 block text-sm"
-              onChange={(e) => onPhoto(e.target.files?.[0] || null)}
-            />
+            <span className="mt-1 flex flex-wrap items-center gap-2">
+              <span className="inline-flex cursor-pointer items-center rounded-lg border border-[var(--vo-border)] bg-[var(--vo-bg)] px-3 py-2 text-sm text-[var(--vo-ink)]">
+                {t("bewerbung.photoChoose")}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={(e) => onPhoto(e.target.files?.[0] || null)}
+                />
+              </span>
+              <span className="text-[var(--vo-muted)]">
+                {photoName || t("bewerbung.photoNone")}
+              </span>
+            </span>
           </label>
           <button
             type="button"
@@ -406,7 +503,7 @@ export function VirtusBewerbungStorefront({
       {missing.length ? (
         <ul className="mt-4 list-disc space-y-1 rounded-xl border border-amber-300 bg-amber-50 px-5 py-3 text-sm text-amber-950">
           {missing.map((m) => (
-            <li key={m.id}>{m.label_de}</li>
+            <li key={m.id}>{missingLabel(m)}</li>
           ))}
         </ul>
       ) : null}
@@ -429,6 +526,13 @@ export function VirtusBewerbungStorefront({
                   <dt className="text-[var(--vo-muted)]">{t("preview.style")}</dt>
                   <dd className="font-medium text-[var(--vo-ink)]">
                     {job.proposal.preview.style || t("preview.styleGermanProfessional")}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--vo-muted)]">{t("preview.font")}</dt>
+                  <dd className="font-medium text-[var(--vo-ink)]">
+                    {(job.proposal.preview as { font?: string }).font ||
+                      t("bewerbung.fonts.classic")}
                   </dd>
                 </div>
                 <div>

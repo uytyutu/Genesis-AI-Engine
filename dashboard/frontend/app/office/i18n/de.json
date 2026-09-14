@@ -744,24 +744,44 @@
   "preview": {
     "title": "Vorschau",
     "style": "Stil",
+    "font": "Schrift",
     "language": "Sprache",
     "pages": "Seiten",
     "product": "Produkt",
     "structure": "Struktur",
     "fullAfterPay": "Vollständiges Dokument nach Zahlung",
-    "styleGermanProfessional": "German Professional"
+    "styleGermanProfessional": "Klassisch professionell"
   },
   "bewerbung": {
-    "title": "Bewerbung Office",
-    "lead": "Lebenslauf, Anschreiben und Paket — nur aus Ihren Angaben. Keine erfundenen Qualifikationen. Kein Garantieversprechen für eine Einstellung.",
-    "honesty": "Profil → Zahlung → Generierung → QA → Download im Kabinett und per E-Mail (geschützter Link). Keine erfundenen Qualifikationen. Keine Job-Garantie.",
-    "profileTitle": "Profil (Pflichtfelder je Service)",
-    "checkProfile": "Profil prüfen",
+    "title": "Lebenslauf (CV) & Bewerbung",
+    "lead": "Hier erstellen Sie Ihren Lebenslauf (CV), ein Anschreiben oder ein komplettes Bewerbungspaket — nur aus Ihren Angaben. Keine erfundenen Qualifikationen. Keine Job-Garantie.",
+    "honesty": "Profil → Zahlung → Generierung → Prüfung → Download im Kabinett und per E-Mail (geschützter Link). Keine erfundenen Qualifikationen. Keine Job-Garantie.",
+    "profileTitle": "Ihre Angaben (Pflichtfelder je Service)",
+    "designTitle": "Aussehen des Lebenslaufs",
+    "designHint": "Stil und Schrift wählen. Menüsprache und Dokumentsprache sind getrennt.",
+    "styleLabel": "Stil",
+    "fontLabel": "Schrift",
+    "styles": {
+      "professional": "Klassisch professionell",
+      "color": "Farbig / modern",
+      "modern": "Kompakt · eine Seite"
+    },
+    "fonts": {
+      "classic": "Classic (Helvetica)",
+      "elegant": "Elegant (Times)",
+      "modern": "Modern (Helvetica)",
+      "mono": "Mono (Courier)"
+    },
+    "marketLabel": "Zielmarkt",
+    "docLangLabel": "Dokumentsprache",
+    "checkProfile": "Angaben prüfen und zur Zahlung weiter",
     "checking": "Prüfe…",
     "payCta": "Zur Zahlung",
     "download": "Download",
     "missingPrefix": "Fehlend:",
     "photoLabel": "Foto (JPG/PNG)",
+    "photoChoose": "Foto wählen",
+    "photoNone": "Keine Datei gewählt",
     "jobCreateFailed": "Job konnte nicht erstellt werden",
     "photoError": "Foto-Fehler",
     "checkoutError": "Checkout-Fehler",
@@ -797,7 +817,7 @@
     "actions": {
       "lebenslauf_create": {
         "label": "Lebenslauf erstellen",
-        "hint": "Neues CV aus Ihren Angaben"
+        "hint": "Neuer Lebenslauf (CV) aus Ihren Angaben — klar für Arbeitgeber"
       },
       "lebenslauf_improve": {
         "label": "Lebenslauf verbessern",
@@ -811,6 +831,26 @@
         "label": "Bewerbung-Paket",
         "hint": "CV + Anschreiben als ZIP"
       }
+    },
+    "missing": {
+      "personal.full_name": "Vollständiger Name",
+      "personal.email": "E-Mail",
+      "personal.phone": "Telefon",
+      "personal.city": "Wohnort / Stadt",
+      "personal.contact": "E-Mail oder Telefon",
+      "experience": "Berufserfahrung",
+      "experience.employer": "Arbeitgeber",
+      "experience.title": "Position / Tätigkeit",
+      "experience.start": "Beginn der Tätigkeit",
+      "education": "Ausbildung / Studium",
+      "education.school": "Schule / Hochschule",
+      "education.degree": "Abschluss / Richtung",
+      "education.start": "Beginn Ausbildung",
+      "vacancy.title": "Stellentitel",
+      "vacancy.company": "Unternehmen der Stelle",
+      "vacancy.text_or_title": "Stellenanzeige oder Stellentitel",
+      "source_cv": "Alter Lebenslauf (Datei oder Text)",
+      "experience_or_education": "Berufserfahrung oder Ausbildung"
     }
   },
   "actions": {
