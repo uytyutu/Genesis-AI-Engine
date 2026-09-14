@@ -132,21 +132,6 @@ export const PUBLIC_VITRINE_WEBSITES_BASIC: PublicVitrineDemo[] = [
  */
 export const PUBLIC_VITRINE_WEBSITES_BUSINESS: PublicVitrineDemo[] = [
   {
-    id: "web-business-dental",
-    niche: "dental",
-    kind: "website",
-    packageId: "business",
-    href: "/package-previews/sites/business/dental/index.html",
-    thumb: "/package-previews/sites/business/dental/assets/hero.jpg",
-    emoji: "🦷",
-    labelKey: "examples.dental",
-    fallback: "Zahnarzt · Business",
-    blurb: "Praxis & Termin",
-    priceKind: "website",
-    badge: "Business",
-    showcaseStatus: "PUBLISHED",
-  },
-  {
     id: "web-business-automotive",
     niche: "auto",
     kind: "website",
@@ -496,7 +481,6 @@ export type PublicAgencyPortfolioItem = {
 
 const AGENCY_ARTIFACT_AUTO = "/package-previews/sites/business/auto";
 const AGENCY_ARTIFACT_RESTAURANT = "/package-previews/sites/business/restaurant";
-const AGENCY_ARTIFACT_DENTAL = "/package-previews/sites/business/dental";
 const AGENCY_ARTIFACT_BARBER = "/package-previews/sites/basic/barbershop";
 
 export function portfolioArtifactRoot(href: string): string {
@@ -518,20 +502,8 @@ export function portfolioLivePreviewUrl(artifactRoot: string): string {
   return `${artifactRoot.replace(/\/$/, "")}/index.html`;
 }
 
-/** Published agency portfolio — dentist + Friseur first so hub strip is not auto/restaurant-only. */
+/** Published agency portfolio — working demos only (broken dental praxis removed). */
 export const PUBLIC_AGENCY_PORTFOLIO: PublicAgencyPortfolioItem[] = [
-  {
-    id: "portfolio-dental",
-    productId: "web-business-dental",
-    artifactId: "sites/business/dental",
-    title: "Zahnarzt",
-    industry: "dental",
-    tag: "Webdesign · Praxis",
-    livePreviewUrl: portfolioLivePreviewUrl(AGENCY_ARTIFACT_DENTAL),
-    previewImage: portfolioPreviewImageForArtifact(AGENCY_ARTIFACT_DENTAL),
-    packageId: "business",
-    showcaseStatus: "PUBLISHED",
-  },
   {
     id: "portfolio-barbershop",
     productId: "web-basic-barbershop",
@@ -599,7 +571,7 @@ export function assertPortfolioArtifactIntegrity(item: PublicAgencyPortfolioItem
   );
 }
 
-export const PUBLIC_VITRINE_THUMB_VERSION = "v25dentalFriseurHub";
+export const PUBLIC_VITRINE_THUMB_VERSION = "v26noBrokenDental";
 
 export function isPublishedShowcaseDemo(demo: PublicVitrineDemo): boolean {
   return demo.showcaseStatus === "PUBLISHED";

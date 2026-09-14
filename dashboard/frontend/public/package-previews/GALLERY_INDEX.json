@@ -123,14 +123,6 @@
     },
     {
       "kind": "website",
-      "id": "dental",
-      "package_id": "business",
-      "status": "PASS",
-      "bytes": 99703,
-      "url": "/package-previews/sites/business/dental/index.html"
-    },
-    {
-      "kind": "website",
       "id": "energy",
       "package_id": "business",
       "status": "PASS",
