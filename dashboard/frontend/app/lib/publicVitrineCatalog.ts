@@ -497,6 +497,7 @@ export type PublicAgencyPortfolioItem = {
 const AGENCY_ARTIFACT_AUTO = "/package-previews/sites/business/auto";
 const AGENCY_ARTIFACT_RESTAURANT = "/package-previews/sites/business/restaurant";
 const AGENCY_ARTIFACT_DENTAL = "/package-previews/sites/business/dental";
+const AGENCY_ARTIFACT_BARBER = "/package-previews/sites/basic/barbershop";
 
 export function portfolioArtifactRoot(href: string): string {
   const clean = href.replace(/\\/g, "/").split("#")[0]?.split("?")[0] ?? href;
@@ -517,7 +518,7 @@ export function portfolioLivePreviewUrl(artifactRoot: string): string {
   return `${artifactRoot.replace(/\/$/, "")}/index.html`;
 }
 
-/** Published agency portfolio — include dental so /site/websites is not auto/restaurant-only. */
+/** Published agency portfolio — dentist + Friseur first so hub strip is not auto/restaurant-only. */
 export const PUBLIC_AGENCY_PORTFOLIO: PublicAgencyPortfolioItem[] = [
   {
     id: "portfolio-dental",
@@ -529,6 +530,18 @@ export const PUBLIC_AGENCY_PORTFOLIO: PublicAgencyPortfolioItem[] = [
     livePreviewUrl: portfolioLivePreviewUrl(AGENCY_ARTIFACT_DENTAL),
     previewImage: portfolioPreviewImageForArtifact(AGENCY_ARTIFACT_DENTAL),
     packageId: "business",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "portfolio-barbershop",
+    productId: "web-basic-barbershop",
+    artifactId: "sites/basic/barbershop",
+    title: "Friseur / Barbershop",
+    industry: "barbershop",
+    tag: "Webdesign · Salon",
+    livePreviewUrl: portfolioLivePreviewUrl(AGENCY_ARTIFACT_BARBER),
+    previewImage: portfolioPreviewImageForArtifact(AGENCY_ARTIFACT_BARBER),
+    packageId: "basic",
     showcaseStatus: "PUBLISHED",
   },
   {
@@ -586,7 +599,7 @@ export function assertPortfolioArtifactIntegrity(item: PublicAgencyPortfolioItem
   );
 }
 
-export const PUBLIC_VITRINE_THUMB_VERSION = "v24dentalFriseur";
+export const PUBLIC_VITRINE_THUMB_VERSION = "v25dentalFriseurHub";
 
 export function isPublishedShowcaseDemo(demo: PublicVitrineDemo): boolean {
   return demo.showcaseStatus === "PUBLISHED";
