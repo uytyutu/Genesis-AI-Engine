@@ -125,10 +125,33 @@ class SupportInboxService:
 
     # --- threads -------------------------------------------------------------
 
+    @staticmethod
+    def thread_ui_status(row: dict[str, Any]) -> str:
+        st = str(row.get("status") or "")
+        if st == "closed":
+            return "CLOSED"
+        messages = list(row.get("messages") or [])
+        last = messages[-1] if messages else {}
+        direction = str(last.get("direction") or "")
+        if st == "waiting":
+            if direction in ("outbound", "out"):
+                return "REPLIED"
+            return "WAITING"
+        if row.get("read_at"):
+            return "OPEN"
+        return "NEW"
+
     def list_threads(self, *, status: str | None = None, limit: int = 100) -> list[dict[str, Any]]:
-        rows = self._load_list(self._threads_path)
-        if status and status != "inbox":
-            rows = [r for r in rows if str(r.get("status") or "") == status]
+        rows = [dict(row) for row in self._load_list(self._threads_path)]
+        for row in rows:
+            row["ui_status"] = self.thread_ui_status(row)
+        wanted = str(status or "").strip()
+        if wanted and wanted != "inbox":
+            key = wanted.upper()
+            if key in ("NEW", "OPEN", "WAITING", "REPLIED", "CLOSED"):
+                rows = [row for row in rows if str(row.get("ui_status") or "") == key]
+            else:
+                rows = [row for row in rows if str(row.get("status") or "") == wanted]
         rows.sort(key=lambda r: str(r.get("updated_at") or ""), reverse=True)
         return rows[: max(1, limit)]
 
@@ -136,19 +159,41 @@ class SupportInboxService:
         tid = str(thread_id or "").strip()
         for row in self._load_list(self._threads_path):
             if str(row.get("id")) == tid:
-                return row
+                item = dict(row)
+                item["ui_status"] = self.thread_ui_status(item)
+                return item
         return None
 
     def set_status(self, thread_id: str, status: str) -> dict[str, Any]:
-        if status not in ("needs_reply", "waiting", "closed"):
+        raw = str(status or "").strip()
+        key = raw.upper()
+        mapped = {
+            "NEW": "needs_reply",
+            "OPEN": "needs_reply",
+            "WAITING": "waiting",
+            "REPLIED": "waiting",
+            "CLOSED": "closed",
+            "NEEDS_REPLY": "needs_reply",
+            "MARK_READ": "needs_reply",
+            "needs_reply": "needs_reply",
+            "waiting": "waiting",
+            "closed": "closed",
+        }.get(key, raw if raw in ("needs_reply", "waiting", "closed") else "")
+        if mapped not in ("needs_reply", "waiting", "closed"):
             raise ValueError("invalid_status")
         rows = self._load_list(self._threads_path)
         for row in rows:
             if str(row.get("id")) == str(thread_id):
-                row["status"] = status
+                row["status"] = mapped
                 row["updated_at"] = utc_now()
+                if key in ("OPEN", "MARK_READ"):
+                    row["read_at"] = utc_now()
+                if key == "NEW":
+                    row["read_at"] = None
                 self._save_list(self._threads_path, rows)
-                return row
+                item = dict(row)
+                item["ui_status"] = self.thread_ui_status(item)
+                return item
         raise ValueError("not_found")
 
     def unsubscribe_email(

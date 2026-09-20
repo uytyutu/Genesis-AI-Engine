@@ -2,6 +2,7 @@
  * M3.2 — Navigation config per surface (shell only, shared kernel).
  */
 
+import { isClientTradingPath } from "./clientTradingRoutes";
 import { SURFACE_REGISTRY, type SurfaceTarget } from "./surfaceRegistry";
 
 export type SurfaceNavMeta = {
@@ -60,9 +61,14 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
   if (pathname === "/") return "ceo";
   if (pathname === "/engine" || pathname.startsWith("/engine/")) return "ceo";
   if (pathname === "/products") return "public";
+  // Client paper vitrine — never Mission Control chrome.
+  if (isClientTradingPath(pathname)) return "public";
   const mc = [
     "/finance",
+    "/money",
     "/payout",
+    "/affiliate",
+    "/trade",
     "/farm-engine",
     "/income-engine",
     "/alpha-hunter",
@@ -148,53 +154,70 @@ export const CLIENT_NAV_LINKS = [
   },
 ] as const;
 
-export const CEO_PRIMARY_LINKS = [
-  { href: "/executive", label: "CEO Dashboard", hint: "Утро · Virtus + Farm · Today Focus" },
-  { href: "/business", label: "Бизнес", hint: "Mission 2 · KPI" },
-  { href: "/acquisition", label: "Поиск лидов", hint: "Country Desk · все рынки · Path A" },
-  { href: "/opportunities", label: "Возможности", hint: "Affiliate · Report · API · ROI сегодня" },
-  { href: "/client/bots", label: "Боты", hint: "AI bots · цены по странам · отдельный продукт" },
-  { href: "/support", label: "Поддержка", hint: "Inbox · автоответы · шаблоны" },
-  { href: "/clients", label: "Клиенты", hint: "Business ID · Client Card · таймлайн" },
-  { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
-  { href: "/", label: "Ферма", hint: "Разметка · Toloka Spend (не Desk)" },
-  { href: "/farm-engine", label: "Farm Engine", hint: "Opire · Approve · Reward Protection" },
+export const MC_NAV_SECTIONS = [
   {
-    href: "/income-engine",
-    label: "Alpha Hunter",
-    hint: "Opportunity Discovery Engine · рынки · adapters · OWNER",
+    title: "OVERVIEW",
+    items: [{ href: "/executive", label: "Обзор", hint: "Деньги · клиенты · сегодня" }],
   },
-  { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
-  { href: "/revenue", label: "Доход", hint: "Lab · Work Farm · ключи · API" },
-  { href: "/payout", label: "Вывод", hint: "Payout Manager · REAL → банк" },
-  { href: "/finance", label: "Финансы и налоги", hint: "Доходы · чеки · экспорт" },
+  {
+    title: "BUSINESS",
+    items: [
+      { href: "/executive/sales", label: "Продажи", hint: "Выручка · чек · повтор" },
+      { href: "/executive/orders", label: "Заказы", hint: "Paid · pending · refund" },
+      { href: "/executive/customers", label: "Клиенты", hint: "CRM · Virtus ID" },
+      { href: "/executive/payments", label: "Оплаты", hint: "Stripe · статус" },
+      { href: "/executive/analytics", label: "Аналитика", hint: "Воронка · конверсия" },
+    ],
+  },
+  {
+    title: "PRODUCTS",
+    items: [
+      { href: "/executive/products/websites", label: "Сайты", hint: "Factory · demos" },
+      { href: "/executive/products/stores", label: "Интернет-магазины", hint: "AI Store" },
+      { href: "/executive/products/bots", label: "AI-Боты", hint: "AI Employee" },
+      { href: "/executive/oracle", label: "Virtus Oracle", hint: "Пользователи · монеты · расклады" },
+    ],
+  },
+  {
+    title: "COMMUNICATION",
+    items: [
+      { href: "/executive/messages", label: "Сообщения", hint: "Каналы · ответ" },
+      { href: "/executive/leads", label: "Заявки", hint: "Новые лиды" },
+      { href: "/executive/support", label: "Поддержка", hint: "Входящие письма" },
+    ],
+  },
+  {
+    title: "OPERATIONS",
+    items: [
+      { href: "/executive/operations", label: "Factory", hint: "Сборки · ZIP · gates" },
+      { href: "/create", label: "Deployments", hint: "Публикация" },
+      { href: "/executive/system", label: "System", hint: "Здоровье сервисов" },
+    ],
+  },
+  {
+    title: "SETTINGS",
+    items: [{ href: "/settings", label: "Настройки", hint: "Профиль" }],
+  },
 ] as const;
 
+export const MC_PULT_LINKS = [
+  { href: "/executive", label: "Обзор", hint: "Деньги · клиенты · сегодня" },
+  { href: "/executive/sales", label: "Продажи", hint: "Выручка" },
+  { href: "/executive/customers", label: "Клиенты", hint: "CRM" },
+  { href: "/executive/oracle", label: "Oracle", hint: "Эфир" },
+  { href: "/executive/operations", label: "Операции", hint: "Factory · gates" },
+] as const;
+
+export const CEO_PRIMARY_LINKS = MC_PULT_LINKS;
+
 export const CEO_STUDIO_LINKS = [
-  { href: "/cursor", label: "Разработка", hint: "Cursor · код" },
-  { href: "/acquisition", label: "Country Desk", hint: "Все рынки · снайпер · Outbox" },
-  { href: "/support", label: "Support", hint: "Inbox · Auto Rules · Templates" },
-  { href: "/clients", label: "Clients", hint: "Business ID · Client Card · timeline" },
-  { href: "/ceo-site", label: "Сайт клиентов", hint: "Как видит покупатель" },
-  { href: "/tiktok-horizon", label: "TikTok Horizon", hint: "INTERNAL OWNER · OAuth · kill switch" },
-  {
-    href: "/horizon",
-    label: "Horizon Studio",
-    hint: "Media Engine · Creative Director · Internal Only",
-  },
-  { href: "/#lost-archive", label: "Архив отказов", hint: "lost_reasons · не удалять" },
-  { href: "/create", label: "Фабрика", hint: "Сборка Landing" },
-  { href: "/ai", label: "AI Hub", hint: "Помощник CEO" },
-  { href: "/growth", label: "Аналитика", hint: "Mission 2 · Конверсия" },
+  { href: "/executive/products/websites", label: "Сайты", hint: "Factory" },
+  { href: "/executive/products/stores", label: "Магазины", hint: "AI Store" },
+  { href: "/executive/products/bots", label: "Боты", hint: "AI-сотрудники" },
+  { href: "/executive/oracle", label: "Oracle", hint: "Эфир" },
+  { href: "/executive/customers", label: "Клиенты", hint: "Карточки" },
 ] as const;
 
 export const CEO_SYSTEM_LINKS = [
-  { href: "/launch", label: "Запуск", hint: "Сервисы" },
-  { href: "/check", label: "Разработчик", hint: "Диагностика" },
-  {
-    href: "/treasury",
-    label: "Treasury",
-    hint: "OWN wallets · dust consolidate · fee plan · OK confirm",
-  },
   { href: "/settings", label: "Настройки", hint: "Профиль" },
 ] as const;
