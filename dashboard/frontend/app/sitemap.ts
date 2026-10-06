@@ -3,6 +3,7 @@ import { SITE_URL } from "./lib/siteConfig";
 
 const PATHS = [
   "/site",
+  "/office",
   "/services",
   "/order",
   "/products",
@@ -18,6 +19,7 @@ const PATHS = [
   "/cookies",
   "/ai-disclaimer",
   "/intellectual-property",
+  "/mining",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -21,14 +21,26 @@ const fraunces = Fraunces({
 
 const NAV = [
   { href: "/office", key: "home" },
-  { href: "/office/translate", key: "translate" },
-  { href: "/office/lebenslauf", key: "lebenslauf" },
-  { href: "/office/bewerbung", key: "bewerbung" },
-  { href: "/office/documents", key: "documents" },
-  { href: "/office/excel", key: "excel" },
   { href: "/office/smart", key: "smart" },
+  { href: "/office/pdf-pro", key: "pdf_pro" },
+  { href: "/office/cv-bewerbung", key: "cv_bewerbung" },
+  { href: "/office/translation-pack", key: "translation_pack" },
+  { href: "/office/sales-kit", key: "sales_kit" },
+  { href: "/office/qr", key: "qr" },
   { href: "/office/cabinet", key: "cabinet" },
 ] as const;
+
+const LOCALE_OPTION_LABEL: Record<(typeof OFFICE_I18N_LOCALES)[number], string> = {
+  de: "Deutsch",
+  en: "English",
+  uk: "Українська",
+  ru: "Русский",
+  pl: "Polski",
+  tr: "Türkçe",
+  fr: "Français",
+  es: "Español",
+  it: "Italiano",
+};
 
 export function OfficeShell({
   children,
@@ -88,7 +100,7 @@ export function OfficeShell({
             >
               {OFFICE_I18N_LOCALES.map((code) => (
                 <option key={code} value={code}>
-                  {code.toUpperCase()}
+                  {LOCALE_OPTION_LABEL[code]}
                 </option>
               ))}
             </select>

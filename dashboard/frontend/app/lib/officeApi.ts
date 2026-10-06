@@ -227,6 +227,28 @@ export type OfficeCabinet = {
   downloads: Array<Record<string, unknown>>;
 };
 
+export type OfficeCatalogProduct = {
+  id: string;
+  title?: string;
+  price_eur?: number | null;
+  live?: boolean;
+  [key: string]: unknown;
+};
+
+export type OfficeQrArtifact = {
+  filename: string;
+  mime: string;
+  base64: string;
+};
+
+export type OfficeQrResult = {
+  ok: boolean;
+  free: boolean;
+  preview_png_base64?: string;
+  artifacts: OfficeQrArtifact[];
+  validation?: Record<string, unknown>;
+};
+
 async function parseJson(res: Response): Promise<OfficeJobView> {
   const data = (await res.json().catch(() => ({}))) as OfficeJobView & {
     detail?: { message?: string; code?: string } | string;
@@ -240,6 +262,48 @@ async function parseJson(res: Response): Promise<OfficeJobView> {
     throw new Error(msg);
   }
   return data;
+}
+
+async function parsePublicJson<T>(res: Response): Promise<T> {
+  const data = (await res.json().catch(() => ({}))) as T & {
+    detail?: { message?: string } | string;
+  };
+  if (!res.ok) {
+    const detail = data.detail;
+    throw new Error(
+      typeof detail === "string"
+        ? detail
+        : detail?.message || `Office API ${res.status}`,
+    );
+  }
+  return data;
+}
+
+export async function fetchOfficeCatalog(): Promise<{
+  products: OfficeCatalogProduct[];
+}> {
+  const res = await fetch(`${API}/api/office/catalog`);
+  return parsePublicJson(res);
+}
+
+export async function fetchOfficeLanguages(): Promise<OfficeLanguage[]> {
+  const res = await fetch(`${API}/api/office/languages`);
+  const data = await parsePublicJson<{
+    languages?: OfficeLanguage[];
+  }>(res);
+  return Array.isArray(data.languages) ? data.languages : [];
+}
+
+export async function generateOfficeQr(payload: {
+  qr_type: string;
+  fields: Record<string, string>;
+}): Promise<OfficeQrResult> {
+  const res = await fetch(`${API}/api/office/qr/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return parsePublicJson(res);
 }
 
 export async function createOfficeJob(opts?: {
@@ -384,6 +448,49 @@ export async function submitBewerbungProfile(
     },
   );
   return parseJson(res);
+}
+
+export type SalesKitConfigureResult = OfficeJobView & {
+  ok?: boolean;
+  tier?: string;
+  price_eur?: number;
+  currency?: string;
+  job_id?: string;
+  owner_token?: string;
+  sales_kit_live?: boolean;
+  purchase_blocked_until_live?: boolean;
+  public_path_ready?: boolean;
+};
+
+/** Public Sales Kit configuration — server sets price; LIVE=false still blocks checkout. */
+export async function configureSalesKitCompany(payload: {
+  tier: string;
+  company: Record<string, unknown>;
+  email?: string;
+  job_id?: string;
+  owner_token?: string;
+  /** Never trusted as price authority — sent only to verify mismatch rejection */
+  price_eur?: number;
+}): Promise<SalesKitConfigureResult> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(clientAuthHeaders() as Record<string, string>),
+  };
+  if (payload.owner_token) {
+    headers["X-Office-Owner-Token"] = payload.owner_token;
+  }
+  const res = await fetch(`${API}/api/office/sales-kit-company`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      tier: payload.tier,
+      company: payload.company,
+      email: payload.email || null,
+      job_id: payload.job_id || null,
+      price_eur: payload.price_eur ?? null,
+    }),
+  });
+  return parseJson(res) as Promise<SalesKitConfigureResult>;
 }
 
 export async function attachBewerbungPhoto(
