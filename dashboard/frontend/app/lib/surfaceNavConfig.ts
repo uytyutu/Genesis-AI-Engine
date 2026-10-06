@@ -2,8 +2,13 @@
  * M3.2 — Navigation config per surface (shell only, shared kernel).
  */
 
-import { isClientTradingPath } from "./clientTradingRoutes";
 import { SURFACE_REGISTRY, type SurfaceTarget } from "./surfaceRegistry";
+
+/** Client paper trading paths — keep public chrome (not Mission Control). */
+function isClientTradingPath(pathname: string): boolean {
+  const p = (pathname || "").split("?")[0] || "";
+  return p === "/trading" || p.startsWith("/trading/");
+}
 
 export type SurfaceNavMeta = {
   scenario: string;
