@@ -232,19 +232,39 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   },
 ];
 
+/** Customer-facing primary destinations (Oracle-short chrome). */
+const PRIMARY_NAV_IDS = new Set([
+  "dashboard",
+  "products",
+  "orders",
+  "marketplace",
+  "chatbots",
+  "billing",
+  "support",
+]);
+
 export function filterWorkspaceNav(opts: {
   commerceMode?: CommerceMode | string | null;
   hasStore?: boolean;
   /** When true, show Connected extras unlocked */
   ecosystem?: boolean;
+  /** When true, only short customer nav (hide Coming Soon / R&D) */
+  primaryOnly?: boolean;
 }): WorkspaceNavItem[] {
   const mode = (opts.commerceMode || "standalone").toLowerCase();
   const ecosystem = Boolean(opts.ecosystem) || mode === "connected";
   const hasStore = Boolean(opts.hasStore);
+  const primaryOnly = Boolean(opts.primaryOnly);
 
   return WORKSPACE_NAV.filter((item) => {
-    if (item.storeOnly && !hasStore) return false;
-    if (item.connectedOnly && !ecosystem) return false;
+    if (primaryOnly && !PRIMARY_NAV_IDS.has(item.id)) return false;
+    if (primaryOnly && item.comingSoon) return false;
+    // Products & orders stay visible even before store ownership (empty state).
+    if (!primaryOnly && item.storeOnly && !hasStore) return false;
+    if (item.connectedOnly && !ecosystem) {
+      // Primary chrome still shows KI-Mitarbeiter as discoverable destination.
+      if (!(primaryOnly && item.id === "chatbots")) return false;
+    }
     return true;
   });
 }

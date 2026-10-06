@@ -97,28 +97,28 @@ export default function ClientProductsPage() {
 
   return (
     <ClientWorkspaceShell
-      title="Мои продукты"
-      subtitle="Сайты и Website Services в кабинете. Скачивание — когда результат готов."
+      title="Meine Produkte"
+      subtitle="Website und Shop — Status und nächster Schritt."
     >
       {error ? <p className="mb-4 text-sm text-rose-200">{error}</p> : null}
       {products === null ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-zinc-500">Laden…</p>
       ) : empty ? (
         <div className="rounded-2xl border border-dashed border-white/15 px-4 py-8 text-sm text-zinc-400">
-          <p>Пока нет продуктов.</p>
-          <p className="mt-2">Заполните профиль и купите услугу в магазине кабинета.</p>
+          <p>Noch keine Produkte.</p>
+          <p className="mt-2">Profil ergänzen und Website, Shop oder AI bestellen.</p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
               href="/client/onboarding"
               className="rounded-xl border border-white/15 px-4 py-2 text-sm text-white hover:bg-white/5"
             >
-              Профиль компании
+              Firmenprofil
             </Link>
             <Link
               href="/client/shop"
               className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black hover:brightness-110"
             >
-              Магазин услуг
+              Business erweitern
             </Link>
           </div>
         </div>
@@ -134,21 +134,19 @@ export default function ClientProductsPage() {
                   ? "AI Store"
                   : o.product_kind === "addon" || o.product_kind === "repair"
                     ? "Website Service"
-                    : "Мой сайт"}
+                    : "Website"}
               </p>
               <p className="mt-1 text-lg font-semibold text-white">
                 {o.product_kind === "shop"
-                  ? o.service_name || o.package_name || "Мой интернет-магазин"
-                  : o.service_name || o.package_name || o.business_name || "Заказ"}
+                  ? o.service_name || o.package_name || "Mein Online-Shop"
+                  : o.service_name || o.package_name || o.business_name || "Produkt"}
               </p>
               <p className={`mt-1 text-xs font-medium uppercase tracking-wide ${resolveOrderHonestStatus(o).toneClass}`}>
                 {resolveOrderHonestStatus(o).label}
               </p>
               <p className="mt-2 flex-1 text-sm text-zinc-500">
-                {o.business_name ? `${o.business_name} · ` : ""}
-                заказ {o.order_id}
-                {o.eta_label ? ` · ETA ${o.eta_label}` : ""}
-                {o.billing === "monthly" ? " · первый месяц" : ""}
+                {o.business_name || "Ihr Projekt"}
+                {o.billing === "monthly" ? " · monatlich" : ""}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {o.product_kind === "shop" || o.package_id === "ecommerce_shop" ? (
@@ -156,7 +154,7 @@ export default function ClientProductsPage() {
                     href={o.store_url || `/client/stores/${o.order_id}`}
                     className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-black"
                   >
-                    Открыть магазин
+                    Shop öffnen
                   </Link>
                 ) : (
                   <>
@@ -164,13 +162,13 @@ export default function ClientProductsPage() {
                       href={`/client/websites/${o.order_id}/admin`}
                       className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-black"
                     >
-                      Website Admin
+                      Öffnen
                     </Link>
                     <Link
                       href={`/order/status/${o.order_id}`}
                       className="rounded-xl border border-white/15 px-3 py-2 text-sm text-white hover:bg-white/5"
                     >
-                      Статус
+                      Status
                     </Link>
                   </>
                 )}
@@ -181,7 +179,7 @@ export default function ClientProductsPage() {
                     rel="noreferrer"
                     className="rounded-xl border border-emerald-500/40 px-3 py-2 text-sm text-emerald-100 hover:bg-emerald-950/40"
                   >
-                    Превью сайта
+                    Vorschau
                   </a>
                 ) : null}
                 {o.download_ready && o.download_url ? (
@@ -189,16 +187,15 @@ export default function ClientProductsPage() {
                     href={`${API}${o.download_url}`}
                     className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-black"
                   >
-                    Скачать
+                    Datei laden
                   </a>
                 ) : o.product_kind !== "shop" ? (
                   <span className="rounded-xl border border-white/10 px-3 py-2 text-sm text-zinc-500">
-                    {o.download_label || "В работе…"}
-                    {o.eta_label ? ` · ${o.eta_label}` : ""}
+                    {o.download_label || "In Arbeit…"}
                   </span>
                 ) : (
                   <span className="rounded-xl border border-white/10 px-3 py-2 text-sm text-zinc-500">
-                    {o.shop_pipeline_label || o.download_label || "В работе…"}
+                    {o.shop_pipeline_label || o.download_label || "In Arbeit…"}
                   </span>
                 )}
               </div>
@@ -214,16 +211,16 @@ export default function ClientProductsPage() {
               <p className={`mt-1 text-xs font-medium uppercase tracking-wide ${resolvePortalProductHonestStatus(p).toneClass}`}>
                 {resolvePortalProductHonestStatus(p).label}
               </p>
-              <p className="mt-2 flex-1 text-sm text-zinc-500">via {p.source}</p>
+              <p className="mt-2 flex-1 text-sm text-zinc-500">Produkt</p>
               <Link
                 href={
                   p.product_type === "chatbot" || p.product_id === "prod_chatbot"
-                    ? "/projects/chatbot"
+                    ? "/client/bots"
                     : "/client/orders"
                 }
                 className="mt-4 inline-flex rounded-xl border border-white/15 px-3 py-2 text-sm text-white hover:bg-white/5"
               >
-                Открыть
+                Öffnen
               </Link>
             </li>
           ))}

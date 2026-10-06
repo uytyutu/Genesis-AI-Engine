@@ -128,29 +128,24 @@ export type PublicNavLink = {
 export const PUBLIC_NAV_LINKS: readonly PublicNavLink[] = [];
 
 export const CLIENT_NAV_LINKS = [
-  { href: "/client", label: "Dashboard", hint: "Übersicht · Produkte · nächster Schritt" },
-  { href: "/client/products", label: "Meine Produkte", hint: "Website · AI Store · Status" },
-  { href: "/client/orders", label: "Bestellungen", hint: "Status · Download" },
-  { href: "/client/shop", label: "Marketplace", hint: "Weitere Services bestellen" },
+  { href: "/client", label: "Übersicht", hint: "Produkte · nächster Schritt" },
+  { href: "/client/products", label: "Meine Produkte", hint: "Website · Shop · Status" },
+  { href: "/client/orders", label: "Bestellungen", hint: "Status · Dateien" },
+  { href: "/client/shop", label: "Business erweitern", hint: "Website · Shop · AI" },
   {
     href: "/client/bots",
     label: "KI-Mitarbeiter",
-    hint: "Setup · Kanäle · ehrlicher Status",
+    hint: "Setup · Kanäle",
   },
   {
     href: "/client/billing",
-    label: "Abrechnung",
-    hint: "Zahlungsverlauf · Portal Soon",
+    label: "Zahlungen",
+    hint: "Zahlungsverlauf",
   },
   {
     href: "/client/support",
-    label: "Support",
-    hint: "E-Mail · Tickets Soon",
-  },
-  {
-    href: "/client/privacy",
-    label: "Privacy",
-    hint: "Cookies · Einwilligung",
+    label: "Hilfe",
+    hint: "Support · Kontakt",
   },
 ] as const;
 
@@ -162,6 +157,7 @@ export const MC_NAV_SECTIONS = [
   {
     title: "BUSINESS",
     items: [
+      { href: "/executive/marketing", label: "AI Маркетинг", hint: "Research · Ideas · Approve" },
       { href: "/executive/sales", label: "Продажи", hint: "Выручка · чек · повтор" },
       { href: "/executive/orders", label: "Заказы", hint: "Paid · pending · refund" },
       { href: "/executive/customers", label: "Клиенты", hint: "CRM · Virtus ID" },
@@ -205,6 +201,7 @@ export const MC_PULT_LINKS = [
   { href: "/executive/sales", label: "Продажи", hint: "Выручка" },
   { href: "/executive/customers", label: "Клиенты", hint: "CRM" },
   { href: "/executive/oracle", label: "Oracle", hint: "Эфир" },
+  { href: "/executive/marketing", label: "AI Маркетинг", hint: "Owner AI" },
   { href: "/executive/operations", label: "Операции", hint: "Factory · gates" },
 ] as const;
 

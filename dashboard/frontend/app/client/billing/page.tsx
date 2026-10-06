@@ -39,23 +39,25 @@ export default function ClientBillingPage() {
 
   return (
     <ClientWorkspaceShell
-      title="Abrechnung"
-      subtitle="Zahlungsverlauf Ihres Kontos — Abo-Verwaltung folgt separat."
+      title="Zahlungen"
+      subtitle="Ihr Zahlungsverlauf — klar und ohne Fachjargon."
     >
-      <section className="mb-6 rounded-2xl border border-dashed border-amber-400/25 bg-amber-500/[0.05] p-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-300/85">
-          Stripe Kundenportal — Coming Soon
+      <section className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <p className="text-sm text-zinc-400">
+          Rechnungen und Zahlungsmethode im Self-Service folgen. Bis dahin sehen
+          Sie hier den Verlauf und schreiben bei Bedarf an den Support.
         </p>
-        <p className="mt-2 text-sm text-zinc-400">
-          Rechnungen herunterladen, Zahlungsmethode ändern und Abos verwalten — über
-          das Stripe Customer Portal. In Gen1 sehen Sie zuerst den Zahlungsverlauf;
-          Self-Service-Portal wird angebunden, sobald es produktiv freigeschaltet ist.
-        </p>
+        <Link
+          href="/client/support"
+          className="mt-3 inline-flex text-sm font-medium text-emerald-300 hover:underline"
+        >
+          Hilfe öffnen →
+        </Link>
       </section>
 
       <section aria-label="Zahlungsverlauf">
         <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-zinc-500">
-          Zahlungsverlauf
+          Verlauf
         </h2>
         {error ? <p className="mt-3 text-sm text-rose-200">{error}</p> : null}
         {rows === null ? (
@@ -69,7 +71,7 @@ export default function ClientBillingPage() {
             </p>
             <Link
               href="/order"
-              className="mt-4 inline-flex text-violet-300 hover:underline"
+              className="mt-4 inline-flex text-emerald-300 hover:underline"
             >
               Website bestellen →
             </Link>
@@ -81,18 +83,16 @@ export default function ClientBillingPage() {
                 key={row.transaction_id || String(i)}
                 className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-zinc-200"
               >
-                {row.product_id || row.transaction_id || "Transaktion"}
+                {row.product_id || "Zahlung"}
                 {row.amount != null ? (
                   <span className="text-zinc-400">
                     {" "}
-                    · {String(row.amount)} {row.currency || ""}
+                    · {String(row.amount)} {row.currency || "€"}
                   </span>
                 ) : null}
                 {row.status ? (
                   <span className="text-zinc-500"> · {row.status}</span>
-                ) : (
-                  <span className="text-zinc-600"> · Unknown</span>
-                )}
+                ) : null}
               </li>
             ))}
           </ul>
