@@ -16,7 +16,6 @@ import {
   BotChatMock,
   OfficeDocsMock,
 } from "./VitrineProductMocks";
-import { MiningRigMock } from "../mining/MiningRigMock";
 
 type PublicReviews = {
   has_reviews: boolean;
@@ -439,61 +438,6 @@ export function CommercialAgencyHub({
                 "UI language, document language and translation target stay independent.",
             })}
           </p>
-        </div>
-      </section>
-
-      {/* VIRTUS MINING — separate product branch, not a website package */}
-      <section id="mining" className="scroll-mt-24 space-y-6">
-        <div className="overflow-hidden rounded-3xl border border-amber-400/25 bg-gradient-to-br from-[#1a1208] via-[#0c1014] to-[#070b10] p-6 sm:p-8">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-amber-200/70">
-            {t(`${ns}.mining.kicker`, { defaultValue: "Virtus Mining" })}
-          </p>
-          <div className="mt-4 grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div>
-              <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                {t(`${ns}.mining.title`, {
-                  defaultValue: "Turn hardware into measurable pool performance.",
-                })}
-              </h2>
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-300 sm:text-base">
-                {t(`${ns}.mining.sub`, {
-                  defaultValue:
-                    "Connect ASIC, PC or server. Track real hashrate and shares. Mobile monitors — it does not mine Bitcoin.",
-                })}
-              </p>
-              <ul className="mt-5 grid gap-2 text-sm text-zinc-300 sm:grid-cols-3">
-                <li className="rounded-xl border border-amber-400/20 bg-black/30 px-3 py-2">
-                  {t(`${ns}.mining.asic`, { defaultValue: "Bitcoin ASIC · SHA-256d" })}
-                </li>
-                <li className="rounded-xl border border-amber-400/20 bg-black/30 px-3 py-2">
-                  {t(`${ns}.mining.pc`, { defaultValue: "PC / Server · explicit Start" })}
-                </li>
-                <li className="rounded-xl border border-amber-400/20 bg-black/30 px-3 py-2">
-                  {t(`${ns}.mining.mobile`, { defaultValue: "Phone · monitor & control" })}
-                </li>
-              </ul>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href="/mining"
-                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-amber-500 px-5 text-sm font-semibold text-zinc-950 hover:bg-amber-400"
-                >
-                  {t(`${ns}.mining.cta`, { defaultValue: "Open Virtus Mining" })}
-                </Link>
-                <Link
-                  href="/mining/connect"
-                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-amber-400/40 px-5 text-sm font-semibold text-amber-100 hover:bg-amber-500/10"
-                >
-                  {t(`${ns}.mining.connect`, { defaultValue: "Connect device" })}
-                </Link>
-              </div>
-              <p className="mt-4 text-xs text-zinc-500">
-                {t(`${ns}.mining.legal`, {
-                  defaultValue: "No fake BTC. Payouts stay off until the pool path is proven.",
-                })}
-              </p>
-            </div>
-            <MiningRigMock />
-          </div>
         </div>
       </section>
 
