@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ClientWorkspaceShell } from "../components/ClientWorkspaceShell";
 import { VectorCoachingToasts } from "../components/VectorCoachingToasts";
 import { BusinessSetupPanel } from "../components/BusinessSetupPanel";
-import { AiHealthPanel } from "../components/AiHealthPanel";
 import {
   PortalApiError,
   portalFetch,
@@ -422,8 +421,8 @@ export default function ClientDashboardPage() {
 
   return (
     <ClientWorkspaceShell
-      title="Virtus Core Workspace"
-      subtitle={`Business Control Center · ${todayLabel}`}
+      title="Übersicht"
+      subtitle={`${todayLabel} · Ihre Produkte und nächste Schritte`}
       hasStore={hasShop}
     >
       {error ? (
@@ -434,8 +433,7 @@ export default function ClientDashboardPage() {
 
       {!displayName ? (
         <div className="mb-5 rounded-xl border border-amber-400/25 bg-amber-500/10 px-3 py-3 text-sm text-amber-100/90">
-          Unternehmensprofil vervollständigen — dann kann Virtus Core passgenau
-          arbeiten.{" "}
+          Bitte Firmenprofil ergänzen — dann passt alles besser.{" "}
           <Link href="/client/onboarding" className="underline text-amber-50">
             Profil öffnen
           </Link>
@@ -443,15 +441,15 @@ export default function ClientDashboardPage() {
       ) : null}
 
       <header className="mb-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-200/80">
-          Workspace
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300/80">
+          Persönliches Konto
         </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
           Guten Tag, {greetingName}
-        </h1>
+        </h2>
         <p className="mt-1 text-sm text-zinc-400">
-          Ihr Business auf einen Blick
-          {giftUnlimited ? " · Unlimited Workspace" : ""}
+          Website, Shop und AI — klar und an einem Ort
+          {giftUnlimited ? " · Unlimited" : ""}
         </p>
       </header>
 
@@ -470,13 +468,8 @@ export default function ClientDashboardPage() {
       </section>
 
       {showSetup ? (
-        <div className="mb-8 grid gap-4 lg:grid-cols-2">
-          <BusinessSetupPanel dark />
-          <AiHealthPanel dark />
-        </div>
-      ) : hasAi || hasWebsite ? (
         <div className="mb-8">
-          <AiHealthPanel dark />
+          <BusinessSetupPanel dark />
         </div>
       ) : null}
 
@@ -488,7 +481,7 @@ export default function ClientDashboardPage() {
             </h2>
             <Link
               href="/client/orders"
-              className="text-sm font-medium text-violet-300 hover:text-violet-100"
+              className="text-sm font-medium text-emerald-300 hover:text-emerald-100"
             >
               Alle →
             </Link>
@@ -509,11 +502,11 @@ export default function ClientDashboardPage() {
                           ? "/client/bots"
                           : `/client/websites/${o.order_id}/admin`
                     }
-                    className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/25 px-3 py-3 transition hover:border-violet-400/35"
+                    className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/25 px-3 py-3 transition hover:border-emerald-400/35"
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-medium text-white">
-                        {o.business_name || o.package_name || o.order_id}
+                        {o.business_name || o.package_name || "Bestellung"}
                       </span>
                       <span className="mt-0.5 block text-xs text-zinc-500">
                         {packageTierLabel(o.package_id, o.package_name)}
@@ -544,36 +537,36 @@ export default function ClientDashboardPage() {
             <li>
               <Link
                 href="/client/support"
-                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-violet-400/35"
+                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-emerald-400/35"
               >
-                <span>Support</span>
+                <span>Hilfe</span>
                 <span className="text-zinc-500">→</span>
               </Link>
             </li>
             <li>
               <Link
                 href="/client/downloads"
-                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-violet-400/35"
+                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-emerald-400/35"
               >
-                <span>Downloads / ZIP</span>
+                <span>Dateien</span>
                 <span className="text-zinc-500">→</span>
               </Link>
             </li>
             <li>
               <Link
                 href="/client/billing"
-                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-violet-400/35"
+                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-emerald-400/35"
               >
-                <span>Billing</span>
+                <span>Zahlungen</span>
                 <span className="text-zinc-500">→</span>
               </Link>
             </li>
             <li>
               <Link
                 href="/client/shop"
-                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-violet-400/35"
+                className="flex min-h-[44px] items-center justify-between rounded-xl border border-white/8 px-3 py-2.5 text-zinc-200 hover:border-emerald-400/35"
               >
-                <span>Marketplace</span>
+                <span>Business erweitern</span>
                 <span className="text-zinc-500">→</span>
               </Link>
             </li>
@@ -581,15 +574,15 @@ export default function ClientDashboardPage() {
               <li>
                 <Link
                   href="/client/inbox"
-                  className="flex min-h-[44px] items-center justify-between rounded-xl border border-violet-400/25 bg-violet-500/10 px-3 py-2.5 text-violet-50 hover:bg-violet-500/15"
+                  className="flex min-h-[44px] items-center justify-between rounded-xl border border-emerald-400/25 bg-emerald-500/10 px-3 py-2.5 text-emerald-50 hover:bg-emerald-500/15"
                 >
                   <span>
-                    Inbox
+                    Posteingang
                     {openConversations > 0
                       ? ` · ${openConversations} offen`
                       : ""}
                   </span>
-                  <span className="text-violet-300">→</span>
+                  <span className="text-emerald-300">→</span>
                 </Link>
               </li>
             ) : null}
