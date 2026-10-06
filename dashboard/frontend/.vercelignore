@@ -53,3 +53,15 @@ public/package-previews/client-forms/
 public/package-previews/creative-demos/
 public/package-previews/legacy/
 public/package-previews/vitrine/
+
+game_lab/
+../game_lab/
+node_modules/
+../node_modules/
+
+# Emergency size gate (client login restore) — keep storefront HTML, drop demo media bulk
+public/package-previews/
+public/game-demos/
+public/reality-gallery/
+.next/
+.next.launcher_backup/

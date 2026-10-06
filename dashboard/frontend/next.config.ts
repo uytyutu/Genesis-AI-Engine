@@ -73,12 +73,22 @@ const legalEmbedHeaders = [
 ];
 
 // Docker/VPS: INTERNAL_API_URL=http://genesis:8000 for server rewrites.
-// Browser: NEXT_PUBLIC_API_URL empty → same-origin /api via nginx.
-const apiBase = (
+// Browser: empty NEXT_PUBLIC_API_URL → same-origin /api (runtime route proxies).
+// On Vercel never fall back to localhost (always 502). Prefer runtime INTERNAL_API_URL.
+const _rawApi = (
   process.env.INTERNAL_API_URL?.trim() ||
+  process.env.GENESIS_PUBLIC_API_URL?.trim() ||
   process.env.NEXT_PUBLIC_API_URL?.trim() ||
-  "http://localhost:8000"
+  ""
 ).replace(/\/$/, "");
+const onVercel = process.env.VERCEL === "1" || Boolean(process.env.VERCEL_ENV);
+const apiBase =
+  _rawApi &&
+  !(onVercel && /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/i.test(_rawApi))
+    ? _rawApi
+    : onVercel
+      ? ""
+      : "http://localhost:8000";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -123,6 +133,36 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/package-previews/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+        ],
+      },
+      {
+        source: "/game-demos/:path*\\.html",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.crazygames.com",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: blob: https:",
+              "font-src 'self' data:",
+              "connect-src 'self' http://127.0.0.1:* http://localhost:* https:",
+              "media-src 'self' blob:",
+              "frame-src 'self'",
+              "frame-ancestors 'self'",
+              "base-uri 'self'",
+              "form-action 'self'",
+            ].join("; "),
+          },
+          { key: "Cache-Control", value: "public, max-age=60, must-revalidate" },
+        ],
+      },
+      {
+        source: "/game-demos/:path*",
         headers: [
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
@@ -175,50 +215,55 @@ const nextConfig: NextConfig = {
         destination: "/package-previews/stores/:niche/index.html",
       },
       {
-        source: "/api/public/:path*",
-        destination: `${apiBase}/api/public/:path*`,
+        source: "/game-demos/:slug/",
+        destination: "/game-demos/:slug/index.html",
       },
       {
-        source: "/api/sales/:path*",
-        destination: `${apiBase}/api/sales/:path*`,
+        source: "/game-demos/:slug",
+        destination: "/game-demos/:slug/index.html",
       },
-      {
-        source: "/api/factory/:path*",
-        destination: `${apiBase}/api/factory/:path*`,
-      },
-      {
-        source: "/api/acquisition/:path*",
-        destination: `${apiBase}/api/acquisition/:path*`,
-      },
-      {
-        source: "/api/support/:path*",
-        destination: `${apiBase}/api/support/:path*`,
-      },
-      {
-        source: "/api/leads/:path*",
-        destination: `${apiBase}/api/leads/:path*`,
-      },
-      {
-        source: "/research-3d/:path*",
-        destination: `${apiBase}/research-3d/:path*`,
-      },
-      {
-        source: "/api/webhooks/stripe",
-        destination: `${apiBase}/api/webhooks/stripe`,
-      },
-      {
-        source: "/webhooks/stripe",
-        destination: `${apiBase}/webhooks/stripe`,
-      },
-      {
-        source: "/portal/:path*",
-        destination: `${apiBase}/portal/:path*`,
-      },
-      // Mission Control boards (Возможности / Adapter / Work Farm) — same-origin
-      {
-        source: "/api/:path*",
-        destination: `${apiBase}/api/:path*`,
-      },
+      // Client/sales/public are handled by runtime route handlers (app/api/*/...).
+      // Only rewrite remaining backend paths when apiBase is known.
+      ...(apiBase
+        ? [
+            {
+              source: "/api/factory/:path*",
+              destination: `${apiBase}/api/factory/:path*`,
+            },
+            {
+              source: "/api/acquisition/:path*",
+              destination: `${apiBase}/api/acquisition/:path*`,
+            },
+            {
+              source: "/api/support/:path*",
+              destination: `${apiBase}/api/support/:path*`,
+            },
+            {
+              source: "/api/leads/:path*",
+              destination: `${apiBase}/api/leads/:path*`,
+            },
+            {
+              source: "/research-3d/:path*",
+              destination: `${apiBase}/research-3d/:path*`,
+            },
+            {
+              source: "/api/webhooks/stripe",
+              destination: `${apiBase}/api/webhooks/stripe`,
+            },
+            {
+              source: "/webhooks/stripe",
+              destination: `${apiBase}/webhooks/stripe`,
+            },
+            {
+              source: "/portal/:path*",
+              destination: `${apiBase}/portal/:path*`,
+            },
+            {
+              source: "/api/:path*",
+              destination: `${apiBase}/api/:path*`,
+            },
+          ]
+        : []),
     ];
   },
 };
