@@ -1,0 +1,41 @@
+{
+  "name": "anon",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3100 --webpack",
+    "build": "next build",
+    "start": "next start --port 3100 -H 0.0.0.0",
+    "lint": "next lint",
+    "test:smoke": "node scripts/smoke.mjs",
+    "test:locale": "node scripts/locale-audit.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "gen:i18n-extra": "node scripts/gen_extra_locales.mjs"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "better-sqlite3": "^13.0.3",
+    "libsql": "^0.5.29",
+    "next": "^16.4.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "stripe": "^23.0.0",
+    "uuid": "^14.0.2",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.0",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules
+.next
+data
+.git
+*.md
+.env.local
+.turbo
+coverage
+scripts/smoke*.mjs

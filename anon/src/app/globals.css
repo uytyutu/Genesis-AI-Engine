@@ -1,0 +1,224 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Soft purple ANON brand — plum canvas, not charcoal gray */
+  --send-bg: #1a1230;
+  --send-surface: #2a1f48;
+  --send-card: rgba(58, 42, 92, 0.78);
+  --send-primary: #c9b4f0;
+  --send-secondary: #d4a8d8;
+  --send-accent: #e8c0d8;
+  --send-text: #f6f0fa;
+  --send-muted: #c4b4d8;
+  --send-success: #9ecfb0;
+  --send-danger: #e8a0b0;
+  --send-glow: 0 0 48px rgba(184, 140, 230, 0.35);
+  --background: var(--send-bg);
+  --foreground: var(--send-text);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  color: var(--send-text);
+  background-color: #1a1230;
+  background-image:
+    radial-gradient(1000px 620px at 15% -5%, rgba(168, 120, 230, 0.55), transparent 58%),
+    radial-gradient(900px 520px at 95% 8%, rgba(210, 140, 200, 0.35), transparent 55%),
+    radial-gradient(800px 480px at 50% 110%, rgba(120, 80, 180, 0.45), transparent 60%),
+    linear-gradient(165deg, #2a1848 0%, #1a1230 42%, #24103a 100%);
+  background-attachment: fixed;
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  .anon-shell {
+    @apply mx-auto min-h-screen w-full max-w-lg px-4 pb-24 pt-4 sm:max-w-3xl sm:px-6;
+  }
+
+  .anon-shell-wide {
+    @apply max-w-lg sm:max-w-5xl;
+  }
+
+  .perspective-\[800px\] {
+    perspective: 800px;
+  }
+
+  .anon-card {
+    background: var(--send-card);
+    border: 1px solid rgba(232, 220, 248, 0.1);
+    backdrop-filter: blur(16px);
+    border-radius: 1.35rem;
+    box-shadow: var(--send-glow);
+  }
+
+  .anon-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition;
+  }
+
+  .anon-btn-primary {
+    background: linear-gradient(135deg, #b8a0e0, #c9a8d8 55%, #d4a8c8);
+    color: #1a1228;
+    box-shadow: 0 10px 28px rgba(184, 160, 224, 0.28);
+  }
+
+  .anon-btn-primary:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+  }
+
+  .anon-btn-ghost {
+    background: rgba(232, 220, 248, 0.05);
+    border: 1px solid rgba(232, 220, 248, 0.12);
+    color: var(--send-text);
+  }
+
+  .anon-input {
+    @apply w-full rounded-2xl border border-white/10 px-4 py-3 text-sm outline-none;
+    background: rgba(40, 28, 72, 0.55);
+    color: var(--send-text);
+  }
+
+  .anon-input:focus {
+    border-color: rgba(184, 160, 224, 0.55);
+    box-shadow: 0 0 0 3px rgba(184, 160, 224, 0.14);
+  }
+
+  .anon-muted {
+    color: var(--send-muted);
+  }
+}
+
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.anim-in {
+  animation: float-in 0.55s ease both;
+}
+
+.anim-pulse {
+  animation: pulse-soft 2.4s ease-in-out infinite;
+}
+
+/* —— Boot splash · Veil —— */
+.anon-boot {
+  background:
+    radial-gradient(800px 500px at 50% 35%, rgba(184, 140, 230, 0.5), transparent 60%),
+    radial-gradient(600px 400px at 50% 80%, rgba(224, 160, 200, 0.22), transparent 55%),
+    #1a1230;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.anon-boot-out {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+.anon-boot-orbit {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 9999px;
+  border: 1px solid rgba(184, 160, 224, 0.28);
+  animation: anon-orbit 2.8s linear infinite;
+  pointer-events: none;
+}
+
+.anon-boot-orbit::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 9999px;
+  background: #e0b8d4;
+  box-shadow: 0 0 14px rgba(224, 184, 212, 0.7);
+}
+
+.anon-boot-wordmark {
+  animation: float-in 0.7s 0.15s ease both;
+  letter-spacing: 0.35em;
+}
+
+.anon-boot-tag {
+  animation: float-in 0.7s 0.35s ease both;
+}
+
+.anon-boot-char {
+  animation: float-in 0.7s 0.5s ease both;
+}
+
+.anon-veil-pulse {
+  animation: anon-veil-breathe 2.2s ease-in-out infinite;
+}
+
+.anon-veil-eye {
+  animation: anon-blink 3.6s ease-in-out infinite;
+}
+
+@keyframes anon-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes anon-veil-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 12px rgba(184, 160, 224, 0.35));
+  }
+  50% {
+    transform: translateY(-6px) scale(1.03);
+    filter: drop-shadow(0 0 26px rgba(224, 184, 212, 0.4));
+  }
+}
+
+@keyframes anon-blink {
+  0%,
+  92%,
+  100% {
+    opacity: 1;
+  }
+  94%,
+  96% {
+    opacity: 0.15;
+  }
+}

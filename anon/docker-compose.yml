@@ -1,0 +1,25 @@
+# ANON on OVH — separate from Virtus Core stack.
+# Usage on server:
+#   cd /srv/anon && docker compose up -d --build
+# Smoke: curl -fsS http://127.0.0.1:3100/api/health
+
+services:
+  anon:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anon-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "3100"
+      HOSTNAME: "0.0.0.0"
+    volumes:
+      - anon_data:/app/data
+    ports:
+      - "3100:3100"
+
+volumes:
+  anon_data:
