@@ -106,6 +106,8 @@ export async function createStudio(payload: {
       free_creations_left: number;
     };
     job_id: string;
+    render_job_id?: string;
+    download_path?: string;
     action: string;
     result: Record<string, unknown>;
   }>("/api/viewora/create", {
@@ -117,6 +119,15 @@ export async function createStudio(payload: {
   });
   if (body.account?.id) setAccountId(body.account.id);
   return body;
+}
+
+export async function fetchCapabilities() {
+  return jsonFetch<{
+    ok: boolean;
+    ffmpeg: boolean;
+    mp4_render: boolean;
+    provider: { id?: string; label?: string; ok: boolean };
+  }>("/api/viewora/capabilities");
 }
 
 export async function startCheckout(payload: {

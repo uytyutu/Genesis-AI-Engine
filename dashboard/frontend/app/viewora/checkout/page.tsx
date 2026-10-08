@@ -29,7 +29,7 @@ function CheckoutInner() {
       const out =
         mode === "sandbox" ? await paySandbox(orderId) : await payDemo(orderId);
       if (out.account?.id) setAccountId(out.account.id);
-      router.push(`/Virtus Video AI/success?paid=1&order_id=${orderId}&mode=${out.payment_mode}`);
+      router.push(`/viewora/success?paid=1&order_id=${orderId}&mode=${out.payment_mode}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Payment failed");
     } finally {
@@ -39,10 +39,10 @@ function CheckoutInner() {
 
   if (!orderId) {
     return (
-      <section className="Virtus Video AI-section" style={{ borderTop: 0 }}>
+      <section className="viewora-section" style={{ borderTop: 0 }}>
         <h2>Checkout</h2>
         <p className="lead">Нет order_id. Выберите план на странице Pricing.</p>
-        <Link href="/Virtus Video AI/pricing" className="Virtus Video AI-btn Virtus Video AI-btn-primary">
+        <Link href="/viewora/pricing" className="viewora-btn viewora-btn-primary">
           Pricing
         </Link>
       </section>
@@ -50,55 +50,55 @@ function CheckoutInner() {
   }
 
   return (
-    <section className="Virtus Video AI-section" style={{ borderTop: 0, maxWidth: 520 }}>
+    <section className="viewora-section" style={{ borderTop: 0, maxWidth: 520 }}>
       <h2>Оплата Virtus Video AI</h2>
       <p className="lead">
         Professional AI Content Studio · безопасная оплата через Stripe (live) или Demo
         Bridge для проверки пути.
       </p>
       {order ? (
-        <div className="Virtus Video AI-price">
-          <div className="Virtus Video AI-muted">{String(order.label || "Virtus Video AI")}</div>
+        <div className="viewora-price">
+          <div className="viewora-muted">{String(order.label || "Virtus Video AI")}</div>
           <div className="amount">€{Number(order.amount_eur || 0)}</div>
-          <div className="Virtus Video AI-muted">
+          <div className="viewora-muted">
             {order.paid ? "Уже оплачено" : `Режим: ${mode}`}
           </div>
           {mode === "demo" ? (
-            <div className="Virtus Video AI-toast">
+            <div className="viewora-toast">
               Demo Payment Bridge · payment_mode=demo · не реальный доход
             </div>
           ) : null}
           {!order.paid ? (
             <button
               type="button"
-              className="Virtus Video AI-btn Virtus Video AI-btn-primary"
+              className="viewora-btn viewora-btn-primary"
               disabled={busy}
               onClick={pay}
             >
               {busy ? "…" : mode === "demo" ? "Оплатить (Demo)" : "Оплатить (Sandbox)"}
             </button>
           ) : (
-            <Link href="/Virtus Video AI/create" className="Virtus Video AI-btn Virtus Video AI-btn-primary">
+            <Link href="/viewora/create" className="viewora-btn viewora-btn-primary">
               В Studio
             </Link>
           )}
         </div>
       ) : (
-        <p className="Virtus Video AI-muted">Загрузка заказа…</p>
+        <p className="viewora-muted">Загрузка заказа…</p>
       )}
-      {error ? <div className="Virtus Video AI-toast">{error}</div> : null}
+      {error ? <div className="viewora-toast">{error}</div> : null}
       <p style={{ marginTop: "1.5rem" }}>
-        <Link href="/Virtus Video AI/legal/agb">AGB</Link> ·{" "}
-        <Link href="/Virtus Video AI/legal/datenschutz">Datenschutz</Link> ·{" "}
-        <Link href="/Virtus Video AI/legal/ki-hinweis">KI-Hinweis</Link>
+        <Link href="/viewora/legal/agb">AGB</Link> ·{" "}
+        <Link href="/viewora/legal/datenschutz">Datenschutz</Link> ·{" "}
+        <Link href="/viewora/legal/ki-hinweis">KI-Hinweis</Link>
       </p>
     </section>
   );
 }
 
-export default function Virtus Video AICheckoutPage() {
+export default function VieworaCheckoutPage() {
   return (
-    <Suspense fallback={<div className="Virtus Video AI-panel">Checkout…</div>}>
+    <Suspense fallback={<div className="viewora-panel">Checkout…</div>}>
       <CheckoutInner />
     </Suspense>
   );

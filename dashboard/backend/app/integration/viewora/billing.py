@@ -78,6 +78,24 @@ class VieworaBilling:
             )
         else:
             account["credits"] = max(0, int(account.get("credits") or 0) - cost)
+        account["_last_spend"] = {"action": action, "cost": cost, "plan_id": plan_id}
+        return self._store.save_account(account)
+
+    def refund_last_spend(self, account: dict[str, Any]) -> dict[str, Any]:
+        """Automatic credit refund when generation fails."""
+        last = dict(account.get("_last_spend") or {})
+        if not last:
+            return account
+        plan_id = str(account.get("plan_id") or last.get("plan_id") or "free")
+        cost = int(last.get("cost") or 0)
+        if plan_id == "free":
+            account["free_creations_left"] = int(account.get("free_creations_left") or 0) + 1
+        elif cost > 0:
+            account["credits"] = int(account.get("credits") or 0) + cost
+        account["_last_spend"] = None
+        account["last_refund_at"] = __import__("datetime").datetime.now(
+            __import__("datetime").timezone.utc
+        ).isoformat()
         return self._store.save_account(account)
 
     def create_order(

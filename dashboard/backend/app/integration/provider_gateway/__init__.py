@@ -56,6 +56,13 @@ PROVIDER_CATALOG: tuple[ProviderSpec, ...] = (
     ProviderSpec("google_veo", Modality.VIDEO, "Google Veo", ("GOOGLE_API_KEY", "VEO_API_KEY")),
     ProviderSpec("runway", Modality.VIDEO, "Runway", ("RUNWAY_API_KEY",)),
     ProviderSpec("kling", Modality.VIDEO, "Kling", ("KLING_API_KEY",)),
+    ProviderSpec(
+        "local_ffmpeg",
+        Modality.VIDEO,
+        "Virtus Local Studio (FFmpeg)",
+        (),
+        notes="Always available when FFmpeg/imageio-ffmpeg is installed. Produces real MP4.",
+    ),
 )
 
 
@@ -63,7 +70,7 @@ PROVIDER_CATALOG: tuple[ProviderSpec, ...] = (
 FALLBACK_CHAINS: dict[Modality, tuple[str, ...]] = {
     Modality.TEXT: ("groq", "openai_chat", "anthropic", "xai_grok"),
     Modality.IMAGE: ("openai_images", "fal_flux"),
-    Modality.VIDEO: ("google_veo", "runway", "kling"),
+    Modality.VIDEO: ("google_veo", "runway", "kling", "local_ffmpeg"),
     Modality.VOICE: (),
     Modality.THREE_D: (),
 }
@@ -176,6 +183,13 @@ class ProviderGateway:
         return None
 
     def resolve_key(self, provider_id: str) -> str | None:
+        if provider_id == "local_ffmpeg":
+            try:
+                from app.integration.viewora.ffmpeg_bin import ffmpeg_available
+
+                return "local" if ffmpeg_available() else None
+            except Exception:
+                return None
         vault_key = self.vault.get_key(provider_id)
         if vault_key:
             return vault_key
@@ -190,6 +204,13 @@ class ProviderGateway:
         for spec in PROVIDER_CATALOG:
             key = self.resolve_key(spec.id)
             connected = bool(key)
+            detail = "Connected" if connected else "Not connected"
+            if spec.id == "local_ffmpeg":
+                detail = (
+                    "FFmpeg ready — real MP4"
+                    if connected
+                    else "FFmpeg missing (install imageio-ffmpeg)"
+                )
             rows.append(
                 asdict(
                     ProviderStatus(
@@ -197,7 +218,7 @@ class ProviderGateway:
                         modality=spec.modality.value,
                         connected=connected,
                         label=spec.label,
-                        detail="Connected" if connected else "Not connected",
+                        detail=detail,
                     )
                 )
             )

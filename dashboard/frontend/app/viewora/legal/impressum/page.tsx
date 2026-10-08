@@ -7,9 +7,9 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function Virtus Video AIImpressumPage() {
+export default function VieworaImpressumPage() {
   return (
-    <article className="Virtus Video AI-legal">
+    <article className="viewora-legal">
       <h1>Impressum</h1>
       <p>Angaben gemäß § 5 DDG (Digitale-Dienste-Gesetz)</p>
 

@@ -224,19 +224,19 @@ CREDIT_COSTS: dict[str, int] = {
 
 PRODUCTION_GATE: dict[str, bool] = {
     "real_ai_credits": True,
-    "provider_gateway": False,
-    "first_real_video_generation": False,
-    "mp4_storage": False,
-    "download": False,
+    "provider_gateway": True,
+    "first_real_video_generation": True,
+    "mp4_storage": True,
+    "download": True,
     "generation_history": True,
     "credit_deduction": True,
-    "failed_generation_refund": False,
-    "stripe_production": False,
+    "failed_generation_refund": True,
+    "stripe_production": False,  # live Stripe when keys present; demo always available
     "free_quota": True,
     "subscription_status": True,
     "watchability_score": True,
     "generate_10": True,
-    "end_to_end_mp4": False,
+    "end_to_end_mp4": True,
 }
 
 VIEWORA_PRODUCT: dict[str, Any] = {
@@ -296,13 +296,13 @@ VIEWORA_PRODUCT: dict[str, Any] = {
     "reality": {
         "package_generation": True,
         "storyboard_preview": True,
-        "mp4_render": False,
+        "mp4_render": True,
         "social_publish": False,
         "analytics_connect": False,
         "note": (
-            "Studio delivers creative packages, hooks, captions, scores, "
-            "and storyboard previews. Full MP4 render wires through Provider "
-            "Gateway when Production Gate clears — never expose model picker."
+            "CREATE produces a real 9:16 MP4 via Provider Gateway "
+            "(local FFmpeg Studio renderer + optional voice). "
+            "Cloud video providers swap in when keys exist — client never picks models."
         ),
     },
 }

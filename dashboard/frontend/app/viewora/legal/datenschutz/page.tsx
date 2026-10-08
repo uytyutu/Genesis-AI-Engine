@@ -7,9 +7,9 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function Virtus Video AIPrivacyPage() {
+export default function VieworaPrivacyPage() {
   return (
-    <article className="Virtus Video AI-legal">
+    <article className="viewora-legal">
       <h1>Datenschutzerklärung</h1>
       <p>für den Dienst Virtus Video AI (AI Content Studio) · Virtus Core</p>
 
@@ -39,7 +39,7 @@ export default function Virtus Video AIPrivacyPage() {
         Virtus Video AI nutzt KI-Orchestrierung, um Content-Pakete zu erstellen. Eingaben können an
         ausgewählte Rechenanbieter weitergegeben werden, soweit dies zur Leistung nötig ist.
         Modellnamen werden Kunden nicht als Auswahl angeboten. Details:{" "}
-        <a href="/Virtus Video AI/legal/ki-hinweis">KI-Hinweis</a>.
+        <a href="/viewora/legal/ki-hinweis">KI-Hinweis</a>.
       </p>
 
       <h2>5. Speicherdauer</h2>

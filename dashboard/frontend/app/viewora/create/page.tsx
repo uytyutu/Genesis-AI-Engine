@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import {
   createStudio,
   fetchAccount,
+  fetchCapabilities,
   fetchCatalog,
   type VieworaCatalog,
 } from "../lib/api";
@@ -57,11 +58,16 @@ function CreateStudioInner() {
   const [rationale, setRationale] = useState("");
   const [dubTracks, setDubTracks] = useState<Array<Record<string, unknown>> | null>(null);
   const [creatorBatch, setCreatorBatch] = useState<Record<string, unknown> | null>(null);
+  const [downloadPath, setDownloadPath] = useState<string | null>(null);
+  const [mp4Ready, setMp4Ready] = useState(false);
 
   useEffect(() => {
     const b = params.get("brief");
     if (b) setBrief(b);
     fetchCatalog().then(setCatalog).catch(() => undefined);
+    fetchCapabilities()
+      .then((c) => setMp4Ready(Boolean(c.mp4_render)))
+      .catch(() => setMp4Ready(false));
     fetchAccount()
       .then((a) => {
         const free = a.account.free_creations_left;
@@ -100,6 +106,13 @@ function CreateStudioInner() {
           : `${acc.plan_id.toUpperCase()} · ${acc.credits} credits`
       );
       const r = out.result || {};
+      const dl =
+        out.download_path ||
+        (r.render as { download_path?: string } | undefined)?.download_path ||
+        (r.package as { render?: { download_path?: string } } | undefined)?.render
+          ?.download_path ||
+        null;
+      setDownloadPath(dl);
       if (r.suggestion && typeof r.suggestion === "object") {
         const s = r.suggestion as { mode?: string; visual_dna?: Record<string, string>; rationale?: string };
         if (s.mode) setMode(s.mode);
@@ -357,18 +370,62 @@ function CreateStudioInner() {
       </div>
 
       <div className="viewora-panel">
-        <h2>Preview</h2>
-        <div className="viewora-phone" style={{ marginBottom: "1.25rem" }}>
-          <div className="viewora-phone-screen">
-            <div className="viewora-phone-caption">
-              {pkg?.hooks?.[0] || "Ваш hook появится здесь"}
-            </div>
-            <div className="viewora-phone-meta">
-              {(pkg?.mode || mode || "mode").toUpperCase()}
-              {scoreBlock ? ` · WATCHABILITY ${scoreBlock.overall}` : ""}
+        <h2>Preview {mp4Ready ? "· MP4 ready" : "· package"}</h2>
+        {downloadPath ? (
+          <div style={{ marginBottom: "1.25rem" }}>
+            <video
+              key={downloadPath}
+              controls
+              playsInline
+              style={{
+                width: "100%",
+                maxWidth: 320,
+                margin: "0 auto 0.85rem",
+                display: "block",
+                borderRadius: 18,
+                background: "#000",
+                aspectRatio: "9 / 16",
+              }}
+              src={downloadPath}
+            />
+            <div className="viewora-actions">
+              <a
+                className="viewora-btn viewora-btn-primary"
+                href={downloadPath}
+                download
+              >
+                ↓ DOWNLOAD MP4
+              </a>
+              <button
+                type="button"
+                className="viewora-btn viewora-btn-ghost"
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({ title: "Virtus Video AI", url: downloadPath }).catch(() => undefined);
+                  } else if (typeof window !== "undefined") {
+                    void navigator.clipboard?.writeText(
+                      `${window.location.origin}${downloadPath}`
+                    );
+                  }
+                }}
+              >
+                SHARE
+              </button>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="viewora-phone" style={{ marginBottom: "1.25rem" }}>
+            <div className="viewora-phone-screen">
+              <div className="viewora-phone-caption">
+                {pkg?.hooks?.[0] || "Ваш hook появится здесь"}
+              </div>
+              <div className="viewora-phone-meta">
+                {(pkg?.mode || mode || "mode").toUpperCase()}
+                {scoreBlock ? ` · WATCHABILITY ${scoreBlock.overall}` : ""}
+              </div>
+            </div>
+          </div>
+        )}
 
         {pkg?.title ? (
           <p>

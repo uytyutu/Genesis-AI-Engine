@@ -7,9 +7,9 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function Virtus Video AIAiNoticePage() {
+export default function VieworaAiNoticePage() {
   return (
-    <article className="Virtus Video AI-legal">
+    <article className="viewora-legal">
       <h1>KI-Hinweis</h1>
       <p>
         Virtus Video AI ist ein <strong>hochprofessioneller AI Content / Video Generator</strong> —

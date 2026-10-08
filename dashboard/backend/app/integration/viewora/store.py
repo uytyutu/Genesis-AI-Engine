@@ -13,9 +13,9 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-class Virtus Video AIStore:
+class VieworaStore:
     def __init__(self, memory_dir: Path) -> None:
-        self._root = memory_dir / "Virtus Video AI"
+        self._root = memory_dir / "viewora"
         self._root.mkdir(parents=True, exist_ok=True)
         self._accounts = self._root / "accounts.json"
         self._jobs = self._root / "jobs.jsonl"
@@ -121,7 +121,6 @@ class Virtus Video AIStore:
         return None
 
     def mark_order_paid(self, order_id: str, *, payment_mode: str) -> dict[str, Any] | None:
-        """Rewrite last matching order as paid (append-only update row)."""
         order = self.get_order(order_id)
         if not order:
             return None

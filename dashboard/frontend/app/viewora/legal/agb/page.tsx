@@ -7,9 +7,9 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function Virtus Video AITermsPage() {
+export default function VieworaTermsPage() {
   return (
-    <article className="Virtus Video AI-legal">
+    <article className="viewora-legal">
       <h1>AGB — Virtus Video AI</h1>
       <p>Allgemeine Geschäftsbedingungen für das AI Content Studio Virtus Video AI</p>
 

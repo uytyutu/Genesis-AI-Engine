@@ -61,7 +61,7 @@ export default function VieworaHomePage() {
           <p className="viewora-hero-lead">
             Describe it. Upload it. Remix it.
             <br />
-            We&apos;ll turn it into content.
+            We&apos;ll turn it into a real MP4 you can download.
           </p>
           <div className="viewora-prompt-row">
             <input
