@@ -1,0 +1,527 @@
+/* VIEWORA — vertical attention lab / color-suite aesthetic
+   Avoid: purple gradients, cream+terracotta, broadsheet hairlines, neon glow clichés
+   Fonts: loaded via next/font in layout (CSP-safe). */
+
+.viewora {
+  --vo-bg: #0b0c10;
+  --vo-bg-elev: #14161d;
+  --vo-bg-soft: #1c1f2a;
+  --vo-line: rgba(255, 255, 255, 0.08);
+  --vo-text: #f4f1ea;
+  --vo-muted: #9aa3b5;
+  --vo-accent: #ff4d6a;
+  --vo-accent-2: #f0c27a;
+  --vo-ok: #3dd68c;
+  --vo-font-display: var(--font-viewora-display), Georgia, serif;
+  --vo-font-body: var(--font-viewora-body), system-ui, sans-serif;
+  --vo-radius: 18px;
+  --vo-max: 1120px;
+
+  min-height: 100dvh;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255, 77, 106, 0.16), transparent 55%),
+    radial-gradient(900px 500px at 10% 20%, rgba(240, 194, 122, 0.08), transparent 50%),
+    linear-gradient(180deg, #0b0c10 0%, #10131a 40%, #0b0c10 100%);
+  color: var(--vo-text);
+  font-family: var(--vo-font-body);
+  color-scheme: dark;
+}
+
+.viewora *,
+.viewora *::before,
+.viewora *::after {
+  box-sizing: border-box;
+}
+
+.viewora a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.viewora-shell {
+  width: min(var(--vo-max), calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.viewora-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgba(11, 12, 16, 0.92), rgba(11, 12, 16, 0.65));
+  border-bottom: 1px solid transparent;
+}
+
+.viewora-brand {
+  font-family: var(--vo-font-display);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  font-size: 1.15rem;
+}
+
+.viewora-brand span {
+  color: var(--vo-accent);
+}
+
+.viewora-nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.1rem;
+  align-items: center;
+  font-size: 0.92rem;
+  color: var(--vo-muted);
+}
+
+.viewora-nav-links a:hover {
+  color: var(--vo-text);
+}
+
+.viewora-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 0.85rem 1.35rem;
+  font-family: var(--vo-font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: transform 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+}
+
+.viewora-btn:hover {
+  transform: translateY(-1px);
+}
+
+.viewora-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.viewora-btn-primary {
+  background: var(--vo-accent);
+  color: #14060a;
+}
+
+.viewora-btn-ghost {
+  background: transparent;
+  color: var(--vo-text);
+  border: 1px solid var(--vo-line);
+}
+
+.viewora-btn-gold {
+  background: linear-gradient(135deg, var(--vo-accent-2), #e8a54b);
+  color: #1a1208;
+}
+
+.viewora-hero {
+  padding: 3.5rem 0 4rem;
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .viewora-hero {
+    grid-template-columns: 1.15fr 0.85fr;
+    min-height: min(78vh, 720px);
+    padding-top: 2.5rem;
+  }
+}
+
+.viewora-kicker {
+  color: var(--vo-accent-2);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.viewora-hero h1 {
+  font-family: var(--vo-font-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 6vw, 4.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  margin: 0 0 1.1rem;
+  max-width: 14ch;
+}
+
+.viewora-hero-lead {
+  color: var(--vo-muted);
+  font-size: 1.12rem;
+  line-height: 1.45;
+  max-width: 36ch;
+  margin: 0 0 1.75rem;
+}
+
+.viewora-prompt-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(100%, 540px);
+}
+
+@media (min-width: 640px) {
+  .viewora-prompt-row {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.viewora-prompt-row input,
+.viewora-field,
+.viewora-select,
+.viewora-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--vo-line);
+  color: var(--vo-text);
+  border-radius: 999px;
+  padding: 0.95rem 1.2rem;
+  font: inherit;
+  outline: none;
+}
+
+.viewora-textarea {
+  border-radius: var(--vo-radius);
+  min-height: 110px;
+  resize: vertical;
+}
+
+.viewora-prompt-row input:focus,
+.viewora-field:focus,
+.viewora-select:focus,
+.viewora-textarea:focus {
+  border-color: rgba(255, 77, 106, 0.55);
+  box-shadow: 0 0 0 3px rgba(255, 77, 106, 0.12);
+}
+
+.viewora-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.viewora-chip {
+  border: 1px solid var(--vo-line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--vo-muted);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.viewora-chip:hover,
+.viewora-chip.is-active {
+  color: var(--vo-text);
+  border-color: rgba(255, 77, 106, 0.45);
+  background: rgba(255, 77, 106, 0.1);
+}
+
+.viewora-phone {
+  width: min(280px, 70vw);
+  margin: 0 auto;
+  aspect-ratio: 9 / 19;
+  border-radius: 36px;
+  padding: 12px;
+  background: linear-gradient(160deg, #2a2e3a, #12141a 55%, #0d0f14);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.viewora-phone-screen {
+  height: 100%;
+  border-radius: 28px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 77, 106, 0.35), transparent 40%),
+    linear-gradient(135deg, #1a2230, #0f1218 60%, #241820);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.25rem;
+}
+
+.viewora-phone-caption {
+  font-family: var(--vo-font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  line-height: 1.1;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+  animation: vo-caption-pulse 3.2s ease-in-out infinite;
+}
+
+.viewora-phone-meta {
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+@keyframes vo-caption-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+.viewora-section {
+  padding: 3.5rem 0;
+  border-top: 1px solid var(--vo-line);
+}
+
+.viewora-section h2 {
+  font-family: var(--vo-font-display);
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  letter-spacing: -0.02em;
+  margin: 0 0 0.65rem;
+}
+
+.viewora-section p.lead {
+  color: var(--vo-muted);
+  max-width: 52ch;
+  margin: 0 0 1.75rem;
+}
+
+.viewora-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.viewora-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--vo-line);
+  border-radius: var(--vo-radius);
+  padding: 1rem 1.05rem;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.viewora-card:hover {
+  border-color: rgba(255, 77, 106, 0.35);
+  background: rgba(255, 77, 106, 0.06);
+}
+
+.viewora-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-family: var(--vo-font-display);
+}
+
+.viewora-card p {
+  margin: 0;
+  color: var(--vo-muted);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.viewora-price-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.viewora-price {
+  background: var(--vo-bg-elev);
+  border: 1px solid var(--vo-line);
+  border-radius: 22px;
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.viewora-price.is-popular {
+  border-color: rgba(255, 77, 106, 0.55);
+  box-shadow: 0 0 0 1px rgba(255, 77, 106, 0.2);
+}
+
+.viewora-price .badge {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  background: var(--vo-accent);
+  color: #14060a;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+}
+
+.viewora-price .amount {
+  font-family: var(--vo-font-display);
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.viewora-price ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+  color: var(--vo-muted);
+  font-size: 0.86rem;
+  flex: 1;
+}
+
+.viewora-price ul li::before {
+  content: "✓ ";
+  color: var(--vo-ok);
+}
+
+.viewora-footer {
+  border-top: 1px solid var(--vo-line);
+  padding: 2rem 0 3rem;
+  color: var(--vo-muted);
+  font-size: 0.85rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.viewora-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.25rem;
+}
+
+.viewora-studio {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.5rem 0 3rem;
+}
+
+@media (min-width: 960px) {
+  .viewora-studio {
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: start;
+  }
+}
+
+.viewora-panel {
+  background: rgba(20, 22, 29, 0.88);
+  border: 1px solid var(--vo-line);
+  border-radius: 22px;
+  padding: 1.25rem;
+}
+
+.viewora-panel h2 {
+  font-family: var(--vo-font-display);
+  font-size: 1.35rem;
+  margin: 0 0 1rem;
+}
+
+.viewora-label {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vo-muted);
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+}
+
+.viewora-score-row {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.viewora-score-bar {
+  display: grid;
+  grid-template-columns: 90px 1fr 40px;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.viewora-score-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.viewora-score-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--vo-accent), var(--vo-accent-2));
+}
+
+.viewora-legal {
+  padding: 2rem 0 4rem;
+  max-width: 720px;
+}
+
+.viewora-legal h1 {
+  font-family: var(--vo-font-display);
+  font-size: 2.2rem;
+  margin: 0 0 0.5rem;
+}
+
+.viewora-legal h2 {
+  font-family: var(--vo-font-display);
+  font-size: 1.2rem;
+  margin: 1.75rem 0 0.5rem;
+}
+
+.viewora-legal p,
+.viewora-legal li {
+  color: var(--vo-muted);
+  line-height: 1.55;
+}
+
+.viewora-toast {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: rgba(255, 77, 106, 0.12);
+  border: 1px solid rgba(255, 77, 106, 0.35);
+  color: var(--vo-text);
+  font-size: 0.9rem;
+}
+
+.viewora-ok {
+  background: rgba(61, 214, 140, 0.12);
+  border-color: rgba(61, 214, 140, 0.35);
+}
+
+.viewora-beat {
+  border-left: 2px solid var(--vo-accent);
+  padding: 0.45rem 0 0.45rem 0.85rem;
+  margin-bottom: 0.55rem;
+}
+
+.viewora-beat strong {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--vo-accent-2);
+}
+
+.viewora-muted {
+  color: var(--vo-muted);
+}
+
+.viewora-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}

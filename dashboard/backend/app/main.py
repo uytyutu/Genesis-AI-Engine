@@ -334,6 +334,11 @@ from app.integration.virtus_office.router import router as virtus_office_router
 
 app.include_router(virtus_office_router)
 
+# Virtus Video AI — Content Studio (separate commercial product; not Path A)
+from app.integration.viewora.router import router as viewora_router
+
+app.include_router(viewora_router)
+
 
 # R3.8.2 — controlled Portal registration (no-op while feature_enabled=False)
 from app.portal.portal_registration import register_portal_read
